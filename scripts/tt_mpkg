@@ -1,0 +1,103 @@
+#!/bin/ash
+
+# TSS squashfs package utility
+# Quick and dirty tool to create squashfs files from packages
+# Also mounts, installs, uninstalls, and unmounts them
+
+VER="0.1"
+VERDATE="2011-11-30"
+
+PKGROOT=/packages
+INST=$PKGROOT/installed
+TEMP=$PKGROOT/temp
+PKGFILE="$2"
+NAME="$(basename "$PKGFILE" | sed 's/_.*//')"
+
+### Functions
+
+make_squashfs_pkg () {
+	mkdir -p $TEMP
+	tar -C $TEMP -xpf "$PKGFILE"
+	cd $TEMP
+	mksquashfs ./ "$PKGROOT/${NAME}.squashfs" -comp lzo -no-recovery 2>/dev/null >/dev/null
+	cd $PKGROOT
+	rm -rf $TEMP
+}
+
+install_squashfs_pkg () {
+	mkdir -p "$PKGROOT/$NAME"
+	mount -o loop "$PKGROOT/${NAME}.squashfs" "$PKGROOT/$NAME/"
+	cd "$PKGROOT/$NAME"
+	find -type d | while read X
+		do Y="$(echo "$X" | sed 's/\.\///g')"
+		mkdir -p "/$Y"
+	done
+	find -type f | while read X
+		do Y="$(echo "$X" | sed 's/\.\///g')"
+		ln -s "$PKGROOT/$NAME/$Y" "/$Y"
+	done
+	find . > "$INST/$NAME"
+}
+
+### End functions
+
+
+### Switches and help
+
+case "$1" in
+	-i)
+	if [ -e "$PKGFILE" ]
+		then
+		echo "Making: $PKGFILE => ${NAME}.squashfs"
+		make_squashfs_pkg
+	fi
+	
+	if [ -e "$PKGROOT/${NAME}.squashfs" ]
+		then
+		echo "Installing: $NAME"
+		if losetup | grep -q "${NAME}.squashfs"
+		  then echo "$NAME squashfs is mounted, not trying to install."
+		fi
+		install_squashfs_pkg
+		exit
+	fi
+	
+	echo "You specified an invalid file or package name."
+	exit
+	;;
+	
+	-u)
+	if [ ! -d "$PKGROOT/$NAME" ]
+		then
+		echo "$NAME doesn't appear to be installed."
+		exit
+	fi
+	echo "Removing: $NAME"
+	cd "$PKGROOT/$NAME"
+	find -type f | while read X
+		do Y="$(echo "$X" | sed 's/\.\///g')"
+		rm -f "/$Y" 2>/dev/null >/dev/null
+	done
+	find -type d | while read X
+		do Y="$(echo "$X" | sed 's/\.\///g')"
+		rmdir -p "/$Y" 2>/dev/null >/dev/null
+	done
+	sync
+	cd /
+	umount -d "$PKGROOT/$NAME/"
+	rmdir "$PKGROOT/$NAME"
+	;;
+	
+	*)
+	echo "TSS mpkg utility"
+	echo "$0 -i /path/to/pkgfile_1.2.3.pkg.tar.xz"
+	echo "   Converts pkgfile to a squashfs package if necessary, then"
+	echo "   mounts and installs the named squashfs package."
+	echo "$0 -u squashfs-pkg-name"
+	echo "   Uninstalls and unmounts the named squashfs package."
+	exit
+	;;
+esac
+
+### End switches
+

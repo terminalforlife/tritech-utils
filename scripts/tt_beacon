@@ -1,0 +1,46 @@
+#!/bin/sh
+
+VER=0.3
+VERDATE="2013-02-20"
+
+# Runs a UDP beacon which transmits the string from stdin to the port
+# specified as an argument.
+
+INTERVAL=1
+
+echo "Tritech UDP beacon $VER ($VERDATE)"
+
+if [ -z "$2" ]
+	then echo "Sends a text string via UDP to the broadcast IP address"
+	echo "at the optionally specified time interval (in seconds, default 2)."
+	echo -e "Usage: $0 (port) (beacon text string) [interval]\n"
+	exit 1
+fi
+
+PORT="$1"
+BEACON="$2"
+
+if [ ! -z "$3" ]; then INTERVAL="$3"; fi
+
+# Find broadcast addresses for all interfaces
+for IFACE in /sys/class/net/*
+	do IFACE=$(basename $IFACE)
+	ADDR="$ADDR $(/sbin/ifconfig $IFACE | grep Bcast | awk '{ print $3 }' | sed 's/Bcast://' | tr \\n " " | sort | uniq)"
+done
+
+ADDR="$(echo $ADDR | tr ' ' \\n | sort | uniq | tr \\n ' ')"
+
+echo "Sending: $BEACON"
+echo "Using broadcast addresses: $ADDR"
+echo "Interval: $INTERVAL"
+
+for BCAST in $ADDR
+	do
+	(
+		while true
+			do echo "$BEACON"
+			sleep $INTERVAL
+		done
+	) | socat -u - udp4-sendto:$BCAST:$PORT,broadcast,reuseaddr
+	echo socat -u - udp4-sendto:$BCAST:$PORT,broadcast,reuseaddr
+done

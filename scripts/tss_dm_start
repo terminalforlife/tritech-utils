@@ -1,0 +1,12 @@
+#!/bin/ash
+
+VER=0.1
+VERDATE="2010-10-12"
+
+echo "Running RAID/LVM startup..."
+dmsetup mknodes
+vgscan --mknodes
+sleep 2
+vgscan --ignorelockingfailure
+vgchange -ay --ignorelockingfailure
+dmraid -ay

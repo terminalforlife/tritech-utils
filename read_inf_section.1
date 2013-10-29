@@ -1,0 +1,33 @@
+.TH read_inf_section "1" "19 Aug 2013" "tritech-utils" "Tritech Service System"
+
+.SH NAME
+read_inf_section \- Read INF/INI file section to stdout
+
+.SH SYNOPSIS
+\fBread_inf_section\fP \fIinf_file\fP \fIinf_section_name\fP
+
+.SH DESCRIPTION
+.B read_inf_section
+extracts one section from a Windows-style INF, INI, or REG file.
+
+.SH OPTIONS
+.PP
+.I inf_file
+is the file to extract a section from.
+.PP
+.I inf_section_name
+is the name of the section to extract.
+
+.SH CAVEATS
+This tool performs a case-sensitive search. This behavior may change to be 
+case-insensitive in the future. Additionally, comments are not stripped out 
+of the read sections. If comments are undesired, they should be stripped by an 
+external tool such as \fIsed\fP.
+.PP
+
+.SH COPYRIGHT
+tritech-utils is Copyright (C) by Jody Bruchon. See the file LICENSE for
+details on the terms and conditions under which this software is licensed.
+.PP
+.SH AUTHOR
+Jody Lee Bruchon <jody@jodybruchon.com>

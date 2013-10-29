@@ -1,0 +1,145 @@
+#!/bin/sh
+
+# Prevent loading if we are already loaded
+if [ -z "$TSS_COMMON" ]; then
+
+# Scripts can check for TSS_COMMON to ensure this file is loaded
+TSS_COMMON=1
+
+N=__NONE__
+
+### tt__alert_setup
+
+# See if the requirements for beepsong usage are met
+# Longest. Statement. Ever.
+export PASS_COMMAND='tt_beepsong ff7victory'
+export FAIL_COMMAND='tt_beepsong taps'
+
+### End alert setup
+
+### tt__color_setup
+
+# ANSI color codes
+
+export COFF="$(echo -e '\e[00m')"    # Disable all attributes
+
+export CBLINK="$(echo -e '\e[05m')"  # Annoying Blink
+
+# Foreground colors
+export CBLK="$(echo -e '\e[01;30m')" # Black
+export CRED="$(echo -e '\e[01;31m')" # Red
+export CGRN="$(echo -e '\e[01;32m')" # Green
+export CYEL="$(echo -e '\e[01;33m')" # Yellow
+export CBLU="$(echo -e '\e[01;34m')" # Blue
+export CPUR="$(echo -e '\e[01;35m')" # Purple (Magenta)
+export CCYA="$(echo -e '\e[01;36m')" # Cyan
+export CWHT="$(echo -e '\e[01;37m')" # White
+
+# Background colors
+export BGBLK="$(echo -e '\e[01;40m')" # Black
+export BGRED="$(echo -e '\e[01;41m')" # Red
+export BGGRN="$(echo -e '\e[01;42m')" # Green
+export BGYEL="$(echo -e '\e[01;43m')" # Yellow
+export BGBLU="$(echo -e '\e[01;44m')" # Blue
+export BGPUR="$(echo -e '\e[01;45m')" # Purple (Magenta)
+export BGCYA="$(echo -e '\e[01;46m')" # Cyan
+export BGWHT="$(echo -e '\e[01;47m')" # White
+
+### End color setup
+
+STARTDIR="$(pwd)"
+test -z "$BASE" && BASE=/mnt/cifs
+test -z "$SOURCE" && SOURCE="$BASE/source"
+test -z "$IMGDIR" && IMGDIR="$SOURCE/hd_images"
+test -z "$HALPATH" && HALPATH="$SOURCE/hal"
+
+export MS="Microsoft"
+export WIN="Windows"
+export IE="Internet Explorer"
+
+export XPDOCS="Documents and Settings"
+export V7DOCS="Users"
+export PD="ProgramData"
+export PF="Program Files"
+export VS="VirtualStore"
+export XPLS="Local Settings"
+export XPLOCAL="$XPLS/Application Data"
+export V7LOCAL="AppData/Local"
+export XPROAM="Application Data"
+export V7ROAM="AppData/Roaming"
+export XPALL="$XPDOCS/All Users"
+export V7ALL="$V7DOCS/Public"
+export TIF="Temporary Internet Files"
+
+do_windows_folder_detection () {
+	# Set variables that are used for folder detection
+	export WINDIR=$N
+	export WINTEMP=$N
+	export SYS32=$N
+	export SYS64=$N
+	export CONFIG=$N
+	export OS=$N
+	export V7=0
+	export HALDLL=$N
+	export KERNEL=$N
+
+	for X in WINDOWS Windows windows WINXP WinXP winxp WINNT WinNT winnt
+		do test -d $X && export WINDIR=$X; done
+
+	for X in $WINDIR/Temp $WINDIR/TEMP $WINDIR/temp
+		do test -d $X && export WINTEMP=$X; done
+
+	for X in system32 System32 SYSTEM32
+		do test -d $WINDIR/$X && export SYS32=$X; done
+
+	for X in syswow64 SysWOW64 SYSWOW64
+		do test -d $WINDIR/$X && export SYS64=$X; done
+
+	for X in config Config CONFIG
+		do test -d $WINDIR/$SYS32/$X && export CONFIG=$X; done
+
+	for X in systemprofile SYSTEMPROFILE SystemProfile
+		do test -d $WINDIR/$SYS32/$CONFIG/$X && export SYSPROF=$X; done
+
+	for X in HAL.DLL hal.dll Hal.dll hal.DLL HAL.dll
+		do test -e $WINDIR/$SYS32/$X && export HALDLL=$X; done
+
+	for X in ntoskrnl.exe NTOSKRNL.EXE ntoskrnl.EXE NTOSKRNL.exe
+		do test -e $WINDIR/$SYS32/$X && export KERNEL=$X; done
+
+	# Scan for 2000/XP or Vista/7
+	test -d "$XPDOCS" && OS="2000/XP" && export V7=1
+	test -d "$V7DOCS" && OS="Vista/7" && export V7=2
+
+	# Handle different OS folder choices
+	if [ "$V7" = "2" ]
+		then
+			export P="$V7DOCS/*"
+			export LOCAL="$P/$V7LOCAL"
+			export ROAM="$P/$V7ROAM"
+		else
+			export P="$XPDOCS/*"
+			export LOCAL="$P/$XPLOCAL"
+			export ROAM="$P/$XPROAM"
+	fi
+
+	# Use a progress bar version of "cat" if available
+	export CATCOM=cat
+	pv --version 2>&1 >/dev/null && \
+		export CATCOM='pv -pterab -B 131072' && export PV=1
+
+	# Find an NTFS mount command
+	export NTFSMOUNT=0
+	for X in /bin/ntfs-3g /sbin/ntfs-3g /sbin/mount.ntfs-3g \
+		/sbin/mount.ntfs /usr/bin/ntfs-3g /usr/sbin/ntfs-3g /usr/bin/ntfsmount
+		do if [ "$NTFSMOUNT" = "0" ]
+			then test -e "$X" && export NTFSMOUNT="$X"
+		fi
+	done
+}
+do_windows_folder_detection
+
+. tss__functions
+
+# Close up double-loading protection statement
+fi

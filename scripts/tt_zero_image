@@ -1,0 +1,12 @@
+#!/bin/sh
+
+# Zero any empty space on an image
+P=tt_zzz
+cat /dev/zero > ${P} 2>/dev/null
+X=0
+while [ $X -lt 1000 ]
+do dd if=/dev/zero bs=8 of=${P}$X 2>/dev/null >/dev/null
+X=$((X+1))
+done
+rm -f ${P}*
+

@@ -1,0 +1,12 @@
+#!/bin/ash
+
+VER="0.7"
+VERDATE="2011-09-15"
+
+# Attempts to automatically determine the HAL and kernel
+# for a given machine, and install it.
+
+echo "${COFF}Tritech AutoHAL tool version ${VER}"
+echo "Copyright (c) c02ware and Jody Bruchon"
+
+. /usr/bin/tt__auto_hal

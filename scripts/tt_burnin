@@ -1,0 +1,55 @@
+#!/bin/ash
+
+VER=0.4.1
+VERDATE="2012-03-08"
+
+# 2012-03-08: modified to work with /bin/ash instead of bash
+
+echo "Tritech CPU burn-in tool, version $VER"
+echo "Usage: $0 [minutes] (default is 5 minutes)"
+
+if [ "$1" \> 0 ]
+	then MINUTES="$1"
+	else MINUTES="5"
+fi
+
+control_c () {
+	killall -9 yes
+	echo "Burn-in aborted by user."
+	exit $?
+}
+
+trap control_c SIGINT
+
+# Finds the number of processors, and spawns an instance of yes for each.
+# Kills all running instances of yes after three minutes of waiting.
+# The grep -v omits "model name" fields where the CPU model string
+# contains the word "processor" and thus matches the first grep.
+
+echo -n "Starting burn-in on "
+
+TMP1=$(cat /proc/cpuinfo | grep processor | grep -v "model" | cut -d\  -f 2 | tail -1)
+TMP1=$((TMP1 + 1))
+echo "$TMP1 CPUs for $MINUTES minutes."
+for X in $(cat /proc/cpuinfo | grep processor | grep -v "model" | cut -d\  -f 2 | tr \\n ' ')
+	do (yes > /dev/null &)
+done
+SECS=$(expr $MINUTES \* 60)
+
+CNT=$TMP1; while [ "$CNT" -gt "0" ]; do echo -n "  |||  "; CNT=$((CNT - 1)); done; echo
+CNT=$TMP1; while [ "$CNT" -gt "0" ]; do echo -n "=|CPU|="; CNT=$((CNT - 1)); done; echo
+CNT=$TMP1; while [ "$CNT" -gt "0" ]; do echo -n "=|   |="; CNT=$((CNT - 1)); done; echo
+CNT=$TMP1; while [ "$CNT" -gt "0" ]; do echo -n "  |||  "; CNT=$((CNT - 1)); done; echo
+
+# Loops once per minute and gives status reports every half-minute
+while [ "$SECS" \> "0" ]
+  do
+  echo -en "Remaining seconds: $SECS      \\r"
+  SECS=$((SECS - 1))
+  sleep 1
+done
+
+echo "Burn-in completed successfully."
+
+killall -9 yes
+

@@ -1,0 +1,93 @@
+#!/bin/bash
+
+# Scans MBRs on all disks for signature matches
+# Exit status:
+# 0 = Clean MBR
+# 1 = Device error
+# 2 = MBR status not certain
+# 3 = Rootkit/virus infected MBR
+
+VER=0.3
+VERDATE=2013-01-08
+
+SIGSUBDIR=mbr/signatures
+SIGDIR="___INVALID___"
+
+. tss__common
+
+echo -e "\n${CWHT}Tritech Service System MBR scan tool $VER ($VERDATE)$COFF"
+
+if [ ! -b "/dev/$1" ]
+	then echo "${CRED}tt_scan_mbr:$COFF Specified device $CPUR'$1'$COFF does not exist"
+	exit 1
+	else DISK="$1"
+fi
+
+echo -n "${CPUR}Locating MBR signatures...$COFF"
+
+for X in /mnt/*
+  do test -d "$X/$SIGSUBDIR" && SIGDIR="$X/$SIGSUBDIR"
+done
+test -d "$SIGSUBDIR" && SIGDIR="$(pwd)/$SIGSUBDIR"
+if [ ! -d "$SIGDIR" ]
+  then echo "${CRED}none found. Mount an MBR signature source first.$COFF"
+  exit 1
+fi
+echo "${CGRN}using $CWHT$SIGDIR$COFF"
+
+echo -n "${CPUR}Loading signatures: ${CWHT}[$CYEL"
+
+# Load signatures into array
+SIGS=0
+for FILE in $(echo ${SIGDIR}/*.mbr)
+  do SIG[$SIGS]=$(dd if="$FILE" bs=437 count=1 2>/dev/null | md5sum | cut -d" " -f1)
+  SIGNAME[$SIGS]="$FILE"
+#  echo -n "$(basename "$FILE" | sed s/.mbr//g) "
+  echo -n "|"
+  SIGS=$(( SIGS + 1 ))
+done
+
+echo -e "${CWHT}]\n${CPUR}Reading current MBR signature...$COFF"
+
+
+# Pull current signature as well
+MBRSIG=$(dd if=/dev/$DISK bs=437 count=1 2>/dev/null | md5sum | cut -d" " -f1)
+
+test "$D" = "1" && echo "${CGRN}Loaded signatures:${COFF}"
+X=0; FOUND=0
+while [ "$X" -lt "$SIGS" ]
+  do
+  test "$D" = "1" && echo "$CYEL$X$COFF: $CBLU$(basename ${SIGNAME[$X]})$CWHT -> $CYEL${SIG[$X]}$COFF"
+  if [ "${SIG[$X]}" == "$MBRSIG" ]
+    then CURR="$(basename ${SIGNAME[$X]} | sed 's/\.mbr$//')"
+    FOUND=1
+  fi
+  X=$(( X + 1 ))
+done
+
+test "$FOUND" == "1" && echo -e "\n   ${CGRN}Current MBR matches:  $CPUR$CURR\n$COFF"
+
+if [ "$FOUND" == "0" ]
+  then echo "${CRED}The MBR on this computer does not match any signatures."
+  echo "It has an MD5 signature of:  $CWHT$MBRSIG"
+  echo "${CRED}Please enter a name for the new signature and hit ${CWHT}[ENTER]"
+  echo -n ">>> $COFF"
+  read NAME
+  if [ "$NAME" == "" ]
+    then echo "${CYEL}Name empty. Not taking a signature at this time.$COFF"
+    exit 1
+  fi
+  NEWSIG="${SIGDIR}/${NAME}.mbr"
+  if [ -e "$NEWSIG" ]
+    then echo "${CRED}File exists, not overwriting: $CWHT$NEWSIG$COFF"
+    exit 1
+  fi
+  echo "${CGRN}Writing new signature to $CWHT$NEWSIG$COFF"
+  dd if=/dev/$DISK of="$NEWSIG" bs=437 count=1 2>/dev/null || echo "${CRED}Error writing MBR signature.$COFF"
+fi
+
+# Exit status reflects status of MBR (0=clean)
+echo "$CURR" | grep -q '^win_' && exit 0
+echo "$CURR" | grep -q '^clean_' && exit 0
+echo "$CURR" | grep -q '^rootkit_' && exit 3
+exit 2

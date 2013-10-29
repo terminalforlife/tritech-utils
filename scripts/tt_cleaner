@@ -1,0 +1,917 @@
+#!/bin/bash
+
+VER="5.0"
+VERDATE="2013-08-18"
+
+# Tritech Service System Windows installation clean tool for Linux
+# Copyright (C) by c02ware and Jody Bruchon
+
+# Must be run from the root of the filesystem to clean.
+
+. tss__common
+test -z "$TSS_COMMON" && echo "Library 'tss__common' failed to load, aborting." && exit 1
+
+IFS0="$IFS"
+IFS1=$(echo -en "\n\b")
+IFS="$IFS1"
+CLEANED=0
+RW=0
+LASTTYPE="none"
+TMPFILE=$(mktemp)
+shopt -s nullglob
+shopt -s nocaseglob
+
+control_c () {
+	rm -f "$TMPFILE"
+	test $MSG -gt 0 && echo -e "Aborted by user. Cleaned $CLEANED KB."
+	exit 1
+}
+
+trap control_c INT
+
+if [[ "$1" = "-h" || "$1" = "--help" ]]
+	then
+	echo -e "Tritech Service System Cleaner, a Windows cleaning tool for Linux.\n"
+	echo "Program version $VER, last updated on $VERDATE"
+	echo "$0         normal mode, shows verbose scan progress and reports"
+	echo "$0 -x      fast normal mode, skips size counts of cleaned items"
+	echo "$0 -q      quiet mode, with progress dots and a summary"
+	echo "$0 -Q      fast quiet mode, with progress but no summary"
+	echo "$0 -s      silent mode, no output, returns an exit code"
+	echo "$0 -n      normal mode, but don't actually delete anything"
+	echo "$0 -d      debug mode: -n, plus shows what would be deleted"
+	echo "$0 -h      this help screen"
+	echo "$0 --help  this help screen with four wasted keystrokes"
+	echo -e "\nCopyright (C) c02ware and Jody Bruchon. All rights reserved."
+	exit 0
+fi
+
+### Set parameters for different command switches
+# MSG: 0=none, 1=quiet, 2=full
+# NODEL: 0=delete, 1=no delete
+# NOSIZE: 0=get size of cleaned items, 1=skip calculation (faster)
+NODEL=0; MSG=2; DEBUG=0; NOSIZE=0
+test "$1" = "-s" && MSG=0 && NOSIZE=1
+test "$1" = "-q" && MSG=1
+test "$1" = "-Q" && MSG=1 && NOSIZE=1
+
+test "$1" = "-x" && MSG=2 && NOSIZE=1
+test "$1" = "-n" && MSG=2 && NODEL=1
+test "$1" = "-d" && MSG=2 && NODEL=1 && DEBUG=1
+
+test $DEBUG -gt 0 && unset CWHT CGRN CPUR CCYA CYEL CRED CBLU 
+
+### Scan for 2000/XP or Vista/7 and set folders accordingly
+test -d "$XPDOCS" && OS="2000/XP" && export V7=1
+test -d "$V7DOCS" && OS="Vista/7" && export V7=2
+echo "$@" | grep -q -- "--xp" && export V7=1
+echo "$@" | grep -q -- "--v7" && export V7=2
+if [ "$V7" = "2" ]
+        then
+                export P="$V7DOCS/*"
+                export LOCAL="$P/$V7LOCAL"
+                export ROAM="$P/$V7ROAM"
+        else
+                export P="$XPDOCS/*"
+                export LOCAL="$P/$XPLOCAL"
+                export ROAM="$P/$XPROAM"
+fi
+# Scan version of P for grep-friendliness
+SCANP="$(echo "$P" | sed 's#\*#\[\^/\]\*#g')"
+### End OS version scan
+
+### Common variables and locations
+
+AAWLOGS="Lavasoft/Ad-Aware/Logs"
+AAWQ="Lavasoft/Ad-Aware/Quarantine"
+AOLDWNLD="AOL Downloads"
+APPLE="Apple Computer"
+APPLEIC="Apple/Installer Cache"
+APPLEIC2="$APPLE/Installer Cache"
+APPLELOGS="$APPLE/Logs"
+APPLEMSB="$APPLE/MobileSync/Backup"
+APPLEIPSW="$APPLE/iTunes/iPod Software Updates"
+APPLEIPLG="$APPLE/iTunes/iPod Updater Logs"
+APPLESN="$APPLE/SyncNotifier/SyncNotifier/Logs"
+ARO2011="Sammsoft/ARO/Version 2011"
+AVIRALOGS="Avira/AntiVir Desktop/LOGFILES"
+AVIRAREPS="Avira/AntiVir Desktop/REPORTS"
+CARBONITEUS="Carbonite Restored OLD User Settings"
+CHROME="Google/Chrome/User Data/*"
+CHROMEUD="Google/Chrome/User Data"
+FF="Mozilla/Firefox"
+FFPROF="$FF/Profiles/*"
+FFCRASH="$FF/Crash Reports"
+FLASH1="Macromedia/Flash Player"
+FLASH2="Adobe/Flash Player"
+ITAAC="iTunes/Album Artwork/Cache"
+JAVACACHE="Sun/Java/Deployment/cache"
+JSYSCACHE="Sun/Java/Deployment/SystemCache"
+LFCONNECT="Leapfrog/Leapfrog Connect/cache"
+LWMOZ="LimeWire/mozilla-profile"
+MBAMLOGS="Malwarebytes/Malwarebytes\' Anti-Malware/Logs"
+MBAMQUAR="Malwarebytes/Malwarebytes\' Anti-Malware/Quarantine"
+MOZCNTRL="MozillaControl/profiles/MozillaControl/*"
+MPARTCACHE="$MS/Media Player/Art Cache"
+MPTRANSC="$MS/Media Player/Transcoded Files Cache"
+MSSQLLOG="$MS SQL Server/*/Setup Bootstrap/LOG"
+PARETOAS="ParetoLogic Anti-Spyware"
+PHOTOEXP="Nova Development/Photo Explosion*/*"
+SAFARI="Apple Computer/Safari"
+SAS="SUPERAntiSpyware"
+SASLOGS="${SAS}.com/$SAS/AppLogs"
+SPYBOTSD="Spybot - Search & Destroy/Logs"
+TBPROF="Mozilla/Thunderbird/Profiles/*"
+TMAVLOGS="Trend Micro/pc-cillin/Log"
+V7HIST1="Microsoft/Windows/History/History.IE5"
+V7HIST2="Microsoft/Windows/History/Low/History.IE5"
+V7SAMPLE="Public/*/Sample */"
+WDSMART="Western Digital/WD SmartWare"
+WINDEF="Windows Defender"
+WINLTBF="Windows Live/Toolbar/Feeds"
+WLPG="$MS/Windows Live Photo Gallery"
+YMSGR="Yahoo!/Messenger"
+
+### End common variables
+
+test "$MSG" = "1" && echo -n "Cleaning: "
+if [ "$MSG" = "2" ]
+	then echo -e "${CWHT}Tritech Service System Cleaner, version $CGRN$VER$COFF, last updated $CGRN$VERDATE$COFF"
+	test "$WINDIR" = "__NONE__" && echo "${CYEL}NOTICE: ${CWHT}No Windows folder detected$COFF"
+	test "$V7" = "0" && echo "${CYEL}NOTICE: ${CWHT}No user profile root folder detected$COFF"
+fi
+
+### Functions
+
+escape_regex () {
+	for CHAR in \. \[ \] \^ \$
+		do RXS="$(echo "$RXS" | sed "s/\\${CHAR}/\\\\${CHAR}/g")"
+	done
+	RXS="$(echo "$RXS" | sed 's/\?/\./g')"
+	RXS="$(echo "$RXS" | sed 's/\*/\.\*/g')"
+}
+
+# Check the name being added against a list of protected paths
+test_protected () {
+	for Q in $P $LOCAL $ROAM $XPDOCS $WINDIR $PF \
+	$V7DOCS $V7LL $PD $XPLS $LOCAL/Temp/smtmp $LOCAL/temp/smtmp
+		do
+		test "$ADD" = "$Q" && echo "$ADD = $Q, ABORTING." && exit 1
+	done
+}
+
+add_to_wipe () {
+	for ADD in $NAME
+		do
+		if [ -d "$ADD" ]
+			then
+			test_protected
+			do_wipe
+			else
+			test -e "$ADD" && test "$DEBUG" = "1" && echo "WARNING: Is a file: $ADD"
+		fi
+	done
+	test ! "$RW" = "1" && RW_W=1 && do_rewrites && unset RW_W
+}
+
+do_wipe () {
+# Run requested wipes
+for FILE in $ADD
+	do if [ -d "$FILE" ]
+		then IFS="$IFS0"
+		if [ "$(ls -1 "$FILE/" | head -n 1)" ]
+			then
+			if [ "$NOSIZE" = "0" ]
+				then
+				ADD=$(du -s "$FILE" 2>/dev/null | cut -f1)
+				CLEANED=$(( CLEANED + ADD ))
+			fi
+			for E in "$FILE"
+				do
+				test "$NODEL" = "0" && rm -rf "$E" 2>/dev/null && mkdir "$FILE" 2>/dev/null
+				test "$DEBUG" = "1" && echo "\"$E\" "
+			done
+			CLEAN_TYPE="$DESC"
+			do_feedback
+		fi
+	fi
+	IFS="$IFS1"
+done
+}
+
+add_to_delete () {
+	for ADD in $NAME
+		do
+		if [ -e "$ADD" ]
+			then
+			do_delete
+			DELETE=( "${DELETE[@]}" "$ADD" )
+			DEL_DESC=( "${DEL_DESC[@]}" "$DESC" )
+		fi
+	done
+	test ! "$RW" = "1" && RW_D=1 && do_rewrites && unset RW_D
+}
+
+do_delete () {
+# Run requested deletes
+for FILE in $ADD
+	do
+	       	if [ -e "$FILE" ]
+		then
+		if [ "$NOSIZE" = "0" ]
+			then
+			ADD=$(du -s "$FILE" | cut -f1)
+			CLEANED=$(( CLEANED + ADD ))
+		fi
+		for E in "$FILE"
+			do test "$NODEL" = "0" && rm -rf "$E" 2>/dev/null
+			test "$DEBUG" = "1" && echo " \"$E\" "
+		done
+		CLEAN_TYPE="$DESC"
+		do_feedback
+	fi
+done
+}
+
+add_to_scan () {
+#	RXS="$NAME"; escape_regex; NAME="$RXS"
+#	RXS="$SP"; escape_regex; SP="$RXS"
+# Run requested scans
+for FILE in $(grep -i "^${SP}/" $TMPFILE | grep -i "/${NAME}\$")
+	do if [ -e "$FILE" ]
+		then
+		if [ "$NOSIZE" = "0" ]
+			then
+			ADD=$(du -s "$FILE" | cut -f1)
+			CLEANED=$(( CLEANED + ADD ))
+		fi
+		for E in "$FILE"
+		 do test "$NODEL" = "0" && rm -f "$E" 2>/dev/null
+		 test "$DEBUG" = "1" && echo " \"$E\" "
+		done
+		CLEAN_TYPE="$DESC"
+		do_feedback
+	fi
+done
+
+}
+
+do_feedback () {
+	test "$MSG" = "1" && echo -n "$CWHT.$COFF"
+	if [ "$MSG" = "2" ]
+		then
+		if [ ! "$LASTTYPE" = "$CLEAN_TYPE" ]
+			then
+			echo -en "\n"
+			printf "%-35s" "$CGRN$CLEAN_TYPE:"
+		fi
+		test "$NOSIZE" = "0" && echo -n "$CWHT${ADD}K $COFF"
+		LASTTYPE="$CLEAN_TYPE"
+	fi
+}
+
+# Rewrites are necessary due to things being put in different locations
+# under Windows Vista/7 and occasionally being found in more than
+# one location, as in the SYSTEM profile not being under the usual
+# user account folder.
+do_rewrites () {
+	if ! [[ "$RW_W" = "1" || "$RW_D" = "1" ]]
+		then echo -e "\nERROR: Rewrites called without RW_W or RW_D set: $NAME $DESC"
+	fi
+	RWIDX=${#REWRITE0[@]}
+	RWCNT=0; RWLOAD=0
+	unset RWNAMES
+	RWNAMES[0]="$NAME"
+	# The outer loop processes each rewrite in order
+	# Each run of the inner loop processes previous rewrites to ensure
+	# that all rewrite operations happen as specified on all targets
+	while [ $RWCNT -lt $RWIDX ]
+		do
+		RWNIDX=${#RWNAMES[@]}; RWNCNT=0
+		# Inner loop for rewrite name stack processing
+		while [ $RWNCNT -lt $RWNIDX ]
+			do
+			if echo "${RWNAMES[$RWNCNT]}" | grep -qi "${REWRITE0[$RWCNT]}"
+				then
+				(( RWLOAD ++ ))
+				SED1="${REWRITE1[$RWCNT]}"
+				SED2="${REWRITE2[$RWCNT]}"
+				NAME="$(echo "${RWNAMES[$RWNCNT]}" | \
+				 sed "s.$SED1.$SED2.")"
+				test ! "$NAME" == "${RWNAMES[$RWNCNT]}" && \
+				 RWNAMES=( "${RWNAMES[@]}" "$NAME" )
+				# RW=1 tells routines to not do rewrites again while running nested
+				RW=1
+				test "$RW_W" = "1" && add_to_wipe
+				test "$RW_D" = "1" && add_to_delete
+				RW=0
+			fi
+			(( RWNCNT ++ ))
+		done
+	(( RWCNT ++ ))
+	done
+}
+
+### End functions
+
+test "$DEBUG" = "1" && echo "Debug mode active. Load bars and colors are off."
+
+### Define what and how to clean
+
+# Rewrites
+# REWRITE0 is a grep regex to match
+# REWRITE1 and REWRITE2 are part of a sed replacement expression
+
+# Vista sometimes uses LocalLow instead of Local
+if [ "$V7" = "2" ]; then
+	REWRITE0=( "${REWRITE0[@]}" "AppData/Local/" )
+	REWRITE1=( "${REWRITE1[@]}" "AppData/Local/" )
+	REWRITE2=( "${REWRITE2[@]}" "AppData/LocalLow/" )
+fi
+	
+# Vista moved All Users roaming data to ProgramData
+if [ "$V7" = "2" ]; then
+	# ROAM contains an unescaped asterisk which throws off matching
+	ROAM2=$(echo "$ROAM" | sed 's.*.\\*.g')
+	REWRITE0=( "${REWRITE0[@]}" "$ROAM2" )
+	REWRITE1=( "${REWRITE1[@]}" "$ROAM2" )
+	REWRITE2=( "${REWRITE2[@]}" "$PD" )
+fi
+ 
+# Apply user profile cleaning to SYSTEM profile too
+if ! [ "$SYS32" = "__NONE__" ]; then
+	REWRITE0=( "${REWRITE0[@]}" "$P" )
+	REWRITE1=( "${REWRITE1[@]}" "$P/\*" )
+	REWRITE2=( "${REWRITE2[@]}" "$WINDIR/$SYS32/$CONFIG/$SYSPROF" )
+fi
+
+# Windows Vista/7 use ServiceProfiles folders for service profiles
+if [ -e "$WINDIR/ServiceProfiles" ]; then
+	REWRITE0=( "${REWRITE0[@]}" "^$P" )
+	REWRITE1=( "${REWRITE1[@]}" "^$P/\*" )
+	REWRITE2=( "${REWRITE2[@]}" "$WINDIR/ServiceProfiles/*" )
+fi
+
+# For 64-bit Windows, copy System32 operations to SysWOW64
+if ! [ "$SYS64" = "__NONE__" ]; then
+	REWRITE0=( "${REWRITE0[@]}" "$WINDIR/$SYS32" )
+	REWRITE1=( "${REWRITE1[@]}" "$WINDIR/$SYS32" )
+	REWRITE2=( "${REWRITE2[@]}" "$WINDIR/$SYS64" )
+fi
+
+# Vista virtualizes Program Files to VirtualStore
+if [ "$V7" = "2" ]; then
+	REWRITE0=( "${REWRITE0[@]}" "$PF" )
+	REWRITE1=( "${REWRITE1[@]}" "$PF" )
+	REWRITE2=( "${REWRITE2[@]}" "$LOCAL/$VS/$PF" )
+fi
+
+# 64-bit to 32-bit Program Files rewrite
+if ! [ "$SYS64" = "__NONE__" ]; then
+	REWRITE0=( "${REWRITE0[@]}" "$PF/" )
+	REWRITE1=( "${REWRITE1[@]}" "$PF" )
+	REWRITE2=( "${REWRITE2[@]}" "$PF (x86)" )
+fi
+
+if ! [ "$WINDIR" = "__NONE__" ]; then
+	REWRITE0=( "${REWRITE0[@]}" "$WINDIR" )
+	REWRITE1=( "${REWRITE1[@]}" "$WINDIR" )
+	REWRITE2=( "${REWRITE2[@]}" "$LOCAL/$VS/$WINDIR" )
+fi
+
+if [ "$V7" = "2" ]; then
+	REWRITE0=( "${REWRITE0[@]}" "$PD" )
+	REWRITE1=( "${REWRITE1[@]}" "$PD" )
+	REWRITE2=( "${REWRITE2[@]}" "$LOCAL/$VS/$PD" )
+fi
+
+if ls $(echo "$P/$CARBONITEUS") >/dev/null 2>/dev/null; then
+	REWRITE0=( "${REWRITE0[@]}" "^$P" )
+	REWRITE1=( "${REWRITE1[@]}" "^$P" )
+	REWRITE2=( "${REWRITE2[@]}" "$P/$CARBONITEUS" )
+fi
+
+# Try to apply XP-style folders on V7, just in case...
+if ! [ "$v7" = "2" ]; then
+	REWRITE0=( "${REWRITE0[@]}" "$V7ROAM" )
+	REWRITE1=( "${REWRITE1[@]}" "$V7ROAM" )
+	REWRITE2=( "${REWRITE2[@]}" "$XPROAM" )
+	REWRITE0=( "${REWRITE0[@]}" "$V7LOCAL" )
+	REWRITE1=( "${REWRITE1[@]}" "$V7LOCAL" )
+	REWRITE2=( "${REWRITE2[@]}" "$XPLOCAL" )
+# This last one slows down everything significantly. Not sure if we want it.
+#	REWRITE0=( "${REWRITE0[@]}" "^$P" )
+#	REWRITE1=( "${REWRITE1[@]}" "^$P/" )
+#	REWRITE2=( "${REWRITE2[@]}" "Documents and Settings/" )
+fi
+
+NAME="$LOCAL/ars.cache"; DESC="Miscellanous junk"; add_to_delete
+NAME="$LOCAL/census.cache"; DESC="Miscellanous junk"; add_to_delete
+NAME="$LOCAL/$APPLE/QuickTime/downloads"; DESC="QuickTime downloads"; add_to_wipe
+NAME="$LOCAL/$APPLE/iTunes/Cache.db"; DESC="iTunes cache"; add_to_delete
+NAME="$LOCAL/$APPLESN"; DESC="Apple SN logs"; add_to_wipe
+NAME="$LOCAL/Adobe/Air/Logs"; DESC="Adobe AIR"; add_to_wipe
+NAME="$LOCAL/Adobe/AIR/Logs"; DESC="Adobe AIR"; add_to_wipe
+NAME="$LOCAL/Adobe/Acrobat/*/Updater"; DESC="Adobe Acrobat"; add_to_wipe
+NAME="$LOCAL/Adobe/Acrobat/*/Cache"; DESC="Adobe Acrobat"; add_to_wipe
+NAME="$LOCAL/Adobe/Reader*/Setup Files"; DESC="Adobe Acrobat"; add_to_wipe
+NAME="$LOCAL/Adobe/Updater*"; DESC="Adobe Acrobat"; add_to_wipe
+NAME="$LOCAL/AskToolbar"; DESC="Ask Toolbar"; add_to_wipe
+NAME="$LOCAL/AskSBar"; DESC="Ask Toolbar"; add_to_wipe
+NAME="$LOCAL/AVG Secure Search/cache"; DESC="AVG Secure Search"; add_to_wipe
+NAME="$LOCAL/BearShare"; DESC="BearShare"; add_to_wipe
+NAME="$LOCAL/bearsharemediabartb"; DESC="BearShare Media Bar"; add_to_wipe
+NAME="$LOCAL/adaware"; DESC="Blekko Toolbar"; add_to_wipe
+NAME="$LOCAL/blekkotb*"; DESC="Blekko Toolbar"; add_to_wipe
+NAME="$LOCAL/Corel/Thumbs"; DESC="Corel Thumbs"; add_to_wipe
+NAME="$LOCAL/$CHROME/*Cache*/"; DESC="Google Chrome"; add_to_wipe
+NAME="$LOCAL/$CHROME/*Cookies"; DESC="Google Chrome"; add_to_delete
+NAME="$LOCAL/$CHROME/Favicons"; DESC="Google Chrome"; add_to_delete
+NAME="$LOCAL/$CHROME/*History*"; DESC="Google Chrome"; add_to_delete
+NAME="$LOCAL/$CHROME/JumpListIcons*"; DESC="Google Chrome"; add_to_wipe
+NAME="$LOCAL/$CHROME/Last Session"; DESC="Google Chrome"; add_to_delete
+NAME="$LOCAL/$CHROME/Last Tabs"; DESC="Google Chrome"; add_to_delete
+NAME="$LOCAL/$CHROME/Local Storage/http*"; DESC="Google Chrome"; add_to_delete
+NAME="$LOCAL/$CHROME/Media Cache"; DESC="Google Chrome"; add_to_wipe
+NAME="$LOCAL/$CHROME/Pepper Data/Shockwave Flash"; DESC="Google Chrome"; add_to_wipe
+NAME="$LOCAL/$CHROME/*Tabs"; DESC="Google Chrome"; add_to_delete
+NAME="$LOCAL/$CHROME/Transport Security"; DESC="Google Chrome"; add_to_delete
+NAME="$LOCAL/$CHROME/Thumbnails"; DESC="Google Chrome"; add_to_delete
+NAME="$LOCAL/$CHROME/Visited Links"; DESC="Google Chrome"; add_to_delete
+NAME="$LOCAL/$CHROMEUD/Safe Browsing*"; DESC="Google Chrome"; add_to_delete
+NAME="$LOCAL/Conduit"; DESC="Conduit software"; add_to_wipe
+NAME="$LOCAL/ConduitEngine"; DESC="Conduit software"; add_to_wipe
+NAME="$LOCAL/Corel/Thumbs"; DESC="Corel thumbnails"; add_to_wipe
+NAME="$LOCAL/Corel Photo Album"; DESC="Corel Photo Album"; add_to_wipe
+NAME="$LOCAL/CrashDumps"; DESC="App crash dumps"; add_to_wipe
+NAME="$LOCAL/CurseClient/CurseClient.log"; DESC="CurseClient"; add_to_delete
+NAME="$LOCAL/Diagnostics"; DESC="Windows Diagnostics"; add_to_wipe
+NAME="$LOCAL/ElevatedDiagnostics"; DESC="Windows Diagnostics"; add_to_wipe
+NAME="$LOCAL/EMBARQTOOLBAR"; DESC="Embarq Toolbar"; add_to_wipe
+NAME="$LOCAL/Facebook/Messenger/fbmessenger.cache"; DESC="FB Messenger cache"; add_to_wipe
+NAME="$LOCAL/FunWebProducts"; DESC="FunWebProducts"; add_to_wipe
+NAME="$LOCAL/$FFPROF/*Cache*"; DESC="Mozilla Firefox"; add_to_wipe
+NAME="$LOCAL/$FFPROF/urlclassifier3.sqlite"; DESC="Mozilla Firefox"; add_to_delete
+NAME="$LOCAL/$FFPROF/X*.mfl"; DESC="Mozilla Firefox"; add_to_delete
+NAME="$LOCAL/$FFPROF/minidumps"; DESC="Mozilla Firefox"; add_to_wipe
+NAME="$LOCAL/$FFPROF/thumbnails"; DESC="Mozilla Firefox"; add_to_wipe
+NAME="$LOCAL/GDIPFONTCACHEV1.DAT"; DESC="User font cache"; add_to_delete
+NAME="$LOCAL/Google/Google Desktop/*/*.cf1"; DESC="Google Desktop"; add_to_delete
+NAME="$LOCAL/Google/Google Desktop/*/*.ht1"; DESC="Google Desktop"; add_to_delete
+NAME="$LOCAL/Google/Google Desktop/*/db*"; DESC="Google Desktop"; add_to_delete
+NAME="$LOCAL/Google/Google Desktop/*/safeweb"; DESC="Google Desktop"; add_to_delete
+NAME="$LOCAL/Google/GoogleEarth/webdata"; DESC="Google Earth"; add_to_wipe
+NAME="$LOCAL/Google/GoogleEarth/dbCache*"; DESC="Google Earth"; add_to_delete
+NAME="$LOCAL/Google/Picasa2/db3/*thumbs*.db"; DESC="Picasa"; add_to_delete
+NAME="$LOCAL/Google/Picasa2/db3/preview*.db"; DESC="Picasa"; add_to_delete
+NAME="$LOCAL/Google/Picasa2/cache"; DESC="Picasa"; add_to_wipe
+NAME="$LOCAL/Google/Toolbar"; DESC="Google Toolbar"; add_to_wipe
+NAME="$LOCAL/Google/Toolbar Cache"; DESC="Google Toolbar"; add_to_wipe
+NAME="$LOCAL/Google/Toolbar History"; DESC="Google Toolbar"; add_to_wipe
+NAME="$LOCAL/Google/Toolbar/metrics_*.xml"; DESC="Google Toolbar"; add_to_delete
+NAME="$LOCAL/Graboid/Cache"; DESC="Graboid"; add_to_wipe
+NAME="$LOCAL/Graboid/logs"; DESC="Graboid"; add_to_wipe
+NAME="$LOCAL/HP Guide/mp_cache"; DESC="HP files"; add_to_wipe
+NAME="$LOCAL/HP/AtInstall"; DESC="HP files"; add_to_wipe
+NAME="$LOCAL/Hotbar"; DESC="Hotbar"; add_to_wipe
+NAME="$LOCAL/IconCache*.db"; DESC="Icon cache DB"; add_to_delete
+NAME="$LOCAL/Intuit/QuickBooks*/Log"; DESC="QuickBooks logs"; add_to_wipe
+NAME="$LOCAL/iMesh"; DESC="iMesh"; add_to_wipe
+NAME="$LOCAL/imeshmediabartb"; DESC="iMesh"; add_to_wipe
+NAME="$LOCAL/iWon*"; DESC="iWon software"; add_to_wipe
+NAME="$LOCAL/join.me/*.log"; DESC="LMI join.me logs"; add_to_delete
+NAME="$LOCAL/$JAVACACHE"; DESC="Java"; add_to_wipe
+NAME="$LOCAL/$JSYSCACHE"; DESC="Java"; add_to_wipe
+NAME="$LOCAL/LogiShrd/Vid"; DESC="Logitech Vid cache"; add_to_wipe
+NAME="$LOCAL/$MPARTCACHE"; DESC="WMP cache"; add_to_wipe
+NAME="$LOCAL/$MPTRANSC"; DESC="WMP cache"; add_to_wipe
+NAME="$LOCAL/$MS/CD Burning"; DESC="CD Burning folder"; add_to_wipe
+NAME="$LOCAL/$MS/CryptnetUrlCache"; DESC="MS crypto cert cache"; add_to_wipe
+NAME="$LOCAL/$MS/Feeds Cache"; DESC="MS feeds cache"; add_to_wipe
+NAME="$LOCAL/$MS/$IE/DOMStore"; DESC="IE DOMStore"; add_to_wipe
+NAME="$LOCAL/$MS/$IE/Recovery"; DESC="IE session recovery"; add_to_wipe
+NAME="$LOCAL/$MS/Media Player/lastplayed.wpl"; DESC="Windows Media Player"; add_to_delete
+NAME="$LOCAL/$MS/OneNote/*/TemporaryOneNoteOfflineCache.onecache"; DESC="MS OneNote cache"; add_to_delete
+NAME="$LOCAL/$MS/OIS"; DESC="Microsoft OIS"; add_to_wipe
+NAME="$LOCAL/$MS/Silverlight"; DESC="Silverlight"; add_to_wipe
+NAME="$LOCAL/$MS/Windows/Burn"; DESC="Windows CD/DVD burn cache"; add_to_wipe
+NAME="$LOCAL/$MS/Windows/Explorer/ThumbCacheToDelete"; DESC="Explorer thumbnails"; add_to_wipe
+NAME="$LOCAL/$MS/Windows/Explorer/thumbcache*.db"; DESC="Explorer thumbnails"; add_to_delete
+NAME="$LOCAL/$MS/Windows/History"; DESC="Temporary Internet Files"; add_to_wipe
+NAME="$LOCAL/$MS/Windows/$TIF"; DESC="Temporary Internet Files"; add_to_wipe
+NAME="$LOCAL/$MS/Windows/WebCache"; DESC="Temporary Internet Files"; add_to_wipe
+NAME="$LOCAL/$MS/Windows/WER"; DESC="Windows Error Reporting"; add_to_wipe
+NAME="$LOCAL/$MS/Windows NT/NTBackup"; DESC="NTBackup data"; add_to_wipe
+NAME="$LOCAL/$MS/Windows/WindowsUpdate.log"; DESC="Windows Update log"; add_to_delete
+NAME="$LOCAL/$MS/$WINDEF/FileTracker"; DESC="Windows Defender"; add_to_wipe
+NAME="$LOCAL/Musicmatch/Jukebox/Cache"; DESC="Musicmatch Jukebox cache"; add_to_wipe
+NAME="$LOCAL/MyWebSearch"; DESC="MyWebSearch"; add_to_wipe
+NAME="$LOCAL/OpenCandy"; DESC="OpenCandy downloader"; add_to_wipe
+NAME="$LOCAL/Opera/*/cache"; DESC="Opera caches"; add_to_wipe
+NAME="$LOCAL/OLYMPUS/OLYMPUS Data/cache"; DESC="Olympus cache"; add_to_wipe
+NAME="$LOCAL/PageRage"; DESC="PageRage data"; add_to_wipe
+NAME="$LOCAL/PCHealth"; DESC="PCHealth data"; add_to_wipe
+NAME="$LOCAL/PokerStars.NET/ImgCache"; DESC="PokerStars.NET cache"; add_to_wipe
+NAME="$LOCAL/$SAFARI/Cache.db"; DESC="Safari"; add_to_delete
+NAME="$LOCAL/$SAFARI/Downloads.plist"; DESC="Safari"; add_to_delete
+NAME="$LOCAL/$SAFARI/History.plist"; DESC="Safari"; add_to_delete
+NAME="$LOCAL/$SAFARI/History"; DESC="Safari"; add_to_wipe
+NAME="$LOCAL/$SAFARI/LastSession.plist"; DESC="Safari"; add_to_delete
+NAME="$LOCAL/$SAFARI/SafeBrowsing.db"; DESC="Safari"; add_to_delete
+NAME="$LOCAL/$SAFARI/LocalStorage"; DESC="Safari"; add_to_wipe
+NAME="$LOCAL/$SAFARI/Webpage Previews"; DESC="Safari"; add_to_wipe
+NAME="$LOCAL/Shareaza/Incomplete"; DESC="Shareaza incompletes"; add_to_wipe
+NAME="$LOCAL/ShoppingReport2"; DESC="ShoppingReport2"; add_to_wipe
+NAME="$LOCAL/SlimWare Utilities Inc/DriverUpdate/Logs"; DESC="DriverUpdate"; add_to_wipe
+NAME="$LOCAL/Spotify/Storage"; DESC="Spotify"; add_to_wipe
+NAME="$LOCAL/SupportSoft"; DESC="SupportSoft"; add_to_wipe
+NAME="$LOCAL/$TBPROF/X*.mfl"; DESC="Thunderbird MFLs"; add_to_delete
+NAME="$LOCAL/*.tmp"; DESC="Temporary files"; add_to_delete
+NAME="$LOCAL/temp"; DESC="Temporary files"; add_to_wipe
+NAME="$LOCAL/Temp"; DESC="Temporary files"; add_to_wipe
+NAME="$LOCAL/TEMP"; DESC="Temporary files"; add_to_wipe
+NAME="$LOCAL/Tific"; DESC="Tific"; add_to_wipe
+NAME="$LOCAL/Topix"; DESC="Tific"; add_to_wipe
+NAME="$LOCAL/Unity/WebPlayer/Cache"; DESC="Unity WebPlayer cache"; add_to_wipe
+NAME="$LOCAL/$VS/$WIN/*.tmp"; DESC="Windows temp files (VS)"; add_to_delete
+NAME="$LOCAL/$V7HIST1"; DESC="IE history"; add_to_wipe
+NAME="$LOCAL/$V7HIST2"; DESC="IE history"; add_to_wipe
+NAME="$LOCAL/$WDSMART/.txt"; DESC="WD SmartWare"; add_to_delete
+NAME="$LOCAL/Windows Live/.cache"; DESC="Windows Live cache"; add_to_wipe
+NAME="$LOCAL/$WLPG"; DESC="WL Photo Gallery"; add_to_wipe
+NAME="$LOCAL/$MS/WLSetup"; DESC="Windows Live setup"; add_to_wipe
+NAME="$LOCAL/$MS/Windows Live/Setup"; DESC="Windows Live setup"; add_to_wipe
+NAME="$LOCAL/Yahoo! Companion"; DESC="Yahoo Companion"; add_to_wipe
+NAME="$LOCAL/Zynga"; DESC="Zynga"; add_to_wipe
+
+NAME="$PF/Common Files/Windows Live/.cache"; DESC="WL cache"; add_to_wipe
+NAME="$PF/Citrix/GoToMyPC/*.log"; DESC="GoToMyPC logs"; add_to_delete
+NAME="$PF/Hewlett-Packard/Documentation"; DESC="HP documentation"; add_to_delete
+NAME="$PF/Online Services"; DESC="Online Services"; add_to_wipe
+NAME="$PF/Mozilla*/install.log"; DESC="Mozilla install logs"; add_to_delete
+NAME="$PF/LimeWire/*.log"; DESC="LimeWire error logs"; add_to_delete
+NAME="$PF/MyWebSearch/bar/Cache"; DESC="MyWebSearch bar cache"; add_to_wipe
+NAME="$PF/$MSSQLLOG"; DESC="MSSQL Setup Logs"; add_to_wipe
+NAME="$PF/$YMSGR/cache"; DESC="Yahoo Messenger"; add_to_wipe
+NAME="$PF/$YMSGR/Cache"; DESC="Yahoo Messenger"; add_to_wipe
+NAME="$PF/$YMSGR/imvcache"; DESC="Yahoo Messenger"; add_to_wipe
+NAME="$PF/$YMSGR/logs"; DESC="Yahoo Messenger"; add_to_wipe
+NAME="$PF/$YMSGR/Logs"; DESC="Yahoo Messenger"; add_to_wipe
+
+NAME="$ROAM/$AAWLOGS"; DESC="Ad-Aware"; add_to_wipe
+NAME="$ROAM/$AAWQ"; DESC="Ad-Aware"; add_to_wipe
+NAME="$ROAM/AdwareAlert/Log"; DESC="AdwareAlert"; add_to_wipe
+NAME="$ROAM/AdwareAlert/Quarantine"; DESC="AdwareAlert"; add_to_wipe
+NAME="$ROAM/Adobe/ARM"; DESC="Adobe ARM"; add_to_wipe
+NAME="$ROAM/Adobe/*/*/ARM"; DESC="Adobe ARM"; add_to_wipe
+NAME="$ROAM/AOL/*/spool"; DESC="AOL"; add_to_wipe
+NAME="$ROAM/AOL/*/bart"; DESC="AOL"; add_to_wipe
+NAME="$ROAM/AOL/*/misc/temp"; DESC="AOL"; add_to_wipe
+NAME="$ROAM/AOL/TopSpeed/*/cache.db"; DESC="AOL"; add_to_delete
+NAME="$ROAM/$AOLDWNLD"; DESC="AOL"; add_to_wipe
+NAME="$ROAM/Alwil Software/Avast5/chest"; DESC="Avast Antivirus"; add_to_wipe
+NAME="$ROAM/Alwil Software/Avast5/log"; DESC="Avast Antivirus"; add_to_wipe
+NAME="$ROAM/Alwil Software/Avast5/report"; DESC="Avast Antivirus"; add_to_wipe
+NAME="$ROAM/AVAST Software/Avast/chest"; DESC="Avast Antivirus"; add_to_wipe
+NAME="$ROAM/AVAST Software/Avast/log"; DESC="Avast Antivirus"; add_to_wipe
+NAME="$ROAM/AVAST Software/Avast/report"; DESC="Avast Antivirus"; add_to_wipe
+NAME="$ROAM/$APPLEIC"; DESC="Apple installer cache"; add_to_wipe
+NAME="$ROAM/$APPLEIC2"; DESC="Apple installer cache"; add_to_wipe
+NAME="$ROAM/$APPLEIPSW"; DESC="Apple iPod SW updates"; add_to_wipe
+NAME="$ROAM/$APPLEIPLG"; DESC="Apple iPod install logs"; add_to_wipe
+NAME="$ROAM/$APPLELOGS"; DESC="Apple app logs"; add_to_wipe
+NAME="$ROAM/$APPLEMSB"; DESC="Apple MobileSync backup"; add_to_wipe
+NAME="$ROAM/$ARO2011"; DESC="Sammsoft ARO"; add_to_wipe
+NAME="$ROAM/Avery/Avery Wizard*/Samples"; DESC="Avery Wizard samples"; add_to_wipe
+NAME="$ROAM/avg*/*.log"; DESC="AVG Antivirus"; add_to_delete
+# AVG pollution
+for X in \
+'AVG*/cache' 'AVG*/chjw' 'AVG*/Chjw' 'AVG*/Dumps' 'AVG*/log' \
+'AVG*/Log' 'avg*/log' 'avg*/Log' 'avg*/scanlogs' 'avg*/Temp' \
+'AVG*/Temp' 'AVG*/SetupBackup' MFAData ;
+	do NAME="$ROAM/${X}"; DESC="AVG Antivirus"; add_to_wipe
+done
+NAME="$ROAM/$AVIRALOGS"; DESC="Avira AntiVir"; add_to_wipe
+NAME="$ROAM/$AVIRAREPS"; DESC="Avira AntiVir"; add_to_wipe
+NAME="$ROAM/bfgbartb"; DESC="Big Fish Games"; add_to_wipe
+NAME="$ROAM/BfgBar"; DESC="Big Fish Games"; add_to_wipe
+NAME="$ROAM/Big Fish Games"; DESC="Big Fish Games"; add_to_wipe
+NAME="$ROAM/BigFishGamesCache"; DESC="Big Fish Games"; add_to_wipe
+NAME="$ROAM/ClickPotatoLiteSA"; DESC="ClickPotato"; add_to_wipe
+NAME="$ROAM/Digital Album Organizer/album/*_cache"; DESC="Digital Album Organizer"; add_to_wipe
+NAME="$ROAM/DriverCure"; DESC="DriverCure"; add_to_wipe
+NAME="$ROAM/Error*Fix/Logs"; DESC="ErrorFix"; add_to_wipe
+NAME="$ROAM/F-Secure/logs"; DESC="F-Secure"; add_to_wipe
+NAME="$ROAM/$FLASH1"; DESC="Flash cache"; add_to_wipe
+NAME="$ROAM/$FLASH2"; DESC="Flash cache"; add_to_wipe
+# Mozilla Firefox/Thunderbird/etc.
+NAME="$ROAM/$FFCRASH"; DESC="Mozilla applications"; add_to_wipe
+NAME="$ROAM/$FFPROF/minidumps"; DESC="Mozilla applications"; add_to_wipe
+NAME="$ROAM/$FFPROF/ConduitEngine"; DESC="Mozilla applications"; add_to_delete
+NAME="$ROAM/$FFPROF/conduit"; DESC="Mozilla applications"; add_to_delete
+NAME="$ROAM/$FFPROF/downloads.sqlite"; DESC="Mozilla applications"; add_to_delete
+NAME="$ROAM/$FFPROF/extensions/*/*/conduit*"; DESC="Mozilla applications"; add_to_delete
+NAME="$ROAM/$FFPROF/extensions/*/*/Conduit*"; DESC="Mozilla applications"; add_to_delete
+NAME="$ROAM/$FFPROF/extensions/engine@conduit.com"; DESC="Mozilla applications"; add_to_delete
+NAME="$ROAM/$FFPROF/extensions/plugin@yontoo.com"; DESC="Mozilla applications"; add_to_delete
+NAME="$ROAM/$FFPROF/extensions/toolbar@ask.com"; DESC="Mozilla applications"; add_to_delete
+NAME="$ROAM/$FFPROF/Yahoo! Inc/ytoolbar"; DESC="Mozilla applications"; add_to_delete
+NAME="$ROAM/Mozilla/logs"; DESC="Mozilla applications"; add_to_wipe
+NAME="$ROAM/Mozilla/Profiles/*/*/Cache*"; DESC="Mozilla applications"; add_to_wipe
+NAME="$ROAM/$TBPROF/minidumps"; DESC="Mozilla applications"; add_to_wipe
+NAME="$ROAM/$TBPROF/downloads.sqlite"; DESC="Mozilla applications"; add_to_delete
+NAME="$ROAM/$TBPROF/TestPilotErrorLog.log"; DESC="Mozilla applications"; add_to_delete
+
+NAME="$ROAM/FrostWire/image_cache"; DESC="FrostWire"; add_to_wipe
+NAME="$ROAM/FrostWire/azureus/logs"; DESC="FrostWire"; add_to_wipe
+NAME="$ROAM/FrostWire/azureus/tmp"; DESC="FrostWire"; add_to_wipe
+NAME="$ROAM/GamesBar"; DESC="GamesBar"; add_to_wipe
+NAME="$ROAM/Geek Squad"; DESC="Geek Squad"; add_to_wipe
+NAME="$ROAM/Google/Google Toolbar/Update"; DESC="Google Toolbar updates"; add_to_wipe
+NAME="$ROAM/GTek"; DESC="Dell Support Center"; add_to_wipe
+NAME="$ROAM/Gtek"; DESC="Dell Support Center"; add_to_wipe
+NAME="$ROAM/HBLiteSA"; DESC="HotBar Lite SA"; add_to_wipe
+NAME="$ROAM/IMVU/Cache"; DESC="IMVU"; add_to_wipe
+NAME="$ROAM/IMVU/AssetCache"; DESC="IMVU"; add_to_wipe
+NAME="$ROAM/IMVU/HttpCache"; DESC="IMVU"; add_to_wipe
+NAME="$ROAM/IMVU/PixmapCache"; DESC="IMVU"; add_to_wipe
+NAME="$ROAM/IMVU/IMVU*.log*"; DESC="IMVU"; add_to_delete
+NAME="$ROAM/IObit"; DESC="IObit"; add_to_wipe
+NAME="$ROAM/$JAVACACHE"; DESC="Java"; add_to_wipe
+NAME="$ROAM/$JSYSCACHE"; DESC="Java"; add_to_wipe
+NAME="$ROAM/Juniper Networks/Logging"; DESC="Juniper Networks logs"; add_to_wipe
+NAME="$ROAM/Kaspersky Lab/KAV.*.*"; DESC="Kaspersky logs"; add_to_delete
+NAME="$ROAM/Kodak/Temp"; DESC="Kodak temporary files"; add_to_wipe
+NAME="$ROAM/$LFCONNECT"; DESC="Leapfrog cache"; add_to_wipe
+NAME="$ROAM/$LWMOZ/X*.mfl"; DESC="LimeWire"; add_to_delete
+NAME="$ROAM/$LWMOZ/Cache"; DESC="LimeWire"; add_to_wipe
+NAME="$ROAM/LogMeIn"; DESC="LogMeIn logs"; add_to_wipe
+NAME="$ROAM/$MBAMLOGS"; DESC="Malwarebytes"; add_to_wipe
+NAME="$ROAM/$MBAMQUAR"; DESC="Malwarebytes"; add_to_wipe
+NAME="$ROAM/McAfee/Installer/Logs"; DESC="McAfee"; add_to_wipe
+NAME="$ROAM/McAfee/MSC/Cache"; DESC="McAfee"; add_to_wipe
+NAME="$ROAM/McAfee/MCLOGS"; DESC="McAfee"; add_to_wipe
+NAME="$ROAM/McAfee/VirusScan/Quarantine"; DESC="McAfee"; add_to_wipe
+NAME="$ROAM/McAfee/*.log"; DESC="McAfee"; add_to_delete
+NAME="$ROAM/McAfee/*/*.log"; DESC="McAfee"; add_to_delete
+NAME="$ROAM/McAfee/*/*Log.txt"; DESC="McAfee"; add_to_delete
+NAME="$ROAM/McAfee.com/*/Logs"; DESC="McAfee"; add_to_wipe
+NAME="$ROAM/McAfee.com/*.log"; DESC="McAfee"; add_to_delete
+NAME="$ROAM/Move Networks/QMCache00"; DESC="Move Media Player cache"; add_to_wipe
+NAME="$ROAM/MP3Rocket/tvimages"; DESC="MP3 Rocket"; add_to_wipe
+NAME="$ROAM/$MOZCNTRL/Cache"; DESC="MozillaControl cache"; add_to_wipe
+NAME="$ROAM/$MS/CryptnetUrlCache"; DESC="MS crypto cert cache"; add_to_wipe
+NAME="$ROAM/$MS/Dr Watson"; DESC="MS app crash dumps"; add_to_wipe
+NAME="$ROAM/$MS/eHome/logs"; DESC="Media Center logs"; add_to_wipe
+NAME="$ROAM/$MS/MSN Messenger"; DESC="MSN Messenger"; add_to_wipe
+NAME="$ROAM/$MS/$MS Security */Support/*.log"; DESC="MS Sec Client logs"; add_to_delete
+NAME="$ROAM/$MS/Network/Downloader"; DESC="MS Network Downloader"; add_to_wipe
+NAME="$ROAM/$MS/Office/Recent"; DESC="MS Office recent docs"; add_to_wipe
+NAME="$ROAM/$MS/Search"; DESC="MS Search databases"; add_to_wipe
+NAME="$ROAM/$MS/Windows/IECompatCache"; DESC="IE7+ files"; add_to_wipe
+NAME="$ROAM/$MS/Windows/IEDownloadHistory"; DESC="IE7+ files"; add_to_wipe
+NAME="$ROAM/$MS/Windows/IETldCache"; DESC="IE7+ files"; add_to_wipe
+NAME="$ROAM/$MS/Windows/PrivacIE"; DESC="IE7+ files"; add_to_wipe
+NAME="$ROAM/$MS/Windows/Recent"; DESC="Recent documents"; add_to_wipe
+NAME="$ROAM/$MS/Windows/Cookies"; DESC="IE cookies"; add_to_wipe
+NAME="$ROAM/$MS/Windows/WER/ReportArchive"; DESC="Windows Error Reporting"; add_to_wipe
+NAME="$ROAM/$MS/Windows/WER/ReportQueue"; DESC="Windows Error Reporting"; add_to_wipe
+NAME="$ROAM/$MS/$WINDEF/Quarantine"; DESC="Windows Defender"; add_to_wipe
+NAME="$ROAM/$MS/$WINDEF/Scans"; DESC="Windows Defender"; add_to_wipe
+NAME="$ROAM/$MS/$WINDEF/Support"; DESC="Windows Defender"; add_to_wipe
+NAME="$ROAM/$MS/WLSetup"; DESC="Windows Live setup"; add_to_wipe
+NAME="$ROAM/$MS/$WINLTBF/*.tmp"; DESC="WinLive TB Feeds"; add_to_delete
+NAME="$ROAM/$MS/Works SE"; DESC="MS Works SE ad cache"; add_to_wipe
+NAME="$ROAM/$MS/Office/*.tmp"; DESC="MS Office temp files"; add_to_delete
+NAME="$ROAM/$MS/Word/\~*.tmp"; DESC="MS Office temp files"; add_to_delete
+NAME="$ROAM/MySpace/IM/SkypeCache"; DESC="MySpaceIM"; add_to_wipe
+NAME="$ROAM/MySpace/IM/Images"; DESC="MySpaceIM"; add_to_wipe
+NAME="$ROAM/MySpace/*/Logs"; DESC="MySpaceIM"; add_to_wipe
+NAME="$ROAM/NCH Swift Sound/Talk/Logs"; DESC="NCH SS talk logs"; add_to_wipe
+NAME="$ROAM/NortonInstaller"; DESC="Norton Installer"; add_to_wipe
+NAME="$ROAM/Norton Utilities*/nu.log"; DESC="Norton Utilities logs"; add_to_delete
+NAME="$ROAM/Norton Utilities*/log"; DESC="Norton Utilities logs"; add_to_wipe
+NAME="$ROAM/OfficeGuardian/\~SACThumbnail"; DESC="OfficeGuardian"; add_to_wipe
+NAME="$ROAM/OpenCandy"; DESC="OpenCandy downloader"; add_to_wipe
+NAME="$ROAM/$PARETOAS/*/Logs"; DESC="ParetoLogic logs"; add_to_wipe
+NAME="$ROAM/PCDr"; DESC="PC-Doctor data"; add_to_wipe
+NAME="$ROAM/PC Optimizer Pro"; DESC="PC Optimizer Pro"; add_to_wipe
+NAME="$ROAM/.pidgin/icons"; DESC="Pidgin messenger"; add_to_wipe
+NAME="$ROAM/.purple/icons"; DESC="Pidgin messenger"; add_to_wipe
+NAME="$ROAM/$PHOTOEXP/Temp.dat"; DESC="Photo Explosion"; add_to_wipe
+NAME="$ROAM/PictureMover/Log"; DESC="PictureMover"; add_to_wipe
+NAME="$ROAM/PictureMover/imageS"; DESC="PictureMover"; add_to_wipe
+NAME="$ROAM/PriceGong"; DESC="PriceGong"; add_to_wipe
+NAME="$ROAM/Pure Networks/Log"; DESC="Pure Networks logs"; add_to_wipe
+NAME="$ROAM/Pure Networks/Platform/MiniDumps"; DESC="Pure Networks dumps"; add_to_wipe
+NAME="$ROAM/QuestBrwSearch"; DESC="QuestBrwSearch"; add_to_wipe
+NAME="$ROAM/Radialpoint/*.log*"; DESC="Radialpoint Logs"; add_to_delete
+NAME="$ROAM/Radialpoint/*/*.log*"; DESC="Radialpoint Logs"; add_to_delete
+NAME="$ROAM/Real/*/ErrorLogs"; DESC="RealPlayer"; add_to_wipe
+NAME="$ROAM/Real/Msg"; DESC="RealPlayer"; add_to_wipe
+NAME="$ROAM/Real/*/DataCache"; DESC="RealPlayer"; add_to_wipe
+NAME="$ROAM/Real/Update"; DESC="RealPlayer"; add_to_wipe
+NAME="$ROAM/Real/*/temp"; DESC="RealPlayer"; add_to_wipe
+NAME="$ROAM/Real/*/Temp"; DESC="RealPlayer"; add_to_wipe
+NAME="$ROAM/Real/RealPlayer/db/Backup"; DESC="RealPlayer"; add_to_wipe
+NAME="$ROAM/Real/RealPlayer/History"; DESC="RealPlayer"; add_to_wipe
+NAME="$ROAM/Real/RealPlayer/ThumbsCache"; DESC="RealPlayer"; add_to_wipe
+NAME="$ROAM/Real/RealPlayer/WatchFolders"; DESC="RealPlayer"; add_to_wipe
+NAME="$ROAM/$SAFARI/PubSub"; DESC="Safari PubSub data"; add_to_wipe
+NAME="$ROAM/$SASLOGS"; DESC="SUPERAntiSpyware logs"; add_to_wipe
+NAME="$ROAM/ScanQuery"; DESC="ScanQuery"; add_to_wipe
+NAME="$ROAM/SecondLife/browser_profile/Cache"; DESC="SecondLife Gecko cache"; add_to_wipe
+NAME="$ROAM/SecondLife/logs"; DESC="SecondLife logs"; add_to_wipe
+NAME="$ROAM/Sierra Wireless/Logs"; DESC="Sierra Wireless"; add_to_wipe
+NAME="$ROAM/Skype/temp-*"; DESC="Skype"; add_to_delete
+NAME="$ROAM/Skype/Plugins/Local Cache"; DESC="Skype"; add_to_wipe
+NAME="$ROAM/skype.dat"; DESC="VIRUS: skype.dat"; add_to_delete
+NAME="$ROAM/SPORE/GraphicsCache*.package"; DESC="SPORE caches"; add_to_delete
+NAME="$ROAM/$SPYBOTSD"; DESC="Spybot SnD logs"; add_to_wipe
+NAME="$ROAM/Spyware Terminator"; DESC="Spyware Terminator"; add_to_wipe
+NAME="$ROAM/supportdotcom/logs"; DESC="Support.com logs"; add_to_wipe
+NAME="$ROAM/SupportSoft"; DESC="Dell Support Center"; add_to_wipe
+NAME="$ROAM/Symantec/Dumps"; DESC="Symantec dumps"; add_to_wipe
+NAME="$ROAM/Symantec/LiveUpdate/*Log*"; DESC="Symantec LiveUpdate"; add_to_delete
+NAME="$ROAM/Symantec/LiveUpdate/Downloads"; DESC="Symantec LiveUpdate"; add_to_wipe
+NAME="$ROAM/Systweak"; DESC="Systweak"; add_to_wipe
+NAME="$ROAM/TeamViewer/*_logfile.log"; DESC="TeamViewer logs"; add_to_wipe
+NAME="$ROAM/temp"; DESC="Temporary files (roaming)"; add_to_wipe
+NAME="$ROAM/Temp"; DESC="Temporary files (roaming)"; add_to_wipe
+NAME="$ROAM/$TMAVLOGS"; DESC="Trend Micro AV logs"; add_to_wipe
+NAME="$ROAM/Toolbar4/*/cache"; DESC="Toolbar4"; add_to_wipe
+NAME="$ROAM/Uniblue"; DESC="Uniblue data"; add_to_wipe
+NAME="$ROAM/uTorrent/*.old"; DESC="uTorrent"; add_to_delete
+NAME="$ROAM/utorrent/*.old"; DESC="uTorrent"; add_to_delete
+NAME="$ROAM/uTorrent/dlimagecache"; DESC="uTorrent"; add_to_wipe
+NAME="$ROAM/utorrent/dlimagecache"; DESC="uTorrent"; add_to_wipe
+NAME="$ROAM/uTorrent/ie"; DESC="uTorrent"; add_to_wipe
+NAME="$ROAM/utorrent/ie"; DESC="uTorrent"; add_to_wipe
+NAME="$ROAM/Vso/ConvertXtoDVD.log"; DESC="VSO ConvertXtoDVD"; add_to_delete
+NAME="$ROAM/Webroot/BugReports"; DESC="Webroot bug reports"; add_to_wipe
+NAME="$ROAM/$WDSMART/*.txt"; DESC="WD SmartWare logs"; add_to_delete
+NAME="$ROAM/WindowsSearch/MiniDumps"; DESC="Windows Search minidumps"; add_to_wipe
+NAME="$ROAM/Yahoo!/Companion"; DESC="Yahoo Companion"; add_to_wipe
+
+NAME="$P/.thumbnails"; DESC="User thumbnails"; add_to_wipe
+NAME="$P/Cookies"; DESC="IE cookies"; add_to_wipe
+NAME="$P/Music/$ITAAC"; DESC="iTunes AA cache"; add_to_wipe
+NAME="$P/My Documents/My Music/$ITAAC"; DESC="iTunes caches"; add_to_wipe
+NAME="$P/My Documents/My Pictures/iPod Photo Cache"; DESC="iTunes caches"; add_to_wipe
+NAME="$P/Pictures/iPod Photo Cache"; DESC="iTunes caches"; add_to_wipe
+NAME="$P/Recent"; DESC="Recent documents"; add_to_wipe
+NAME="$P/Incomplete"; DESC="LimeWire incompletes"; add_to_wipe
+NAME="$P/IECompatCache"; DESC="IE7 cache"; add_to_wipe
+NAME="$P/IETldCache"; DESC="IE7 cache"; add_to_wipe
+NAME="$P/PrivacIE"; DESC="IE7 cache"; add_to_wipe
+NAME="$P/$XPLS/TEMP"; DESC="XP temporary files"; add_to_wipe
+NAME="$P/$XPLS/Temp"; DESC="XP temporary files"; add_to_wipe
+NAME="$P/$XPLS/temp"; DESC="XP temporary files"; add_to_wipe
+NAME="$P/$XPLS/$TIF"; DESC="TIFs"; add_to_wipe
+NAME="$P/$XPLS/History"; DESC="IE History"; add_to_wipe
+
+for FT in amipro.sam excel4.xls lotus.wk4 presenta.shw quattro.wb2 \
+	sndrec.wav wordpfct.wpg
+	do NAME="$P/Templates/$FT"; DESC="Windows file templates"; add_to_delete
+done
+
+NAME="$V7DOCS/$V7SAMPLE"; DESC="Sample media files"; add_to_wipe
+
+# General cleaning
+
+# If no Windows folder was detected, don't try to clean within it
+if [ ! "$WINDIR" = "__NONE__" ]
+	then
+	NAME="$WINDIR/\$NtUninstall*\$"; DESC="Windows Update"; add_to_delete
+	NAME="$WINDIR/SoftwareDistribution/Download"; DESC="Windows Update"; add_to_wipe
+	NAME="$WINDIR/inf/*.PNF"; DESC="Windows temp files"; add_to_delete
+	NAME="$WINTEMP"; DESC="Windows temp files"; add_to_wipe
+	NAME="$WINDIR/assembly/*/Temp"; DESC="Windows temp files"; add_to_wipe
+	NAME="$WINDIR/SxsCaPendDel"; DESC="Windows temp files"; add_to_delete
+	NAME="$WINDIR/*.tmp"; DESC="Windows temp files"; add_to_delete
+	NAME="$WINDIR/$SYS32/*.tmp"; DESC="Windows temp files"; add_to_delete
+	NAME="$WINDIR/$SYS32/temppf.sys"; DESC="Windows temp files"; add_to_delete
+	NAME="$WINDIR/Minidump"; DESC="Windows memory dumps"; add_to_wipe
+	NAME="$WINDIR/MiniDump"; DESC="Windows memory dumps"; add_to_wipe
+	NAME="$WINDIR/MEMORY.DMP"; DESC="Windows memory dumps"; add_to_delete
+	NAME="$WINDIR/Prefetch"; DESC="Windows prefetcher"; add_to_wipe
+	NAME="$WINDIR/$SYS32/FNTCACHE.DAT"; DESC="Windows font cache"; add_to_delete
+	NAME="$WINDIR/Logs"; DESC="Windows logs"; add_to_wipe
+	NAME="$WINDIR/ModemLog*.txt"; DESC="Windows logs"; add_to_wipe
+	NAME="$WINDIR/security/logs"; DESC="Windows logs"; add_to_wipe
+	NAME="$WINDIR/pchealth/helpctr/Logs"; DESC="Windows logs"; add_to_wipe
+
+	# LOTS of Windows log files to delete
+	for X in \
+	'*.LOG' '*.Log' '*.log' '*.log.*' Debug/blastcln.log \
+	'Debug/mrt*.log' Debug/NetSetup.LOG Debug/sammui.log \
+	'Debug/UserMode/userenv.*' Debug/WIA/wiatrace.log \
+	debug/blastcln.log 'debug/mrt*.log' debug/NetSetup.LOG \
+	debug/sammui.log 'debug/UserMode/userenv.*' \
+	debug/WIA/wiatrace.log 'inf/setupapi.*.log' 'ModemLog*.txt' \
+	Microsoft.NET/Framework*/'*/*.log' 'Panther/*.log' \
+	'Panther/UnattendGC/*.log' SchedLgU.Txt \
+	'SoftwareDistribution/*.log' $SYS32/'*.log' \
+	$SYS32/'LogFiles/*/*.log' $SYS32/'LogFiles/*/*.etl' \
+	$SYS32/'LogFiles/*/*.etl.*' $SYS32/'Macromed/Flash/*.log' \
+	$SYS32/MsDtc/Trace/dtctrace.log $SYS32/'wbem/Logs/*.log' \
+	$SYS32/'wbem/Logs/*.lo_' ;
+		do NAME="$WINDIR/${X}"; DESC="Windows logs"; add_to_delete
+	done
+
+	NAME="$WINDIR/$SYS32/DriverStore/Temp"; DESC="DriverStore temp files"; add_to_wipe
+	NAME="$WINDIR/winsxs/Temp"; DESC="WinSxS temporary files"; add_to_wipe
+fi
+
+for X in \
+RECYCLED RECYCLER Recycled Recycler recycled \
+recycler \$Recycle.Bin \$RECYCLE.BIN ;
+	do NAME="${X}"; DESC="Recycle Bin"; add_to_wipe
+done
+
+NAME="AdobeDebug.txt"; DESC="Adobe debug logs"; add_to_delete
+NAME="ADSClient.txt"; DESC="Aluria client files"; add_to_delete
+NAME="ADSServer.txt"; DESC="Aluria client files"; add_to_delete
+NAME="ADSService.txt"; DESC="Aluria client files"; add_to_delete
+NAME="AluriaCacheFile.dat"; DESC="Aluria client files"; add_to_delete
+NAME="AI_RecycleBin"; DESC="Advanced Installer files"; add_to_wipe
+NAME="\$AVG*"; DESC="AVG virus vault"; add_to_wipe
+NAME="found.[0-9][0-9][0-9]"; DESC="CHKDSK fragments"; add_to_wipe
+NAME="ffastun*.ff*"; DESC="Find Fast"; add_to_delete
+NAME="swapfile.sys"; DESC="Paging file"; add_to_delete
+NAME="SWAPFILE.SYS"; DESC="Paging file"; add_to_delete
+NAME="pagefile.sys"; DESC="Paging file"; add_to_delete
+NAME="PAGEFILE.SYS"; DESC="Paging file"; add_to_delete
+NAME="hiberfil.sys"; DESC="Hibernation file"; add_to_delete
+NAME="HIBERFIL.SYS"; DESC="Hibernation file"; add_to_delete
+NAME="System Volume Information/Chkdsk"; DESC="CHKDSK logs"; add_to_wipe
+NAME="System Volume Information/\{*\}"; DESC="System Restore points"; add_to_delete
+NAME="System Volume Information/_restore*/RP*"; DESC="System Restore points"; add_to_wipe
+NAME="sqm*.sqm"; DESC="Stray MSN Msgr files"; add_to_delete
+NAME="Temp"; DESC="Temporary files"; add_to_wipe
+NAME="temp"; DESC="Temporary files"; add_to_wipe
+NAME="TDSSKiller_Quarantine"; DESC="TDSSKiller"; add_to_wipe
+# Lots of different log files end up in the root somehow
+for X in \
+Intel/Logs 'TDSSKiller*_log.txt' '*.log' 'OEM/*.log' 'OEM/*/*.log' \
+'OEM/*/*/*.log' 'OEM/*/*/*/*.log' 'OEM/*/*/*/*/*.log' \
+ActExtLog.txt logfile logFile.xsl YServer.txt log.txt \
+RfLog.txt COMLOG.txt
+	do NAME="${X}"; DESC="Log files"; add_to_delete
+done
+# Some MSVC++ runtime installers barf all over the root of the drive
+for X in \
+'VC_RED.*' 'eula.*.txt' globdata.ini install.exe \
+install.ini 'install.res.*.dll' vcredist.bmp;
+	do NAME="${X}"; DESC="MSVC++ installer"; add_to_delete
+done
+
+# Load file list in a background process
+echo -e "\nLoading file list. Please wait."
+find . 2>/dev/null >$TMPFILE
+
+# Scan files
+NAME='Thumbs\.db'; DESC="Thumbnail DBs"; SP='\.'; add_to_scan
+NAME='ehthumbs_vista.db'; DESC="Thumbnail DBs"; SP='\.'; add_to_scan
+NAME='\.thumbnails'; DESC="Thumbnails"; SP="\./$P"; add_to_scan
+NAME='~\$[^/]*\.[^/]*'; DESC="Office temp files"; SP='\.'; add_to_scan
+NAME='~WRL[^/]*\.tmp'; DESC="Office temp files"; SP='\.'; add_to_scan
+
+# Windows folder viruses
+for X in \
+sdra64.exe winlogon86.exe \
+'TDSS?????*' 'UAC??????*' 'VOID?????*' \
+'_VOID?????*' 'PRAGMA???*' 'pragma???*' \
+exe.exe svchast.exe nail.exe \
+winlgoon.exe iesafemode.exe
+	do NAME="${X}"; DESC="KNOWN VIRUS"; SP='\.'; add_to_scan
+done
+
+# AppData viruses
+for X in \
+av.exe ave.exe hotfix.exe virus.exe
+	do NAME="${X}"; DESC="KNOWN VIRUS"; SP="\./$P"; add_to_scan
+done
+
+### End cleaning definitions
+
+rm -f $TMPFILE
+
+test "$NOSIZE" = "1" && CLEANED="(fast mode)"
+test "$MSG" = "1" && echo "$CLEANED KB.${COFF}"
+test "$MSG" = "2" && echo -e "\n${CPUR}Completed! ${CGRN}Cleaned ${CWHT}$CLEANED KB.${COFF}\n"
+
+for X in Windows.old*/ "Restored from Carbonite" Backup* "My Backup*"
+	do if [ -d "$X" ]
+		then
+		echo "Running in subfolder $X"
+		CWD="$(pwd)"
+		cd "$X"
+		if echo "$0" | grep -q '^/'
+			then $0 $@
+			else "$CWD/$0" $@
+		fi
+		cd "$CWD"
+		unset CWD
+	fi
+done

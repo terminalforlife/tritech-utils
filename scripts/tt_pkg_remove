@@ -1,0 +1,25 @@
+#!/bin/sh
+
+# Removes an installed TSS package
+VER=0.1
+VERDATE=2013-05-13
+
+echo "TSS package removal tool $VER ($VERDATE)"
+
+PKGDIR=./packages/installed
+PKG="$1"
+P="$PKGDIR/$1"
+
+if [ ! -d "$PKGDIR" ]
+	then echo "Error: directory '$PKGDIR' not found."
+	echo "You must run this tool from your TSS installation root directory."
+	exit 1
+fi
+if [ -e "$P" ]
+	then echo "Peeling out package $1"
+	for X in $(cat $P | grep -v '/$'); do echo rm -f "./$X"; done
+	for X in $(cat $P | grep '/$' | sort -r); do echo rmdir "./$X"; done
+	else echo "Bad package spec: '$1'"
+	exit 1
+fi
+

@@ -1,0 +1,144 @@
+#!/bin/ash
+
+# Displays info on storage devices in the system
+
+VER=1.3
+VERDATE="2013-10-13"
+
+. tss__common
+
+get_device_info () {
+	REM="$(cat /sys/block/$1/removable | tr -d '\n')"
+	readlink "/sys/block/$1" | grep -q "/usb" && USB=1 || USB=0
+	case $REM$USB in
+		00) TYPE="Internal" ;;
+		01) TYPE="USB HDD or large flash drive" ;;
+		10) TYPE="Internal removable disk" ;;
+		11) TYPE="USB removable disk or flash drive" ;;
+		*) TYPE="Unknown type $DTYPE" ;;
+	esac
+	Z=$(cat /sys/block/$1/size)
+	DEVSIZE=$(expr $Z / 2 \* 1024 / 1000000000)
+	if [ "$DEVSIZE" -lt "2" ]
+		then DEVSIZE=$(expr $Z / 2 \* 1024 / 1000000)
+		DEVSIZE="$DEVSIZE MB"
+		else DEVSIZE="$DEVSIZE GB"
+	fi
+	unset MDTYPE
+	if [ -e /sys/block/$1/md/level ]
+		then
+		MDTYPE="Linux software $(cat /sys/block/$1/md/level)"
+		MEMBERS="$(echo /sys/block/$1/slaves/* | sed "s#/sys/block/$1/slaves/##g")"
+	fi
+	unset SOFTRAID
+	echo "$KILL" | grep -q "$1" && SOFTRAID="${CWHT}[Linux RAID slave]$COFF"
+}
+
+expand_fsid () {
+	case $1 in
+		 4) FS="fat16" ;;
+		 6) FS="fat16" ;;
+		 7) FS="ntfs-3g" ;;
+		 b) FS="fat32" ;;
+		 c) FS="fat32" ;;
+		 e) FS="fat16" ;;
+		27) FS="acer-rec" ;;
+		81) FS="minix" ;;
+		82) FS="swap" ;;
+		83) FS="linux" ;;
+		86) FS="win-raid" ;;
+		87) FS="win-raid" ;;
+		8e) FS="linux-lvm" ;;
+		de) FS="dell-diag" ;;
+		ee) FS="efi-gpt" ;;
+		ef) FS="eft-fat" ;;
+		fd) FS="linux-raid" ;;
+		 *) FS="unknown" ;;
+	esac
+}
+
+# If "nopart" is passed, only display devices.
+NP=0
+if [ "$1" = "nopart" ]
+	then NP=1
+fi
+
+if [ "$NP" = "0" ]
+	then echo -n "${CWHT}Tritech filesystem info tool, version "
+	echo "$CCYA$VER$CWHT, last updated $CPUR$VERDATE$COFF"
+fi
+
+if [ -e /sbin/fdisk ]; then FDISK=/sbin/fdisk; fi
+if [ -e /usr/sbin/fdisk ]; then FDISK=/usr/sbin/fdisk; fi
+
+PART=$(mktemp)
+rm -f $PART
+DRIVES="$(echo /dev/sd? /dev/hd? | tr ' ' '\n' | grep -v '\?' | sort)"
+# Pulls partition info via fdisk and adds lines to PART
+# in the format:  /dev/devX=type.size_in_1k_blocks
+for DRIVE in $DRIVES
+	do $FDISK -l $DRIVE 2>/dev/null | grep /dev | grep -v Disk | \
+		tr -d \* | tr -d + | awk '{ print $1"="$5"."$4 }' >> $PART
+done
+
+KILL="$(echo /sys/block/md*/slaves/* | tr ' ' '\n' | grep -v '\*' | sed 's#.*/##g' | tr '\n' ' ')"
+
+for X in $(echo /dev/md?* | tr ' ' '\n' | grep -v '\?' | sed s#/dev/##g | tr '\n' ' ')
+	do test "$(cat /sys/block/$X/size)" != "0" && RAID="$RAID $X"
+done
+
+DRV="none"
+
+test ! -e $PART && echo "${CRED}No disks found. Aborting.$COFF" && exit 1
+
+for DRV in $DRIVES
+	do NPT=1; NPD=0; X=$(echo "$DRV" | sed s./dev/..) 
+	# If no partition 1-4 exists, don't display partitions
+	for C in 1 2 3 4
+		do test -e "/sys/block/$X/$X$C" && NPT=0
+	done
+	test "$NP" = "1" && NPT=1
+	get_device_info $X
+	if [ "$DEVSIZE" != "0 MB" ]
+		then
+		echo -en "$CCYA$X: $CRED$TYPE $CGRN($DEVSIZE) $CWHT$SOFTRAID$COFF"
+		if [[ "$NP" = "0" && "$NPT" = "1" && "$NPD" = "0" ]]
+			then echo -n " (no partitions)"; NPD=1
+		fi
+		echo
+		else ZERO="$ZERO $X"
+	fi
+
+	if [ $NPT = 0 ]
+		then for X in $(cat "$PART" | grep "$DRV" | tr \\n " ")
+			do Y=$(echo $X | tr . " " | awk '{ print $2 }')
+			Z=$(expr $Y \* 1024 / 1000000000)
+			if [ "$Z" -lt "2" ]
+				then Z=$(expr $Y \* 1024 / 1000000)
+				Z="${Z} MB"
+				else Z="${Z} GB"
+			fi
+			SIZE="$Z"
+			DEVICE=$(echo "$X" | sed 's/=.*//g')
+			FSID=$(echo "$X" | sed 's/^.*=//;s/\..*//')
+			expand_fsid $FSID
+			echo "$KILL" | grep -q "$(basename $DEVICE)" || echo "  $CWHT+-- $CPUR$DEVICE  $CWHT$FS  $CYEL$SIZE"
+			test "$FSID" = "ee" && echo "  $CWHT+-- ${CYEL}WARNING:$CWHT EFI GPT partitioning detected!"
+		done
+	fi
+done
+
+test ! -z "$RAID" && echo
+for DRV in $RAID
+	do
+	get_device_info $DRV
+	echo "$CCYA$DRV: $CRED$MDTYPE $CGRN($DEVSIZE)$COFF"
+	echo "  $CWHT+-- ${CGRN}Members: $CWHT$MEMBERS$COFF"
+done
+
+if [ ! -z "$ZERO" ]
+	then echo -e "\n${CCYA}Empty devices: $CYEL$ZERO$COFF"
+fi
+
+echo -e "$COFF"
+rm -f $PART

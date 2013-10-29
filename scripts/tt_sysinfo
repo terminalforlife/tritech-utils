@@ -1,0 +1,100 @@
+#!/bin/bash
+
+VER="1.11"
+VERDATE="2013-09-06"
+
+#echo "Tritech system info tool $VER, updated on $VERDATE"
+#echo "Copyright (c) by c02ware and Jody Bruchon"
+
+# Presents system information
+
+. tss__common
+. tss_client
+
+echo "${CCYA}CPU:  $CGRN$(cat /proc/cpuinfo | grep "model name" | sed s/.*:[^A-Za-z]*//g | head -n 1)$COFF ($CBLU$(cat /proc/cpuinfo | grep "model name" | wc -l) cores$COFF)"
+
+VALID="256 384 512 768 1024 1280 1536 2048 3072 3584 4096 5120 6144 7168 8192 10240 12288 16384 20480 24576 32768"
+MEMT=$(cat /proc/meminfo | grep MemTotal | awk '{print $2}')
+# Attempt to normalize memory count to a known good value
+VX=131072
+for X in $(echo $VALID)
+  do
+  X=$(expr $X \* 1024)
+  if [[ "$MEMT" -gt $VX && "$MEMT" -le $X ]]
+    then MEMT=$(expr $X / 1024)
+    break
+    else VX=$X
+  fi
+done
+# Ugly math to convert KiB to decimalized KB
+MEMG=$(expr $MEMT / 1024)
+MEML=$(expr $MEMT % 1024)
+MEML=$(expr $MEML \* 10)
+MEML=$(expr $MEML / 512)
+MEML=$(expr $MEML \* 5)
+test "$MEMT" -lt 1024 && echo "${CPUR}RAM:  $CRED$MEMT$COFF MB"
+test "$MEMT" -gt 1023 && echo "${CPUR}RAM:  $CRED${MEMG}.${MEML}$COFF GB"
+
+# Calculate the stupid bogus marketing GB size of all hard drives
+for X in /sys/block/sd*
+  do if [[ -e "$X/device" && "$(cat $X/size)" -gt 0 && "$(cat $X/removable)" -eq 0 ]]
+    then
+    Y=$(basename $X)
+    SIZE=$(cat "$X/size")
+    SIZE=$(expr $SIZE \* 512 / 1000000000)
+    SIZETB=$(expr $SIZE / 1000)
+    DN=$(hdparm -I /dev/$Y 2>/dev/null | grep 'Model Number:' | sed 's/[^:]*[^a-zA-Z0-9]*//;s/ *$//g')
+    test "$DN" = "" && DN="unknown"
+    if [ "$SIZETB" -eq 0 ]
+      then echo "$CWHT$(basename $X)$COFF:  $CPUR$SIZE$COFF GB  (Model $DN)"
+      else echo "$CWHT$(basename $X)$COFF:  $CPUR$SIZETB$COFF TB    (Model $DN)"
+    fi
+  fi
+done
+
+unset NET
+for X in /sys/class/net/eth*
+	do if [ "$(cat $X/carrier)" = "1" ]
+		then NET="$NET  $CWHT$(basename $X):"
+		LINK="$(cat $X/speed)"
+		case $LINK in
+			1000) NET="$NET ${CGRN}1000 Mbps$COFF" ;;
+			100) NET="$NET ${CYEL}100 Mbps$COFF" ;;
+			10) NET="$NET ${CRED}10 Mbps$COFF" ;;
+			*) NET="$NET ${CCYA}Unsure ($LINK)$COFF" ;;
+		esac
+	fi
+done
+if [ -z "$NET" ]
+	then echo "${CYEL}NET:  No ethernet adapter detected.$COFF"
+	else echo "${CGRN}NET:$NET$COFF"
+fi
+
+
+# If TSS client available, try to display TSS record for system.
+if [[ "$TSS_CLIENT" = "1" && ! -z "$PCID" ]]
+	then
+	echo "${CBLU}TSS:  ${CPUR}PCID: $CWHT$PCID  ${CPUR}WOID: $CWHT$WOID$COFF"
+	unset DIAGS NOTES
+	for X in A_HDD A_BURNIN A_CLEANER A_BACKUP A_VIRUS A_MBR A_CDROM
+		do if [ "$(eval echo "\$$X")" = "1" ]
+			then DIAGS="$(echo "$X" | sed s/._//) $DIAGS"
+		fi
+	done
+	for X in N_SPACE N_SLOWAV N_LOWRAM N_BADRAM N_BADHDD N_VIRUS
+		do if [ "$(eval echo "\$$X")" = "1" ]
+			then NOTES="$(echo "$X" | sed s/._//) $NOTES"
+		fi
+	done
+	test -z "$DIAGS" && DIAGS="(none) "
+	test -z "$NOTES" && NOTES="(none) "
+	echo "${CBLU}TSS:  ${CCYA}Diags: $CWHT$DIAGS$COFF ${CCYA}Notes: $CWHT$NOTES$COFF"
+	echo "${CBLU}TSS:  ${CCYA}OS:    $CWHT$OS$COFF"
+fi
+
+# If this is a Windows 8 or higher machine with a UEFI BIOS embedded
+# product key, show the key.
+MSDM=/sys/firmware/acpi/tables/MSDM
+if [ -e $MSDM ]
+	then echo "${CYEL}WIN:  $CWHT$(strings $MSDM | tail -n 1)$COFF"
+fi

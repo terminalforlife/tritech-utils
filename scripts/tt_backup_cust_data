@@ -1,0 +1,261 @@
+#!/bin/bash
+
+VER=0.6.2
+VERDATE="2013-08-18"
+
+. tss__common
+. tss_client
+
+echo "${CWHT}Tritech customer data backup/restore tool $VER ($VERDATE)"
+test ! -x /usr/bin/rsync && echo "${CRED}rsync not found, aborting.$COFF" && exit 1
+
+BACKUPDIR=customer_backups
+BACKUPROOT=$BASE/$BACKUPDIR
+RSYNC_USER=tritech
+export RSYNC_PASSWORD=""
+
+# Use rsync-native mode?
+RSM=1
+test ! "$BASE" = "/mnt/cifs" && RSM=0
+
+IFS0="$IFS"
+IFS1=$(echo -en "\n\b")
+IFS="$IFS1"
+
+LRCNT=0
+INCREMENT=10
+LOGFILE="/var/log/$(basename "$0").log"
+
+### Functions
+rotate_progress () {
+	# Provides a rotating progress indicator
+	(( ROTATE ++ ))
+	case $ROTATE in
+		0) C='|';;
+		1) C='/';;
+		2) C='-';;
+		3) C="\\";;
+		*) ROTATE=0; C='|' ;;
+	esac
+	echo -n "${C}"
+	test ! "$RBS" = "1" && echo -en "\b"
+}
+
+load_rotate () {
+	test "$LOADCNT" = "" && LOADCNT=0
+	echo -n "${CWHT}Syncing [${CBLU}"
+	RBS=1; rotate_progress; RBS=0
+	LOADCNT=$((LOADCNT + 1))
+	echo -en "${CWHT}] $CGRN$LOADCNT\r$COFF"
+}
+
+line_rotate () {
+	while read X
+		do
+		LRCNT=$((LRCNT + 1))
+		if [ $LRCNT -gt $INCREMENT ]
+			then LOADCNT=$(( LOADCNT + INCREMENT - 1))
+			load_rotate
+			LRCNT=0
+		fi
+	done
+}
+
+select_backup_data () {
+	# Makes a list of items in the root, cuts out names of known files,
+	# and prompts to back up anything that remains.
+	IDX=0
+	echo -e "\nThe following are backup candidates; answer y/n."
+	for X in *
+		do
+		ADD=1
+		for BL in \
+			WINDOWS Windows windows WINNT WinNT winnt WINXP WinXP winxp \
+			"System Volume Information" \
+			"Program Files" "Program Files (x86)" "MSOCache" \
+			RECYCLER Recycler recycler RECYCLED Recycled recycled \
+			"\$Recycle.Bin" "\$RECYCLE.BIN" "\$AVG\$" "\$Avg\$" \
+			"\$AVG" "\$avg\$" PerfLogs ProgramData Recovery NTLDR ntldr \
+			BOOTMGR bootmgr grldr GRLDR menu.lst boot.ini BOOT.INI \
+			"\$AVG8.VAULT\$" AUTOEXEC.BAT autoexec.bat CONFIG.SYS config.sys \
+			Boot arcldr.exe CMPNENTS i386 I386 VALUEADD Config.Msi \
+			Garmin INFCACHE.1 IO.SYS io.sys Intel IPH.PH NTDETECT.COM \
+			"My Download Files" "My Downloads" "My Games" OEM RHDSetup.log \
+			Screensavers.com StubInstaller.exe lexmark Lexmark install.exe \
+			setup.exe install.ini updatedatfix.log logfile napster.log \
+			ntuser.dat ntuser.dat.LOG nvida.log pagefile.sys rkill.log \
+			scramble.log globdata.ini drvrtmp devicetable.log \
+			WORKSSETUP _NavCClt.log audio.log book bootsqm.dat dell.sdr \
+			WINDOWSCache VC_RED.MSI VC_RED.cab TB.log MSDOS.SYS
+			do test "$X" = "$BL" && ADD=0 && break
+		done
+		if [[ "$X" = "Documents and Settings" && -d Users ]]
+			then ADD=0
+		fi
+		if [ "$ADD" = "1" ]
+			then
+			echo -n "$X ? "
+			read -n 1 Y
+			if [[ "$Y" = "y" || "$Y" = "Y" ]]
+				then
+				echo -e "\r${CGRN}Backing up $CWHT$X$COFF"
+				FILES[$IDX]="$X"
+				IDX=$((IDX + 1))
+				else
+				echo -e "\r${CYEL}Ignoring   $CBLU$X$COFF"
+			fi
+		fi
+	done
+}
+
+scan_for_quickbooks_data () {
+	test "$IDX" = "" && IDX=0
+	echo "Scanning for QuickBooks data files..."
+	for X in $(find -name '*.qbw') $(find -name '*.QBW')
+		do
+		if [ -e "$X" ]
+			then
+			echo -n "$X ? "
+			read -n 1 Y
+			if [[ "$Y" = "y" || "$Y" = "Y" ]]
+				then
+				echo -e "\r${CGRN}Backing up $CWHT$X$COFF"
+				FILES[$IDX]="$X"
+				IDX=$((IDX + 1))
+				else
+				echo -e "\r${CYEL}Ignoring   $CBLU$X$COFF"
+			fi
+		fi
+	done
+}
+### End functions
+
+TMP=$(mktemp)
+tt__disk_prompt $TMP
+DEV="$(cat $TMP)"
+rm $TMP
+
+PART="$(cat /proc/partitions | awk '{ print $3" "$4 }' | \
+	grep $DEV\[1-9\] | sort -gr | \
+	awk '{ print $2 }' | tr \\n ' ')"
+DEFAULT="$(echo $PART | tr ' ' \\n | head -n 1)"
+
+test -z "$PART" && echo "$CWHT$DEV$CRED has no partitions, aborting.$COFF" && exit 1
+
+echo "${CCYA}Available partitions: $CWHT$PART$COFF"
+echo "${CWHT}$DEFAULT$CCYA is the largest partition.$COFF"
+tt_fsinfo | grep "/dev/$DEV"
+echo -n "${COFF}Which partition (enter for $CWHT$DEFAULT$COFF)? "
+read X
+PART="$DEFAULT"
+test ! -z "$X" && PART="$X"
+if [ ! -e /dev/$X ]
+	then echo "${CWHT}/dev/$X$CRED does not exist, aborting.$COFF"
+	exit 1
+fi
+
+echo "${CWHT}Using $CGRN/mnt/$PART$CWHT as hard drive$COFF"
+
+EXIST="$(cat /proc/mounts | grep "/dev/$PART" | head -n 1 | awk '{ print $2 }')"
+if [ "$EXIST" = "" ]
+	then
+	if ! mount /mnt/$PART
+		then echo "${CRED}mount /mnt/$PART failed$COFF"
+		exit 1
+	fi
+	MTPT="/mnt/$PART"
+	echo "${CWHT}Mounted /dev/$PART at $CBLU$MTPT$COFF"
+	else
+	MTPT="$EXIST"
+	echo "${CWHT}Using existing mountpoint at $CBLU$MTPT$COFF"
+fi
+
+if [ ! "$WOID" = "" ]
+	then
+	echo -n "Accept automatic WOID $CWHT$WOID$COFF (y/n)? "
+	read -n 1 YN
+	echo
+	test "$YN" = "n" && unset WOID
+fi
+if [ "$WOID" = "" ]
+	then
+	echo -n "Manually enter desired work order ID: "
+	read WOID
+	test "$WOID" = "" && echo "${CRED}No number given, aborting.$COFF" && exit 1
+	else echo "${CGRN}Autodetected work order $CPUR$WOID$COFF"
+fi
+BU="$BACKUPROOT/$WOID"
+echo "${CWHT}Using $CPUR$BU$COFF as backup area"
+
+tt_cifs
+
+echo -n "${CWHT}Please specify backup or restore (b/r): $COFF"
+read -n 1 BR; echo
+
+case $BR in
+
+b|B)
+if [ ! -d $BU ]
+	then
+	mkdir -p $BU \
+	|| (echo "mkdir $BU failed" && exit 1)
+fi
+cd $MTPT
+
+echo "${CYEL}Press a key to bypass running tt_cleaner...$COFF"
+X=0
+read -t 3 -s -n 1 && echo "${CPUR}Not running tt_cleaner due to user keypress.$COFF" && X=1
+test $X -eq 0 && echo "Please wait while the cleaner is run." && \
+	tt_cleaner -Q | tee -a $LOGFILE
+unset X
+
+select_backup_data
+scan_for_quickbooks_data
+test "$IDX" -eq "0" && echo "Nothing to back up!" && exit 1
+
+# Change backup destination if in rsync-native mode
+test "$RSM" = "1" && BU="${RSYNC_USER}@ae86::tritech/$BACKUPDIR/$WOID"
+
+C=0
+while [ "$C" -lt "$IDX" ]
+	do
+	echo "$CWHT${FILES[$C]}:$COFF"
+	rsync -rtv --delete --exclude=desktop.ini \
+		"$MTPT/${FILES[$C]}" "$BU/" | \
+		tee -a $LOGFILE | line_rotate || \
+		echo -e "\n${CYEL}rsync encountered errors, check $BU$COFF"
+	echo -e "${CWHT}Finished: $CGRN$MTPT/${FILES[$C]}$CWHT => $CPUR$BU$COFF"
+	C=$((C + 1))
+done
+	if [ "$RSM" = "0" ]
+		then
+		echo "${CGRN}Resetting permissions on backup files.$COFF"
+		chown -R $RSYNC_USER:users $BACKUPROOT/$WOID/ 2>/dev/null
+		chmod -R ug-s $BACKUPROOT/$WOID/ 2>/dev/null
+		chmod -R ug+rwX $BACKUPROOT/$WOID/ 2>/dev/null
+		chmod -R o-rwx $BACKUPROOT/$WOID/ 2>/dev/null
+	fi
+echo -e "${CWHT}Backup complete! Log saved to $LOGFILE$COFF"
+;;
+
+r|R)
+if [ -d "$MTPT/Backup" ]
+	then
+	mkdir "$MTPT/Backup" || \
+		(echo "${CRED}mkdir $BU failed$COFF" && exit 1)
+fi
+test -d $BU || \
+	(echo "${CRED}$BU does not exist$COFF" && exit 1)
+
+# Change backup destination if in rsync-native mode
+test "$RSM" = "1" && BU="${RSYNC_USER}@ae86::tritech/$BACKUPDIR/$WOID"
+
+rsync -rtv --delete "$BU/" "$MTPT/Backup/" | \
+	tee -a $LOGFILE | line_rotate || \
+	echo -e "\n${CYEL}rsync encountered errors, check $BU$COFF"
+echo -e "${CWHT}Finished: $CGRN$BU$CWHT => $CPUR$MTPT/Backup$COFF"
+echo -e "\n${CWHT}Log saved to $LOGFILE$COFF"
+;;
+
+esac
+

@@ -1,0 +1,45 @@
+#!/bin/bash
+
+# Experimental image taking script
+shopt -s nullglob
+
+. tss__common
+
+test "$BASE" = "/mnt/cifs" && tt_cifs -q
+
+control_c () {
+	echo -e "\nInterrupted, cleaning up..."
+	test -e "$IMGNAME" && rm -f "$IMGNAME"
+	exit 1
+}
+trap control_c INT TERM QUIT HUP
+
+echo "${CCYA}Experimental image taking script, please use caution.$COFF"
+echo "BASE is set to $CWHT$BASE$COFF"
+
+TF=$(mktemp)
+tt__disk_prompt $TF
+DEV="/dev/$(cat $TF)"
+rm -f $TF; unset TF
+test ! -e $DEV && echo "$DEV does not exist." && exit 1
+
+echo -n "Zeroing empty space on partitions: "
+for X in ${DEV}?
+	do DEVX=$(basename $X)
+	test "$DEVX" = "$(basename $DEV)" && echo -n "!! "
+	echo -n "$CWHT$DEVX$COFF "
+	cd /mnt
+	mount $DEVX && cd $DEVX && tt_zero_image 2>&1 >/dev/null && cd /mnt && umount $DEVX
+done 
+
+echo -en "\n\nImage file name? "
+read IMGNAME
+test -z "$IMGNAME" && echo "No image file name given." && exit 1
+IMGNAME="$BASE/${IMGNAME}.lzo"
+ENDSECT=$(fdisk -lu $DEV | tail -n 1 | tr ' ' '\n' | grep -v '^$' | grep -v '\*' | head -n 3 | tail -n 1)
+
+echo -e "\nImaging $CWHT$ENDSECT$COFF sectors ($(expr $ENDSECT / 2048) MB) from $CWHT$DEV$COFF"
+echo "to $CWHT$IMGNAME$COFF"
+ERR=0
+dd if=$DEV bs=512 count=$ENDSECT | pv -pterab -s $(expr $ENDSECT \* 512) | lzop -1 > "$IMGNAME" || ERR=1
+test $ERR = 1 && echo "Error occurred, removing $IMGNAME" && rm -f $IMGNAME && exit 1

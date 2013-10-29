@@ -1,0 +1,30 @@
+#!/bin/sh
+
+# Resolve IP to MAC, normalize, and check for PCID.
+
+# Must run as root.
+test ! "$UID" = "0" && echo "Must be root." && exit 1
+
+# TSS client is required.
+TSSC_AUTO=0
+. tss_client
+test ! "$TSS_CLIENT" = "1" && echo "TSS client did not load." && exit 1
+
+# An IP address must be passed on the command line.
+test "$1" = "" && echo "Must provide an IP address" && exit 1
+IP="$1"
+
+IPMAC=$(arping -c 1 -f $IP | grep '\[.*\]' | tail -n 1 | sed 's/[^[]*\[//;s/\].*//')
+
+# BusyBox arping collapses 00 to 0 and returns lowercase; normal arping uses uppercase
+# This line normalizes the arping outputs to lowercase without collapsed zeroes
+IPMAC="$(echo "$IPMAC" | tr '[:upper:]' '[:lower:]' | \
+	sed 's/^\(.\):/0\1:/g;s/:\(.\):/:0\1:/g;s/:\(.\):/:0\1:/g;s/:\(.\)$/:0\1/g')"
+
+test "$IPMAC" = "" && echo "Failed." && exit 2
+
+COMMAND="MACADDR_TO_PCID $IPMAC" tss_command
+if [ "$(echo "$RESPONSE" | sed 's/\s.*//g')" = "PCID" ]
+	then echo "${CGRN}PCID$CWHT $(echo "$RESPONSE" | sed s/[A-Za-z_]*\s//) for $CWHT$IPMAC$COFF"
+	else echo "${CRED}No PCID for $CWHT$IPMAC$COFF"
+fi

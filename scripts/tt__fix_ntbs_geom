@@ -1,0 +1,26 @@
+#!/bin/ash
+
+VER="0.2"
+VERDATE="2012-09-22"
+
+PART="$1"
+XHEADS="$2"
+
+test "$PART" = "" && echo "Example usage: $0 /dev/sda2 f0" && exit 1
+test "$XHEADS" = "" && echo "Example usage: $0 /dev/sda2 f0" && exit 1
+
+test -e /dev/$PART && PART="/dev/$PART"
+
+test ! -e $PART && echo "Specify a valid partition, i.e. sda1" && exit 1
+
+ERR=0
+dd if=$PART of=/tmp/bkbs bs=512 count=1 || ERR=1
+dd if=$PART of=/tmp/gbs bs=1 count=26 || ERR=1
+echo -en \\x$XHEADS >> /tmp/gbs || ERR=1
+dd if=$PART of=/tmp/gbs bs=1 seek=27 skip=27 count=485 || ERR=1
+dd if=/tmp/gbs of=$PART bs=512 count=1 || ERR=1
+if [ "$ERR" = "1" ]
+  then dd if=/tmp/bkbs of=$PART bs=512 count=1 ;
+  exit 1
+fi
+

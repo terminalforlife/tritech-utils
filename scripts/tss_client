@@ -1,0 +1,487 @@
+#!/bin/bash
+
+# TSS client helper functions
+
+# Prevent loading twice
+if [ -z "$TSS_CLIENT" ]; then
+
+#VER=0.5
+#VERDATE=2013-10-02
+
+# Scripts can check this variable to ensure these functions are loaded
+TSS_CLIENT=1
+
+# Preserve variable state across invocations with this file
+export TSS_STATE_FILE=/etc/tss_state
+
+test -z "$TSS_COMMON" && . tss__common
+
+# FIXME: move LOGFILE to a configuration file.
+LOGFILE=/var/log/tss_client.log
+test "$V" = "" && export V=0
+
+# Hard-coded CIFS server settings. FIXME: move to a config file
+test "$TSS_SERVER" = "" && export TSS_SERVER=192.168.0.15
+test "$TSS_PORT" = "" && export TSS_PORT=60607
+test "$TSS_CIFS_BASE" = "" && export TSS_CIFS_BASE="tritech"
+test "$TSS_CIFS_SHARE" = "" && export TSS_CIFS_SHARE="tritech"
+test "$TSS_CIFS_UN" = "" && export TSS_CIFS_UN="tritech"
+test "$TSS_CIFS_PW" = "" && export TSS_CIFS_PW=""
+
+### Begin functions
+
+get_date () {
+	DATE="$(date "+%Y-%m-%d %H:%M:%S")"
+}
+get_os_version () {
+	PART=$(cat /proc/partitions | grep 'sd.[0-9]$' | sort -k3 -g | tail -n 1 | awk '{print $4}')
+	M=0
+	if ! mountpoint -q /mnt/$PART
+		then mount -o ro /mnt/$PART || return 1
+		M=1
+	fi
+	WD=$(pwd)
+	cd /mnt/$PART
+	OS2="$OS"
+	OS="$(tt_winver -a)"
+	# Handle problems with version detection
+	test "$OS" = "Cannot find SOFTWARE hive." && OS="$OS2"
+	test "$OS" = "nt...* " && OS="$OS2"
+	unset OS2
+	cd $WD
+	test "$M" = "1" && umount /mnt/$PART
+}
+
+validate_mac () {
+	test "$TSS_CLIENT_DISABLE" = "1" && return 255
+	MAC="$(echo "$MAC" | tr '[:upper:]' '[:lower:]')"
+	# If characters are found that aren't valid in a MAC address, assume it is invalid.
+	if echo "$MAC" | grep -q '[^0-9a-f: ]'
+		then echo "${CRED}validate_mac:$COFF Invalid characters in MAC address" >&2
+		return 1
+	fi
+	for X in $MAC
+		# Use a really nasty long grep expression to validate the MAC address format
+		# MACs must be in the format xx:xx:xx:xx:xx:xx where x = a lowercase hex digit
+		do if echo "$X" | grep -q '^[0-9a-f][0-9a-f]:[0-9a-f][0-9a-f]:[0-9a-f][0-9a-f]:[0-9a-f][0-9a-f]:[0-9a-f][0-9a-f]:[0-9a-f][0-9a-f]$'
+			then
+			test $V -gt 0 && echo "${CGRN}validate_mac:$COFF Verified MAC format for $CPUR$X$COFF" >&2
+			else
+			echo "${CRED}validate_mac:$COFF Bad MAC format for $CPUR$X$COFF" >&2
+			return 2
+		fi
+	done
+	unset X
+	save_tss_state
+	return 0
+}
+
+# Merge MAC and MACADDR variables, sorting and removing any duplicates
+merge_mac_and_macaddr () {
+	test "$TSS_CLIENT_DISABLE" = "1" && return 255
+	if ! validate_mac
+		then echo "${CRED}merge_mac_and_macaddr:$COFF validate_mac failed" >&2
+		return 1
+	fi
+	# Combine MAC and MACADDR, force lowercase, remove duplicates, remove excess whitespace
+	MAC="$(echo $MAC ${MACADDR[@]} | tr '[:upper:]' '[:lower:]' | tr ' ' '\n' | sort | uniq | tr '\n' ' ' | sed 's/^\s*//;s/\s*$//')"
+	Y=0
+	for X in $MAC
+		do MACADDR[$Y]="$X"
+		Y=$((Y + 1))
+	done
+	unset X Y
+	test $V -eq 1 && echo "${CGRN}merge_mac_and_macaddr:$COFF MAC list $CBLU${MACADDR[@]}$COFF" >&2
+	save_tss_state
+}
+
+# Read ACTIONS variable and set individual variable flags from its contents
+expand_actions () {
+	test "$TSS_CLIENT_DISABLE" = "1" && return 255
+	for X in A_HDD A_BURNIN A_CLEANER A_BACKUP A_VIRUS A_MBR A_CDROM N_SPACE N_SLOWAV N_LOWRAM N_BADRAM N_BADHDD N_VIRUS
+		do
+		test -z "${!X}" && export $X=0
+		echo "$ACTIONS" | grep -q "$X" && export $X=1
+	done
+	save_tss_state
+}
+
+# Build ACTIONS variable from the individual variable flags
+compact_actions () {
+	test "$TSS_CLIENT_DISABLE" = "1" && return 255
+	unset ACTIONS
+	for X in A_HDD A_BURNIN A_CLEANER A_BACKUP A_VIRUS A_MBR A_CDROM N_SPACE N_SLOWAV N_LOWRAM N_BADRAM N_BADHDD N_VIRUS
+		do
+		test "${!X}" = "1" && export ACTIONS="$X $ACTIONS"
+	done
+	unset X
+	export ACTIONS
+	save_tss_state
+}
+
+# Send a command to the TSS server and get its response
+tss_command () {
+	test "$TSS_CLIENT_DISABLE" = "1" && return 255
+	if [[ "$TSS_SERVER" = "" || "$TSS_PORT" = "" ]]
+		then echo "${CRED}tss_command:$COFF TSS_SERVER or TSS_PORT blank: '$TSS_SERVER:$TSS_PORT'" >&2; return 1
+	fi
+	TSS_SERVER="$(echo "$TSS_SERVER" | head -n 1)"
+	TSS_PORT="$(echo "$TSS_PORT" | head -n 1)"
+	test "$COMMAND" = "" && echo "{CRED}tss_command:$COFF No command given" >&2 && return 1
+	TSSC_RETRY=3
+	while [ $TSSC_RETRY -gt 0 ]
+		do if ! RESPONSE="$(echo "$COMMAND" | socat - tcp-connect:$TSS_SERVER:$TSS_PORT 2>>$LOGFILE)"
+			then
+			echo "${CRED}tss_command:$COFF Command failed: echo \"$COMMAND\" | socat - tcp-connect:$TSS_SERVER:$TSS_PORT" >&2 
+			sleep 0.3
+			TSSC_ERR=1
+			else
+			test $V -gt 0 && echo "${CGRN}tss_command:$COFF CMD $CPUR$COMMAND$COFF, RES $CBLU$RESPONSE$COFF" >&2
+			test -z "$RESPONSE" && TSSC_ERR=1 && test $V -gt 0 && echo "${CRED}tss_command:$CWHT empty response$COFF" >&2
+			test ! -z "$RESPONSE" && unset TSSC_ERR && break
+		fi
+		TSSC_RETRY=$((TSSC_RETRY - 1))
+	done
+	unset TSSC_RETRY
+}
+
+# Perform actions based on server response
+tss_proc_response () {
+	test "$TSS_CLIENT_DISABLE" = "1" && return 255
+	if [ -z "$RESPONSE" ]
+		then
+		echo "${CRED}tss_proc_response:$COFF Empty response" >&2
+		return 1
+	fi
+	RCMD="$(echo "$RESPONSE" | cut -d" " -f1)"
+	RP_ALL="$(echo "$RESPONSE" | cut -d" " -f2-)"
+	RP1="$(echo "$RESPONSE" | cut -d" " -f2)"
+	case $RCMD in
+		### Start response processing
+
+		PONG|OK) ;;
+
+		WOID|WOID_DOES_EXIST) WOID="$RP1"; save_tss_state ;;
+
+		PCID|PCID_DOES_EXIST) PCID="$RP1"; save_tss_state ;;
+
+		PCID_DOES_NOT_EXIST|WOID_DOES_NOT_EXIST|NO_PCID_FOR_MACADDR|NO_MACADDR) return 1 ;;
+
+		ERR) echo "${CRED}tss_proc_response:$COFF Error $CYEL$RP_ALL$COFF for command '$CPUR$COMMAND$COFF'" >&2; return 1 ;;
+
+		FAIL) echo "${CRED}tss_proc_response:$COFF Got ${CRED}FAIL$COFF for command '$CPUR$COMMAND$COFF'" >&2; return 1 ;;
+
+		MACADDR) MAC="$RP_ALL"; merge_mac_and_macaddr; save_tss_state ;;
+
+		PC_SPECS)
+		CPU="$(echo "$RP_ALL" | cut -d: -f1)"
+		RAM="$(echo "$RP_ALL" | cut -d: -f2)"
+		HDD="$(echo "$RP_ALL" | cut -d: -f3)"
+		OS="$(echo "$RP_ALL" | cut -d: -f4)"
+		save_tss_state
+		;;
+
+		ACTIONS)
+		export ACTIONS="$RP_ALL"
+		expand_actions
+		save_tss_state
+		;;
+
+		*) echo "${CYEL}tss_proc_response:$COFF Unknown response '$CPUR$RESPONSE$COFF'" >&2; return 1 ;;
+
+		### End response processing
+	esac
+}
+
+# Find a TSS server on the network.
+# FIXME: this seems to still contain some bugs.
+detect_tss_server () {
+	test "$TSS_CLIENT_DISABLE" = "1" && return 255
+	BCN=1; SVR_TEMP=$(mktemp)
+	test "$TSS_PORT" = "" && export TSS_PORT=60607
+	SVR_TIMEOUT=3
+#	test "$V" = "" && V=2
+	if [ "$BCN" = "1" ]
+		then
+		test $V -gt 0 && echo -n "${CPUR}Waiting for a beacon: $COFF" >&2
+		socat -u udp4-recvfrom:60606,reuseaddr - > $SVR_TEMP 2>>$LOGFILE &
+		CNT=0; TO=5
+		while [ $CNT -lt $TO ]
+			do sleep 1
+			test -s "$SVR_TEMP" && break
+			CNT=$((CNT + 1))
+		done
+		unset CNT TO
+		kill $! 2>/dev/null
+	
+		if [ ! -s "$SVR_TEMP" ]
+			then
+			test $V -gt 0 && echo "${CRED}no beacons received.$COFF" >&2
+		fi
+	fi
+	
+	# Lots of ugly sed crap to split the beacon string
+	# Beacon string format:
+	# cifs:ip.addr.of.server/path_to_base:username:password
+	
+	if [ "$BCN" = "1" ]
+		then
+		RAW="$(cat $SVR_TEMP | head -n 1)"
+		SVRX="$(echo $RAW | sed 's/cifs://;s/:.*//g')"
+		SVR="$(echo "$SVRX" | sed 's/\/.*//')"
+		SVRX="$(echo "$SVRX" | sed 's.[^/]*/..')"
+		SVRSHARE="$(echo "$SVRX" | sed 's#/.*##')"
+		UN="$(echo $RAW | sed 's/cifs:[^:]*://;s/:.*//')"
+		PW="$(echo $RAW | sed 's/cifs:.*://')"
+		rm -f $SVR_TEMP; unset SVR_TEMP
+	fi
+
+	unset BCN
+	
+	# Fallback hard-coded server, and indicate what is being used
+	if [ -z "$SVR" ]
+		then SVR="$TSS_SERVER"
+		SVRX="$TSS_CIFS_BASE"
+		SVRX="$(echo "$SVRX" | sed 's.[^/]*/..')"
+		SVRSHARE="$(echo "$SVRX" | sed 's#/.*##')"
+		UN="tritech"
+		PW=""
+		test $V -gt 0 && echo "${CYEL}Hard-coded server $SVR$COFF" >&2
+		else
+		test $V -gt 0 && echo "${CGRN}Beacon-provided server $SVR$COFF" >&2
+	fi
+	
+	# Sanity check: can't proceed if there is no server value at all
+	if [[ -z "$SVRX" || -z "$UN" ]]
+		then
+		test $V -gt 0 && echo "${CRED}Error in data, info: $CPUR$RAW$COFF" >&2
+		unset X RAW SVR SVRX SVRSHARE UN PW
+		return 1
+	fi
+	
+	# Ping the server. If unreachable, try until we time out.
+	
+	if ! ping -c 1 -W 1 $SVR >/dev/null
+		then test $V -gt 0 && echo -n "${CYEL}Trying to reach $SVR: $COFF" >&2
+		X=$SVR_TIMEOUT
+		while [ $X -gt 0 ]
+			do test $V -gt 0 && echo -n "${CWHT}${X}${COFF} " >&2
+			if ! ping -c 1 -W 1 $SVR >/dev/null
+				then X=$(expr $X - 1)
+				else break
+			fi
+			if [ $X -eq 0 ]
+				then
+				echo "${CRED}failed.${COFF}" >&2
+				unset X RAW SVR SVRX SVRSHARE UN PW
+				return 1
+			fi
+		done
+	fi
+	
+	if ! ping -c 1 -W 1 $SVR >/dev/null
+		then
+		test $V -gt 0 && echo "${CRED}All pings to server $SVR timed out.${COFF}" >&2
+		unset X RAW SVR SVRX SVRSHARE UN PW
+		return 1
+	fi
+	TSS_SERVER="$SVR"
+	TSS_CIFS_BASE="$SVRX"
+	TSS_CIFS_SHARE="$SVRSHARE"
+	TSS_CIFS_UN="$UN"
+	TSS_CIFS_PW="$PW"
+	unset X RAW SVR SVRX SVRSHARE UN PW
+	save_tss_state
+}
+
+# Gather information about the current system, setting the corresponding variables to suit
+read_sysinfo () {
+	test "$TSS_CLIENT_DISABLE" = "1" && return 255
+	CPU="$(cat /proc/cpuinfo | grep "model name" | sed 's/[^:]*:[^A-Za-z]*//g;s/  */ /g' | head -n 1)"
+	CORES="$(cat /proc/cpuinfo | grep "model name" | wc -l)"
+	VALID="256 384 512 768 1024 1280 1536 2048 3072 3574 4096 5120 6144 7168 8192 10240 12288 16384 20480 24576"
+	MEMT=$(cat /proc/meminfo | grep MemTotal | awk '{print $2}')
+	# Attempt to normalize memory count to a known good value
+	VX=131072
+	for X in $(echo $VALID)
+		do
+		X=$(expr $X \* 1024)
+		if [[ "$MEMT" -gt $VX && "$MEMT" -le $X ]]
+			then MEMT=$(expr $X / 1024)
+			break
+			else VX=$X
+		fi
+	done
+	# Ugly math to convert KiB to decimalized KB
+	MEMG=$(expr $MEMT / 1024)
+	MEML=$(expr $MEMT % 1024)
+	MEML=$(expr $MEML \* 10)
+	MEML=$(expr $MEML / 512)
+	MEML=$(expr $MEML \* 5)
+	if [ "$MEMT" -lt 1024 ]
+		then RAM="${MEMT}MB"
+		else RAM="${MEMG}.${MEML}GB"
+	fi
+
+	# Calculate the stupid bogus marketing GB size of all hard drives
+	HDPARM=hdparm; test -x /sbin/hdparm && HDPARM=/sbin/hdparm
+	unset HDD
+	test $UID -ne 0 && echo "${CRED}read_sysinfo:$COFF root access required for hdparm; HDD info will be incorrect!"
+	for X in /sys/block/sd*
+		do if [[ -e "$X/device" && "$(cat $X/size)" -gt 0 && "$(cat $X/removable)" -eq 0 ]]
+			then
+			Y=$(basename $X)
+			SIZE=$(cat "$X/size")
+			SIZE=$(expr $SIZE \* 512 / 1000000000)
+			SIZETB=$(expr $SIZE / 1000)
+			DMN=$($HDPARM -I /dev/$Y 2>/dev/null | grep 'Model Number:' | sed 's/[^:]*[^a-zA-Z0-9]*//;s/ *$//g')
+			DSN=$($HDPARM -I /dev/$Y 2>/dev/null | grep 'Serial Number:' | sed 's/[^:]*[^a-zA-Z0-9]*//;s/ *$//g')
+			if [ ! "$DMN" = "" ]
+				then
+				if [ "$SIZETB" -eq 0 ]
+					then HDD="$HDD${SIZE}GB ($DMN/$DSN), "
+					else HDD="$HDD${SIZETB}TB ($DMN/$DSN), "
+				fi
+			fi
+		fi
+	done
+	HDD="$(echo "$HDD" | sed 's/, $//')"
+	get_os_version
+	MSDM=/sys/firmware/acpi/tables/MSDM
+	test -e $MSDM && PRODKEY="$(strings $MSDM | tail -n 1)"
+	unset MEMG MEML MEMT VX X Y VALID SIZE SIZETB DMN DSN MSDM
+	TSS_SYSINFO="$CPU:$RAM:$HDD:$OS:$PRODKEY"
+	save_tss_state
+}
+
+# Take the current system information and push it to the TSS server
+push_sysinfo () {
+	test "$TSS_CLIENT_DISABLE" = "1" && return 255
+	detect_current_pc
+	test -z "$PCID" && echo "${CRED}push_sysinfo:$COFF PCID not set" && return 1
+	read_sysinfo
+	COMMAND="STORE_PC_SPECS $PCID $TSS_SYSINFO" tss_command
+	tss_proc_response
+}
+
+# Try to figure out what PC we're running on
+# The first time a PC is seen, the user will be asked to identify the PC.
+# After that, the MAC address is stored in a database on the TSS server
+# and should be usable to pull the PCID without ever prompting again.
+detect_current_pc () {
+	test "$TSS_CLIENT_DISABLE" = "1" && return 255
+	test ! -z "$PCID" && test ! -z "$WOID" && test ! -z "$MAC" && return 0
+	test -e "$TSS_STATE_FILE" && load_tss_state
+	MAC="$(shopt -u nullglob; cat /sys/class/net/{eth*,wlan*}/address 2>/dev/null | tr \\n ' ')"
+	COMMAND="MACADDR_TO_PCID $MAC" tss_command
+	test ! -z "$PCID" && COMMAND="PCID_TO_WOID $PCID" tss_command
+	tss_proc_response
+	test ! -z "$WOID" && COMMAND="WOID_TO_PCID $WOID" tss_command
+	tss_proc_response
+
+	if [[ -z "$PCID" && -z "$WOID" ]]
+		then echo "${CYEL}detect_current_pc:$COFF PC not detected. Enter a PCID or WOID, or 'd' to disable the TSS client."
+		echo -n "Prefix WOID with a lowercase $CBLU'w'$COFF as in $CBLU'w7654'$COFF. ID? "
+		read X
+		TSS_CLIENT_DISABLE=0
+		test "$X" = "d" && export TSS_CLIENT_DISABLE=1 && echo "disable" > $TSS_STATE_FILE && return 255
+		if echo "$X" | grep -q '^w[0-9]*$'
+			then X="$(echo "$X" | sed 's/^w//')"
+			COMMAND="WOID_EXISTS $X" tss_command
+			tss_proc_response
+			else COMMAND="PCID_EXISTS $X" tss_command
+			tss_proc_response
+		fi
+	fi
+	test ! -z "$PCID" && COMMAND="PCID_TO_WOID $PCID" tss_command
+	tss_proc_response
+	test ! -z "$WOID" && COMMAND="WOID_TO_PCID $WOID" tss_command
+	tss_proc_response
+	test -z "$PCID" && echo "${CRED}detect_current_pc:$COFF Could not identify the current PC." >&2 && return 1
+	merge_mac_and_macaddr
+	tss_proc_response
+	test ! -z "$MAC" && COMMAND="STORE_MACADDR $PCID $MAC" tss_command
+	tss_proc_response
+	pull_actions
+	test -z "$OS" && push_sysinfo
+	test "$OS" = "__NONE__" && push_sysinfo
+	save_tss_state
+}
+
+# Store all TSS client variables into a state file for persistence across invocations
+save_tss_state () {
+	rm -f $TSS_STATE_FILE
+	for X in PCID WOID MAC CPU RAM HDD OS \
+		A_HDD A_BURNIN A_CLEANER A_BACKUP A_VIRUS A_MBR A_CDROM \
+			N_SPACE N_SLOWAV N_LOWRAM N_BADRAM N_BADHDD N_VIRUS \
+			TSS_SYSINFO ACTIONS \
+			TSS_CIFS_BASE TSS_CIFS_PW TSS_CIFS_UN TSS_CIFS_SHARE TSS_PORT TSS_SERVER
+		do echo "$X=${!X}" >> $TSS_STATE_FILE
+	done
+	test "$TSS_CLIENT_DISABLE" = "1" && echo "disable" > $TSS_STATE_FILE
+}
+
+# Load persistent TSS client state variables, if a state file exists
+load_tss_state () {
+	if [ -e "$TSS_STATE_FILE" ]
+		then
+		grep -q '^disable$' $TSS_STATE_FILE && TSS_CLIENT_DISABLE=1 && return 0
+		for X in PCID WOID MAC CPU RAM HDD OS \
+			A_HDD A_BURNIN A_CLEANER A_BACKUP A_VIRUS A_MBR A_CDROM \
+			N_SPACE N_SLOWAV N_LOWRAM N_BADRAM N_BADHDD N_VIRUS \
+			TSS_SYSINFO ACTIONS \
+			TSS_CIFS_BASE TSS_CIFS_PW TSS_CIFS_UN TSS_CIFS_SHARE TSS_PORT TSS_SERVER
+			do TSS_TEMP_STATE="$(grep "^$X=" "$TSS_STATE_FILE" | sed 's/[^=]*=//')"
+			test ! "$TSS_TEMP_STATE" = "" && \
+				export $X="$TSS_TEMP_STATE"
+			unset TSS_TEMP_STATE
+		done
+		if [[ -z "$TSS_SERVER" || -z "$TSS_PORT" ]]
+			then
+			export TSS_SERVER=192.168.0.15
+			export TSS_PORT=60607
+		fi
+		else
+		detect_current_pc
+	fi
+}
+
+# Wipe all TSS client variables and erase the TSS client persistent state
+clear_tss_state () {
+	for X in PCID WOID MAC CPU RAM HDD OS \
+		A_HDD A_BURNIN A_CLEANER A_BACKUP A_VIRUS A_MBR A_CDROM \
+		N_SPACE N_SLOWAV N_LOWRAM N_BADRAM N_BADHDD N_VIRUS \
+		TSS_SYSINFO ACTIONS TSS_CLIENT_DISABLE \
+		RESPONSE RCMD RP_ALL RP1 SVR_TEMP BCN \
+		TSS_CIFS_BASE TSS_CIFS_PW TSS_CIFS_UN TSS_CIFS_SHARE TSS_PORT TSS_SERVER
+		do unset $X
+	done
+	rm -f $TSS_STATE_FILE 2>/dev/null
+	save_tss_state
+}
+
+# Pull the list of actions that have already been performed from the TSS server
+pull_actions () {
+	test "$TSS_CLIENT_DISABLE" = "1" && return 255
+	detect_current_pc
+	test -z "$WOID" && echo "${CRED}pull_actions:$COFF WOID not set" && return 1
+	COMMAND="READ_ACTIONS $WOID" tss_command
+	tss_proc_response
+}
+
+# Push the list of performed actions to the TSS server
+push_actions () {
+	test "$TSS_CLIENT_DISABLE" = "1" && return 255
+	detect_current_pc
+	test -z "$WOID" && echo "${CRED}push_actions:$COFF WOID not set" && return 1
+	compact_actions
+	COMMAND="WRITE_ACTIONS $WOID $ACTIONS" tss_command
+}
+
+### End functions
+
+# Allow loading clients to skip automatic PC detection if needed
+test ! "$TSSC_AUTO" = "0" && detect_current_pc
+
+# Close double loading prevention statement
+fi

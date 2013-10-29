@@ -1,0 +1,6 @@
+[section1]
+foo=bar
+[Section2]
+baz=quux
+[SECTION3]
+pfft.pfft=meow_meow  ;ERROR

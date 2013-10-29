@@ -1,0 +1,13 @@
+#!/bin/ash
+
+VER=0.3
+VERDATE="2012-12-05"
+
+# Finds other TSS instances on the LAN
+
+echo "TSS instance finder, version $VER, last updated $VERDATE"
+
+echo "The following IP addresses appear to be running a reachable TSS:"
+
+nmap --min-parallelism 254 -n -PN -p 2233 192.168.0.0/24 2>/dev/null | grep -B 3 open | grep report | awk '{ print $5 }'
+

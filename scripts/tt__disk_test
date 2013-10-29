@@ -1,0 +1,50 @@
+#!/bin/ash
+
+VER="0.1"
+VERDATE="2010-10-12"
+
+PV=0
+test -e /usr/bin/pv && PV=1
+
+DEV="$1"
+if [[ ! -e "/sys/block/$DEV" || "$DEV" = "" ]]
+  then echo "${0}: valid disk device must be specified" ; exit 1
+fi
+
+if [ "$PV" = "0" ]
+  then SZ=$(cat /sys/block/$DEV/size)
+  PCNT=$(expr $SZ / 100)
+  # Figure out if there will be a lone final block or not
+  PCNT2=$(expr $PCNT \* 100)
+  LB=0
+  # Lone blocks after 100 percent?
+  if [ $SZ -gt $PCNT2 ]; then LB=1 ; fi
+  # Percentage coutner
+  CNT=0
+  CTIME=$(date +%s)
+
+  while [ $CNT -lt 101 ]
+    do echo -en "\rTesting $DEV: ${CNT}%"
+    SKIP=$(expr $PCNT \* $CNT)
+    if ! dd if=/dev/$DEV of=/dev/null bs=512 skip=$SKIP count=$PCNT 2>/dev/null
+      then echo -e "\rTesting $DEV: FAILED!"
+      exit 2
+    fi
+    CNT=$(expr $CNT + 1)
+  done
+  T=$(date +%s)
+  T2=$(expr $T - $CTIME)
+  MINS=$(expr $T2 / 60)
+  SECS=$(expr $MINS \* 60)
+  SECS=$(expr $T2 - $SECS)
+  MB=$(expr $SZ / 2048)
+  RATE=$(expr $MB / $T2)
+  echo -e "\rTesting $DEV: PASSED. Took ${MINS}m${SECS}s at ${RATE} MB/sec."
+
+  else echo -e "\rTesting $DEV:"
+  if ! pv -pterab -B 131072 /dev/$DEV > /dev/null
+    then echo "$DEV FAILED!"
+    exit 2
+    else echo "$DEV PASSED!"
+  fi
+fi

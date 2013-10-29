@@ -1,0 +1,44 @@
+#!/bin/sh
+
+# Install a TSS package from the root of a filesystem tree
+
+PKG="$1"
+PKGDIR="./packages/installed"
+PKGBASE1="$(basename "$PKG" | sed 's/\.pkg\.tar\..*//')"
+PKGBASE2="$(basename "$PKG" | sed 's/_.*//')"
+PKGFILE="./packages/installed/$PKGBASE1"
+PKGNAME="$(eval echo "./packages/installed/${PKGBASE2}*")"
+PKGNAME="$(eval echo "$PKGNAME")"
+
+test ! -d "$PKGDIR" && echo "You must run this from a TSS filesystem root directory." && exit 1
+test -z "$PKG" && echo "Specify a package file to install." && exit 1
+test ! -f "$PKG" && echo "Invalid package file specified." && exit 1
+
+if [ -e "$PKGNAME" ]
+	then echo "Removing existing package: $(basename "$PKGNAME" | 'sed s/\.pkg\.tar\..*//')"
+	if ! tt_pkg_remove "$PKGBASE2"
+		then echo "Error removing package, aborting."
+		exit 1
+	fi
+fi
+
+# Be resilient if normal compression tools aren't present
+test -x /usr/bin/unxz && xz='/usr/bin/unxz -c'
+test -x /usr/bin/xz && xz='/usr/bin/xz -dc'
+test -x /usr/bin/unlzop && lzo='/usr/bin/unlzop -c'
+test -x /bin/lzop && lzo='/bin/lzop -dc'
+test -x /usr/bin/lzop && lzo='/usr/bin/lzop -dc'
+test -x /bin/gunzip && gz='/bin/gunzip -c'
+test -x /bin/gzip && gz='/bin/gzip -dc'
+test -x /usr/bin/gzip && gz='/usr/bin/gzip -dc'
+test -x /bin/bunzip2 && bz2='/bin/bunzip2 -c'
+test -x /bin/bzip2 && bz2='/bin/bzip2 -dc'
+test -x /usr/bin/bzip2 && bz2='/usr/bin/bzip2 -dc'
+
+DECOMP="$(basename "$PKG" | sed 's/.*\.//')"
+test "$DECOMP" = "txz" && DECOMP="xz"
+DECOMP="$(eval "echo \$$DECOMP")"
+
+$DECOMP "$PKG" | tar -xvp > $PKGFILE
+
+echo "Installed package $PKG"

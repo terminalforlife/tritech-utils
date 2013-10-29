@@ -1,0 +1,76 @@
+#!/bin/ash
+
+VER="1.1"
+VERDATE="2013-05-27"
+
+# Attempts to automatically determine the HAL and kernel
+# for a given machine, and install it.
+
+. tss__common
+do_windows_folder_detection
+
+if [ -e bootmgr ]
+  then echo "${CRED}Vista/7 detected, aborting.$COFF" ; exit 1
+fi
+
+# Check for a Windows installation that is reachable
+echo -n "${CYEL}Finding Windows...$COFF"
+if [ ! "$HALDLL" = "__NONE__" ]
+  then echo -n "${CGRN}HAL...$COFF"
+  if [ ! "$KERNEL" = "__NONE__" ]
+    then echo -n "${CGRN}kernel...$COFF"
+    echo "${CWHT}using $WINDIR/$SYS32"
+    else echo "${CRED}no kernel!$COFF"
+  fi
+  else echo "${CRED}no HAL found!$COFF"; exit 1
+fi
+
+# Mount the server from which HALs will be copied
+echo -en "$COFF"
+test "$BASE" = "/mnt/cifs" && tt_cifs
+if [ ! -e $HALPATH ]
+  then echo "${CRED}Bad HAL source BASE=$BASE; Try 'BASE=/path/to/hals $0'$COFF" ; exit 1
+fi
+
+# Windows found, figure out what HAL/kernel goes with it.
+# Check for ACPI
+#if [ -e /proc/acpi/ ]
+#  then echo -n "${CGRN}ACPI, "; ACPI=1
+#  else echo -n "${CYEL}No ACPI, "; ACPI=0
+#fi
+
+# ACPI is on everything lately; assume it exists regardless...
+echo -n "${CGRN}ACPI, $COFF"; ACPI=1
+
+# Check for PIC or APIC mode
+if grep -q "IO-APIC" /proc/interrupts
+  then echo -n "${CGRN}APIC, $COFF"; APIC=1
+  else echo -n "${CYEL}no APIC, $COFF"; APIC=0
+fi
+# Check for multiprocessor mode
+if cat /proc/cpuinfo | grep "processor" | grep -q ": 1"
+  then echo -n "${CGRN}MP: $COFF"; MP=1
+  else echo -n "${CYEL}no MP: $COFF"; MP=0
+fi
+
+FLAGS="$ACPI$APIC$MP"
+
+case $FLAGS in
+  000) HAL="hal.dll" ; KRNL="ntoskrnl.exe" ;;
+  100) HAL="halacpi.dll" ; KRNL="ntoskrnl.exe" ;;
+  010) HAL="halapic.dll" ; KRNL="ntoskrnl.exe" ;;
+  011) HAL="halmps.dll" ; KRNL="ntkrnlmp.exe" ;;
+  110) HAL="halaacpi.dll" ; KRNL="ntoskrnl.exe" ;;
+  111) HAL="halmacpi.dll" ; KRNL="ntkrnlmp.exe" ;;
+  *) echo "${CRED}No HAL chosen, report this error, aborting.$COFF"; exit 1
+esac
+
+echo "${CCYA}using $HAL/$KRNL from $HALPATH$COFF"
+
+mv -f $WINDIR/$SYS32/$HALDLL $WINDIR/$SYS32/hal.dll 2>/dev/null
+mv -f $WINDIR/$SYS32/$KERNEL $WINDIR/$SYS32/ntoskrnl.exe 2>/dev/null
+cp $HALPATH/$HAL $WINDIR/$SYS32/hal.dll || echo "${CRED}HAL copy FAILED!$COFF"
+cp $HALPATH/$KRNL $WINDIR/$SYS32/ntoskrnl.exe || echo "${CRED}Kernel copy FAILED!$COFF"
+
+echo "${CGRN}HAL and kernel installed.$COFF"
+

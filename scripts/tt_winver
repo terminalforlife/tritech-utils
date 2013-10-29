@@ -1,0 +1,39 @@
+#!/bin/sh
+
+test -z "$TSS_COMMON" && . tss__common
+test -z "$TSS_COMMON" && echo "tss__common required but failed to load." && exit 1
+
+do_windows_folder_detection
+REGSW=__NONE__
+REGDIR="$WINDIR/$SYS32/$CONFIG"
+for X in $REGDIR/SOFTWARE $REGDIR/software $REGDIR/Software
+	do test -e "$X" && REGSW="$X"
+done
+PRODSPEC=__NONE__
+for X in $WINDIR/$SYS32/PRODSPEC.INI $WINDIR/$SYS32/prodspec.ini $WINDIR/$SYS32/Prodspec.ini
+	do test -e "$X" && PRODSPEC="$X"
+done
+test "$REGSW" = "__NONE__" && echo "Cannot find SOFTWARE hive." && exit 3
+
+TMP=$(mktemp)
+
+reged -x "$REGSW" SOFTWARE 'Microsoft\Windows NT\CurrentVersion' $TMP >/dev/null
+CVER="$(read_inf_section $TMP 'SOFTWARE\Microsoft\Windows NT\CurrentVersion' | grep -i '"CurrentVersion"=' | cut -d\" -f4)"
+PNAME="$(read_inf_section $TMP 'SOFTWARE\Microsoft\Windows NT\CurrentVersion' | grep -i '"ProductName"=' | cut -d\" -f4)"
+if [ $(echo "$CVER" | cut -d. -f1) -lt 6 ]
+	then EDITION="$(read_inf_section $PRODSPEC "Product Specification" | grep 'Product=' | cut -d' ' -f3- | tr -d \\n | tr -d \\r)"
+	else EDITION="$(read_inf_section $TMP 'SOFTWARE\Microsoft\Windows NT\CurrentVersion' | grep -i '"EditionID"=' | cut -d\" -f4)"
+fi
+if [ "$SYS64" = "__NONE__" ]
+	then WINARCH="ntx86"
+	else WINARCH="ntamd64"
+fi
+
+WINVER="$WINARCH.$CVER"
+
+if [ "$1" = "-a" ]
+	then echo "$PNAME ($WINARCH $CVER $EDITION)"
+	else echo "$WINVER"
+fi
+
+rm -f $TMP

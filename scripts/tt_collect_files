@@ -1,0 +1,82 @@
+#!/bin/sh
+
+# Gathers user profile file data
+
+DIR=/mnt/cifs
+LDIR=/home/tritech
+test "$1" = "-l" && DIR="$LDIR"
+test -e "$LDIR" && DIR="$LDIR"
+test ! -d "$DIR" && echo "$DIR does not exist, I give up." && exit 1
+FILE="$DIR/filelistdata.txt"
+test ! -e $FILE && touch $FILE
+
+# Does uniq support the -i switch? Use it if so.
+UNIQ="uniq -i"; SORT="sort -f"
+echo | uniq -i >/dev/null 2>/dev/null || UNIQ="uniq"
+echo | sort -f >/dev/null 2>/dev/null || SORT="sort"
+
+TMPFILE=$(mktemp)
+TMPFILE2=$(mktemp)
+
+echo -n $(pwd)": Collecting..."
+
+find . -type f >> "$FILE"
+
+echo -n "sorting, "
+
+cat $FILE | \
+  sed 's#/Windows.old/#/#g;s#./Users/[^/]*#./Users/Owner#g' | \
+  sed 's#/Documents and Settings/[^/]*/#/Documents and Settings/Owner/#g' | \
+  sed 's#Mozilla/Firefox/Profiles/[^.]*\.default/#Mozilla/Firefox/Profiles/blahblah.default/#g' | \
+  sed 's#\./WINDOWS/#./Windows/#g;s#/Program Files (x86)#Program Files#g' | \
+  sed 's#\./Users/Owner/AppData/Local/VirtualStore/#./#g' | \
+  $SORT | $UNIQ | \
+  grep -iv '\./dell/' | \
+  grep -iv '\./drivers/' | \
+  grep -iv '\./hp/' | \
+  grep -iv '\./Program Files/HP Games/' | \
+  grep -iv '/Owner/Desktop/[^.]*\.lnk/' | \
+  grep -iv '/Owner/Desktop/[^/]*/' | \
+  grep -iv 'Users/Owner/Documents/' | \
+  grep -iv 'Users/Owner/Downloads/' | \
+  grep -iv 'Users/Owner/Pictures/' | \
+  grep -iv 'Users/Owner/Music/' | \
+  grep -iv 'Users/Owner/Videos/' | \
+  grep -iv '/Microsoft Office/Clipart/' | \
+  grep -iv '/Microsoft Shared/Clipart/' | \
+  grep -iv 'Documents and Settings/Owner/My Documents/' | \
+  grep -iv 'Documents and Settings/Owner/[a-zA-Z]*Hood/' | \
+  grep -iv 'Documents and Settings/Owner/Start Menu/' | \
+  grep -iv 'default/bookmarkbackups/' | \
+  grep -iv '/Windows Live Mail/.*\.eml$' | \
+  grep -iv 'WildTangent/Dell Games/' | \
+  grep -iv '\./SwSetup' | \
+  grep -iv '\./Windows/winsxs' | \
+  grep -iv '\./Windows/Installer' | \
+  grep -iv '\./Windows/inf' | \
+  grep -iv '32/DrivrerStore/' | \
+  grep -iv '\./Windows/assembly' | \
+  grep -iv '\./Windows/servicing' | \
+  grep -iv '\./Windows/\$.*\$/' | \
+  grep -iv '\./\$Recycle.Bin/' | \
+  $SORT | $UNIQ > $TMPFILE
+
+for X in AppCompat AppPatch Boot Cursors "Downloaded Installations" \
+	Fonts Globalization Help IME Installer Media Microsoft.NET \
+	ServicePackFiles Prefetch RegisteredPackages SMINST inf \
+	assembly servicing web '.*/dllcache'
+	do cat $TMPFILE | grep -iv "\./Windows/$X/" > $TMPFILE2
+	cat $TMPFILE2 > $TMPFILE
+done
+
+echo -n "moving, "
+
+test ! -s $TMPFILE && echo "Error: temporary file is empty." && exit 1
+cat $TMPFILE > $FILE 2>/dev/null
+rm -f $TMPFILE $TMPFILE2
+
+echo "complete."
+echo "Root directory file counts:"
+cut -d/ -f2 $FILE | $SORT | ${UNIQ} -c | sort -g
+echo -e "\nProgram Files counts:"
+grep '\./Program Files/' $FILE | cut -d/ -f3 | $SORT | $UNIQ -c | sort -g

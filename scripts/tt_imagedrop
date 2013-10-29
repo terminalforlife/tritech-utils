@@ -1,0 +1,199 @@
+#!/bin/bash
+
+VER="1.1.7"
+VERDATE="2013-08-28"
+
+shopt -s nullglob
+. tss__common
+
+echo "Tritech automatic image drop, version $VER. last updated $VERDATE"
+echo "Copyright (c) by c02ware and Jody Bruchon"
+
+DISKS="$(mktemp)"
+TMPFILE="$(mktemp)"
+
+control_c () {
+	echo "Interrupted, cleaning up."
+	rm -f "$DISKS"
+	rm -f "$TMPFILE"
+}
+
+check_mounts () {
+	# Attempt to unmount before throwing mounting errors
+	grep -q "/dev/${DEV}" /proc/mounts && umount /dev/${DEV}* 2>/dev/null
+	if grep -q "/dev/${DEV}" /proc/mounts
+		then echo "${CRED}Device ${CCYA}${DEV}${CRED} is mounted according to /proc/mounts. Aborting.${COFF}"
+		exit 4
+	fi
+}
+
+if [ "$NTFSMOUNT" = "0" ]
+	then echo "${CRED}WARNING:${COFF} No NTFS mount found! Auto HAL will be skipped."
+	else echo "Using ${CCYA}${NTFSMOUNT}${COFF} as NTFS mount command."
+fi
+
+# Attempt to mount the Tritech share
+if [ "$BASE" = "/mnt/cifs" ]
+	then tt_cifs
+	else echo "${CYEL}Using $BASE as base directory instead of default CIFS.${COFF}"
+fi
+
+# Check for presence of disk images
+if [ ! -d "$IMGDIR" ]
+	then echo "${CRED}Image directory not found, aborting: ${CCYA}${IMGDIR}${COFF}"
+	exit 2
+fi
+
+tt__disk_prompt $TMPFILE
+DEV=$(cat $TMPFILE)
+rm -f $TMPFILE
+
+if [ ! -e /sys/block/$DEV ]
+	then echo "${CRED}Device ${CCYA}${DEV}${CRED} does not exist. Aborting.${COFF}"
+	exit 4
+fi
+
+check_mounts
+
+# Select an image to drop
+echo -e "\n${CGRN}Choose an image to drop:${COFF}\n"
+
+# Enumerate image names
+IC=0
+for X in ${IMGDIR}/*.lzo
+	do IC=$((IC + 1))
+	IMAGE[IC]="$(basename "$X")"
+	echo "$IC: ${IMAGE[IC]}"
+done
+test $IC = 0 && echo "Error: no images available in $IMGDIR" && exit 1
+
+echo -en "\nWhich image (1): "
+read IMGNUM
+test "$IMGNUM" = "" && IMGNUM="1"
+IMG="${IMAGE[IMGNUM]}"
+XP=0; HAL=0; V7IMG=0; WIN7=0; PART="${DEV}1"
+
+echo "$IMG" | grep -q "^xp" && HAL=1 && XP=1
+echo "$IMG" | grep -q "^vista" && V7IMG=1
+echo "$IMG" | grep -q "^win7" && V7IMG=1 && WIN7=1 && PART="${DEV}2"
+echo "$IMG" | grep -q "^win8-bios" && V7IMG=1 && WIN7=1 && PART="${DEV}2"
+echo "$IMG" | grep -q "^win8-uefi" && echo "UEFI imaging not yet supported." && exit 1
+
+if [ ! -e $IMGDIR/$IMG ]
+	then echo "${CRED}ERROR: $CCYA$IMGDIR/$IMG$CRED not found. Aborting.$COFF"
+	exit 6
+fi
+
+# Get head count to do geometry recalculations
+echo -en "Enter the geometric head count from 1 to 255 for $DEV (255): "
+read HEADS
+test "$HEADS" = "" && HEADS="255"
+# Verify that the head count is a valid number
+HEADS="$(echo -n "$HEADS" | grep -v '[a-zA-Z]' | grep '[0-9]' | cut -b 1-3)"
+if ! echo "$HEADS" | grep -q '[0-9]'
+	then echo "You did not enter a valid number. Aborting."
+	eval $FAIL_COMMAND &
+	exit 7
+fi
+case $(printf "%x" $HEADS | wc -c) in
+	1|2) ;;
+	*) echo "You did not enter a valid number. Aborting."
+	exit 7 ;;
+esac
+BLOCKS=$(cat /sys/block/$DEV/size)
+CYLS=$(expr $BLOCKS / $HEADS / 63)
+XHEADS=$(printf "%x" $HEADS)
+
+echo "$DEV: ${HEADS}/${XHEADS} heads, $CYLS cylinders, 63 sectors."
+check_mounts
+echo "Dropping image $IMG to ${DEV}, please wait."
+
+if ! $CATCOM "$IMGDIR/$IMG" | lzop -dc > /dev/$DEV
+	then echo "Decompressing $IMGDIR/$IMG to $DEV failed. Aborting." 
+	eval $FAIL_COMMAND &
+	exit 8
+fi
+
+sync
+
+# Create fdisk script to repartition the device
+# Win7 requires a boot partition and must be handled specially
+test "$V7IMG" = "0" && OFFSET=63
+test "$V7IMG" = "1" && OFFSET=2048
+if [ "$WIN7" = "1" ]
+	then
+	OFFSET=$(fdisk -lu /dev/$DEV | grep /dev/${DEV}2 | sed 's/\*//' | awk '{print $2}')
+	echo -e "x\nc\n${CYLS}\nh\n${HEADS}\nr\nd\n2\nn\np\n2\n${OFFSET}\n\nt\n2\n7\nw" > $TMPFILE
+
+	else
+	echo -e "x\nc\n${CYLS}\nh\n${HEADS}\nr\nd\nn\np\n1\n${OFFSET}\n\nt\n7\na\n1\nw" > $TMPFILE
+fi
+
+# fdisk -u required due to cylinder mode fdisk becoming deprecated
+if ! busybox fdisk -u /dev/$DEV < $TMPFILE > /dev/null
+	then echo "fdisk /dev/$DEV failed. Retrying..."
+	echo "w" > $TMPFILE
+	sleep 2
+	if ! busybox fdisk -u /dev/$DEV < $TMPFILE > /dev/null
+		then echo "fdisk failed twice, aborting."
+		rm -f $TMPFILE
+		eval $FAIL_COMMAND &
+		exit 10
+	fi
+fi
+
+rm -f $TMPFILE
+
+# This wait is required to allow the partition table to be re-read
+T=0
+while true
+	do test -b /dev/$PART && break
+	sleep 1
+	T=$((T + 1))
+	test "$T" -eq "10" && echo "Timeout waiting for partition." && exit 1
+done
+
+# Change boot sector head count
+if ! tss_file_tool ntfsgeom "/dev/$PART" $XHEADS
+	then echo "Modifying NTFS boot sector geometry failed. Aborting."
+	eval $FAIL_COMMAND &
+	exit 9
+fi
+
+# Resize the filesystem to fit the new parition
+if ! yes | ntfsresize -f /dev/$PART
+	then echo "NTFS resize on $PART failed. Aborting."
+	eval $FAIL_COMMAND &
+	exit 11
+fi
+
+# Mount the filesystem and change into it to run autohal
+test -d /mnt/$PART || mkdir /mnt/$PART
+if ! $NTFSMOUNT /dev/$PART /mnt/$PART
+	then echo "Mounting $PART as NTFS failed. Aborting."
+	eval $FAIL_COMMAND &
+	exit 12
+fi
+
+cd /mnt/$PART
+
+test "$HAL" = "1" && tt_autohal
+
+if [ "$NTFSMOUNT" = "0" ]
+	then echo "intelppm.sys removal skipped due to no NTFS mount."
+	else
+	test "$V7IMG" = "0" && tt__intelppm
+	test "$V7IMG" = "1" && echo "Vista/Win7 detected. Skipping intelppm.sys check."
+fi
+
+sync
+cd $STARTDIR
+if [ ! "$NTFSMOUNT" = "0" ]
+	then umount -l /mnt/$PART || echo "Unmounting /mnt/$PART failed!"
+fi
+
+sync
+
+echo "The image drop was successful."
+eval $PASS_COMMAND &
+

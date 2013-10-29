@@ -1,0 +1,823 @@
+#!/bin/sh
+
+# Derived from a "beep song" script by binarypearl at
+# http://ubuntuforums.org/showpost.php?p=9007138&postcount=28
+# Licensed under GPLv2 or later
+
+if ! beep -v | grep -q 'beep-'
+	then echo "Non-BusyBox beep command required but not found."
+	exit 1
+fi
+
+# Sets up variables for beep songs.  Include at the top of a beep song
+# script with the dot command.
+
+#  Octave 0
+CN0="-f 16.35"
+CS0="-f 17.32"
+Db0="-f 17.32"
+DN0="-f 18.35"
+DS0="-f 19.45"
+Eb0="-f 19.45"
+EN0="-f 20.60"
+FN0="-f 21.83"
+FS0="-f 23.12"
+Gb0="-f 23.12"
+GN0="-f 24.50"
+GS0="-f 25.96"
+Ab0="-f 25.96"
+AN0="-f 27.50"
+AS0="-f 29.14"
+Bb0="-f 29.14"
+BN0="-f 30.87"
+
+#  Octave 1
+CN1="-f 32.70"
+CS1="-f 34.65"
+Db1="-f 34.65"
+DN1="-f 36.71"
+DS1="-f 38.89"
+Eb1="-f 38.89"
+EN1="-f 41.20"
+FN1="-f 43.65"
+FS1="-f 46.25"
+Gb1="-f 46.25"
+GN1="-f 49.00"
+GS1="-f 51.91"
+Ab1="-f 51.91"
+AN1="-f 55.00"
+AS1="-f 58.27"
+Bb1="-f 58.27"
+BN1="-f 61.74"
+
+#  Octave 2
+CN2="-f 65.41"
+CS2="-f 69.30"
+Db2="-f 69.30"
+DN2="-f 73.42"
+DS2="-f 77.78"
+Eb2="-f 77.78"
+EN2="-f  82.41"
+FN2="-f 87.31"
+FS2="-f 92.50"
+Gb2="-f 92.50"
+GN2="-f 98.00"
+GS2="-f 103.83"
+Ab2="-f 103.83"
+AN2="-f  110.00"
+AS2="-f 116.54"
+Bb2="-f 116.54"
+BN2="-f 123.47"
+
+#  Octave 3
+CN3="-f 130.81"
+CS3="-f 138.59"
+Db3="-f 138.59"
+DN3="-f 146.83"
+DS3="-f 155.56"
+Eb3="-f 155.56"
+EN3="-f 164.81"
+FN3="-f 174.61"
+FS3="-f  185.00"
+Gb3="-f  185.00"
+GN3="-f 196.00"
+GS3="-f 207.65"
+Ab3="-f 207.65"
+AN3="-f 220.00"
+AS3="-f 233.08"
+Bb3="-f 233.08"
+BN3="-f 246.94"
+
+# Octave 4
+CN4="-f 261.63"
+CS4="-f 277.63"
+Db4="-f 277.63"
+DN4="-f 293.66"
+DS4="-f 311.13"
+Eb4="-f 311.13"
+EN4="-f 329.63"
+FN4="-f 349.23"
+FS4="-f 369.99"
+Gb4="-f 369.99"
+GN4="-f 392.00"
+GS4="-f 415.30"
+Ab4="-f 415.30"
+AN4="-f 440.00"
+AS4="-f  466.16"
+Bb4="-f  466.16"
+BN4="-f 493.88"
+
+# Octave 5
+CN5="-f  523.25"
+CS5="-f 554.37"
+Db5="-f 554.37"
+DN5="-f 587.33"
+DS5="-f 622.25"
+Eb5="-f 622.25"
+EN5="-f 659.26"
+FN5="-f 698.46"
+FS5="-f 739.99"
+Gb5="-f 739.99"
+GN5="-f  783.99"
+GS5="-f 830.61"
+Ab5="-f 830.61"
+AN5="-f 880.00"
+AS5="-f 932.33"
+Bb5="-f 932.33"
+BN5="-f 987.77"
+
+# Octave  6
+CN6="-f 1046.50"
+CS6="-f 1108.73"
+Db6="-f 1108.73"
+DN6="-f 1174.66"
+DS6="-f 1244.51"
+Eb6="-f 1244.51"
+EN6="-f 1318.51"
+FN6="-f 1396.91"
+FS6="-f 1479.98"
+Gb6="-f 1479.98"
+GN6="-f 1567.98"
+GS6="-f 1661.22"
+Ab6="-f 1661.22"
+AN6="-f 1760.00"
+AS6="-f  1864.66"
+Bb6="-f  1864.66"
+BN6="-f 1975.53"
+
+# Octave 7
+CN7="-f  2093.00"
+CS7="-f 2217.46"
+Db7="-f 2217.46"
+DN7="-f  2349.32"
+DS7="-f 2489.02"
+Eb7="-f 2489.02"
+EN7="-f  2637.02"
+FN7="-f 2793.83"
+FS7="-f  2959.96"
+Gb7="-f  2959.96"
+GN7="-f 3135.96"
+GS7="-f  3322.44"
+Ab7="-f  3322.44"
+AN7="-f 3520.00"
+AS7="-f  3729.31"
+Bb7="-f  3729.31"
+BN7="-f 3951.07"
+
+# Octave 8 (Don't know all  of it)
+CN8="-f 4186.01"
+CS8="-f 4434.92"
+Db8="-f 4434.92"
+DN8="-f 4698.64"
+DS8="-f 4978.03"
+Eb8="-f 4978.03"
+
+whole='-l 1024'
+dottedhalf='-l 768'
+half='-l 512'
+dottedquarter='-l 384'
+quarter='-l 256'
+dottedeighth='-l 192'
+eighth='-l 192'
+sixteenth='-l  96'
+
+super_small='-D 16'
+smallspace='-D 32'
+longspace='-D 64'
+
+entersandman () {
+# Metallica's "Enter Sandman" intro, beepsong style
+# An original script (C) c02ware and Jody Bruchon
+# Distributed under the GNU GPL v2 or later.
+
+beep \
+ $dottedquarter $EN4 $longspace -n \
+$eighth $EN4 $smallspace -n \
+$eighth $GN4 $smallspace -n \
+$eighth $AS4 $smallspace -n \
+$dottedquarter $AN4 $smallspace -n \
+$eighth $AN5 $smallspace -n \
+ $dottedquarter $EN4 $longspace -n \
+$eighth $EN4 $smallspace -n \
+$eighth $GN4 $smallspace -n \
+$eighth $AS4 $smallspace -n \
+$dottedquarter $AN4 $smallspace -n \
+$eighth $AN5 $smallspace -n \
+ $dottedquarter $EN4 $longspace -n \
+$eighth $EN4 $smallspace -n \
+$eighth $GN4 $smallspace -n \
+$eighth $AS4 $smallspace -n \
+$dottedquarter $AN4 $smallspace -n \
+ $eighth $EN4 $smallspace -n \
+$dottedquarter $GN4 $smallspace -n \
+$eighth $EN4 $smallspace -n \
+$eighth $GN4 $smallspace -n \
+$eighth $EN4 $smallspace -n \
+$eighth $FS4 $smallspace -n \
+$eighth $GN4 $smallspace -n \
+$eighth $FS4 $smallspace -n \
+$eighth $EN4 $smallspace
+}
+
+entryofthegladiators () {
+# Derived from a perl "beep song" script by binarypearl at
+# http://ubuntuforums.org/showpost.php?p=9007138&postcount=28
+# Licensed under GPLv2 or later
+
+beep \
+ $dottedquarter $EN5 $super_small -n \
+ $sixteenth $EN5 $super_small  -n \
+ $sixteenth $EN5 $super_small -n \
+ $dottedquarter  $EN5 $super_small -n \
+ $sixteenth $EN5 $super_small -n \
+  $sixteenth $EN5 $super_small -n \
+ $sixteenth $EN5 $super_small  -n \
+ $sixteenth $Eb5 $super_small -n \
+ $sixteenth $DN5  $super_small -n \
+ $sixteenth $Db5 $super_small -n \
+  $sixteenth $CN5 $super_small -n \
+ $sixteenth $BN4 $super_small -n \
+  $sixteenth $Bb4 $super_small -n \
+ $sixteenth $AN4 $super_small -n \
+ $sixteenth $Ab4 $super_small -n \
+ $sixteenth $GN4  $super_small -n \
+ $sixteenth $Gb4 $super_small -n \
+ $sixteenth $FN4 $super_small -n \
+ $sixteenth $EN4 $super_small -n \
+ $sixteenth $Eb4 $super_small -n \
+ $sixteenth $DN4 $super_small -n \
+ $sixteenth $CS4 $super_small -n \
+ $dottedquarter $FS5 $super_small -n \
+ $sixteenth $FS5  $super_small -n \
+ $sixteenth $FS5 $super_small -n \
+ $dottedquarter $FS5 $super_small -n \
+ $sixteenth $FS5 $super_small  -n \
+ $sixteenth $FS5 $super_small -n \
+ $sixteenth $FS5  $super_small -n \
+ $sixteenth $FN5 $super_small -n \
+ $sixteenth $EN5 $super_small -n \
+ $sixteenth $Eb5 $super_small -n \
+ $sixteenth $DN5 $super_small -n \
+ $sixteenth $Db5 $super_small -n \
+ $sixteenth $CN5 $super_small -n \
+ $sixteenth $BN4  $super_small -n \
+ $sixteenth $Bb4 $super_small -n \
+ $sixteenth $AN4 $super_small -n \
+ $sixteenth $Ab4 $super_small -n \
+ $sixteenth $GN4 $super_small -n \
+ $sixteenth $FS4 $super_small -n \
+ $sixteenth $FN4 $super_small -n \
+ $sixteenth $EN4  $super_small -n \
+ $sixteenth $DS4 $super_small -n \
+  $dottedquarter $GN5 $super_small -n \
+ $sixteenth $GN5  $super_small -n \
+ $sixteenth $GN5 $super_small -n \
+  $dottedquarter $GN5 $super_small -n \
+ $sixteenth $GN5 $super_small  -n \
+ $sixteenth $GN5 $super_small -n \
+ $sixteenth $GN4 $super_small -n \
+  $sixteenth $GS4 $super_small -n \
+ $sixteenth $AN4 $super_small -n \
+ $sixteenth $AS4 $super_small -n \
+ $sixteenth $BN4  $super_small -n \
+ $sixteenth $CN5 $super_small -n \
+ $sixteenth $CS5 $super_small -n \
+ $sixteenth $DN5 $super_small -n \
+  $sixteenth $DS5 $super_small -n \
+ $sixteenth $EN5 $super_small -n \
+ $sixteenth $FN5 $super_small -n \
+ $sixteenth $FS5  $super_small -n \
+ $sixteenth $GN5 $super_small -n \
+  $sixteenth $GS5 $super_small -n \
+ $sixteenth $AN5 $super_small -n \
+  $sixteenth $BN5 $super_small -n \
+ $eighth $CN6  $super_small -n \
+ $eighth $BN5 $super_small -n \
+ $sixteenth  $Bb5 $super_small -n \
+ $sixteenth $BN5 $super_small -n \
+  $sixteenth $Bb5 $super_small -n \
+ $sixteenth $AN5 $super_small -n \
+  $eighth $Ab5 $super_small -n \
+ $eighth $GN5 $super_small -n \
+  $eighth $FS5 $super_small -n \
+ $eighth $GN5 $super_small -n \
+  $eighth $AN5 $super_small -n \
+ $eighth $Ab5 $super_small -n \
+  $sixteenth $GN5 $super_small -n \
+ $sixteenth $Ab5 $super_small -n \
+ $sixteenth $GN5 $super_small -n \
+ $sixteenth $FS5  $super_small -n \
+ $eighth $FN5 $super_small -n \
+ $eighth  $EN5 $super_small -n \
+ $eighth $DS5 $super_small -n \
+  $eighth $EN5 $super_small -n \
+ $sixteenth $GN5 $longspace -n \
+  $sixteenth $FN5 $super_small -n \
+ $sixteenth $FN5 $super_small -n \
+ $eighth $CS5 $super_small -n \
+ $eighth $DN5 $super_small  -n \
+ $sixteenth $GN5 $longspace -n \
+ $sixteenth $FN5  $super_small -n \
+ $sixteenth $FN5 $super_small -n \
+ $eighth  $CS5 $super_small -n \
+ $eighth $DN5 $super_small -n \
+  $sixteenth $BN4 $super_small -n \
+ $sixteenth $CN5 $super_small -n \
+  $sixteenth $CS5 $super_small -n \
+ $sixteenth $DN5 $super_small -n \
+ $sixteenth $DS5 $super_small -n \
+ $sixteenth $EN5  $super_small -n \
+ $sixteenth $FN5 $super_small -n \
+  $sixteenth $FS5 $super_small -n \
+ $sixteenth $GN5 $super_small -n \
+  $sixteenth $GS5 $super_small -n \
+ $sixteenth $AN5 $super_small -n \
+ $sixteenth $BN5 $super_small -n \
+ $eighth $AN5  $super_small -n \
+ $eighth $GN5 $super_small -n \
+ $eighth $CN6  $super_small -n \
+ $eighth $BN5 $super_small -n \
+ $sixteenth  $Bb5 $super_small -n \
+ $sixteenth $BN5 $super_small -n \
+  $sixteenth $Bb5 $super_small -n \
+ $sixteenth $AN5 $super_small -n \
+  $eighth $Ab5 $super_small -n \
+ $eighth $GN5 $super_small -n \
+  $eighth $FS5 $super_small -n \
+ $eighth $GN5 $super_small -n \
+  $eighth $AN5 $super_small -n \
+ $eighth $Ab5 $super_small -n \
+  $sixteenth $GN5 $super_small -n \
+ $sixteenth $Ab5 $super_small -n \
+ $sixteenth $GN5 $super_small -n \
+ $sixteenth $FS5  $super_small -n \
+ $eighth $FN5 $super_small -n \
+ $eighth  $EN5 $super_small -n \
+ $eighth $DS5 $super_small -n \
+  $eighth $EN5 $super_small -n \
+ $eighth $DS5  $super_small -n \
+ $sixteenth $DS5 $super_small -n \
+  $sixteenth $DS5 $super_small -n \
+ $eighth $FS5 $super_small -n \
+  $eighth $BN4 $super_small -n \
+ $sixteenth $GN5 $super_small  -n \
+ $sixteenth $AN5 $super_small -n \
+ $sixteenth $GN5  $super_small -n \
+ $sixteenth $FS5 $super_small -n \
+ $eighth  $EN5 $super_small -n \
+ $eighth $BN4 $super_small -n \
+  $eighth $BN5 $super_small -n \
+ $sixteenth $BN5 $super_small -n \
+  $sixteenth $BN5 $super_small -n \
+ $eighth $BN5 $super_small -n \
+  $eighth $BN5 $super_small -n \
+ $sixteenth $BN5 $super_small  -n \
+ $sixteenth $BN5 $super_small -n \
+ $sixteenth $BN5  $super_small -n \
+ $sixteenth $BN5 $super_small -n \
+  $sixteenth $BN5 $super_small -n \
+ $sixteenth $BN5 $super_small -n \
+  $eighth $BN5 $super_small -n \
+ $eighth $CN6  $super_small -n \
+ $eighth $BN5 $super_small -n \
+ $sixteenth  $Bb5 $super_small -n \
+ $sixteenth $BN5 $super_small -n \
+  $sixteenth $Bb5 $super_small -n \
+ $sixteenth $AN5 $super_small -n \
+  $eighth $Ab5 $super_small -n \
+ $eighth $GN5 $super_small -n \
+  $eighth $FS5 $super_small -n \
+ $eighth $GN5 $super_small -n \
+  $eighth $AN5 $super_small -n \
+ $eighth $Ab5 $super_small -n \
+  $sixteenth $GN5 $super_small -n \
+ $sixteenth $Ab5 $super_small -n \
+ $sixteenth $GN5 $super_small -n \
+ $sixteenth $FS5  $super_small -n \
+ $eighth $FN5 $super_small -n \
+ $eighth  $EN5 $super_small -n \
+ $eighth $DS5 $super_small -n \
+  $eighth $EN5 $super_small -n \
+ $sixteenth $GN5 $longspace -n \
+  $sixteenth $FN5 $super_small -n \
+ $sixteenth $FN5 $super_small -n \
+ $eighth $CS5 $super_small -n \
+ $eighth $DN5 $super_small  -n \
+ $sixteenth $GN5 $longspace -n \
+ $sixteenth $FN5  $super_small -n \
+ $sixteenth $FN5 $super_small -n \
+ $eighth  $CS5 $super_small -n \
+ $eighth $DN5 $super_small -n \
+  $sixteenth $BN4 $super_small -n \
+ $sixteenth $CN5 $super_small -n \
+  $sixteenth $CS5 $super_small -n \
+ $sixteenth $DN5 $super_small -n \
+ $sixteenth $DS5 $super_small -n \
+ $sixteenth $EN5  $super_small -n \
+ $sixteenth $FN5 $super_small -n \
+  $sixteenth $FS5 $super_small -n \
+ $sixteenth $GN5 $super_small -n \
+  $sixteenth $GS5 $super_small -n \
+ $sixteenth $AN5 $super_small -n \
+ $sixteenth $BN5 $super_small -n \
+ $eighth $AN5  $super_small -n \
+ $eighth $GN5 $super_small -n \
+ $eighth $CN6  $super_small -n \
+ $eighth $BN5 $super_small -n \
+ $sixteenth  $Bb5 $super_small -n \
+ $sixteenth $BN5 $super_small -n \
+  $sixteenth $Bb5 $super_small -n \
+ $sixteenth $AN5 $super_small -n \
+  $eighth $Ab5 $super_small -n \
+ $eighth $GN5 $super_small -n \
+  $eighth $FS5 $super_small -n \
+ $eighth $GN5 $super_small -n \
+  $eighth $AN5 $super_small -n \
+ $eighth $Ab5 $super_small -n \
+  $sixteenth $GN5 $super_small -n \
+ $sixteenth $Ab5 $super_small -n \
+ $sixteenth $GN5 $super_small -n \
+ $sixteenth $FS5  $super_small -n \
+ $eighth $FN5 $super_small -n \
+ $eighth  $EN5 $super_small -n \
+ $eighth $DS5 $super_small -n \
+  $eighth $EN5 $super_small -n \
+ $eighth $DN5  $super_small -n \
+ $sixteenth $DN5 $super_small -n \
+  $sixteenth $DN5 $super_small -n \
+ $eighth $AN5 $super_small -n \
+  $eighth $DN5 $super_small -n \
+ $eighth $Eb5 $super_small  -n \
+ $sixteenth $Eb5 $super_small -n \
+ $sixteenth $Eb5  $super_small -n \
+ $quarter $Bb5 $super_small -n \
+  $sixteenth $BN5 $super_small -n \
+ $sixteenth $DN6 $super_small -n \
+  $sixteenth $CS6 $super_small -n \
+ $sixteenth $CN6 $super_small -n \
+ $eighth $BN5 $super_small -n \
+ $eighth $AN5 $super_small  -n \
+ $eighth $GN5 $super_small 
+
+}
+
+ff7victory () {
+# Final Fantasy VII victory tune...PC speaker style!
+# Derived from a post by Iam8up on ubuntuforums.org
+# Distributed under the GNU GPL v2 or later.
+
+beep \
+$sixteenth $GN5 $longspace -r 3 -n \
+$dottedquarter $GN5 $smallspace -n \
+$dottedquarter $Eb5 $smallspace -n \
+$dottedquarter $FN5 $longspace -n \
+$eighth $GN5 $longerspace -n \
+$eighth $FN5 $smallspace -n \
+$whole $GN5 $smallspace
+}
+
+fxchirp () {
+beep -f 5000 -l 13
+}
+
+fxzap () {
+X=1000; while [ $X -gt 20 ]; do beep -f $X -l 16; X=$((X-60)); done
+}
+
+mario () {
+# Derived from a "beep song" script by binarypearl at
+# http://ubuntuforums.org/showpost.php?p=9007138&postcount=28
+# Licensed under GPLv2 or later
+
+mario_intro
+mario_melody1
+mario_melody1
+mario_melody2
+mario_melody3
+mario_melody2
+beep \
+ $eighth $DS5 $longspace -n \
+ $eighth $DN5 $longspace -n \
+ $eighth $CN5
+}
+
+mario_intro () {
+beep \
+ $eighth $EN5 $smallspace -n \
+ $eighth $EN5 $longspace -n \
+ $eighth $EN5
+ sleep 0.1
+beep \
+ $eighth $CN5 $smallspace -n \
+ $dottedeighth $EN5
+ sleep 0.1
+beep $quarter $GN5
+ sleep 0.2
+beep $quarter $GN4
+ sleep 0.2
+}
+
+mario_melody1 () {
+beep $quarter $CN5 ; sleep 0.1
+beep $quarter $GN4 ; sleep 0.1
+beep $quarter $EN4 ; sleep 0.2
+beep \
+ $dottedeighth $AN4 $longspace -n \
+ $eighth $BN4 $shortspace -n \
+ $eighth $AS4 $shortspace -n \
+ $eighth $AN4 $shortspace -n \
+ $dottedeighth $GN4 $shortspace -n \
+ $dottedeighth $EN5 $shortspace -n \
+ $dottedeighth $GN5 $shortspace -n \
+ $dottedeighth $AN5 $longspace -n \
+ $dottedeighth $FN5 $shortspace -n \
+ $dottedeighth $GN5 $longspace -n \
+ $dottedeighth $EN5 $longspace -n \
+ $dottedeighth $CN5 $shortspace -n \
+ $dottedeighth $DN5 $shortspace -n \
+ $quarter $BN4
+sleep 0.1
+}
+
+mario_melody2 () {
+beep \
+ -l 144 $GN5 $shortspace -n \
+ -l 144 $FS5 $shortspace -n \
+ -l 144 $FN5 $shortspace -n \
+ $dottedeighth $DS5 $shortspace -n \
+ $dottedeighth $EN5 $shortspace -n \
+ -l 144 $GS4 $shortspace -n \
+ -l 144 $AN4 $shortspace -n \
+ $dottedeighth $CN5 $shortspace -n \
+ -l 144 $AN4 $shortspace -n \
+ -l 144 $CN5 $shortspace -n \
+ $dottedeighth $DN5
+sleep 0.1
+}
+
+mario_melody3 () {
+beep \
+ -l 144 $GN5 $shortspace -n \
+ -l 144 $FS5 $shortspace -n \
+ -l 144 $FN5 $shortspace -n \
+ $eighth $DS5 $shortspace -n \
+ $eighth $EN5 $shortspace -n \
+ -l 144 $CN6 $longspace -n \
+ $eighth $CN6 $shortspace -n \
+ -l 144 $CN6 $longspace -n \
+ $eighth $EN3 $longspace -n \
+ $eighth $CN3
+sleep 0.1
+}
+
+maryhad () {
+# Derived from a "beep song" script by binarypearl at
+# http://ubuntuforums.org/showpost.php?p=9007138&postcount=28
+# Licensed under GPLv2 or later
+
+beep \
+ $eighth $EN5 $smallspace -n \
+ $eighth $DN5 $smallspace -n \
+ $eighth $CN5 $smallspace -n \
+ $eighth $DN5 $smallspace -n \
+ $eighth $EN5 $smallspace -n \
+ $eighth $EN5 $smallspace -n \
+ $half $EN5 $smallspace -n \
+ $eighth $DN5 $smallspace -n \
+ $eighth $DN5 $smallspace -n \
+ $half $DN5 $smallspace -n \
+ $eighth $EN5 $smallspace -n \
+ $eighth $GN5 $smallspace -n \
+ $half $GN5 $smallspace -n \
+ $eighth $EN5 $smallspace -n \
+ $eighth $DN5 $smallspace -n \
+ $eighth $CN5 $smallspace -n \
+ $eighth $DN5 $smallspace -n \
+ $eighth $EN5 $smallspace -n \
+ $eighth $EN5 $smallspace -n \
+ $eighth $EN5 $smallspace -n \
+ $eighth $EN5 $smallspace -n \
+ $eighth $DN5 $smallspace -n \
+ $eighth $DN5 $smallspace -n \
+ $eighth $EN5 $smallspace -n \
+ $eighth $DN5 $smallspace -n \
+ $half $CN5
+}
+
+rick () {
+# The beepsong version of getting Rickrolled!
+# Distributed under GNU GPL v2 or later.
+
+beep \
+ $sixteenth $Ab4  $smallspace -n \
+ $sixteenth $Bb4 $smallspace -n \
+ $sixteenth $Db5  $smallspace -n \
+ $sixteenth $Bb4  $smallspace -n \
+ $quarter $FN5 $longspace -n \
+ $quarter $FN5 $longspace -n \
+ $dottedhalf $Eb5  $smallspace -n \
+ $sixteenth $Ab4  $smallspace -n \
+ $sixteenth $Bb4 $smallspace -n \
+ $sixteenth $Db5  $smallspace -n \
+ $sixteenth $Bb4  $smallspace -n \
+ $quarter $Eb5 $longspace -n \
+ $quarter $Eb5 $longspace -n \
+ $dottedhalf $Db5  $smallspace -n \
+ $sixteenth $Ab4  $smallspace -n \
+ $sixteenth $Bb4 $smallspace -n \
+ $sixteenth $Db5  $smallspace -n \
+ $sixteenth $Bb4  $smallspace -n \
+ $quarter $Db5 $longspace -n \
+ $quarter $Eb5 $longspace -n \
+ $sixteenth $CN5  $smallspace -n \
+ $sixteenth $Bb4  $smallspace -n \
+ $half $Ab4  $smallspace -n \
+ $eighth $Ab4  $smallspace -n \
+ $half $Eb5  $smallspace -n \
+ $dottedhalf $Db5  $smallspace -n \
+ $sixteenth $Ab4  $smallspace -n \
+ $sixteenth $Bb4 $smallspace -n \
+ $sixteenth $Db5  $smallspace -n \
+ $sixteenth $Bb4  $smallspace -n \
+ $quarter $FN5 $longspace -n \
+ $quarter $FN5 $longspace -n \
+ $dottedhalf $Eb5  $smallspace -n \
+ $sixteenth $Ab4  $smallspace -n \
+ $sixteenth $Bb4 $smallspace -n \
+ $sixteenth $Db5  $smallspace -n \
+ $sixteenth $Bb4  $smallspace -n \
+ $quarter $Eb5 $longspace -n \
+ $quarter $Eb5 $longspace -n \
+ $dottedhalf $Db5  $smallspace -n \
+ $sixteenth $Ab4  $smallspace -n \
+ $sixteenth $Bb4 $smallspace -n \
+ $sixteenth $Db5  $smallspace -n \
+ $sixteenth $Bb4  $smallspace -n \
+ $quarter $Db5 $longspace -n \
+ $quarter $Eb5 $longspace -n \
+ $sixteenth $CN5  $smallspace -n \
+ $sixteenth $Bb4  $smallspace -n \
+ $half $Ab4  $smallspace -n \
+ $eighth $Ab4  $smallspace -n \
+ $half $Eb5  $smallspace -n \
+ $dottedhalf $Db5  $smallspace
+
+}
+
+taps () {
+# Derived from a "beep song" script by binarypearl at
+# http://ubuntuforums.org/showpost.php?p=9007138&postcount=28
+# Licensed under GPLv2 or later
+
+beep \
+ $dottedeighth $GN4 $smallspace -n \
+ $sixteenth $GN4 $smallspace -n \
+ $dottedhalf $CN5 $longspace -n \
+ $dottedeighth $GN4  $smallspace -n \
+ $sixteenth $CN5 $smallspace -n \
+  $dottedhalf $EN5 $longspace -n \
+ $dottedeighth $GN4 $smallspace -n \
+ $sixteenth $CN5 $smallspace -n \
+ $quarter $EN5  $smallspace -n \
+ $dottedeighth $GN4 $smallspace -n \
+  $sixteenth $CN5 $smallspace -n \
+ $quarter $EN5 $smallspace -n \
+  $dottedeighth $GN4 $smallspace -n \
+ $sixteenth $CN5 $smallspace  -n \
+ $dottedhalf $EN5 $longspace -n \
+ $eighth $CN5  $smallspace -n \
+ $eighth $EN5 $smallspace -n \
+ $half $GN5  $smallspace -n \
+ $quarter $EN5 $smallspace -n \
+ $quarter  $CN5 $smallspace -n \
+ $dottedhalf $GN4 $longspace -n \
+  $dottedeighth $GN4 $smallspace -n \
+ $sixteenth $GN4 $smallspace -n \
+ $whole $CN5
+}
+
+zelda () {
+# The Legend of Zelda theme song from the NES
+# Original song (C) Nintendo of America
+# This script (C) c02ware and Jody Bruchon
+# Distributed under the GNU GPL v2 or later.
+
+beep \
+$half $Bb4 $super_small -D 256 -n \
+$sixteenth $Bb4 $super_small -n \
+$sixteenth $Bb4 $super_small -n \
+$sixteenth $Bb4 $super_small -n \
+$sixteenth $Bb4 $super_small -n \
+$dottedeighth $Bb4 $super_small -n \
+$sixteenth $Ab4 $super_small -n \
+$dottedquarter $Bb4 $super_small -D 256 -n \
+$sixteenth $Bb4 $super_small -n \
+$sixteenth $Bb4 $super_small -n \
+$sixteenth $Bb4 $super_small -n \
+$sixteenth $Bb4 $super_small -n \
+$dottedeighth $Bb4 $super_small -n \
+$sixteenth $Ab4 $super_small -n \
+$dottedquarter $Bb4 $super_small -D 256 -n \
+$sixteenth $Bb4 $super_small -n \
+$sixteenth $Bb4 $super_small -n \
+$sixteenth $Bb4 $super_small -n \
+$sixteenth $Bb4 $super_small -n \
+$eighth $Bb4 $super_small -n \
+$sixteenth $FN4 $super_small -n \
+$sixteenth $FN4 $super_small -n \
+$eighth $FN4 $super_small -n \
+$sixteenth $FN4 $super_small -n \
+$sixteenth $FN4 $super_small -n \
+$eighth $FN4 $super_small -n \
+$sixteenth $FN4 $super_small -n \
+$sixteenth $FN4 $super_small -n \
+$eighth $FN4 $super_small -n \
+$eighth $FN4 $super_small -n \
+\
+$quarter $Bb4 $super_small -D 128 -n \
+$half $FN4 $super_small -n \
+$sixteenth $Bb4 $super_small -n \
+$sixteenth $Bb4 $super_small -n \
+$sixteenth $CN5 $super_small -n \
+$sixteenth $DN5 $super_small -n \
+$sixteenth $Eb5 $super_small -n \
+$half $FN5 $super_small -D 256 -n \
+$sixteenth $FN5 $super_small -n \
+$sixteenth $FN5 $super_small -n \
+$sixteenth $GN5 $super_small -n \
+$sixteenth $Ab5 $super_small -n \
+$half $Bb5 $super_small -D 256 -n \
+$sixteenth $Bb5 $super_small -n \
+$sixteenth $Bb5 $super_small -n \
+$sixteenth $Ab5 $super_small -n \
+$sixteenth $Gb5 $super_small -n \
+$dottedeighth $Ab5 $super_small -n \
+$sixteenth $Gb5 $super_small -n \
+$half $FN5 $super_small -D 256 -n \
+ $quarter $FN5 $super_small -n \
+$eighth $Eb5 $super_small -n \
+$sixteenth $Eb5 $super_small -n \
+$sixteenth $FN5 $super_small -n \
+$half $Gb5 $super_small -D 256 -n \
+$eighth $FN5 $super_small -n \
+$eighth $Eb5 $super_small -n \
+$eighth $Db5 $super_small -n \
+$sixteenth $Db5 $super_small -n \
+$sixteenth $Eb5 $super_small -n \
+$half $FN5 $super_small -D 256 -n \
+$eighth $Eb5 $super_small -n \
+$eighth $Db5 $super_small -n \
+$eighth $CN5 $super_small -n \
+$sixteenth $CN5 $super_small -n \
+$sixteenth $DN5 $super_small -n \
+$half $EN5 $super_small -D 256 -n \
+$dottedquarter $GN5 $super_small -n \
+$quarter $FN5 $super_small -n \
+$sixteenth $FN4 $super_small -n \
+$sixteenth $FN4 $super_small -n \
+$eighth $FN4 $super_small -n \
+$sixteenth $FN4 $super_small -n \
+$sixteenth $FN4 $super_small -n \
+$eighth $FN4 $super_small -n \
+$sixteenth $FN4 $super_small -n \
+$sixteenth $FN4 $super_small -n \
+$eighth $FN4 $super_small -n \
+$eighth $FN4 $super_small -n \
+\
+$quarter $Bb4 $super_small -D 128 -n \
+$half $FN4 $super_small -n \
+$sixteenth $Bb4 $super_small -n \
+$sixteenth $Bb4 $super_small -n \
+$sixteenth $CN5 $super_small -n \
+$sixteenth $DN5 $super_small -n \
+$sixteenth $Eb5 $super_small -n \
+$half $FN5 $super_small -D 256 -n \
+$sixteenth $FN5 $super_small -n \
+$sixteenth $FN5 $super_small -n \
+$sixteenth $GN5 $super_small -n \
+$sixteenth $Ab5 $super_small -n \
+$half $Bb5 $super_small -D 256 -n \
+ $dottedquarter $Db6 $super_small -n \
+$dottedquarter $CN6 $super_small -n \
+$dottedquarter $AN5 $super_small -D 256 -n \
+$dottedquarter $AN5 $super_small -n \
+$half $Bb5 $super_small -D 256 -n \
+\
+$dottedquarter $GN5 $super_small -n \
+$quarter $FN5 $super_small -n \
+$sixteenth $FN4 $super_small -n \
+$sixteenth $FN4 $super_small -n \
+$eighth $FN4 $super_small -n \
+$sixteenth $FN4 $super_small -n \
+$sixteenth $FN4 $super_small -n \
+$eighth $FN4 $super_small -n \
+$sixteenth $FN4 $super_small -n \
+$sixteenth $FN4 $super_small -n \
+$eighth $FN4 $super_small -n \
+$eighth $FN4 $super_small
+}
+
+if [ -z "$1" ]
+	then echo "No beepsong specified."; exit 1
+	else $1
+fi

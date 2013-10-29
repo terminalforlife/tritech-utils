@@ -1,0 +1,428 @@
+#!/bin/bash
+
+. tss__common
+
+VER=0.1
+VERDATE="2012-05-04"
+
+echo "Tritech driver device database builder $VER ($VERDATE)"
+DBG=0
+ERR=0
+FORK=0
+Q=0
+case $1 in
+	-d) DBG=1 ;;
+	-dd) DBG=2 ;;
+	-ddd) DBG=3 ;;
+	-l) DRVROOT=.; echo "${CYEL}Performing all work with current directory as root.$COFF" ;;
+	-q) Q=1 ;;
+	-x) DELDB=1 ;;
+esac
+
+test -z "$DRVROOT" && DRVROOT=/home/tritech/source/drivers
+#export DRVROOT=$SOURCE/drivers
+test -z "$DRVBASE" && DRVBASE=$(basename $DRVROOT)
+test -z "$DBFILE" && DBFILE="$DRVROOT/devicedb.txt"
+test ! -z "$DELDB" && echo "${CRED}Deleting database file $CPUR$DBFILE$COFF" && rm -f $DBFILE && exit
+test -z "$LOGFILE" && LOGFILE=/tmp/driverdrop_errors.txt
+
+cd "$DRVROOT"
+WD="$(pwd)"
+WD="$(basename "$WD")"
+
+TF="$(mktemp)"
+TF2="$(mktemp)"
+TD="$(mktemp -d)"
+export DRVROOT DRVBASE DBFILE LOGFILE TD WD DBG FORK
+
+# Trap CTRL+C
+control_c () {
+	if [ $FORK -eq 1 ]
+		then
+		rm -f $TF $TF2 $TFPI $TFPI2
+		exit 1
+	fi
+	echo -e "\nInterrupted, cleaning up."
+	wait $(jobs -p)
+	/bin/kill $! 2>/dev/null
+	sleep 1
+	/bin/kill -9 $! 2>/dev/null
+	rm -rf $TD $TF $TF2
+	exit 1
+}
+trap control_c INT TERM HUP ABRT
+
+dispatch () {
+	test -z "$SUB" && SUB=0
+	test -z "$MAXSUB" && MAXSUB=$(grep ^processor /proc/cpuinfo | tail -n 1 | sed 's/.*:\s*//') && MAXSUB=$(expr $MAXSUB \* 2)
+	if [ $MAXSUB -gt 1 ]
+		then
+		while [ $SUB -ge $MAXSUB ]
+			do sleep 0.001
+			SP=$MAXSUB
+			while [ $SP -gt 0 ]
+				# If child process terminates, remove it.
+			 	do if ! kill -0 ${SUBPID[$SP]} 2>/dev/null
+					then
+					DEL=$SP
+					while [ $DEL -lt $SUB ]
+						do
+						DEL2=$((DEL + 1))
+						SUBPID[$DEL]="${SUBPID[$DEL2]}"
+						DEL=$DEL2 
+					done
+					unset SUBPID[$SUB]
+					SUB=$((SUB - 1))
+				fi
+				SP=$((SP - 1))
+			done
+		done
+		SUB=$((SUB + 1))
+		eval "$(echo "$@" | sed 's/(/\\(/g;s/)/\\)/g')" &
+		SUBPID[$SUB]=$!
+	else eval "$(echo "$@" | sed 's/(/\\(/g;s/)/\\)/g')" &
+	wait $(jobs -p)
+	fi
+}
+
+escape_regex () {
+        for CHAR in \. \[ \] \^ \$
+                do RXS="$(echo "$RXS" | sed "s/\\${CHAR}/\\\\${CHAR}/g")"
+        done
+        RXS="$(echo "$RXS" | sed 's/\?/\./g')"
+        RXS="$(echo "$RXS" | sed 's/\*/\.\*/g')"
+}
+
+read_inf_sec () {
+	# Cuts out INF section to file $TF2
+	# Call format: read_inf_sec "manufacturername" infile outfile
+	test -z "$1" && echo "${CRED}read_inf_sec:$COFF No parameter passed, aborting." && exit 1
+	: > $3
+	read_inf_section "$2" "$1" >> $3 2>/dev/null
+}
+
+read_inf_sec_short () {
+	# Same as read_inf_sec but only returns the first line of the section
+	test -z "$1" && echo "${CRED}read_inf_sec_short:$COFF No parameter passed, aborting." && exit 1
+	read_inf_section "$2" "$1" 2>/dev/null | head -n 1 > $3
+}
+
+get_manufacturer_names () {
+	# Populates an array with manufacturer + decoration section names
+	read_inf_sec "manufacturer" $TFPI $TFPI2
+	unset MFGNAME
+	MFG=0
+	while read GMN_LINE
+		do
+		MFGROOT=$(echo "$GMN_LINE" | sed 's/\s//g;s/[^=]*=//;s/,.*//')
+		MFGNAME[$MFG]="$MFGROOT"; (( MFG ++ ))
+		for DECOR in $(echo "$GMN_LINE" | sed 's/\s//g;s/[^=]*='"$MFGROOT"'//;s/^,//;s/,/ /g')
+			do MFGNAME[$MFG]="${MFGROOT}.$DECOR"; (( MFG ++ ))
+		done
+	done < $TFPI2
+	read_inf_sec "version" $TFPI $TFPI2
+	# Extract date code from file
+	DV="$(cat $TFPI2 | tr -d ' ' | grep -m 1 "driverver" | sed 's/.*=//;s/,.*//')"
+	echo "$DV" | grep -q '^./../....' && DV="0$DV"
+	echo "$DV" | grep -q '^.././....' && DV="$(echo "$DV" | sed s#\(../\)\(./....\)#\10\2#)"
+	DV="$(date -d "$(echo $DV | tr -d /)" +%Y%m%d 2>/dev/null)"; test -z "$DV" && DV="00000000"
+	test $DBG -gt 2 && echo "${CBLU}get_manufacturer_names:$CWHT ($MFG) ${MFGNAME[@]}"
+}
+
+clear_winver_flags () {
+	W2K=0; XP32=0; V32=0; W732=0; W832=0
+	IA64=0; S2K3=0; S2K364=0
+	XP64=0; V64=0; W764=0; W864=0
+}
+
+set_winver_flags () {
+	test $DBG -gt 2 && echo "${CBLU}set_winver_flags:$COFF $1"
+	case $1 in
+		ntia64*) IA64=1 ;;
+		ntamd64.6.2) W864=1 ;;
+		ntamd64.6.1) W764=1 ;;
+		ntamd64.6.0) V64=1 ;;
+		ntamd64.6) V64=1 && W764=1 && W864=1 ;;
+		ntamd64.5.2) S2K364=1 ;;
+		ntamd64.5.1) XP64=1 ;;
+		ntamd64.5) S2K364=1 && XP64=1 ;;
+		ntamd64) W864=1 && W764=1 && V64=1 && S2K364=1 && XP64=1 ;;
+		ntx86.6.2) W832=1 ;;
+		ntx86.6.1) W732=1 ;;
+		ntx86.6.0) V32=1 ;;
+		ntx86.6) V32=1 && W732=1 && W832=1 ;;
+		ntx86.5.2) S2K3=1 ;;
+		ntx86.5.1) XP32=1 ;;
+		ntx86.5.0) W2K=1 ;;
+		ntx86.5) S2K3=1 XP32=1 && W2K=1 ;;
+		ntx86) W832=1 && W732=1 && V32=1 && XP32=1 && W2K=1 ;;
+		nt.6.2) W832=1 ;;
+		nt.6.1) W732=1 ;;
+		nt.6.0) V32=1 ;;
+		nt.6) V32=1 && W732=1 && W832=1 ;;
+		nt.5.2) S2K3=1 ;;
+		nt.5.1) XP32=1 ;;
+		nt.5.0) W2K=1 ;;
+		nt.5) S2K3=1 && XP32=1 && W2K=1 ;;
+		nt) W832=1 && W732=1 && V32=1 && S2K3=1 && XP32=1 && W2K=1 ;;
+		*) W832=1 && W732=1 && V32=1 && S2K3=1 && XP32=1 && W2K=1 ;;
+	esac
+}
+
+unset_winver_flags () {
+	test $DBG -gt 2 && echo "${CBLU}unset_winver_flags:$COFF $1"
+	case $1 in
+		ntia64*) IA64=0 ;;
+		ntamd64.6.2) W864=0 ;;
+		ntamd64.6.1) W764=0 ;;
+		ntamd64.6.0) V64=0 ;;
+		ntamd64.6) V64=0 && W764=0 && W864=0 ;;
+		ntamd64.5.2) S2K364=0 ;;
+		ntamd64.5.1) XP64=0 ;;
+		ntamd64.5) S2K364=0 && XP64=0 ;;
+		ntamd64) W864=0 && W764=0 && V64=0 && XP64=0 ;;
+		ntx86.6.2) W832=0 ;;
+		ntx86.6.1) W732=0 ;;
+		ntx86.6.0) V32=0 ;;
+		ntx86.6) V32=0 && W732=0 && W832=0 ;;
+		ntx86.5.2) S2K3=0 ;;
+		ntx86.5.1) XP32=0 ;;
+		ntx86.5.0) W2K=0 ;;
+		ntx86.5) S2K3=0 && XP32=0 && W2K=0 ;;
+		ntx86) W832=0 && W732=0 && V32=0 && XP32=0 ;;
+		nt.6.2) W832=0 ;;
+		nt.6.1) W732=0 ;;
+		nt.6.0) V32=0 ;;
+		nt.6) V32=0 && W732=0 && W832=0 ;;
+		nt.5.2) S2K3=0 ;;
+		nt.5.1) XP32=0 ;;
+		nt.5.0) W2K=0 ;;
+		nt.5) S2K3=0 && XP32=0 && W2K=0 ;;
+		nt) W832=0 && W732=0 && V32=0 && XP32=0 && W2K=0 ;;
+		*) W832=0 && W732=0 && V32=0 && XP32=0 && W2K=0 ;;
+	esac
+}
+
+sanitize_inf_file () {
+	# Strip UTF-16, Windows newlines, normalize case, remove DeviceDesc parts
+	# Strip anything after a semicolon (comments) and blank lines
+	# We want to minimize the number of lines processed in the main loop.
+	tr -d \\0\\r < "$1" | grep -v '^;' | tr \\011 ' ' | grep -v '^$' | \
+#		grep -v '^\s$' | tr '[:upper:]' '[:lower:]' | sed 's/.*devicedesc//g;s/;.*//g' > $2
+		tr '[:upper:]' '[:lower:]' | sed 's/.*devicedesc//g;s/;.*//g' > $2
+}
+
+clean_out_inf () {
+	# Remove all hashes and devices for an INF file in the database
+	cat $DBFILE | grep -v "^SHA1:$1:" | grep -v "/$1$" > $TF2 && mv $TF2 $DBFILE
+}
+
+add_inf () {
+	if grep -m 1 -iq 'signature.*"\$Windows 95\$"' "$1" || echo "$1" | grep -iq '/oemset..\.inf$' || echo "$1" | grep -iq '/autorun.inf$' || echo "$1" | grep -iq '/ntsetup.inf$'
+		then
+#		echo "SHA1:$1:$(sha1sum "$1" | cut -d\  -f1)" >> $DBFILE
+		test $DBG -gt 1 && echo -n "$CRED$1$COFF "
+		test $DBG -le 1 && test "$Q" = "0" && echo -n "${CRED}!$COFF"
+		else
+		INF[$INFC]="$1"
+		(( INFC ++ ))
+		test $DBG -gt 1 && echo -n "$CGRN$1$COFF "
+		test $DBG -le 1 && test "$Q" = "0" && echo -n "${CGRN}|$COFF"
+	fi
+}
+
+process_inf () {
+	export FORK=1
+	FILE="$1"
+	TFPI=$(mktemp)
+	TFPI2=$(mktemp)
+	DBFILE2="$TD/inf_$(basename $TFPI)"
+	clear_winver_flags
+	sanitize_inf_file "$FILE" $TFPI
+	get_manufacturer_names $TF
+
+	for SEC in ${MFGNAME[@]}
+		do
+		test $DBG -gt 1 && echo "$CCYA  --- Reading INF:  $CYEL$FILE:  $CWHT$SEC"
+		if read_inf_sec_short "$SEC" $TFPI $TFPI2
+			then
+			test $DBG -gt 1 && echo -n "${CGRN}INF for $CWHT$FILE$COFF => $CWHT$SEC$COFF: "
+			if [ -z "$(cat "$TFPI2")" ]
+				then test $DBG -gt 1 && echo "${CYEL}no flags$COFF"
+				unset_winver_flags "$(echo "$SEC" | sed 's/.*\.nt/nt/')"
+				else test $DBG -gt 1 && echo "${CGRN}setting flags$COFF"
+				set_winver_flags "$(echo "$SEC" | sed 's/.*\.nt/nt/')"
+			fi
+			else
+			echo "${CYEL}Warning:$COFF read_inf_sec_short failed for $CWHT$FILE$COFF => $CWHT$X$COFF" && ERR=1 && echo "read_inf_sec_short failed for $FILE => $X" >> $LOGFILE
+		fi
+		: > $TFPI2
+	done
+
+	# Build compatibility flag string
+	WIN="$IA64$W2K$XP32$XP64$S2K3$S2K364$V32$V64$W732$W764$W832$W864"
+	if [ "$WIN" = "000000000000" ]
+		then test "$Q" = "0" && echo "${CYEL}Warning:$CWHT $FILE$COFF has no valid OS flags"
+		echo "OS flags bad for $FILE" >> $LOGFILE
+	fi
+	test $DBG -gt 0 && echo "IA64=$IA64 W2K=$W2K XP32=$XP32 XP64=$XP64 S2K3=$S2K3 S2K364=$S2K364 V32=$V32 V64=$V64 W732=$W732 W764=$W764 W832=$W832 W864=$W864"
+
+	# Pull out only relevant INF file sections to process, not entire files
+	for SEC in ${MFGNAME[@]}
+		do read_inf_section "$TFPI" "$SEC" 2>/dev/null | sed 's/\\/\\\\/g' >> $TFPI2
+	done
+
+	while read X
+		do
+		#echo " --- X Raw: $CYEL$X$COFF"
+		X="$(echo "$X" | sed 's/.*,[^a-z*]*//;s/,.*//;s/acpi\\/acpi\\dev_/;s/^\*/acpi\\dev_/')"
+		#echo " --- X Cook: $CGRN$X$COFF"
+		TYPE="$(echo "$X" | sed 's/\\.*//')"
+		#echo " --- Type: $CWHT$TYPE$COFF"
+		unset VID PID VEN DEV SUBSYS REV FUNC CC CV CD CLASS SC PROT
+		case $TYPE in
+			usb|hdaudio|pci|acpi)
+			for Y in $(echo "$X" | cut -d\\ -f2- | tr \& " " | sed s/ctlr_/ctlr/g)
+				do
+				Z1=$(echo "$Y" | sed s/_.*//)
+				Z2=$(echo "$Y" | sed s/.*_//)
+				case $Z1 in
+					vid) VID=":vid=$Z2" ;;
+					pid) PID=":pid=$Z2" ;;
+					ven) VEN=":ven=$Z2" ;;
+					dev) DEV=":dev=$Z2" ;;
+					subsys) SUBSYS=":subsys=$Z2" ;;
+					rev) REV=":rev=$Z2" ;;
+					func) FUNC=":func=$Z2" ;;
+					ctlrven) CV=":cv=$Z2" ;;
+					ctlrdev) CD=":cd=$Z2" ;;
+					class) CLASS=":class=$Z2" ;;
+					cc) CC=":cc=$Z2" ;;
+					subclass) SC=":sc=$Z2" ;;
+					prot) PROT=":prot=$Z2" ;;
+				esac
+			done
+			;;
+			*)
+			test $DBG -gt 0 && echo "${CYEL}Bad device type: $CCYA$TYPE$COFF"
+			unset TYPE
+			;;
+		esac
+		DEVICE="$TYPE$CLASS$SC$PROT$VID$PID$VEN$DEV$SUBSYS$CC$REV$FUNC$CV$CD:win=$WIN:dv=$DV:inf=$WD/$FILE"
+		test ! -z "$CLASS$SC$PROT$VID$PID$VEN$DEV$SUBSYS$CC$REV$FUNC$CV$CD" && test ! -z "$TYPE" && echo "$DEVICE" >> $DBFILE2 2>/dev/null
+		test $DBG -gt 0 && test "$Q" = "0" && echo "$DEVICE"
+	done < $TFPI2
+
+	# Write SHA1 hash for integrity checks and clean up
+	echo "SHA1:$FILE:$(sha1sum "$FILE" | cut -d\  -f1)" >> $DBFILE2
+	rm -f $TFPI $TFPI2
+}
+
+# Find INF files
+INFC=0
+IFS0="$IFS"
+IFS1=$(echo -en "\n\b")
+IFS="$IFS1"
+
+# Run a scan for bad characters if we are NOT in a Windows INF folder
+if ! pwd | grep -iq '/windows/inf'
+	then
+	find $DRVROOT -name '* *' | while read LINE
+		do echo mv "$LINE" "$(echo "$LINE" | sed 's/ /_/g')"
+		echo "Bad characters found in paths"; exit 1
+	done
+	find $DRVROOT -name '*&*' | while read LINE
+		do echo mv "$LINE" "$(echo "$LINE" | sed 's/ /_/g')"
+		echo "Bad characters found in paths"
+		exit 1
+	done
+fi
+
+# Load SHA1 hashes from driver database
+CONSISTENT=0
+if [ -e "$DBFILE" ]
+	then if grep -q "^CONSISTENT" $DBFILE
+		then CONSISTENT=1; echo "$CGRN --- Device DB is consistent ---$COFF"
+		test "$Q" = "0" && echo -n "Loading INF files: "
+		else
+		test "$Q" = "0" && echo -n "Loading INF files: ${CYEL}@$COFF"
+	fi
+		else test "$Q" = "0" && echo -n "Loading INF files: "
+fi
+
+# If the database exists and is consistent, check for and handle changed files.
+if [[ -e "$DBFILE"  && "$CONSISTENT" = "1" ]]
+	then grep '^SHA1:[^:]' $DBFILE > $TF
+	for X in $(cut -d: -f2 < $TF)
+		do if [ ! -e "$X" ]
+			then clean_out_inf "$X"
+			test $DBG -gt 1 && echo -n "$CCYA$X$COFF "
+			test $DBG -le 1 && test "$Q" = "0" && echo -n "${CCYA}-$COFF"
+		fi
+	done
+	DEPTH=10
+	pwd | grep -iq '/windows/inf' && DEPTH=1
+	for X in $(find . -maxdepth $DEPTH -name '*.inf') $(find . -maxdepth $DEPTH -name '*.INF')
+		do
+		X="$(echo "$X" | sed 's/.\///')"
+		HASH=$(grep -m 1 "^SHA1:$X:" $TF)
+		if [ -z "$HASH" ]
+			then
+			clean_out_inf "$X"
+			add_inf "$X"
+			else
+			HASH2="SHA1:$X:$(sha1sum "$X" | cut -d\  -f1)"
+			if [ ! "$HASH" = "$HASH2" ]
+				then
+				clean_out_inf "$X"
+				add_inf "$X"
+				else
+				test $DBG -gt 1 && echo -n "$CBLU$X$COFF "
+				test $DBG -le 1 && test "$Q" = "0" && echo -n "${CBLU}|$COFF"
+			fi
+		fi
+	done
+	# If database missing or inconsistent, toss it and rebuild.
+	else
+	for X in $(find . -name '*.inf') $(find . -name '*.INF')
+		do
+		X="$(echo "$X" | sed 's/.\///')"
+		add_inf "$X"
+	done
+fi
+IFS="$IFS0"
+
+if [ "$INFC" = "0" ]
+	then test "$Q" = "0" && echo -e "\nNo INF files to process."
+	exit
+	else test "$Q" = "0" && echo -e "\nDone."
+fi
+
+export MFGNAME DBFILE
+
+FILENUM=0
+for FILE in ${INF[@]}
+	do
+	test $DBG -gt 0 && echo
+	(( FILENUM ++ ))
+	test "$Q" = "0" && echo "$FILENUM/${#INF[@]}:  $FILE"
+	test "$Q" = "1" && echo -en "Processed $FILENUM of ${#INF[@]}\r"
+	dispatch process_inf "$FILE"
+done
+
+wait $(jobs -p)
+test "$Q" = "1" && echo
+
+echo "tritech_devdb_ver:001" > $TF
+cat "$DBFILE" $TD/inf_* 2>/dev/null | sort -g | uniq >> $TF && cat $TF > $DBFILE
+chmod 644 "$DBFILE"
+
+sleep 1
+rm -rf $TF $TF2 $TD
+
+if [ "$ERR" = "1" ]
+	then
+	echo "${CYEL}Warning:$COFF One or more problems occurred during database construction."
+	else echo CONSISTENT >> $DBFILE
+fi
+

@@ -1,0 +1,34 @@
+#!/bin/bash
+
+# Basic client library debug tool for TSS
+VER=0.2
+VERDATE=2013-05-11
+
+test -z "$TSS_CLIENT" && . /usr/bin/tss_client
+test -z "$TSS_CLIENT" && echo "Error: TSS client library required but not loaded." && exit 1
+
+# Loop endlessly
+while true; do
+	Y=1
+	for X in $(grep '() {' /usr/bin/tss_client | sed 's/ .*//g')
+		do echo "$Y  $X"
+		Y=$((Y+1))
+	done
+	echo -n "Enter function number, or 'q' to exit: "
+	read Z
+	test "$Z" = "q" && echo "Quitting." && exit
+	Y=1; unset CALL
+	for X in $(grep '() {' /usr/bin/tss_client | sed 's/ .*//g')
+		do test "$Z" = "$Y" && CALL="$X" && break
+		Y=$((Y+1))
+	done
+
+	if [ "$CALL" = "" ]
+		then echo "Bad function specification."
+		else
+#		set -x; eval "$CALL"; set +x
+		eval "$CALL"
+		cat "$TSS_STATE_FILE"
+		echo "$CALL returned $?"
+	fi
+done

@@ -1,0 +1,55 @@
+#!/bin/ash
+
+VER="0.2.1"
+VERDATE="2013-04-26"
+
+# Finds all possible hard drives on the system, provides info on each,
+# and prompts which one to use. Aborts if no drives exist or if the
+# user selects an invalid drive.
+
+DISKS=$(mktemp)
+TMPFILE=$(mktemp)
+
+# Verify that a temporary file name was passed to us
+if [ "$1" = "" ]
+  then echo "${0}: no temporary file name given" ; exit 1
+  else if ! echo "$1" | grep -q "/tmp/"
+    then echo "${0}: temp file must be in /tmp"; exit 2
+  fi
+fi
+
+# Check to ensure there are possible hard drives at all
+# Additionally, determine if we use hdX or sdX drive designations
+cat /proc/partitions | tail -n +3 | \
+  awk '{ print $3" "$4" " }' | grep '[sh]d[a-z] ' | sort -g > $DISKS
+if cat $DISKS | grep -qv '[sh]d[a-z] '
+  then echo "No sd or hd disk devices were found." ;
+  exit 3
+fi
+
+# Scan sysfs to determine what disks are removable disks
+for X in $(cat $DISKS | awk '{ print $2 }' | tr \\\n " ")
+  do REM=$(cat /sys/block/$X/removable | tr -d \\\n);
+  readlink /sys/block/$X | grep -q "/usb" && USB=1 || USB=0
+  cat $DISKS | sed s/"$X"/"$X $REM $USB"/g > $TMPFILE ; mv $TMPFILE $DISKS
+done
+
+# Try to determine which disk is most likely to be the internal hard drive
+PREF=$(cat $DISKS | grep " 0 0" | head -n 1 | cut -d" " -f 2)
+if [ "$PREF" = "" ]
+  then echo "WARNING: No non-USB and non-removable disks detected."
+  echo "Do not trust that the default device chosen for you is correct!"
+  PREF=$(cat $DISKS | head -n 1 | cut -d" " -f 2)
+  echo "$PREF was chosen as the default out of ALL possible disks."
+  else echo "$PREF is probably the first internal hard drive."
+fi
+
+tt_fsinfo nopart
+
+echo -n "Enter the target device (${PREF}): "
+read DEV
+# If nothing was entered, use the default choice
+test "$DEV" = "" && DEV="$PREF"
+
+rm -f $DISKS $TMPFILE
+echo -n "$DEV" > "$1"

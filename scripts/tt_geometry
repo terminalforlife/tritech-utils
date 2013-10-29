@@ -1,0 +1,19 @@
+#!/bin/ash
+
+VER="0.2"
+VERDATE="2013-08-28"
+
+echo "Tritech NTFS geometry fixer version $VER, last updated $VERDATE"
+echo "Copyright (c) c02ware and Jody Bruchon"
+
+# NTFS geometry setting helper application
+tt_fsinfo
+echo -n "Enter the desired partition device (e.g. sda1): "
+read DEV
+if [ ! -e /dev/$DEV ]
+  then echo "Entered device does not exist, aborting."; exit 1
+fi
+echo -n "Head count in hex (15=0f, 16=10, 240=f0, 255=ff):"
+read HEX
+
+tss_file_tool ntfsgeom "$DEV" $HEX

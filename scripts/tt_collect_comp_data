@@ -1,0 +1,56 @@
+#!/bin/bash
+
+# Basic client library debug tool for TSS
+
+VER=0.1
+VERDATE=2013-04-16
+
+tt_cifs -c || exit 1
+
+. tss_client
+test ! "$TSS_CLIENT" = "1" && echo "Error: TSS client required." && exit 1
+test -z "$PCID" && echo "Error: PCID not set, cannot continue." && exit 1
+
+shopt -s nullglob
+
+CIFSROOT=/mnt/cifs
+COMPDATA=$CIFSROOT/computer_data
+PCDATA=$COMPDATA/$PCID
+
+test ! -d $COMPDATA && mkdir $COMPDATA
+test ! -d $PCDATA && mkdir $PCDATA
+test ! -d $PCDATA && echo "Cannot make directory $PCDATA" && exit 1
+
+dmesg > $PCDATA/dmesg.txt
+lspci -nn > $PCDATA/lspci.txt
+cat /proc/cpuinfo > $PCDATA/cpuinfo.txt
+cat /proc/meminfo > $PCDATA/meminfo.txt
+cat /proc/partitions > $PCDATA/partitions.txt
+ifconfig -a 2>&1 > $PCDATA/ifconfig.txt
+for X in /dev/sd? /dev/hd?
+	do
+	if dd if=$X bs=512 count=1 of=/dev/null 2>/dev/null
+		then
+		fdisk -lu $X 2>&1 > $PCDATA/fdisk-$(basename $X).txt
+		dd if=$X bs=512 count=1 2>/dev/null > $PCDATA/mbr-$(basename $X).raw
+		dd if=$X bs=512 count=63 2>/dev/null > $PCDATA/mbrplus-$(basename $X).raw
+		dd if=$X bs=512 count=1 2>/dev/null | hexdump -C > $PCDATA/mbr-$(basename $X)-hexdump.txt
+		for Y in $X?*
+			do
+			dd if=$Y bs=512 count=1 2>/dev/null > $PCDATA/bootsect-$(basename $Y).raw
+			dd if=$Y bs=512 count=1 2>/dev/null | hexdump -C > $PCDATA/bootsect-$(basename $Y)-hexdump.txt
+			YY=/mnt/$(basename $Y)
+			unset M
+			MTPT=0; mountpoint -q $YY && MTPT=1
+			if [ "$MTPT" = "0" ]
+				then mount $YY 2>/dev/null || M=FAIL
+			fi
+			test -z "$M" && df -h $Y >> $PCDATA/disk_space_temp.txt
+			test "$MTPT" = "0" && umount $YY 2>/dev/null
+		done
+	fi
+done
+sort < $PCDATA/disk_space_temp.txt | uniq > $PCDATA/disk_space.txt
+rm -f $PCDATA/disk_space_temp.txt
+echo "Finished collecting computer data."
+

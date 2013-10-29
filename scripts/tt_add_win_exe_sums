@@ -1,0 +1,32 @@
+#!/bin/ash
+
+# Prototype Windows file hash collector
+# This thing is a mess, but it's at least a start.
+
+. tss__common
+
+ROOT=/mnt/cifs
+SUMFILE=$ROOT/win.sha256sums
+TMPFILE=$(mktemp)
+
+do_windows_folder_detection
+test "$WINDIR" = "__NONE__" && echo "No Windows folder found." && exit 1
+
+for EXT in exe ocx dll
+	do find $WINDIR -name \*.${EXT} -type f >> $TMPFILE
+done
+while read LINE
+	do SUM=$(sha256deep -b "$LINE")
+	FN="$(echo "$SUM" | awk '{print $2}')"
+	VER=$(tt__get_win_pe_version "$LINE")
+	echo "$FN | $VER"
+	echo "$SUM|$VER" >> "$SUMFILE"
+done < $TMPFILE
+cat "$SUMFILE" | tr '[:upper:]' '[:lower:]' | sort | uniq > $TMPFILE
+if [ ! -s $TMPFILE ]
+	then echo "Error: sorting process yielded an empty file."
+	rm -f $TMPFILE
+	exit 1
+	else cat $TMPFILE > "$SUMFILE"
+fi
+rm -f $TMPFILE

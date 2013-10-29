@@ -1,0 +1,127 @@
+#!/bin/sh
+
+# Bootstraps a full TSS installation from a local server
+
+ARCH=$(uname -m | sed 's/_/-/g')
+test "$ARCH" = "i686" && ARCH=i386
+PKGDIR=/mnt/cifs/packages
+
+unset CACHE
+test $(uname -r | cut -d. -f2) -gt 4 && CACHE=",cache=loose"
+
+if mount | grep -q "on /mnt/cifs type"
+then echo "${CWHT}/mnt/cifs ${CYEL}already mounted$COFF"
+else
+
+##### Begin CIFS mount code
+
+BCN=1
+TEMP=$(mktemp)
+echo -n "${CPUR}Waiting for a beacon: $COFF"
+
+socat -u udp4-recvfrom:60606,reuseaddr - > $TEMP &
+CNT=0; TO=5
+while [ $CNT -lt $TO ]
+  do sleep 1
+  test -s "$TEMP" && break
+  CNT=$(( CNT + 1 ))
+done
+kill $! 2>/dev/null
+
+test ! -s "$TEMP" && echo "${CRED}no beacons received.$COFF" && BCN=0
+
+# Lots of ugly sed crap to split the beacon string
+# Beacon string format:
+# cifs:ip.addr.of.server/share_name:username:password
+
+if [ $BCN = 1 ]
+  then
+  RAW="$(cat $TEMP | head -n 1)"
+  SVRX="$(echo $RAW | sed s/cifs:// | sed s/:.*//g)"
+  SVR="$(echo "$SVRX" | sed 's/\/.*//')"
+  UN="$(echo $RAW | sed s/cifs:[^:]*:// | sed s/\:.*//)"
+  PW="$(echo $RAW | sed s/cifs:.*://)"
+fi
+
+rm -f $TEMP
+# Fallback hard-coded server, and indicate what is being used
+if [ "$SVR" = "" ]
+  then echo -n "Enter server IPv4 address? "; read SVR
+  echo -n "Enter share name? "; read SHARE
+  echo -n "Enter user name? "; read UN
+  echo -n "Enter password? "; read PW
+  SVRX="$SVR/$SHARE"
+  echo "${CYEL}Manually provided server $SVR$COFF"
+  else
+  echo "${CGRN}Beacon-provided server $SVR$COFF"
+fi
+
+# Sanity check: can't proceed if there is no server value at all
+if [[ -z "$SVRX" || -z "$UN" ]]
+  then
+  echo "${CRED}Error in data, info: cifs:$SVRX:$UN:$PW$COFF"
+  exit 1
+fi
+
+# Verify the share string has a slash in it
+if ! echo "$SVRX" | grep -q /
+  then
+  echo "${CRED}Server string seems invalid: $SVRX$COFF"
+  exit 1
+fi
+
+# Ping the server. If unreachable, try until we time out.
+TIMEOUT=3
+
+if ! ping -c 1 -W 1 $SVR >/dev/null
+  then echo -n "${CYEL}Trying to reach $SVR: $COFF"
+  X=$TIMEOUT; Y=0
+  while [ "$X" -gt "0" ]
+    do echo -n "${CWHT}${X}${COFF} "
+    if ! ping -c 1 -W 1 $SVR >/dev/null
+      then X=$(expr $X - 1)
+      else Y=1
+    fi
+    test "$Y" -eq "1" && break
+    sleep 1
+    if [ "$X" -eq "0" ]
+      then echo "${CRED}failed.${COFF}"; exit 1
+    fi
+  done
+fi
+
+if ! ping -c 1 -W 1 $SVR >/dev/null
+  then echo "${CRED}All pings to server $SVR timed out.${COFF}"
+  exit 1
+fi
+
+test "$V" = "2" && echo -n "${CYEL}Mounting...$COFF"
+
+TESTLINE=$(mount | grep "on /mnt/cifs type")
+if [ ! "$TESTLINE" = "" ]
+  then
+  if echo $TESTLINE | cut -d" " -f1 | grep -q "$SVRX"
+    then echo "$CGRN$SVRX $CWHT=>$CGRN /mnt/cifs (already mounted)$COFF"
+    else
+    echo "${CRED}/mnt/cifs is used by a different mount; aborting.$COFF"
+    exit 1
+  fi
+fi
+
+# Added cache=loose due to default change causing breakage in kernels >3.6.11
+if mount.cifs //$SVRX /mnt/cifs -o user="$UN",pass="$PW"$CACHE 2>/dev/null >/dev/null
+  then echo "$CGRN$SVRX $CWHT=>$CGRN /mnt/cifs$COFF"
+  else echo "${CRED}failed.$COFF"; exit 1
+fi
+
+##### End CIFS mount code
+
+fi 
+
+if [ -x $PKGDIR/tt_sysupdate ]
+	then if ! /bin/bash --version 2>/dev/null >/dev/null
+		then tar -C / -xpf "$(eval echo $PKGDIR/$ARCH/bash_*.pkg.tar.xz | tail -n 1)" || echo "Error preinstalling bash."
+	fi
+	$PKGDIR/tt_sysupdate
+	else echo "$PKGDIR/tt_sysupdate does not exist. Aborting."
+fi

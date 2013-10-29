@@ -1,0 +1,34 @@
+#!/bin/ash
+
+# Presents a list of disks and attempts to test the
+# disk that the user selects.
+
+VER="0.3"
+VERDATE="2010-10-12"
+
+echo "Tritech drive testing tool version $VER, last updated $VERDATE"
+echo "Copyright (c) by c02ware and Jody Bruchon"
+
+DISKTEMP=$(mktemp)
+
+. tss__common
+
+echo
+if ! tt__disk_prompt $DISKTEMP
+  then echo "Error requesting disk device." ; exit 5
+fi
+
+DEV=$(cat $DISKTEMP)
+rm -f $DISKTEMP
+
+if [ ! -e /sys/block/$DEV ]
+  then echo "${DEV} does not exist or is not a whole disk. Aborting." ; exit 4
+fi
+
+echo -n "Testing ${DEV}: "
+
+if tt__disk_test $DEV
+  then eval $PASS_COMMAND &
+  else eval $FAIL_COMMAND &
+fi
+

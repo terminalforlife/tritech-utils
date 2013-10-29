@@ -1,0 +1,262 @@
+#!/bin/bash
+
+VER=1.4
+VERDATE="2013-05-14"
+
+. tss__common
+
+# Updates the system core/packages from the best source possible.
+
+unpack_package () {
+	FLIST="/packages/installed/$(basename "$1" | sed 's/\.pkg\.tar\.[a-z]*$//')"
+	dispatch tar -C / -xvpf "$1" > $FLIST 2>/dev/null
+}
+
+dispatch () {
+	test -z "$SUB" && SUB=0
+	test -z "$MAXSUB" && MAXSUB=$(grep ^processor /proc/cpuinfo | tail -n 1 | sed 's/.*:\s*//') && ((MAXSUB ++))
+	if [ $MAXSUB -gt 1 ]
+		then
+		while [ $SUB -ge $MAXSUB ]
+			do sleep 0.001
+			SP=$MAXSUB
+			while [ $SP -gt 0 ]
+				# If child process terminates, remove it.
+			 	do if ! kill -0 ${SUBPID[$SP]} 2>/dev/null
+					then
+					DEL=$SP
+					while [ $DEL -lt $SUB ]
+						do
+						DEL2=$((DEL + 1))
+						SUBPID[$DEL]="${SUBPID[$DEL2]}"
+						DEL=$DEL2 
+					done
+					unset SUBPID[$SUB]
+					SUB=$((SUB - 1))
+				fi
+				SP=$((SP - 1))
+			done
+		done
+		SUB=$((SUB + 1))
+		$@ &
+		SUBPID[$SUB]=$!
+	else $@
+	fi
+}
+
+shopt -s nullglob
+VP="packages"
+VF="$VP/version"
+PI="/packages/installed"
+POST="/packages/postinst"
+P=$(basename $0)
+unalias ls 2>/dev/null >/dev/null
+
+REPOVER=0
+
+# Pull machine architecture and perform corrections
+ARCH=$(uname -m | sed 's/_/-/g')
+test "$ARCH" = "i686" && ARCH="i386"
+test "$ARCH" = "i586" && ARCH="i386"
+test "$ARCH" = "i486" && ARCH="i386"
+
+# Set flags for verbose, debug, etc.
+V=0; DBG=0; ABRT=1
+test "$1" = "-v" && V=1
+test "$1" = "-d" && V=1 && DBG=1
+test "$1" = "-a" && ABRT=0
+
+echo "$CCYA$P$COFF: Tritech Service System updater, version $VER"
+
+if [ "$BASH" = "" ]
+	then test -e /bin/bash && exec bash $0
+	echo "$CRED$P$COFF: This script must be run under GNU bash."
+	echo "$CRED$P$COFF: /bin/bash does not exist, can't continue."
+	exit 1
+fi
+
+# Allow an interactive user abort unless otherwise specified
+if [ "$ABRT" = "1" ]
+	then
+	echo "$CPUR$P$COFF: Press a key to abort."
+	read -t 2 -s -n 1 && \
+		echo "$CYEL$P$COFF: User aborted update, terminating." && \
+		exit 1
+fi
+
+test ! -d /packages/installed && mkdir -p /packages/installed 2>/dev/null
+
+try_using_cifs () {
+# CIFS repository
+Z=0
+CIFS=0
+echo -n "$CGRN$P$COFF: Trying CIFS: "
+if tt_cifs -c
+	then Y=/mnt/cifs ; Z="/mnt/cifs/$VF"; mkdir -p $Y 2>/dev/null
+	test "$V" = "1" && echo "$CGRN$P$COFF: CIFS=$CIFS with path $Z"
+	if [ -e "$Z" ]
+		then TV=$(cat $Z)
+		echo "$CGRN$P$COFF: found repo version $CGRN$TV$COFF on ${CWHT}CIFS server$COFF"
+		if [ "$TV" -gt "$REPOVER" ]
+			then REPOVER=$TV; UPDX=$X; UPDY=$Y; UPDPATH="$Y/$VP"; CIFS=1
+			test "$V" = "1" && echo "$CGRN$P$COFF: RV $REPOVER at $CGRN$UPDPATH$COFF higher!"
+			else test "$V" = "1" && echo "$CPUR$P$COFF: New RV $TV not higher than current $REPOVER, skipping."
+		fi
+		else test "$V" = "1" && echo "$CRED$P$COFF: $Z does not seem to exist."
+	fi
+fi
+}
+
+test ! "$1" = "-l" && try_using_cifs
+
+# We rely on fstab being set up properly as of version 0.4
+
+for Y in /mnt/*
+	do Z="$Y/$VF"
+	test "$V" = "1" && echo "$CYEL$P$COFF: Trying mountpoint $Y"
+	M=0; cat /proc/mounts | cut -d" " -f2 | grep -q "$Y" \
+		&& M=1 && test "$V" = "1" && echo "$CYEL$P$COFF: $Y already mounted"
+	/bin/mount "$Y" -o ro >/dev/null 2>/dev/null && MOK=1
+	if [ "$V" = "1" ]
+		then test "$MOK" = "1" && echo "$CYEL$P$COFF: $Y mounted."
+		test ! "$MOK" = "1" && echo "$CGRN$P$COFF: $Y mount failed."
+	fi
+	if [ -e "$Z" ]
+		then TV=$(cat $Z)
+		echo "$CGRN$P$COFF: found repo version $CGRN$TV$COFF on $CWHT$Y$COFF"
+		if [ "$TV" -gt "$REPOVER" ]
+			then REPOVER=$TV; UPDY=$Y; UPDPATH="$Y/$VP"; CIFS=0
+			test "$V" = "1" && echo "$CGRN$P$COFF: RV $REPOVER at $CGRN$UPDPATH$COFF higher!"
+			else test "$V" = "1" && echo "$CPUR$P$COFF: RV $TV not higher than $REPOVER, skipping."
+		fi
+		else test "$V" = "1" && echo "$CRED$P$COFF: $CRED$Z$COFF does not seem to exist."
+	fi
+	test "$M" = "0" && umount $Y >/dev/null 2>/dev/null
+done
+
+
+if [ "$REPOVER" = "0" ]
+	then echo "$CGRN$P$COFF: No update repositories found, not updating."
+	exit 1
+fi
+
+if [ "$CIFS" = "0" ]
+	then MTD=0
+	grep -qv "$UPDY" /proc/mounts && mount $UPDY -o ro >/dev/null 2>/dev/null && MTD=1
+fi
+
+# Start processing the package repository
+I=0; USE=0; J=0; GOOD=0
+echo "$CGRN$P$COFF: Chose repository $CCYA$(basename "$UPDY")$COFF"
+
+# Self-update check
+UPDATE=0
+if [ -e $UPDPATH/$P ]
+	then SUV=$(grep -m 1 'VER=' < $UPDPATH/$P | sed 's/VER=//g' | tr -d \\n)
+	SUVH=$(echo $SUV | cut -d. -f1); VERH=$(echo $VER | cut -d. -f1)
+	test $SUVH -gt $VERH && UPDATE=1
+	if [ $SUVH = $VERH ]
+		then SUVL=$(echo $SUV | cut -d. -f2); VERL=$(echo $VER | cut -d. -f2)
+		test $SUVL -gt $VERL && UPDATE=1
+		if [ $SUVL = $VERL ]
+			then SUVR=$(echo $SUV | cut -d. -f3); VERR=$(echo $VER | cut -d. -f3)
+			test -z "$SUVR" && SUVR=0
+			test -z "$VERR" && VERR=0
+			test $SUVR -gt $VERR && UPDATE=1
+		fi
+	fi
+	if [ $UPDATE = 1 ]
+		then echo "$CWHT$P$COFF: Newer update script in repo. Performing self-update."
+		ERR=0
+		NEW="/tmp/$P"
+		cp $UPDPATH/$P $NEW || ERR=1
+		chmod 700 $NEW || ERR=1
+		chown root:root $NEW || ERR=1
+		test "$MTD" = "1" && umount $UPDY 2>/dev/null
+		if [ "$ERR" = "0" ]
+			then
+			exec $NEW "$@"
+			exit
+			
+			else
+			echo "$CRED$P$COFF: Self-update failed, continuing as normal."
+		fi
+	fi
+fi
+
+for X in ${UPDPATH}/*.pkglist
+		do X=$(basename "$X" | sed s/.pkglist//g)
+		test "$V" = "1" && echo "$CYEL$P$COFF: Adding $CYEL$X$COFF"
+		cnf[I]="$X"; (( I ++ )); GOOD=1
+done
+if [ "$I" -gt "1" ]
+	then echo "$CGRN$P$COFF: Multiple configurations available, please select one."
+	while [ $J -lt $I ]
+		do echo "$CPUR$P$COFF: $J: ${cnf[$J]}"
+		(( J ++ ))
+	done
+	echo -n "$CPUR$P$COFF: Enter choice (10s timer, default 0, \"n\" to cancel): "
+	X=0; read -t 10 X || echo
+	if [ "$X" = "n" ]
+		then echo "$CYEL$P$COFF: User canceled update process."
+		exit 1
+	fi
+	X=$(echo $X | sed 's/[^0-9]//g')
+	if [[ $X -lt 0 || $X -gt $I ]]
+		then USE=0
+		else USE=$X
+	fi
+fi
+
+echo "${cnf[$USE]}" | grep -q '*' && echo "$CYEL$P$COFF: No configurations present in this repository." && exit 1
+
+test "$GOOD" = "0" && echo "$CRED$P$COFF: No usable configurations in this repository." && exit 1
+
+echo -e "$CGRN$P$COFF: Selected $CCYA${cnf[$USE]}$COFF, unpacking packages."
+UP="$UPDPATH/${cnf[$USE]}"
+
+echo -n "Unpacking packages: "
+
+cd "$UPDPATH"
+for X in $(cat ${UP}.pkglist)
+	do Y=none
+	# Handle multiple package types available if required
+	for ARCHPKG in all/${X}_*.pkg.tar.{lzo,gz,bz2,xz,lzma} $ARCH/${X}_*.pkg.tar.{lzo,gz,bz2,xz,lzma}
+		do W="__NONE__"
+		test -e "$ALLPKG" && W="$ALLPKG" || test -e "$ARCHPKG" && W="$ARCHPKG"
+		if [ -e "$W" ]
+			then Y="$W"
+			test "$V" = "1" && echo -n "$CBLU$Y$COFF "
+			break
+		fi
+	done
+	if [ "$Y" = "none" ]
+		then echo -n "$CRED$X$COFF "
+		else
+		echo -n "$CGRN$X$COFF "
+		test "$DBG" = "0" && unpack_package "$Y"
+#    if sha1sum -c "$Y.sha1sum" >/dev/null 2>/dev/null
+#      then
+#      test "$DBG" = "0" && tar -C / -xvpf "$Y" > /packages/installed/$X 2>/dev/null
+#      echo "$CGRN$P$COFF: Processing package $CBLU$Y$COFF"
+#      else echo "$CRED$P$COFF: bad hash, not unpacking: $CRED$Y$COFF"
+#    fi
+	fi
+done
+
+wait $!
+
+echo
+cd /
+test "$V" = "1" && echo "$CGRN$P$COFF: Done working; unmounting package source."
+test "$MTD" = "1" && umount $UPDY
+
+# Run post-install scripts
+if [ -d "$POST" ]
+	then
+	for S in $POST/*
+		do $S
+		rm -f $S
+	done
+fi
+

@@ -1,0 +1,7 @@
+#!/bin/bash
+
+. tss_client
+
+test "$TSS_CLIENT" = "1" && push_sysinfo
+test "$TSS_CLIENT" = "1" && push_actions
+

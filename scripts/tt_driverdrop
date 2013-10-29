@@ -1,0 +1,294 @@
+#!/bin/sh
+
+VER=0.1
+VERDATE=2013-08-16
+
+. tss__common
+
+echo "${CWHT}Tritech Driver Drop version $VER ($VERDATE)"
+
+unset CLEAN
+clean_exit () {
+	test -z "$EXIST" && test ! -z "$MTPT" && umount $MTPT
+	test -z "$CLEAN" && echo -e "\n${CWHT}Interrupted, cleaning up.$COFF"
+	rm -f $TF $TF2 $DBF2; exit $1
+}
+trap clean_exit INT ABRT TERM HUP
+
+if ! lspci 2>&1 >/dev/null; then echo "${CRED}lspci does not work, aborting.$COFF"; clean_exit 1; fi
+
+test -z "$DRIVERS" && DRIVERS="$SOURCE/drivers"
+test -z "$DBFILE" && DBFILE="$DRIVERS/devicedb.txt"
+TF=$(mktemp)
+TF2=$(mktemp)
+
+test ! -e "$DBFILE" && echo "$CPUR$DBFILE$CRED is missing. Giving up.$COFF" && exit 1
+! grep -q "^CONSISTENT" "$DBFILE" && echo "$CPUR$DBFILE$CRED is inconsistent. Giving up.$COFF" && exit 1
+# Cache the database locally if it's on the network
+if grep -q "^/mnt/cifs" "$DBFILE"
+	then BF2=$(mktemp)
+	cat "$DBFILE" > $DBF2
+	DBFILE="$DBF2"
+fi
+
+### Functions
+
+ROTATE=0
+rotate_progress () {
+	# Provides a rotating progress indicator
+	(( ROTATE ++ ))
+	case $ROTATE in
+		0) C='|';;
+		2) C='/';;
+		4) C='-';;
+		6) C="\\";;
+		1|3|5|7) return ;;
+		*) ROTATE=0; C='|' ;;
+	esac
+	test ! "$RBS" = "1" && echo -en "\b"
+	echo -n "$CWHT${C}$COFF"
+}
+
+get_host_winver_flags () {
+	do_windows_folder_detection
+	INFDIR=__NONE__; for X in inf Inf INF; do test -d $WINDIR/$X && INFDIR=$WINDIR/$X; done
+	WINDBFILE=$INFDIR/devicedb.txt
+	WINVER=$(tt_winver)
+	W2K=.; XP32=.; V32=.; W732=.; W832=.
+	IA64=.; S2K3=.; S2K364=.
+	XP64=.; V64=.; W764=.; W864=.
+	case $WINVER in
+		ntia64*) IA64=1 ;;
+		ntamd64.6.2) W864=1 ;;
+		ntamd64.6.1) W764=1 ;;
+		ntamd64.6.0) V64=1 ;;
+		ntamd64.5.2) S2K364=1 ;;
+		ntamd64.5.1) XP64=1 ;;
+		ntx86.6.2) W832=1 ;;
+		ntx86.6.1) W732=1 ;;
+		ntx86.6.0) V32=1 ;;
+		ntx86.5.2) S2K3=1 ;;
+		ntx86.5.1) XP32=1 ;;
+		ntx86.5.0) W2K=1 ;;
+		*) echo "tt_winver failed!"; exit 1 ;;
+	esac
+	WIN=":win=$IA64$W2K$XP32$XP64$S2K3$S2K364$V32$V64$W732$W764$W832$W864"
+}
+
+### End functions
+
+DBG=0; test "$1" = "-d" && DBG=1; test "$1" = "-dd" && DBG=2
+if [ $DBG -eq 0 ]
+	then TMP=$(mktemp)
+	tt__disk_prompt $TMP
+	DEV="$(cat $TMP)"
+	rm $TMP
+
+	PART="$(cat /proc/partitions | awk '{ print $3" "$4 }' | \
+		grep $DEV\[1-9\] | sort -gr | \
+		awk '{ print $2 }' | tr \\n ' ')"
+	PART="$(echo $PART | tr ' ' \\n | head -n 1)"
+	echo "${CWHT}Using $CGRN/mnt/$PART$CWHT as hard drive$COFF"
+
+	EXIST="$(cat /proc/mounts | grep "/dev/$PART" | head -n 1 | awk '{ print $2 }')"
+	if [ "$EXIST" = "" ]
+		then
+		if ! mount /mnt/$PART
+			then echo "${CRED}mount /mnt/$PART failed$COFF"
+			clean_exit 1
+		fi
+		MTPT="/mnt/$PART"
+		echo "${CWHT}Mounted /dev/$PART at $CBLU$MTPT$COFF"
+		else
+		MTPT="$EXIST"
+		echo "${CWHT}Using existing mountpoint at $CBLU$MTPT$COFF"
+	fi
+	else echo "$CYEL --- Debugging Mode ---$COFF"
+	test ! -d "$MTPT" && echo "Must set MTPT:  MTPT=/mnt/sda2 $0" && exit 1
+	EXIST="$MTPT"
+fi
+
+cd $MTPT
+
+### Enumerate devices
+
+echo -n "${CWHT}Scanning devices: "
+echo -n "${CCYA}PCI $COFF"; TYPE="pci"
+for X in $(lspci -mmn | tr -d ' ')
+	do
+	unset FUNC CC CV CD VID PID VEN DEV SUBSYS REV CLASS SC PROT
+	CC=":cc=$(echo "$X" | cut -d\" -f2)"
+	VEN=":ven=$(echo "$X" | cut -d\" -f4)"
+	DEV=":dev=$(echo "$X" | cut -d\" -f6)"
+	test ! -z "$(echo "$X" | cut -d\" -f8)" && SUBSYS=":subsys=$(echo "$X" | cut -d\" -f8,10 | tr -d \" )"
+	test ! -z "$(echo "$X" | cut -d\" -f7 | sed 's/-p..//')" && REV=":rev=$(echo "$X" | cut -d\" -f7 | sed 's/-p..//;s/-r//')"
+	DEVS="$DEVS $TYPE$FUNC$CC$CV$CD$VID$PID$VEN$DEV$SUBSYS$REV$CLASS$SC$PROT"
+done
+
+echo -n "${CYEL}USB $COFF"; TYPE="usb"
+for X in $(echo /sys/bus/usb/devices/* | tr ' ' \\n | grep -v ':')
+	do
+	unset FUNC CC CV CD VID PID VEN DEV SUBSYS REV CLASS SC PROT
+	CLASS=":class=$(cat $X/bDeviceClass 2>/dev/null || cat $X/bInterfaceClass 2>/dev/null)"
+	SC=":sc=$(cat $X/bDeviceSubClass 2>/dev/null || cat $X/bInterfaceSubClass 2>/dev/null)"
+	PROT=":prot=$(cat $X/bDeviceProtocol 2>/dev/null || cat $X/bInterfaceProtocol 2>/dev/null)"
+	VID=":vid=$(cat $X/idVendor 2>/dev/null)"
+	PID=":pid=$(cat $X/idProduct 2>/dev/null)"
+	DEVS="$DEVS $TYPE$FUNC$CC$CV$CD$VID$PID$VEN$DEV$SUBSYS$REV$CLASS$SC$PROT"
+done
+
+echo -n "${CPUR}ACPI $COFF"; TYPE="acpi"
+for X in $(echo /sys/bus/acpi/devices/* | tr [:upper:] [:lower:] | tr ' ' \\n | sed 's#/sys/bus/acpi/devices/\(.*\):.*#\1#g' | grep -v ^lnx | grep -v ^device | sort | uniq)
+	do
+	unset FUNC CC CV CD VID PID VEN DEV SUBSYS REV CLASS SC PROT
+	DEV=":dev=$X"
+	DEVS="$DEVS $TYPE$FUNC$CC$CV$CD$VID$PID$VEN$DEV$SUBSYS$REV$CLASS$SC$PROT"
+done
+echo -n "${CGRN}HDAUDIO $COFF"; TYPE="hdaudio"
+for X in /proc/asound/card*/codec#*
+	do
+	unset FUNC CV CD VID PID VEN DEV SUBSYS REV CLASS SC PROT
+	SCORE=0; BEST=0; DV=0
+	CARD="$(echo "$X" | cut -d/ -f4)"
+	FUNC=":func=02"; grep -iq 'No Modem Function Group' $X && FUNC=":func=01"
+	CV=":cv=$(cut -dx -f2 < /sys/class/sound/$CARD/device/vendor)"
+	CD=":cd=$(cut -dx -f2 < /sys/class/sound/$CARD/device/device)"
+	VEN=":ven=$(grep '^Vendor Id: 0x' $X | sed 's/.*0x\(....\).*/\1/')"
+	DEV=":dev=$(grep '^Vendor Id: 0x' $X | sed 's/.*0x....\(....\).*/\1/')"
+	SUBSYS=":subsys=$(grep '^Subsystem Id: 0x' $X | cut -dx -f2)"
+	REV=":rev=$(grep '^Revision Id: 0x' $X | sed 's/.*0x\(....\).*/\1/')"
+	DEVS="$DEVS $TYPE$FUNC$CV$CD$VID$PID$VEN$DEV$SUBSYS$REV$CLASS$SC$PROT"
+done
+
+echo
+
+test $DBG -gt 1 && echo "$DEVS" | tr ' ' \\n
+
+### Done enumerating devices
+
+### Match drivers to devices
+
+get_host_winver_flags
+test -d "$MTPT/$INFDIR" && DRVROOT="$MTPT/$INFDIR" tt_build_dev_db -q
+
+for X in $DEVS
+	do TYPE=$(echo "$X" | cut -d: -f1)
+	SCORE=0; BEST=0; DV=0
+	unset USE TDV REQ1 REQ2
+	TAGS=$(echo "$X" | cut -d: -f2- | tr ':' ' ')
+	case $TYPE in
+		pci|hdaudio)
+			VEN="$(echo "$X" | sed 's/.*\(:ven=....:\).*/\1/')"
+			DEV="$(echo "$X" | sed 's/.*\(:dev=....:\).*/\1/')"
+			SUBSYS="$(echo "$X" | sed 's/.*\(:subsys=........\).*/\1/')"
+			TAGS="$(echo "$TAGS" | sed 's/ven=....//;s/dev=....//')"
+			grep "$SUBSYS" "$DBFILE" | grep "$VEN" | grep "$DEV" | grep "^$TYPE" | grep "$WIN" > $TF
+			test -z "$(cat $TF)" && grep "^$TYPE" "$DBFILE" | grep "$WIN" | grep "$VEN" | grep "$DEV" > $TF
+			;;
+		usb)
+			CLASS="$(echo "$X" | sed 's/.*\(:class=..\).*/\1/')"
+			SC="$(echo "$X" | sed 's/.*\(:sc=..\).*/\1/')"
+			PROT="$(echo "$X" | sed 's/.*\(:prot=..\).*/\1/')"
+			VID="$(echo "$X" | sed 's/.*\(:vid=....\).*/\1/')"
+			grep "$CLASS" "$DBFILE" | grep "^$TYPE" | grep "$WIN" | grep "$SC" | grep "$PROT" > $TF
+			test -z "$(cat $TF)" && grep "^$TYPE" "$DBFILE" | grep "$WIN" | grep "$VID" > $TF
+			;;
+		acpi)
+			REQ1="$(echo "$X" | sed 's/.*\(:dev=.*:\).*/\1/')"
+			grep "^$TYPE" "$DBFILE" | grep "$WIN" | grep "$REQ1" > $TF
+			;;
+
+	esac
+	if [ "$TYPE" = "hdaudio" ]
+		then echo "$X"
+		printf "%-74s" "                        "
+		else printf "%-74s" "$X     "
+	fi
+	while read LINE
+		do
+		for TAG in $TAGS
+			do
+			echo "$LINE" | grep -q "$TAG" && SCORE=$((SCORE + 1))
+		done
+		# Evaluate based on how complete the matching device data is
+		TDV="$(echo "$LINE" | grep ':dv=........:' | sed 's/.*:dv=\(........\).*/\1/')"
+		test $SCORE -gt $BEST && DV=$TDV && USE="$LINE"
+		# Break a tie using the driver date value
+		if [ "$SCORE" = "$BEST" ]
+			then test $TDV -gt $DV && DV=$TDV && USE="$LINE"
+			test -z "$TDV" && echo "$CRED - LINE: $LINE"
+		fi
+		rotate_progress
+	done < $TF
+	echo -en "\b "
+	if [ ! -z "$USE" ]
+		then test $DBG -gt 1 && echo "${CGRN}Using $USE$COFF"
+		test $DBG -le 1 && echo "[${CGRN}OK${COFF}]"
+		else test $DBG -gt 1 && echo "${CRED}No driver found for $X$COFF"
+		test $DBG -le 1 && echo "[${CYEL}!!${COFF}]"
+		NODRV="$NODRV $X"
+	fi
+	DIRS="$DIRS $(echo "$USE" | sed 's/.*inf=//' | cut -d/ -f1-3)"
+done
+
+DIRS="$(echo "$DIRS" | tr ' ' \\n | grep -v '^$' | sort | uniq)"
+
+echo "${CWHT}Checking if missing drivers are covered by Windows...$COFF"
+DBFILE=$INFDIR/devicedb.txt
+for X in $NODRV
+	do TYPE=$(echo "$X" | cut -d: -f1)
+	R=0
+	unset USE TDV REQ1 REQ2
+	TAGS=$(echo "$X" | cut -d: -f2- | tr ':' ' ')
+	case $TYPE in
+		pci|hdaudio)
+			REQ1="$(echo "$X" | sed 's/.*:\(ven=....\).*/\1/')"
+			REQ2="$(echo "$X" | sed 's/.*:\(dev=....\).*/\1/')"
+			CCREQ="$(echo "$X" | sed 's/.*:\(cc=....\).*/\1/')"
+			TAGS="$(echo "$TAGS" | sed 's/ven=....//;s/dev=....//')"
+			grep "^$TYPE" "$DBFILE" | grep "$REQ1" | grep "$REQ2" > $TF
+			# Sometimes a class specifier matches the device instead.
+			grep "^$TYPE" "$DBFILE" | grep "$CCREQ" >> $TF
+			test ! -z "$(cat $TF)" && R=1
+			;;
+		usb)
+			grep "^$TYPE" "$DBFILE" > $TF
+			;;
+		acpi)
+			grep "^$X" "$DBFILE" > $TF
+			;;
+
+	esac
+	while read LINE
+		do
+		for TAG in $TAGS
+			do echo "$LINE" | grep -q "$TAG" && R=1
+		done
+		
+		test "$R" = "1" && NODRV="$(echo "$NODRV" | tr ' ' \\n | grep -v "$X" | tr \\n ' ' | sed 's/  / /g')" && break
+	done < $TF
+done
+
+if [ $DBG -gt 1 ]
+	then echo -e "DIRS: \n$(echo "$DIRS" | tr ' ' \\n)"
+	exit
+fi
+
+if [ ! -z "$NODRV" ]
+	then echo -e "\n${CYEL}NOTICE:$COFF no specific drivers were found for these device IDs:"
+	for X in $NODRV; do echo "$CWHT$X$COFF"; done
+fi
+
+test ! -z "$PART" && if [ ! -z "$DIRS" ]
+	then
+	echo -e "\n${CWHT}Dropping:$COFF"
+	mkdir $MTPT/driver_drop 2>/dev/null
+	for X in $DIRS
+		do cp -a "$SOURCE/$X" "$MTPT/driver_drop/"
+		echo "$CPUR$X$COFF"
+	done
+	else echo "${CRED}No drivers found! Path to DB: $CYEL$DRIVERS$COFF"
+	clean_exit 1
+fi
+echo
+CLEAN=1; clean_exit
