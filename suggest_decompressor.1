@@ -1,0 +1,26 @@
+.TH suggest_decompressor "1" "29 Oct 2013" "tritech-utils" "Tritech Service System"
+
+.SH NAME
+suggest_decompressor \- Suggest a decompressor for a file
+
+.SH SYNOPSIS
+\fBsuggest_decompressor\fP \fIfilename\fP
+
+.SH DESCRIPTION
+.B suggest_decompressor
+outputs the name of the appropriate decompressor for a given file name. This 
+tool is primarily for use in shell scripts that can handle many different 
+compression formats. Multi-file archive formats are not supported. The 
+target of this tool is stream decompressors that can be used in a pipeline.
+
+.SH OPTIONS
+.PP
+.I filename
+is the name of the file to choose a decompressor for.
+
+.SH COPYRIGHT
+tritech-utils is Copyright (C) by Jody Bruchon. See the file LICENSE for
+details on the terms and conditions under which this software is licensed.
+.PP
+.SH AUTHOR
+Jody Lee Bruchon <jody@jodybruchon.com>

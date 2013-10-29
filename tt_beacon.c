@@ -11,8 +11,7 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 
-#define VER "1.0"
-#define VERDATE "2013-10-29"
+#include "tritech_utils.h"
 
 int main(int argc, char **argv)
 {
@@ -24,7 +23,7 @@ int main(int argc, char **argv)
 	char *beacon_str;
 	struct sockaddr_in dest_addr;
 
-	fprintf(stderr, "Tritech Service System UDP beacon utility %s (%s)\n", VER, VERDATE);
+	fprintf(stderr, "Tritech Service System UDP beacon utility %s (%s)\n", TRITECH_UTILS_VER, TRITECH_UTILS_DATE);
 	if (argc != 5) {
 		fprintf(stderr, "Usage: %s broadcast_addr port interval \"beacon text string\"\n", argv[0]);
 		exit(1);

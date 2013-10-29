@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "tritech-utils.h"
+#include "tritech_utils.h"
 
 int check_if_ntfs(unsigned char *bp) {
 	return strncmp(bp + 3, "NTFS", 4);
@@ -23,13 +23,13 @@ int change_ntfs_geometry(FILE *fp, unsigned char *bp, unsigned char heads) {
 }
 
 int usage(char **argv) {
-		printf("tss_check Version %s (%s)\n", TRITECH_UTILS_VER, TRITECH_UTILS_DATE);
-		printf("Usage: %s command dev/device|/path/to/file [hex-head-count]\n\n", argv[0]);
-		printf("Commands:\n");
-		printf("gpt     \tChecks for GPT partitioning.\n");
-		printf("ntfs    \tChecks for an NTFS filesystem signature.\n");
-		printf("winexec \tChecks for a DOS/Windows EXE signature.\n");
-		printf("ntfsgeom\tChange NTFS partition head count. Requires two-digit hex-head-count.\n");
+		fprintf(stderr, "tss_check Version %s (%s)\n", TRITECH_UTILS_VER, TRITECH_UTILS_DATE);
+		fprintf(stderr, "Usage: %s command dev/device|/path/to/file [hex-head-count]\n\n", argv[0]);
+		fprintf(stderr, "Commands:\n");
+		fprintf(stderr, "gpt     \tChecks for GPT partitioning.\n");
+		fprintf(stderr, "ntfs    \tChecks for an NTFS filesystem signature.\n");
+		fprintf(stderr, "winexec \tChecks for a DOS/Windows EXE signature.\n");
+		fprintf(stderr, "ntfsgeom\tChange NTFS partition head count. Requires two-digit hex-head-count.\n");
 		exit(1);
 }
 

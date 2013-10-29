@@ -61,4 +61,10 @@ if ! ./read_inf_section test/ris section2 2>/dev/null >/dev/null
 	else echo "no"
 fi
 
+echo -n "suggest_decompressor:      "
+if [ "$(./suggest_decompressor foo.tar.lzo)" = "lzop" ]
+	then echo "OK"
+	else echo "broken"
+fi
+
 echo

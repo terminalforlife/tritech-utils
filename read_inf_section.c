@@ -8,6 +8,8 @@
 #include <unistd.h>
 #include <errno.h>
 
+#include "tritech_utils.h"
+
 #define MAXLEN 1024
 
 void die(error) {
@@ -48,6 +50,7 @@ int main(int argc, char **argv) {
 	unsigned char line[MAXLEN];
 
 	if(argc != 3) {
+		fprintf(stderr, "Tritech INF section reader %s (%s)", TRITECH_UTILS_VER, TRITECH_UTILS_DATE);
 		fprintf(stderr, "Usage:  %s filename.inf inf_section_header\n", argv[0]);
 		fprintf(stderr, "Note that this program is case sensitive.\n");
 		exit(1);
