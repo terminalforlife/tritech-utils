@@ -1,11 +1,11 @@
 CC=gcc
-CFLAGS=-Os -pipe -fomit-frame-pointer -s
+CFLAGS=-Os -pipe -s
 LDFLAGS=-Wl,--hash-style=gnu
 
 prefix=/usr
 bindir=${prefix}/bin
 mandir=${prefix}/man
-ver=$(shell grep TRITECH_UTILS_VER tritech-utils.h | sed 's/.* "\([^"]*\)"/\1/')
+ver=$(shell grep TRITECH_UTILS_VER tritech_utils.h | sed 's/.* "\([^"]*\)"/\1/')
 arch=$(shell uname -m | sed s/_/-/g | sed 's/i[34567]86/i386/')
 
 all: tritech-utils manual test
@@ -26,8 +26,12 @@ install: tritech-utils manual
 	install -D -o root -g root -m 0755 -s suggest_decompressor $(DESTDIR)/$(bindir)/suggest_decompressor
 	install -D -o root -g root -m 0755 -s tss_file_tool $(DESTDIR)/$(bindir)/tss_file_tool
 	install -D -o root -g root -m 0755 -s tt_beacon $(DESTDIR)/$(bindir)/tt_beacon
-	install -D -o root -g root -m 0644 tss_file_tool.1.gz $(DESTDIR)/$(mandir)/man1/tss_file_tool.1.gz
+
 	install -D -o root -g root -m 0644 read_inf_section.1.gz $(DESTDIR)/$(mandir)/man1/read_inf_section.1.gz
+	install -D -o root -g root -m 0644 suggest_decompressor.1.gz $(DESTDIR)/$(mandir)/man1/suggest_decompressor.1.gz
+	install -D -o root -g root -m 0644 tss_file_tool.1.gz $(DESTDIR)/$(mandir)/man1/tss_file_tool.1.gz
+	install -D -o root -g root -m 0644 tt_beacon.1.gz $(DESTDIR)/$(mandir)/man1/tt_beacon.1.gz
+
 	install -D -o root -g root -m 0755 scripts/tss__common $(DESTDIR)/$(bindir)/tss__common
 	install -D -o root -g root -m 0755 scripts/tss__functions $(DESTDIR)/$(bindir)/tss__functions
 	install -D -o root -g root -m 0755 scripts/tss_alsamixerinit $(DESTDIR)/$(bindir)/tss_alsamixerinit
@@ -73,7 +77,7 @@ install: tritech-utils manual
 	install -D -o root -g root -m 0755 scripts/tt_winver $(DESTDIR)/$(bindir)/tt_winver
 	install -D -o root -g root -m 0755 scripts/tt_zero_image $(DESTDIR)/$(bindir)/tt_zero_image
 
-package: tritech-utils manual
+package: tritech-utils manual test
 	-test -d $(CURDIR)/pkg && rm -rf $(CURDIR)/pkg
 	mkdir $(CURDIR)/pkg
 	make DESTDIR=$(CURDIR)/pkg install
@@ -84,6 +88,6 @@ clean:
 	-rm -rf $(CURDIR)/pkg
 	-rm -f read_inf_section suggest_decompressor tss_file_tool tt_beacon
 	-rm -f *.1.gz test/ntfs_test
+	-rm -f tritech-utils_*.pkg.tar.xz
 
 distclean: clean
-	-rm -f tritech-utils_*.pkg.tar.xz
