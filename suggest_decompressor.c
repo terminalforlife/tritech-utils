@@ -10,11 +10,11 @@
 
 int main(int argc, char **argv) {
 	unsigned char *ext;
-	typedef struct ext_t {
+	struct ext_t {
 		const char *ext;
 		const char *decomp;
-	} ext_t;
-	static ext_t ext_table[] = {
+	};
+	struct ext_t ext_table[] = {
 		{ "lzo", "lzop" },
 		{ "tlz", "lzop" },
 		{ "tlzo", "lzop" },
@@ -36,7 +36,7 @@ int main(int argc, char **argv) {
 		{ "lz4", "lz4" },
 		{ NULL, 0 }
 	};
-	ext_t *p;
+	struct ext_t *p;
 
 	if(argc < 2) {
 		fprintf(stderr, "Tritech compression extension helper %s (%s)", TRITECH_UTILS_VER, TRITECH_UTILS_DATE);

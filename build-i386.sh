@@ -12,7 +12,6 @@ if [ "$DO_32BIT_BUILD" = "1" ]
 	echo $1
 	make clean
 	make package || echo "Build failed!"
-	make clean
 	echo "32-bit build finished."
 	exit
 fi
