@@ -88,6 +88,6 @@ clean:
 	-rm -rf $(CURDIR)/pkg
 	-rm -f read_inf_section suggest_decompressor tss_file_tool tt_beacon
 	-rm -f *.1.gz test/ntfs_test
-	-rm -f tritech-utils_*.pkg.tar.xz
 
 distclean: clean
+	-rm -f tritech-utils_*.pkg.tar.xz
