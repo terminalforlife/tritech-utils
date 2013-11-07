@@ -18,13 +18,13 @@ MEMT=$(cat /proc/meminfo | grep MemTotal | awk '{print $2}')
 # Attempt to normalize memory count to a known good value
 VX=131072
 for X in $(echo $VALID)
-  do
-  X=$(expr $X \* 1024)
-  if [[ "$MEMT" -gt $VX && "$MEMT" -le $X ]]
-    then MEMT=$(expr $X / 1024)
-    break
-    else VX=$X
-  fi
+	do
+	X=$(expr $X \* 1024)
+	if [[ "$MEMT" -gt $VX && "$MEMT" -le $X ]]
+		then MEMT=$(expr $X / 1024)
+		break
+		else VX=$X
+	fi
 done
 # Ugly math to convert KiB to decimalized KB
 MEMG=$(expr $MEMT / 1024)
@@ -37,19 +37,38 @@ test "$MEMT" -gt 1023 && echo "${CPUR}RAM:  $CRED${MEMG}.${MEML}$COFF GB"
 
 # Calculate the stupid bogus marketing GB size of all hard drives
 for X in /sys/block/sd*
-  do if [[ -e "$X/device" && "$(cat $X/size)" -gt 0 && "$(cat $X/removable)" -eq 0 ]]
-    then
-    Y=$(basename $X)
-    SIZE=$(cat "$X/size")
-    SIZE=$(expr $SIZE \* 512 / 1000000000)
-    SIZETB=$(expr $SIZE / 1000)
-    DN=$(hdparm -I /dev/$Y 2>/dev/null | grep 'Model Number:' | sed 's/[^:]*[^a-zA-Z0-9]*//;s/ *$//g')
-    test "$DN" = "" && DN="unknown"
-    if [ "$SIZETB" -eq 0 ]
-      then echo "$CWHT$(basename $X)$COFF:  $CPUR$SIZE$COFF GB  (Model $DN)"
-      else echo "$CWHT$(basename $X)$COFF:  $CPUR$SIZETB$COFF TB    (Model $DN)"
-    fi
-  fi
+	do if [[ -e "$X/device" && "$(cat $X/size)" -gt 0 && "$(cat $X/removable)" -eq 0 ]]
+		then
+		Y=$(basename $X)
+		SIZE=$(cat "$X/size")
+		SIZE=$(expr $SIZE \* 512 / 1000000000)
+		SIZETB=$(expr $SIZE / 1000)
+		DN=$(hdparm -I /dev/$Y 2>/dev/null | grep 'Model Number:' | sed 's/[^:]*[^a-zA-Z0-9]*//;s/ *$//g')
+		test "$DN" = "" && DN="unknown"
+		if [ "$SIZETB" -eq 0 ]
+			then echo "$CWHT$Y$COFF:  $CPUR$SIZE$COFF GB  (Model $DN)  $S"
+			else echo "$CWHT$Y$COFF:  $CPUR$SIZETB$COFF TB    (Model $DN)  $S"
+		fi
+		if smartctl -V >/dev/null
+			then
+			LCC=$(smartctl -A /dev/$Y | grep Load_Cycle_Count | sed 's/.* //g')
+			if [ -n "$LCC" ]
+				then
+				test $LCC -lt 150000 && S="${CGRN}LCC=$LCC$COFF"
+				test $LCC -ge 150000 && S="${CYEL}LCC=$LCC$COFF"
+				test $LCC -ge 200000 && S="${CRED}LCC=$LCC$COFF"
+			fi
+			RSC=$(smartctl -A /dev/$Y | grep Reallocated_Sector_Ct | sed 's/.* //g')
+			if [ -n "$RSC" ]
+				then
+				test $RSC -gt 0 && test $RSC -lt 50 && S="$S  ${CYEL}RSC=$RSC$COFF"
+				test $RSC -ge 50 && S="$S  ${CYEL}RSC=$RSC$COFF"
+			fi
+			UNC=$(smartctl -A /dev/$Y | grep Reported_Uncorrect | sed 's/.* //g')
+			test -n "$UNC" && test $UNC -gt 0 && S="$S  ${CRED}UNC=$UNC$COFF"
+			test -n "$S" && echo "$CWHT$Y$COFF:  $CWHT+-- ${CCYA}SMART data: $S"
+		fi
+	fi
 done
 
 unset NET
