@@ -51,6 +51,7 @@ for X in /sys/block/sd*
 		fi
 		if smartctl -V >/dev/null
 			then
+			unset S LCC RSC UNC
 			LCC=$(smartctl -A /dev/$Y | grep Load_Cycle_Count | sed 's/.* //g')
 			if [ -n "$LCC" ]
 				then
