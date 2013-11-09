@@ -46,8 +46,8 @@ for X in /sys/block/sd*
 		DN=$(hdparm -I /dev/$Y 2>/dev/null | grep 'Model Number:' | sed 's/[^:]*[^a-zA-Z0-9]*//;s/ *$//g')
 		test "$DN" = "" && DN="unknown"
 		if [ "$SIZETB" -eq 0 ]
-			then echo "$CWHT$Y$COFF:  $CPUR$SIZE$COFF GB  (Model $DN)  $S"
-			else echo "$CWHT$Y$COFF:  $CPUR$SIZETB$COFF TB    (Model $DN)  $S"
+			then echo "$CWHT$Y$COFF:  $CPUR$SIZE$COFF GB  (Model $DN)"
+			else echo "$CWHT$Y$COFF:  $CPUR$SIZETB$COFF TB    (Model $DN)"
 		fi
 		if smartctl -V >/dev/null
 			then
