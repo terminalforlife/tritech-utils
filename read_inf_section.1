@@ -1,10 +1,10 @@
-.TH read_inf_section "1" "19 Aug 2013" "tritech-utils" "Tritech Service System"
+.TH read_inf_section "1" "15 Nov 2013" "tritech-utils" "Tritech Service System"
 
 .SH NAME
-read_inf_section \- Read INF/INI file section to stdout
+read_inf_section \- Read INF/REG/INI file section to stdout
 
 .SH SYNOPSIS
-\fBread_inf_section\fP \fIinf_file\fP \fIinf_section_name\fP
+\fBread_inf_section\fP \fIinf-like_filename\fP \fIsection_name\fP
 
 .SH DESCRIPTION
 .B read_inf_section
@@ -19,10 +19,8 @@ is the file to extract a section from.
 is the name of the section to extract.
 
 .SH CAVEATS
-This tool performs a case-sensitive search. This behavior may change to be 
-case-insensitive in the future. Additionally, comments are not stripped out 
-of the read sections. If comments are undesired, they should be stripped by an 
-external tool such as \fIsed\fP.
+Comments are not stripped out of the read sections. If comments are
+undesired, they should be stripped by an external tool such as \fIsed\fP.
 .PP
 
 .SH COPYRIGHT

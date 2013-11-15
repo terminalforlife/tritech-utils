@@ -59,7 +59,7 @@ fi
 echo -n "RIS case-sensitive?:       "
 if ! ./read_inf_section test/ris section2 2>/dev/null >/dev/null
 	then echo "yes"
-	else echo "no" && ERR=1
+	else echo "no"
 fi
 
 echo -n "suggest_decompressor:      "
