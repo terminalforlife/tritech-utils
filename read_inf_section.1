@@ -1,16 +1,21 @@
-.TH read_inf_section "1" "15 Nov 2013" "tritech-utils" "Tritech Service System"
+.TH read_inf_section "1" "20 Nov 2013" "tritech-utils" "Tritech Service System"
 
 .SH NAME
 read_inf_section \- Read INF/REG/INI file section to stdout
 
 .SH SYNOPSIS
-\fBread_inf_section\fP \fIinf-like_filename\fP \fIsection_name\fP
+\fBread_inf_section\fP [-a] \fIinf-like_filename\fP \fIsection_name\fP
 
 .SH DESCRIPTION
 .B read_inf_section
 extracts one section from a Windows-style INF, INI, or REG file.
 
 .SH OPTIONS
+.PP
+.I -a
+Use inf_section_name as a prefix; returns the section specified as well as 
+any subsections. The section headers for subsections will appear in the 
+final output; these can i.e. be dumped to a file for further processing.
 .PP
 .I inf_file
 is the file to extract a section from.
