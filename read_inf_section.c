@@ -40,12 +40,15 @@ int find_section_header(FILE *fp, char *line) {
 int output_extended_section(FILE *fp, char *line) {
 	unsigned char buffer[MAXLEN];
 	char *res;
+	int buflen;
 
 	while(1) {
 		if (fgets(buffer, MAXLEN, fp)) {
-			buffer[(strlen(buffer) - 1)] = '\0';
+			buflen = strlen(buffer);
+			if (buffer[(buflen - 2)] == 0x0d) buflen--;
+			buffer[(buflen - 1)] = '\0';
 			if ((buffer[0] == '[') && (strncasecmp(line, buffer, strlen(line)) != 0)) return 0;
-			if (buffer[0] != '\n') puts(buffer);
+			if (buflen > 1) puts(buffer);
 		} else return 1;
 	}
 }
@@ -53,12 +56,15 @@ int output_extended_section(FILE *fp, char *line) {
 int output_section(FILE *fp) {
 	unsigned char buffer[MAXLEN];
 	char *res;
+	int buflen;
 
 	while(1) {
 		if (fgets(buffer, MAXLEN, fp)) {
-		buffer[(strlen(buffer) - 1)] = '\0';
+			buflen = strlen(buffer);
+			if (buffer[(buflen - 2)] == 0x0d) buflen--;
+			buffer[(buflen - 1)] = '\0';
 			if (buffer[0] != '[') {
-				if (buffer[0] != '\n') puts(buffer);
+				if (buflen > 1) puts(buffer);
 			}
 			else return 0;
 		} else return 1;
