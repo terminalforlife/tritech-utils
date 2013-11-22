@@ -19,8 +19,8 @@ void usage(char **argv, int value) {
 	exit(value);
 }
 
-void die(error) {
-	fprintf(stderr, "Died with error %d\n", error);
+void die(char *message, int error) {
+	fprintf(stderr, "Died with error %d: %s\n", error, message);
 	exit(error);
 }
 
@@ -102,7 +102,7 @@ int main(int argc, char **argv) {
 		fp = stdin;
 	} else {
 		fp = fopen(inf_file, "r");
-		if (errno != 0) die(errno);
+		if (errno != 0) die("Failed to open the specified file", errno);
 	}
 
 	strncpy(line, "[", 2);
