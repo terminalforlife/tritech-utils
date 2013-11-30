@@ -416,13 +416,17 @@ NAME="$LOCAL/Adobe/Acrobat/*/Updater"; DESC="Adobe Acrobat"; add_to_wipe
 NAME="$LOCAL/Adobe/Acrobat/*/Cache"; DESC="Adobe Acrobat"; add_to_wipe
 NAME="$LOCAL/Adobe/Reader*/Setup Files"; DESC="Adobe Acrobat"; add_to_wipe
 NAME="$LOCAL/Adobe/Updater*"; DESC="Adobe Acrobat"; add_to_wipe
+NAME="$LOCAL/alotappbar"; DESC="ALOT Toolbar"; add_to_wipe
+NAME="$LOCAL/AppGraffiti"; DESC="AppGraffiti"; add_to_wipe
 NAME="$LOCAL/AskToolbar"; DESC="Ask Toolbar"; add_to_wipe
 NAME="$LOCAL/AskSBar"; DESC="Ask Toolbar"; add_to_wipe
 NAME="$LOCAL/AVG Secure Search/cache"; DESC="AVG Secure Search"; add_to_wipe
 NAME="$LOCAL/BearShare"; DESC="BearShare"; add_to_wipe
 NAME="$LOCAL/bearsharemediabartb"; DESC="BearShare Media Bar"; add_to_wipe
+NAME="$LOCAL/BibleTB"; DESC="BibleTB spyware"; add_to_wipe
 NAME="$LOCAL/adaware"; DESC="Blekko Toolbar"; add_to_wipe
 NAME="$LOCAL/blekkotb*"; DESC="Blekko Toolbar"; add_to_wipe
+NAME="$LOCAL/BrowseForChange"; DESC="BrowseForChange"; add_to_wipe
 NAME="$LOCAL/Corel/Thumbs"; DESC="Corel Thumbs"; add_to_wipe
 NAME="$LOCAL/$CHROME/*Cache*/"; DESC="Google Chrome"; add_to_wipe
 NAME="$LOCAL/$CHROME/*Cookies"; DESC="Google Chrome"; add_to_delete
@@ -441,10 +445,12 @@ NAME="$LOCAL/$CHROME/Visited Links"; DESC="Google Chrome"; add_to_delete
 NAME="$LOCAL/$CHROMEUD/Safe Browsing*"; DESC="Google Chrome"; add_to_delete
 NAME="$LOCAL/Conduit"; DESC="Conduit software"; add_to_wipe
 NAME="$LOCAL/ConduitEngine"; DESC="Conduit software"; add_to_wipe
+NAME="$LOCAL/CouponAlert*"; DESC="CouponAlert"; add_to_wipe
 NAME="$LOCAL/Corel/Thumbs"; DESC="Corel thumbnails"; add_to_wipe
 NAME="$LOCAL/Corel Photo Album"; DESC="Corel Photo Album"; add_to_wipe
 NAME="$LOCAL/CrashDumps"; DESC="App crash dumps"; add_to_wipe
 NAME="$LOCAL/CurseClient/CurseClient.log"; DESC="CurseClient"; add_to_delete
+NAME="$LOCAL/DataMngr"; DESC="DataMngr garbage"; add_to_wipe
 NAME="$LOCAL/Diagnostics"; DESC="Windows Diagnostics"; add_to_wipe
 NAME="$LOCAL/ElevatedDiagnostics"; DESC="Windows Diagnostics"; add_to_wipe
 NAME="$LOCAL/EMBARQTOOLBAR"; DESC="Embarq Toolbar"; add_to_wipe
@@ -455,7 +461,9 @@ NAME="$LOCAL/$FFPROF/urlclassifier3.sqlite"; DESC="Mozilla Firefox"; add_to_dele
 NAME="$LOCAL/$FFPROF/X*.mfl"; DESC="Mozilla Firefox"; add_to_delete
 NAME="$LOCAL/$FFPROF/minidumps"; DESC="Mozilla Firefox"; add_to_wipe
 NAME="$LOCAL/$FFPROF/thumbnails"; DESC="Mozilla Firefox"; add_to_wipe
+NAME="$LOCAL/Funmoods"; DESC="Funmoods"; add_to_wipe
 NAME="$LOCAL/GDIPFONTCACHEV1.DAT"; DESC="User font cache"; add_to_delete
+NAME="$LOCAL/Google/Chrome Frame"; DESC="Google Chrome Frame"; add_to_wipe
 NAME="$LOCAL/Google/Google Desktop/*/*.cf1"; DESC="Google Desktop"; add_to_delete
 NAME="$LOCAL/Google/Google Desktop/*/*.ht1"; DESC="Google Desktop"; add_to_delete
 NAME="$LOCAL/Google/Google Desktop/*/db*"; DESC="Google Desktop"; add_to_delete
@@ -474,14 +482,18 @@ NAME="$LOCAL/Graboid/logs"; DESC="Graboid"; add_to_wipe
 NAME="$LOCAL/HP Guide/mp_cache"; DESC="HP files"; add_to_wipe
 NAME="$LOCAL/HP/AtInstall"; DESC="HP files"; add_to_wipe
 NAME="$LOCAL/Hotbar"; DESC="Hotbar"; add_to_wipe
+NAME="$LOCAL/Hot_MP3"; DESC="Hot_MP3 Toolbar"; add_to_wipe
 NAME="$LOCAL/IconCache*.db"; DESC="Icon cache DB"; add_to_delete
-NAME="$LOCAL/Intuit/QuickBooks*/Log"; DESC="QuickBooks logs"; add_to_wipe
+NAME="$LOCAL/ilividtoolbarguid"; DESC="iLivid Toolbar"; add_to_wipe
 NAME="$LOCAL/iMesh"; DESC="iMesh"; add_to_wipe
 NAME="$LOCAL/imeshmediabartb"; DESC="iMesh"; add_to_wipe
+NAME="$LOCAL/Inbox Toolbar"; DESC="Inbox Toolbar"; add_to_wipe
+NAME="$LOCAL/Intuit/QuickBooks*/Log"; DESC="QuickBooks logs"; add_to_wipe
 NAME="$LOCAL/iWon*"; DESC="iWon software"; add_to_wipe
 NAME="$LOCAL/join.me/*.log"; DESC="LMI join.me logs"; add_to_delete
 NAME="$LOCAL/$JAVACACHE"; DESC="Java"; add_to_wipe
 NAME="$LOCAL/$JSYSCACHE"; DESC="Java"; add_to_wipe
+NAME="$LOCAL/Live_TV"; DESC="Live_TV spyware"; add_to_wipe
 NAME="$LOCAL/LogiShrd/Vid"; DESC="Logitech Vid cache"; add_to_wipe
 NAME="$LOCAL/$MPARTCACHE"; DESC="WMP cache"; add_to_wipe
 NAME="$LOCAL/$MPTRANSC"; DESC="WMP cache"; add_to_wipe
@@ -494,7 +506,8 @@ NAME="$LOCAL/$MS/Media Player/lastplayed.wpl"; DESC="Windows Media Player"; add_
 NAME="$LOCAL/$MS/OneNote/*/TemporaryOneNoteOfflineCache.onecache"; DESC="MS OneNote cache"; add_to_delete
 NAME="$LOCAL/$MS/OfficeStarter"; DESC="Microsoft Office"; add_to_wipe
 NAME="$LOCAL/$MS/OIS"; DESC="Microsoft OIS"; add_to_wipe
-NAME="$LOCAL/$MS/Silverlight"; DESC="Silverlight"; add_to_wipe
+NAME="$LOCAL/$MS/SmartScreen"; DESC="MS SmartScreen"; add_to_wipe
+NAME="$LOCAL/$MS/Silverlight"; DESC="MS Silverlight"; add_to_wipe
 NAME="$LOCAL/$MS/Windows/Burn"; DESC="Windows CD/DVD burn cache"; add_to_wipe
 NAME="$LOCAL/$MS/Windows/Explorer/ThumbCacheToDelete"; DESC="Explorer thumbnails"; add_to_wipe
 NAME="$LOCAL/$MS/Windows/Explorer/thumbcache*.db"; DESC="Explorer thumbnails"; add_to_delete
@@ -503,10 +516,17 @@ NAME="$LOCAL/$MS/Windows/$TIF"; DESC="Temporary Internet Files"; add_to_wipe
 NAME="$LOCAL/$MS/Windows/WebCache"; DESC="Temporary Internet Files"; add_to_wipe
 NAME="$LOCAL/$MS/Windows/WER"; DESC="Windows Error Reporting"; add_to_wipe
 NAME="$LOCAL/$MS/Windows NT/NTBackup"; DESC="NTBackup data"; add_to_wipe
+NAME="$LOCAL/$MS/Windows Store/Cache Medium IL"; DESC="Windows Store"; add_to_wipe
+NAME="$LOCAL/Packages/WinStore_*/AC/INetCache"; DESC="Windows Store"; add_to_wipe
+NAME="$LOCAL/Packages/WinStore_*/AC/$MS/Windows Store/Cache"; DESC="Windows Store"; add_to_wipe
+NAME="$LOCAL/Packages/WinStore_*/AC/$MS/Windows Store/Data/history.dat"; DESC="Windows Store"; add_to_delete
+NAME="$LOCAL/Packages/WinStore_*/AC/Temp"; DESC="Windows Store"; add_to_wipe
 NAME="$LOCAL/$MS/Windows/WindowsUpdate.log"; DESC="Windows Update log"; add_to_delete
 NAME="$LOCAL/$MS/$WINDEF/FileTracker"; DESC="Windows Defender"; add_to_wipe
 NAME="$LOCAL/Musicmatch/Jukebox/Cache"; DESC="Musicmatch Jukebox cache"; add_to_wipe
 NAME="$LOCAL/MyWebSearch"; DESC="MyWebSearch"; add_to_wipe
+NAME="$LOCAL/ooVoo_Video_Chat"; DESC="ooVoo Toolbar"; add_to_wipe
+NAME="$LOCAL/oovootoolbar"; DESC="ooVoo Toolbar"; add_to_wipe
 NAME="$LOCAL/Nero/MobileSync.Thumbnails"; DESC="Nero MobileSync"; add_to_wipe
 NAME="$LOCAL/OpenCandy"; DESC="OpenCandy downloader"; add_to_wipe
 NAME="$LOCAL/Opera/*/cache"; DESC="Opera caches"; add_to_wipe
@@ -514,6 +534,11 @@ NAME="$LOCAL/OLYMPUS/OLYMPUS Data/cache"; DESC="Olympus cache"; add_to_wipe
 NAME="$LOCAL/PageRage"; DESC="PageRage data"; add_to_wipe
 NAME="$LOCAL/PCHealth"; DESC="PCHealth data"; add_to_wipe
 NAME="$LOCAL/PokerStars.NET/ImgCache"; DESC="PokerStars.NET cache"; add_to_wipe
+NAME="$LOCAL/PriceGong"; DESC="PriceGong"; add_to_wipe
+NAME="$LOCAL/Productivity_*"; DESC="Productivity Toolbar"; add_to_wipe
+NAME="$LOCAL/RebateInformer"; DESC="RebateInformer"; add_to_wipe
+NAME="$LOCAL/RecipeHub_*"; DESC="RecipeHub"; add_to_wipe
+NAME="$LOCAL/Retrogamer_*"; DESC="Retrogamer"; add_to_wipe
 NAME="$LOCAL/$SAFARI/Cache.db"; DESC="Safari"; add_to_delete
 NAME="$LOCAL/$SAFARI/Downloads.plist"; DESC="Safari"; add_to_delete
 NAME="$LOCAL/$SAFARI/History.plist"; DESC="Safari"; add_to_delete
@@ -522,30 +547,40 @@ NAME="$LOCAL/$SAFARI/LastSession.plist"; DESC="Safari"; add_to_delete
 NAME="$LOCAL/$SAFARI/SafeBrowsing.db"; DESC="Safari"; add_to_delete
 NAME="$LOCAL/$SAFARI/LocalStorage"; DESC="Safari"; add_to_wipe
 NAME="$LOCAL/$SAFARI/Webpage Previews"; DESC="Safari"; add_to_wipe
+NAME="$LOCAL/searchqutoolbar"; DESC="Searchqu Toolbar"; add_to_wipe
 NAME="$LOCAL/Shareaza/Incomplete"; DESC="Shareaza incompletes"; add_to_wipe
+NAME="$LOCAL/ShopAtHome"; DESC="ShopAtHome"; add_to_wipe
 NAME="$LOCAL/ShoppingReport2"; DESC="ShoppingReport2"; add_to_wipe
+NAME="$LOCAL/simppulltoolbar"; DESC="Simppull Toolbar"; add_to_wipe
+NAME="$LOCAL/SiteRanker"; DESC="SiteRanker"; add_to_wipe
 NAME="$LOCAL/SlimWare Utilities Inc/DriverUpdate/Logs"; DESC="DriverUpdate"; add_to_wipe
 NAME="$LOCAL/Spotify/Browser"; DESC="Spotify"; add_to_wipe
 NAME="$LOCAL/Spotify/Storage"; DESC="Spotify"; add_to_wipe
 NAME="$LOCAL/SupportSoft"; DESC="SupportSoft"; add_to_wipe
 NAME="$LOCAL/$TBPROF/X*.mfl"; DESC="Thunderbird MFLs"; add_to_delete
+NAME="$LOCAL/TelevisionFanatic"; DESC="TelevisionFanatic"; add_to_wipe
 NAME="$LOCAL/*.tmp"; DESC="Temporary files"; add_to_delete
 NAME="$LOCAL/temp"; DESC="Temporary files"; add_to_wipe
 NAME="$LOCAL/Temp"; DESC="Temporary files"; add_to_wipe
 NAME="$LOCAL/TEMP"; DESC="Temporary files"; add_to_wipe
 NAME="$LOCAL/Tific"; DESC="Tific"; add_to_wipe
+NAME="$LOCAL/Toolbar4"; DESC="Toolbar4"; add_to_wipe
 NAME="$LOCAL/Topix"; DESC="Tific"; add_to_wipe
 NAME="$LOCAL/Unity/WebPlayer/Cache"; DESC="Unity WebPlayer cache"; add_to_wipe
+NAME="$LOCAL/verizontb"; DESC="Verizon Toolbar"; add_to_wipe
 NAME="$LOCAL/$VS/$WIN/*.tmp"; DESC="Windows temp files (VS)"; add_to_delete
 NAME="$LOCAL/$V7HIST1"; DESC="IE history"; add_to_wipe
 NAME="$LOCAL/$V7HIST2"; DESC="IE history"; add_to_wipe
+NAME="$LOCAL/Vuze_Remote"; DESC="Vuze Remote spyware"; add_to_wipe
 NAME="$LOCAL/Wajam"; DESC="Wajam"; add_to_wipe
 NAME="$LOCAL/$WDSMART/.txt"; DESC="WD SmartWare"; add_to_delete
+NAME="$LOCAL/WhiteSmoke_*"; DESC="WhiteSmoke Toolbar"; add_to_wipe
 NAME="$LOCAL/Windows Live/.cache"; DESC="Windows Live cache"; add_to_wipe
 NAME="$LOCAL/$WLPG"; DESC="WL Photo Gallery"; add_to_wipe
 NAME="$LOCAL/$MS/WLSetup"; DESC="Windows Live setup"; add_to_wipe
 NAME="$LOCAL/$MS/Windows Live/Setup"; DESC="Windows Live setup"; add_to_wipe
 NAME="$LOCAL/Yahoo! Companion"; DESC="Yahoo Companion"; add_to_wipe
+NAME="$LOCAL/YuMp3"; DESC="YuMp3 Toolbar"; add_to_wipe
 NAME="$LOCAL/Zoom_Downloader"; DESC="Zoom Downloader"; add_to_wipe
 NAME="$LOCAL/Zynga"; DESC="Zynga"; add_to_wipe
 
@@ -619,6 +654,8 @@ NAME="$ROAM/$FFPROF/cookies.sqlite"; DESC="Mozilla applications"; add_to_delete
 NAME="$ROAM/$FFPROF/downloads.sqlite"; DESC="Mozilla applications"; add_to_delete
 NAME="$ROAM/$FFPROF/extensions/*/*/conduit*"; DESC="Mozilla applications"; add_to_delete
 NAME="$ROAM/$FFPROF/extensions/*/*/Conduit*"; DESC="Mozilla applications"; add_to_delete
+NAME="$ROAM/$FFPROF/extensions/*/*/npConduitFirefoxPlugin.dll"; DESC="Mozilla applications"; add_to_delete
+NAME="$ROAM/$FFPROF/extensions/*/*/npPriceGong_FF.dll"; DESC="Mozilla applications"; add_to_delete
 NAME="$ROAM/$FFPROF/extensions/engine@conduit.com"; DESC="Mozilla applications"; add_to_delete
 NAME="$ROAM/$FFPROF/extensions/plugin@yontoo.com"; DESC="Mozilla applications"; add_to_delete
 NAME="$ROAM/$FFPROF/extensions/toolbar@ask.com"; DESC="Mozilla applications"; add_to_delete
