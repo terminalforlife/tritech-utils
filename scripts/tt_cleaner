@@ -1,7 +1,7 @@
 #!/bin/bash
 
-VER="5.0.1"
-VERDATE="2013-11-21"
+VER="5.0.2"
+VERDATE="2013-11-30"
 
 # Tritech Service System Windows installation clean tool for Linux
 # Copyright (C) by c02ware and Jody Bruchon
@@ -492,6 +492,7 @@ NAME="$LOCAL/$MS/$IE/DOMStore"; DESC="IE DOMStore"; add_to_wipe
 NAME="$LOCAL/$MS/$IE/Recovery"; DESC="IE session recovery"; add_to_wipe
 NAME="$LOCAL/$MS/Media Player/lastplayed.wpl"; DESC="Windows Media Player"; add_to_delete
 NAME="$LOCAL/$MS/OneNote/*/TemporaryOneNoteOfflineCache.onecache"; DESC="MS OneNote cache"; add_to_delete
+NAME="$LOCAL/$MS/OfficeStarter"; DESC="Microsoft Office"; add_to_wipe
 NAME="$LOCAL/$MS/OIS"; DESC="Microsoft OIS"; add_to_wipe
 NAME="$LOCAL/$MS/Silverlight"; DESC="Silverlight"; add_to_wipe
 NAME="$LOCAL/$MS/Windows/Burn"; DESC="Windows CD/DVD burn cache"; add_to_wipe
@@ -506,6 +507,7 @@ NAME="$LOCAL/$MS/Windows/WindowsUpdate.log"; DESC="Windows Update log"; add_to_d
 NAME="$LOCAL/$MS/$WINDEF/FileTracker"; DESC="Windows Defender"; add_to_wipe
 NAME="$LOCAL/Musicmatch/Jukebox/Cache"; DESC="Musicmatch Jukebox cache"; add_to_wipe
 NAME="$LOCAL/MyWebSearch"; DESC="MyWebSearch"; add_to_wipe
+NAME="$LOCAL/Nero/MobileSync.Thumbnails"; DESC="Nero MobileSync"; add_to_wipe
 NAME="$LOCAL/OpenCandy"; DESC="OpenCandy downloader"; add_to_wipe
 NAME="$LOCAL/Opera/*/cache"; DESC="Opera caches"; add_to_wipe
 NAME="$LOCAL/OLYMPUS/OLYMPUS Data/cache"; DESC="Olympus cache"; add_to_wipe
@@ -523,6 +525,7 @@ NAME="$LOCAL/$SAFARI/Webpage Previews"; DESC="Safari"; add_to_wipe
 NAME="$LOCAL/Shareaza/Incomplete"; DESC="Shareaza incompletes"; add_to_wipe
 NAME="$LOCAL/ShoppingReport2"; DESC="ShoppingReport2"; add_to_wipe
 NAME="$LOCAL/SlimWare Utilities Inc/DriverUpdate/Logs"; DESC="DriverUpdate"; add_to_wipe
+NAME="$LOCAL/Spotify/Browser"; DESC="Spotify"; add_to_wipe
 NAME="$LOCAL/Spotify/Storage"; DESC="Spotify"; add_to_wipe
 NAME="$LOCAL/SupportSoft"; DESC="SupportSoft"; add_to_wipe
 NAME="$LOCAL/$TBPROF/X*.mfl"; DESC="Thunderbird MFLs"; add_to_delete
@@ -536,12 +539,14 @@ NAME="$LOCAL/Unity/WebPlayer/Cache"; DESC="Unity WebPlayer cache"; add_to_wipe
 NAME="$LOCAL/$VS/$WIN/*.tmp"; DESC="Windows temp files (VS)"; add_to_delete
 NAME="$LOCAL/$V7HIST1"; DESC="IE history"; add_to_wipe
 NAME="$LOCAL/$V7HIST2"; DESC="IE history"; add_to_wipe
+NAME="$LOCAL/Wajam"; DESC="Wajam"; add_to_wipe
 NAME="$LOCAL/$WDSMART/.txt"; DESC="WD SmartWare"; add_to_delete
 NAME="$LOCAL/Windows Live/.cache"; DESC="Windows Live cache"; add_to_wipe
 NAME="$LOCAL/$WLPG"; DESC="WL Photo Gallery"; add_to_wipe
 NAME="$LOCAL/$MS/WLSetup"; DESC="Windows Live setup"; add_to_wipe
 NAME="$LOCAL/$MS/Windows Live/Setup"; DESC="Windows Live setup"; add_to_wipe
 NAME="$LOCAL/Yahoo! Companion"; DESC="Yahoo Companion"; add_to_wipe
+NAME="$LOCAL/Zoom_Downloader"; DESC="Zoom Downloader"; add_to_wipe
 NAME="$LOCAL/Zynga"; DESC="Zynga"; add_to_wipe
 
 NAME="$PF/Common Files/Windows Live/.cache"; DESC="WL cache"; add_to_wipe
@@ -610,6 +615,7 @@ NAME="$ROAM/$FFCRASH"; DESC="Mozilla applications"; add_to_wipe
 NAME="$ROAM/$FFPROF/minidumps"; DESC="Mozilla applications"; add_to_wipe
 NAME="$ROAM/$FFPROF/ConduitEngine"; DESC="Mozilla applications"; add_to_delete
 NAME="$ROAM/$FFPROF/conduit"; DESC="Mozilla applications"; add_to_delete
+NAME="$ROAM/$FFPROF/cookies.sqlite"; DESC="Mozilla applications"; add_to_delete
 NAME="$ROAM/$FFPROF/downloads.sqlite"; DESC="Mozilla applications"; add_to_delete
 NAME="$ROAM/$FFPROF/extensions/*/*/conduit*"; DESC="Mozilla applications"; add_to_delete
 NAME="$ROAM/$FFPROF/extensions/*/*/Conduit*"; DESC="Mozilla applications"; add_to_delete
@@ -620,6 +626,7 @@ NAME="$ROAM/$FFPROF/Yahoo! Inc/ytoolbar"; DESC="Mozilla applications"; add_to_de
 NAME="$ROAM/Mozilla/logs"; DESC="Mozilla applications"; add_to_wipe
 NAME="$ROAM/Mozilla/Profiles/*/*/Cache*"; DESC="Mozilla applications"; add_to_wipe
 NAME="$ROAM/$TBPROF/minidumps"; DESC="Mozilla applications"; add_to_wipe
+NAME="$ROAM/$TBPROF/cookies.sqlite"; DESC="Mozilla applications"; add_to_delete
 NAME="$ROAM/$TBPROF/downloads.sqlite"; DESC="Mozilla applications"; add_to_delete
 NAME="$ROAM/$TBPROF/TestPilotErrorLog.log"; DESC="Mozilla applications"; add_to_delete
 
@@ -718,12 +725,14 @@ NAME="$ROAM/Real/RealPlayer/db/Backup"; DESC="RealPlayer"; add_to_wipe
 NAME="$ROAM/Real/RealPlayer/History"; DESC="RealPlayer"; add_to_wipe
 NAME="$ROAM/Real/RealPlayer/ThumbsCache"; DESC="RealPlayer"; add_to_wipe
 NAME="$ROAM/Real/RealPlayer/WatchFolders"; DESC="RealPlayer"; add_to_wipe
+NAME="$ROAM/Roxio Log Files"; DESC="Roxio Log Files"; add_to_wipe
 NAME="$ROAM/$SAFARI/PubSub"; DESC="Safari PubSub data"; add_to_wipe
 NAME="$ROAM/$SASLOGS"; DESC="SUPERAntiSpyware logs"; add_to_wipe
 NAME="$ROAM/ScanQuery"; DESC="ScanQuery"; add_to_wipe
 NAME="$ROAM/SecondLife/browser_profile/Cache"; DESC="SecondLife Gecko cache"; add_to_wipe
 NAME="$ROAM/SecondLife/logs"; DESC="SecondLife logs"; add_to_wipe
 NAME="$ROAM/Sierra Wireless/Logs"; DESC="Sierra Wireless"; add_to_wipe
+NAME="$ROAM/Skype/DbTemp"; DESC="Skype"; add_to_wipe
 NAME="$ROAM/Skype/temp-*"; DESC="Skype"; add_to_delete
 NAME="$ROAM/Skype/Plugins/Local Cache"; DESC="Skype"; add_to_wipe
 NAME="$ROAM/skype.dat"; DESC="VIRUS: skype.dat"; add_to_delete
@@ -742,6 +751,8 @@ NAME="$ROAM/Temp"; DESC="Temporary files (roaming)"; add_to_wipe
 NAME="$ROAM/$TMAVLOGS"; DESC="Trend Micro AV logs"; add_to_wipe
 NAME="$ROAM/Toolbar4/*/cache"; DESC="Toolbar4"; add_to_wipe
 NAME="$ROAM/Uniblue"; DESC="Uniblue data"; add_to_wipe
+NAME="$ROAM/uTorrent/*.torrent"; DESC="uTorrent"; add_to_delete
+NAME="$ROAM/utorrent/*.torrent"; DESC="uTorrent"; add_to_delete
 NAME="$ROAM/uTorrent/*.old"; DESC="uTorrent"; add_to_delete
 NAME="$ROAM/utorrent/*.old"; DESC="uTorrent"; add_to_delete
 NAME="$ROAM/uTorrent/dlimagecache"; DESC="uTorrent"; add_to_wipe
