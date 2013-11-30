@@ -136,7 +136,7 @@ YMSGR="Yahoo!/Messenger"
 
 test "$MSG" = "1" && echo -n "Cleaning: "
 if [ "$MSG" = "2" ]
-	then echo -e "${CWHT}Tritech Service System Cleaner, version $CGRN$VER$COFF, last updated $CGRN$VERDATE$COFF"
+	then echo -e "${CWHT}Tritech Service System Cleaner, version $CGRN$VER$COFF ($CGRN$VERDATE$COFF)"
 	test "$WINDIR" = "__NONE__" && echo "${CYEL}NOTICE: ${CWHT}No Windows folder detected$COFF"
 	test "$V7" = "0" && echo "${CYEL}NOTICE: ${CWHT}No user profile root folder detected$COFF"
 fi
