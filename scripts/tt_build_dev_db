@@ -2,8 +2,8 @@
 
 . tss__common
 
-VER=0.1
-VERDATE="2012-05-04"
+VER=0.2
+VERDATE="2013-12-03"
 
 echo "Tritech driver device database builder $VER ($VERDATE)"
 DBG=0
@@ -219,7 +219,7 @@ clean_out_inf () {
 
 check_inf_not_allowed () {
 	echo "$1" | grep -iq '/oemset..\.inf$' || echo "$1" | grep -iq '/autorun.inf$' || echo "$1" | grep -iq '/ntsetup.inf$' || \
-	read_inf_section "$1" version | grep -m 1 -iq 'signature.*"\$Windows 95\$"' 2>/dev/null || read_inf_section "$1" Version | grep -m 1 -iq 'signature.*"\$Windows 95\$"' 2>/dev/null
+	read_inf_section "$1" version 2>/dev/null | grep -m 1 -iq 'signature.*"\$Windows 95\$"' 2>/dev/null
 }
 
 add_inf () {
@@ -366,18 +366,24 @@ if [[ -e "$DBFILE"  && "$CONSISTENT" = "1" ]]
 		HASH=$(grep -m 1 "^SHA1:$X:" $TF)
 		if [ -z "$HASH" ]
 			then
-			if ! check_inf_not_allowed "$X"
+			XX=$(mktemp)
+			sanitize_inf_file $X $XX
+			if ! check_inf_not_allowed "$XX"
 				then clean_out_inf "$X"
 				add_inf "$X"
 			fi
+			rm -f $XX
 			else
 			HASH2="SHA1:$X:$(sha1sum "$X" | cut -d\  -f1)"
 			if [ ! "$HASH" = "$HASH2" ]
 				then
-				if ! check_inf_not_allowed "$X"
+				XX=$(mktemp)
+				sanitize_inf_file $X $XX
+				if ! check_inf_not_allowed "$XX"
 					then clean_out_inf "$X"
 					add_inf "$X"
 				fi
+				rm -f $XX
 				else
 				test $DBG -gt 1 && echo -n "$CBLU$X$COFF "
 				test $DBG -le 1 && test "$Q" = "0" && echo -n "${CBLU}|$COFF"
@@ -389,7 +395,10 @@ if [[ -e "$DBFILE"  && "$CONSISTENT" = "1" ]]
 	for X in $(find . -name '*.inf') $(find . -name '*.INF')
 		do
 		X="$(echo "$X" | sed 's/.\///')"
-		check_inf_not_allowed "$X" || add_inf "$X"
+		XX=$(mktemp)
+		sanitize_inf_file $X $XX
+		check_inf_not_allowed "$XX" || add_inf "$X"
+		rm -f $XX
 	done
 fi
 IFS="$IFS0"
