@@ -1,9 +1,11 @@
-#!/bin/sh
+#!/bin/bash
 
-VER=0.1
-VERDATE=2013-08-18
+VER=0.2
+VERDATE=2013-12-03
 
 . tss__common
+
+shopt -s nullglob
 
 echo "${CWHT}Tritech Driver Drop version $VER ($VERDATE)"
 
@@ -138,7 +140,7 @@ for X in $(echo /sys/bus/usb/devices/* | tr ' ' \\n | grep -v ':')
 done
 
 echo -n "${CPUR}ACPI $COFF"; TYPE="acpi"
-for X in $(echo /sys/bus/acpi/devices/* | tr [:upper:] [:lower:] | tr ' ' \\n | sed 's#/sys/bus/acpi/devices/\(.*\):.*#\1#g' | grep -v ^lnx | grep -v ^device | sort | uniq)
+for X in $(echo /sys/bus/acpi/devices/* | tr '[:upper:]' '[:lower:]' | tr ' ' \\n | sed 's#/sys/bus/acpi/devices/\(.*\):.*#\1#g' | grep -v ^lnx | grep -v ^device | sort | uniq)
 	do
 	unset FUNC CC CV CD VID PID VEN DEV SUBSYS REV CLASS SC PROT
 	DEV=":dev=$X"
@@ -169,7 +171,8 @@ test $DBG -gt 1 && echo "$DEVS" | tr ' ' \\n
 ### Match drivers to devices
 
 get_host_winver_flags
-test -d "$MTPT/$INFDIR" && DRVROOT="$MTPT/$INFDIR" tt_build_dev_db -q
+BDDB="-q"; test $DBG -gt 0 && unset BDDB
+test -d "$MTPT/$INFDIR" && DRVROOT="$MTPT/$INFDIR" tt_build_dev_db $BDDB
 
 for X in $DEVS
 	do TYPE=$(echo "$X" | cut -d: -f1)
