@@ -1,9 +1,9 @@
 #!/bin/bash
 
-. tss__common
-
 VER=0.2
 VERDATE="2013-12-03"
+
+. tss__common
 
 echo "Tritech driver device database builder $VER ($VERDATE)"
 DBG=0

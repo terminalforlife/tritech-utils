@@ -2,8 +2,8 @@
 
 # Attempts to run parallel disk diags and burn-ins.
 
-VER=0.3.2
-VERDATE=2013-08-15
+VER=1.0
+VERDATE=2013-12-04
 
 export FORK=0
 export BURNSECS=600

@@ -1,5 +1,6 @@
 #!/bin/sh
 
 echo "Scanning for executable files."
+sleep 1
 
 find -type f -exec tss_file_tool winexec '{}' \; | grep -v not_winexec | less
