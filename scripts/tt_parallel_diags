@@ -146,8 +146,8 @@ while true
 		then CPUTEMP="$(expr $(cat $THRM) / 1000)"
 		echo -n " $SEP Temp "
 		test $CPUTEMP -gt 60 && echo -n "$CYEL"
-		test $CPUTEMP -gt 65 && echo -n "$CRED" && temp_warn
-		test $CPUTEMP -gt 100 && echo -n "$CPUR"
+		test $CPUTEMP -gt 68 && test $CPUTEMP -lt 100 && echo -n "$CRED" && temp_warn
+		test $CPUTEMP -ge 100 && echo -n "$CPUR"
 		test $CPUTEMP -lt 60 && echo -n "$CGRN"
 		echo -n "$CPUTEMP${CWHT} C$COFF"
 	fi
