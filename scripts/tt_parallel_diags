@@ -13,6 +13,9 @@ shopt -s nullglob
 . tss_client
 
 PCDATA=/mnt/cifs/computer_data/$PCID
+THRM="/sys/bus/acpi/drivers/thermal/LNXTHERM:00/thermal_zone/temp"
+SEP="${CPUR}||$COFF"
+WARNSOUND=/usr/share/sounds/tritech-utils/temp_warn.wav
 
 clean_exit () {
 	kill $(jobs -p) 2>/dev/null >/dev/null
@@ -28,6 +31,12 @@ clean_exit () {
 }
 
 trap clean_exit INT TERM QUIT USR1
+
+temp_warn () {
+	test -e $WARNSOUND && aplay $WARNSOUND 2>/dev/null >/dev/null
+	test -e $WARNSOUND && aplay $WARNSOUND 2>/dev/null >/dev/null
+	tt_beepsong fxchirp 2>/dev/null >/dev/null
+}
 
 burnin () {
 	export FORK=1
@@ -127,12 +136,40 @@ while true
 		fi
 		if [ "$BSTAT" = "PASS" ]
 			then BDONE=1
-			echo "Burn-in: PASS"
+			echo -n "Burn-in: PASS"
 			A_BURNIN=1
-			else echo "Burn-in: ${BSTAT} seconds remaining"
+			else echo -n "Burn-in: ${BSTAT}sec"
 		fi
-		else echo "Burn-in: PASS"
+		else echo -n "Burn-in: PASS"
 	fi
+	if [ -e $THRM ]
+		then CPUTEMP="$(expr $(cat $THRM) / 1000)"
+		echo -n " $SEP Temp "
+		test $CPUTEMP -gt 60 && echo -n "$CYEL"
+		test $CPUTEMP -gt 65 && echo -n "$CRED" && temp_warn
+		test $CPUTEMP -gt 100 && echo -n "$CPUR"
+		test $CPUTEMP -lt 60 && echo -n "$CGRN"
+		echo -n "$CPUTEMP${CWHT} C$COFF"
+	fi
+	CNT=1
+	for X in /sys/devices/virtual/thermal/cooling_device*
+		do if [ "$(cat $X/type)" = "Fan" ]
+			then
+			CS="$(cat $X/cur_state)"
+			MS="$(cat $X/max_state)"
+			if [ $CS -eq 0 ]
+				then FAN="${COFF}Off"
+				else
+				test $CS -eq $MS && FRAC="(max)"
+				test $MS -eq 1 && unset FRAC
+				test $CS -ne $MS && FRAC="($CS/$MS)"
+				FAN="${CWHT}On $CBLU$FRAC$COFF"
+			fi
+			echo -n " $SEP Fan $CNT: $FAN"
+			CNT=$((CNT+1))
+		fi
+	done
+	echo
 	if [ $DDONE = 0 ]
 		then DIC=0; DFINISH=0
 		while [ $DIC -lt $DI ]

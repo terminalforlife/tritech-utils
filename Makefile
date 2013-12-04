@@ -5,6 +5,8 @@ LDFLAGS=-Wl,--hash-style=gnu
 prefix=/usr
 bindir=${prefix}/bin
 mandir=${prefix}/man
+datarootdir=${prefix}/share
+datadir=${datarootdir}
 ver=$(shell grep TRITECH_UTILS_VER tritech_utils.h | sed 's/.* "\([^"]*\)"/\1/')
 arch=$(shell uname -m | sed s/_/-/g | sed 's/i[34567]86/i386/')
 
@@ -22,6 +24,7 @@ test:	tritech-utils
 	./test.sh
 
 install: tritech-utils manual
+	install -D -o root -g root -m 0644 sounds/temp_warn.wav $(DESTDIR)/$(datadir)/sounds/tritech-utils/temp_warn.wav
 	install -D -o root -g root -m 0755 -s read_inf_section $(DESTDIR)/$(bindir)/read_inf_section
 	install -D -o root -g root -m 0755 -s suggest_decompressor $(DESTDIR)/$(bindir)/suggest_decompressor
 	install -D -o root -g root -m 0755 -s tss_file_tool $(DESTDIR)/$(bindir)/tss_file_tool
