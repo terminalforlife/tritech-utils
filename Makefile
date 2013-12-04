@@ -60,6 +60,7 @@ install: tritech-utils manual
 	install -D -o root -g root -m 0755 scripts/tt_collect_files $(DESTDIR)/$(bindir)/tt_collect_files
 	install -D -o root -g root -m 0755 scripts/tt_drivetest $(DESTDIR)/$(bindir)/tt_drivetest
 	install -D -o root -g root -m 0755 scripts/tt_driverdrop $(DESTDIR)/$(bindir)/tt_driverdrop
+	install -D -o root -g root -m 0755 scripts/tt_find_executables $(DESTDIR)/$(bindir)/tt_find_executables
 	install -D -o root -g root -m 0755 scripts/tt_fsinfo $(DESTDIR)/$(bindir)/tt_fsinfo
 	install -D -o root -g root -m 0755 scripts/tt_geometry $(DESTDIR)/$(bindir)/tt_geometry
 	install -D -o root -g root -m 0755 scripts/tt_imagedrop $(DESTDIR)/$(bindir)/tt_imagedrop
