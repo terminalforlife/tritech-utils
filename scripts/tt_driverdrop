@@ -1,7 +1,7 @@
 #!/bin/bash
 
 VER=0.2
-VERDATE=2013-12-03
+VERDATE=2013-12-05
 
 . tss__common
 
@@ -225,9 +225,9 @@ for X in $DEVS
 	done < $TF
 	echo -en "\b "
 	if [ ! -z "$USE" ]
-		then test $DBG -gt 1 && echo "${CGRN}Using $USE$COFF"
+		then test $DBG -gt 1 && echo -e "\n${CGRN}Using $USE$COFF"
 		test $DBG -le 1 && echo "[${CGRN}OK${COFF}]"
-		else test $DBG -gt 1 && echo "${CRED}No driver found for $X$COFF"
+		else test $DBG -gt 1 && echo -e "\n${CRED}No driver found for $X$COFF"
 		test $DBG -le 1 && echo "[${CYEL}!!${COFF}]"
 		NODRV="$NODRV $X"
 	fi
