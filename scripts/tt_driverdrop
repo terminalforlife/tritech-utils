@@ -240,6 +240,11 @@ echo "${CWHT}Checking if missing drivers are covered by Windows...$COFF"
 DBFILE=$INFDIR/devicedb.txt
 for X in $NODRV
 	do TYPE=$(echo "$X" | cut -d: -f1)
+	if [ "$TYPE" = "hdaudio" ]
+		then echo "$X"
+		printf "%-74s" "                        "
+		else printf "%-74s" "$X     "
+	fi
 	R=0
 	unset USE TDV REQ1 REQ2
 	TAGS=$(echo "$X" | cut -d: -f2- | tr ':' ' ')
@@ -264,12 +269,24 @@ for X in $NODRV
 	esac
 	while read LINE
 		do
+		rotate_progress
 		for TAG in $TAGS
 			do echo "$LINE" | grep -q "$TAG" && R=1
 		done
 		
-		test "$R" = "1" && NODRV="$(echo "$NODRV" | tr ' ' \\n | grep -v "$X" | tr \\n ' ' | sed 's/  / /g')" && break
+		if [ "$R" = "1" ]
+			then
+			NODRV="$(echo "$NODRV" | tr ' ' \\n | grep -v "$X" | tr \\n ' ' | sed 's/  / /g')"
+			test $DBG -gt 1 && echo -e "\n${CGRN}Using $LINE$COFF"
+			test $DBG -le 1 && echo "[${CGRN}OK${COFF}]"
+			break
+		fi
 	done < $TF
+	if [ "$R" = "0" ]
+		then
+		test $DBG -gt 1 && echo -e "\n${CRED}No driver found for $X$COFF"
+		test $DBG -le 1 && echo "[${CYEL}!!${COFF}]"
+	fi
 done
 
 if [ $DBG -gt 1 ]
