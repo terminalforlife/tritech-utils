@@ -1,5 +1,8 @@
 #!/bin/sh
 
+VER=0.2
+VERDATE=2013-12-06
+
 test -z "$TSS_COMMON" && . tss__common
 test -z "$TSS_COMMON" && echo "tss__common required but failed to load." && exit 1
 
@@ -18,6 +21,7 @@ test "$REGSW" = "__NONE__" && echo "Cannot find SOFTWARE hive." && exit 3
 TMP=$(mktemp)
 
 reged -x "$REGSW" SOFTWARE 'Microsoft\Windows NT\CurrentVersion' $TMP >/dev/null
+sed -i 's/\\CMI-CreateHive{29EE1162-53C9-4474-A2B6-D90A7F6B0A7C}//g' $TMP
 CVER="$(read_inf_section $TMP 'SOFTWARE\Microsoft\Windows NT\CurrentVersion' | grep -i '"CurrentVersion"=' | cut -d\" -f4)"
 PNAME="$(read_inf_section $TMP 'SOFTWARE\Microsoft\Windows NT\CurrentVersion' | grep -i '"ProductName"=' | cut -d\" -f4)"
 if [ $(echo "$CVER" | cut -d. -f1) -lt 6 ]
