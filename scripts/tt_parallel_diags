@@ -33,15 +33,15 @@ clean_exit () {
 		test "$TSS_CLIENT" = "1" && push_actions
 		tt_sysinfo
 	fi
-	test -e $DONESOUND && aplay $DONESOUND 2>/dev/null >/dev/null
+	test -e $DONESOUND && aplay $DONESOUND 2>/dev/null >/dev/null &
 	exit
 }
 
 trap clean_exit INT TERM QUIT USR1
 
 temp_warn () {
-	test -e $WARNSOUND && aplay $WARNSOUND 2>/dev/null >/dev/null
-	test -e $WARNSOUND && aplay $WARNSOUND 2>/dev/null >/dev/null
+	test -e $WARNSOUND && aplay $WARNSOUND 2>/dev/null >/dev/null &
+	test -e $WARNSOUND && aplay $WARNSOUND 2>/dev/null >/dev/null &
 	tt_beepsong fxchirp 2>/dev/null >/dev/null
 }
 
