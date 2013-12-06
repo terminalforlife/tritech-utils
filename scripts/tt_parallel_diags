@@ -17,6 +17,11 @@ THRM="/sys/bus/acpi/drivers/thermal/LNXTHERM:00/thermal_zone/temp"
 SEP="${CPUR}||$COFF"
 WARNSOUND=/usr/share/sounds/tritech-utils/temp_warn.wav
 
+TEMP_YELLOW=68
+TEMP_RED=76
+TEMP_BOGUS=100
+N_OVERHEAT=0
+
 clean_exit () {
 	kill $(jobs -p) 2>/dev/null >/dev/null
 	test $FORK -eq 0 && sleep 1
@@ -36,6 +41,13 @@ temp_warn () {
 	test -e $WARNSOUND && aplay $WARNSOUND 2>/dev/null >/dev/null
 	test -e $WARNSOUND && aplay $WARNSOUND 2>/dev/null >/dev/null
 	tt_beepsong fxchirp 2>/dev/null >/dev/null
+}
+
+update_maxtemp () {
+	if [[ $CPUTEMP -gt 2 && $CPUTEMP -lt $TEMP_BOGUS ]]
+		then test $CPUTEMP -gt $MAXTEMP && MAXTEMP=$CPUTEMP
+		test $MAXTEMP -ge $TEMP_RED && N_OVERHEAT=1
+	fi
 }
 
 burnin () {
@@ -95,6 +107,7 @@ tt_collect_comp_data
 echo "Initializing..."
 
 DI=0
+MAXTEMP=0
 BTEMP=$(mktemp)
 # Set burnin time in seconds
 echo $BURNSECS > $BTEMP
@@ -145,9 +158,10 @@ while true
 	if [ -e $THRM ]
 		then CPUTEMP="$(expr $(cat $THRM) / 1000)"
 		echo -n " $SEP Temp $CGRN"
-		test $CPUTEMP -gt 68 && echo -n "$CYEL"
-		test $CPUTEMP -gt 74 && test $CPUTEMP -lt 100 && echo -n "$CRED" && temp_warn
-		test $CPUTEMP -ge 100 && echo -n "$CPUR"
+		test $CPUTEMP -gt $TEMP_YELLOW && echo -n "$CYEL"
+		test $CPUTEMP -gt $TEMP_RED && test $CPUTEMP -lt 100 && echo -n "$CRED" && temp_warn
+		test $CPUTEMP -ge $TEMP_BOGUS && echo -n "$CPUR"
+		update_maxtemp
 		echo -n "$CPUTEMP${CWHT} C$COFF"
 	fi
 	CNT=1

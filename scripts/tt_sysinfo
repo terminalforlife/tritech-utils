@@ -102,7 +102,7 @@ if [[ "$TSS_CLIENT" = "1" && ! -z "$PCID" ]]
 			then DIAGS="$(echo "$X" | sed s/._//) $DIAGS"
 		fi
 	done
-	for X in N_SPACE N_SLOWAV N_LOWRAM N_BADRAM N_BADHDD N_VIRUS
+	for X in N_OVERHEAT N_SPACE N_SLOWAV N_LOWRAM N_BADRAM N_BADHDD N_VIRUS
 		do if [ "$(eval echo "\$$X")" = "1" ]
 			then NOTES="$(echo "$X" | sed s/._//) $NOTES"
 		fi
