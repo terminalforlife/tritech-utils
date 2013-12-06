@@ -49,7 +49,7 @@ for X in /sys/block/sd*
 			then echo "$CWHT$Y$COFF:  $CPUR$SIZE$COFF GB  (Model $DN)"
 			else echo "$CWHT$Y$COFF:  $CPUR$SIZETB$COFF TB    (Model $DN)"
 		fi
-		if smartctl -V >/dev/null
+		if smartctl -V >/dev/null 2>/dev/null
 			then
 			unset S LCC RSC UNC
 			LCC=$(smartctl -A /dev/$Y | grep Load_Cycle_Count | sed 's/ ([^)]*)*//;s/.* //g')

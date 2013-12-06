@@ -24,6 +24,7 @@ test:	tritech-utils
 	./test.sh
 
 install: tritech-utils manual
+	install -D -o root -g root -m 0644 sounds/diags_complete.wav $(DESTDIR)/$(datadir)/sounds/tritech-utils/diags_complete.wav
 	install -D -o root -g root -m 0644 sounds/temp_warn.wav $(DESTDIR)/$(datadir)/sounds/tritech-utils/temp_warn.wav
 	install -D -o root -g root -m 0755 -s read_inf_section $(DESTDIR)/$(bindir)/read_inf_section
 	install -D -o root -g root -m 0755 -s suggest_decompressor $(DESTDIR)/$(bindir)/suggest_decompressor

@@ -16,6 +16,7 @@ PCDATA=/mnt/cifs/computer_data/$PCID
 THRM="/sys/bus/acpi/drivers/thermal/LNXTHERM:00/thermal_zone/temp"
 SEP="${CPUR}||$COFF"
 WARNSOUND=/usr/share/sounds/tritech-utils/temp_warn.wav
+WARNSOUND=/usr/share/sounds/tritech-utils/diags_complete.wav
 
 TEMP_YELLOW=68
 TEMP_RED=76
@@ -32,6 +33,7 @@ clean_exit () {
 		test "$TSS_CLIENT" = "1" && push_actions
 		tt_sysinfo
 	fi
+	test -e $DONESOUND && aplay $DONESOUND 2>/dev/null >/dev/null
 	exit
 }
 
@@ -42,6 +44,7 @@ temp_warn () {
 	test -e $WARNSOUND && aplay $WARNSOUND 2>/dev/null >/dev/null
 	tt_beepsong fxchirp 2>/dev/null >/dev/null
 }
+
 
 update_maxtemp () {
 	if [[ $CPUTEMP -gt 2 && $CPUTEMP -lt $TEMP_BOGUS ]]
