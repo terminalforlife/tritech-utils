@@ -40,6 +40,12 @@ get_os_version () {
 		then mount -o ro /mnt/$PART || return 1
 		M=1
 	fi
+	# Low disk space check
+	if [ $(df /mnt/$PART | tail -n 1 | awk '{print $5}' | tr -d '%') -ge 85 ]
+		then N_SPACE=1
+		compact_actions
+		push_actions
+	fi
 	WD=$(pwd)
 	cd /mnt/$PART
 	OS2="$OS"
