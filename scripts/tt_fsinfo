@@ -2,8 +2,8 @@
 
 # Displays info on storage devices in the system
 
-VER=1.3
-VERDATE="2013-10-13"
+VER=1.4
+VERDATE="2013-12-07"
 
 . tss__common
 
@@ -12,12 +12,16 @@ get_device_info () {
 	readlink "/sys/block/$1" | grep -q "/usb" && USB=1 || USB=0
 	case $REM$USB in
 		00) TYPE="Internal" ;;
-		01) TYPE="USB HDD or large flash drive" ;;
+		01) TYPE="USB HDD " ;;
 		10) TYPE="Internal removable disk" ;;
-		11) TYPE="USB removable disk or flash drive" ;;
+		11) TYPE="USB removable drive" ;;
 		*) TYPE="Unknown type $DTYPE" ;;
 	esac
 	Z=$(cat /sys/block/$1/size)
+	if [ -e /sys/block/$1/device/model ]
+		then MODEL=$(cat /sys/block/$1/device/model)
+		else MODEL="(No model)"
+	fi
 	DEVSIZE=$(expr $Z / 2 \* 1024 / 1000000000)
 	if [ "$DEVSIZE" -lt "2" ]
 		then DEVSIZE=$(expr $Z / 2 \* 1024 / 1000000)
@@ -101,7 +105,7 @@ for DRV in $DRIVES
 	get_device_info $X
 	if [ "$DEVSIZE" != "0 MB" ]
 		then
-		echo -en "$CCYA$X: $CRED$TYPE $CGRN($DEVSIZE) $CWHT$SOFTRAID$COFF"
+		echo -en "$CCYA$X: $CRED$TYPE $CWHT$MODEL $CGRN($DEVSIZE) $CWHT$SOFTRAID$COFF"
 		if [[ "$NP" = "0" && "$NPT" = "1" && "$NPD" = "0" ]]
 			then echo -n " (no partitions)"; NPD=1
 		fi
