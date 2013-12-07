@@ -105,7 +105,7 @@ for DRV in $DRIVES
 	get_device_info $X
 	if [ "$DEVSIZE" != "0 MB" ]
 		then
-		echo -en "$CCYA$X: $CRED$TYPE $CWHT$MODEL $CGRN($DEVSIZE) $CWHT$SOFTRAID$COFF"
+		echo -en "$CCYA$X: $CRED$TYPE  $CWHT$MODEL  $CGRN($DEVSIZE) $CWHT$SOFTRAID$COFF"
 		if [[ "$NP" = "0" && "$NPT" = "1" && "$NPD" = "0" ]]
 			then echo -n " (no partitions)"; NPD=1
 		fi
