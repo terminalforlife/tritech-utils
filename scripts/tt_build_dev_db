@@ -25,7 +25,8 @@ for X in $@
 		echo "-l     Local mode. Use the current directory as DRVROOT."
 		echo "-q     Quiet mode. Only produces minimal output."
 		echo "-x     Delete the entire driver database in DRVROOT and exit."
-		exit 1
+		echo
+		exit 255
 		;;
 		-d) DBG=1 ;;
 		-dd) DBG=2 ;;
