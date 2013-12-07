@@ -1,7 +1,7 @@
 #!/bin/bash
 
-VER=0.2
-VERDATE="2013-12-03"
+VER=0.2.1
+VERDATE="2013-12-07"
 
 . tss__common
 
@@ -217,8 +217,9 @@ clean_out_inf () {
 	grep -v "/$1$" $DBFILE | grep -v "^SHA1:$1:" > $TF2 && mv $TF2 $DBFILE
 }
 
+# Execute this as: function_name file_to_read filename_to_validate
 check_inf_not_allowed () {
-	echo "$1" | grep -iq '/oemset..\.inf$' || echo "$1" | grep -iq '/autorun.inf$' || echo "$1" | grep -iq '/ntsetup.inf$' || \
+	echo "$2" | grep -iq '/oemset..\.inf$' || echo "$2" | grep -iq '/autorun.inf$' || echo "$2" | grep -iq '/ntsetup.inf$' || \
 	read_inf_section "$1" version 2>/dev/null | grep -m 1 -iq 'signature.*"\$Windows 95\$"' 2>/dev/null
 }
 
@@ -368,7 +369,7 @@ if [[ -e "$DBFILE"  && "$CONSISTENT" = "1" ]]
 			then
 			XX=$(mktemp)
 			sanitize_inf_file $X $XX
-			if ! check_inf_not_allowed "$XX"
+			if ! check_inf_not_allowed "$XX" "$X"
 				then clean_out_inf "$X"
 				add_inf "$X"
 			fi
@@ -379,7 +380,7 @@ if [[ -e "$DBFILE"  && "$CONSISTENT" = "1" ]]
 				then
 				XX=$(mktemp)
 				sanitize_inf_file $X $XX
-				if ! check_inf_not_allowed "$XX"
+				if ! check_inf_not_allowed "$XX" "$X"
 					then clean_out_inf "$X"
 					add_inf "$X"
 				fi
@@ -397,7 +398,7 @@ if [[ -e "$DBFILE"  && "$CONSISTENT" = "1" ]]
 		X="$(echo "$X" | sed 's/.\///')"
 		XX=$(mktemp)
 		sanitize_inf_file $X $XX
-		check_inf_not_allowed "$XX" || add_inf "$X"
+		check_inf_not_allowed "$XX" "$X" || add_inf "$X"
 		rm -f $XX
 	done
 fi
