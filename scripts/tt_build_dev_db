@@ -10,14 +10,31 @@ DBG=0
 ERR=0
 FORK=0
 Q=0
-case $1 in
-	-d) DBG=1 ;;
-	-dd) DBG=2 ;;
-	-ddd) DBG=3 ;;
-	-l) DRVROOT=.; echo "${CYEL}Performing all work with current directory as root.$COFF" ;;
-	-q) Q=1 ;;
-	-x) DELDB=1 ;;
-esac
+
+for X in $@
+	do case $X in
+		-h|--help)
+		echo -e "\nBuilds a device driver database for use with the TSS driver drop tool"
+		echo "and other Tritech Service System software."
+		echo "The driver store root can be overriden by setting DRVROOT first, as in:"
+		echo "DRVROOT=/mnt/sda2/drivers $0"
+		echo -e "\nOptions:\n"
+		echo "-d     Debugging mode. Outputs extra details."
+		echo "-dd    More debugging mode. Like -d with more messages."
+		echo "-ddd   Output as much debugging information as possible."
+		echo "-l     Local mode. Use the current directory as DRVROOT."
+		echo "-q     Quiet mode. Only produces minimal output."
+		echo "-x     Delete the entire driver database in DRVROOT and exit."
+		exit 1
+		;;
+		-d) DBG=1 ;;
+		-dd) DBG=2 ;;
+		-ddd) DBG=3 ;;
+		-l) DRVROOT=.; echo "${CYEL}Performing all work with current directory as root.$COFF" ;;
+		-q) Q=1 ;;
+		-x) DELDB=1 ;;
+	esac
+done
 
 test -z "$DRVROOT" && DRVROOT=/home/tritech/source/drivers
 #export DRVROOT=$SOURCE/drivers
@@ -327,13 +344,10 @@ IFS="$IFS1"
 if ! pwd | grep -iq '/windows/inf'
 	then
 	find $DRVROOT -name '* *' | while read LINE
-		do echo mv "$LINE" "$(echo "$LINE" | sed 's/ /_/g')"
-		echo "Bad characters found in paths"; exit 1
+		do mv "$LINE" "$(echo -E "$LINE" | sed 's/ /_/g')"
 	done
 	find $DRVROOT -name '*&*' | while read LINE
-		do echo mv "$LINE" "$(echo "$LINE" | sed 's/ /_/g')"
-		echo "Bad characters found in paths"
-		exit 1
+		do mv "$LINE" "$(echo -E "$LINE" | sed 's/&/_/g')"
 	done
 fi
 
