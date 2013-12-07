@@ -11,10 +11,10 @@ get_device_info () {
 	REM="$(cat /sys/block/$1/removable | tr -d '\n')"
 	readlink "/sys/block/$1" | grep -q "/usb" && USB=1 || USB=0
 	case $REM$USB in
-		00) TYPE="Internal" ;;
-		01) TYPE="USB HDD " ;;
-		10) TYPE="Internal removable disk" ;;
-		11) TYPE="USB removable drive" ;;
+		00) TYPE="Internal drive" ;;
+		01) TYPE="USB HDD       " ;;
+		10) TYPE="Int. removable" ;;
+		11) TYPE="USB removable " ;;
 		*) TYPE="Unknown type $DTYPE" ;;
 	esac
 	Z=$(cat /sys/block/$1/size)
