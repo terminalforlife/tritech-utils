@@ -42,8 +42,9 @@ get_device_info () {
 		MDTYPE="Linux software $(cat /sys/block/$1/md/level)"
 		MEMBERS="$(echo /sys/block/$1/slaves/* | sed "s#/sys/block/$1/slaves/##g")"
 	fi
-	unset SOFTRAID
-	echo "$KILL" | grep -q "$1" && SOFTRAID="${CWHT}[Linux RAID slave]$COFF"
+	unset ATTRIBS
+	echo "$KILL" | grep -q "$1" && ATTRIBS="${CWHT}[Linux RAID slave]$COFF "
+	echo "$MOUNTED" | grep -q "/dev/$1 " && ATTRIBS="$ATTRIBS${CYEL}[Mounted]$COFF "
 }
 
 expand_fsid () {
@@ -131,6 +132,14 @@ for X in $(echo /dev/md?* | tr ' ' '\n' | grep -v '\?' | sed s#/dev/##g | tr '\n
 	do test "$(cat /sys/block/$X/size)" != "0" && RAID="$RAID $X"
 done
 
+MOUNTED="$(cut -d" " -f1 < /proc/mounts | grep '^/' | sort | uniq | tr \\n ' ') "
+ROOTMT=$(mountpoint -d /)
+if [ $(echo $ROOTMT | sed 's/:.*//') -gt 0 ]
+	then for X in /sys/block/*/dev
+		do grep -q "$ROOTMT" $X && MOUNTED="$MOUNTED $(echo $X | sed 's#/sys/block/\(.*\)/dev#/dev/\1#') "
+	done
+fi
+
 DRV="none"
 
 test ! -e $PART && echo "${CRED}No disks found. Aborting.$COFF" && exit 1
@@ -145,7 +154,7 @@ for DRV in $DRIVES
 	get_device_info $X
 	if [ "$DEVSIZE" != "0 MB" ]
 		then
-		echo -en "$CPUR$X: $CGRN$DEVSIZE  $CWHT$PTTYPE  $CRED$TYPE $CCYA$MODEL $CWHT$SOFTRAID$COFF"
+		echo -en "$CPUR$X: $CGRN$DEVSIZE  $CWHT$PTTYPE  $CRED$TYPE $CCYA$MODEL $CWHT$ATTRIBS$COFF"
 		if [[ "$NP" = "0" && "$NPT" = "1" && "$NPD" = "0" ]]
 			then echo -n " (no partitions)"; NPD=1
 		fi
@@ -155,7 +164,9 @@ for DRV in $DRIVES
 
 	if [ $NPT = 0 ]
 		then for X in $(cat "$PART" | grep "$DRV" | tr \\n " ")
-			do Y=$(echo $X | tr . " " | awk '{ print $2 }')
+			do
+			unset PARTATTR
+			Y=$(echo $X | tr . " " | awk '{ print $2 }')
 			Z=$(expr $Y \* 1024 / 1000000000)
 			if [ "$Z" -lt "2" ]
 				then Z=$(expr $Y \* 1024 / 1000000)
@@ -170,7 +181,8 @@ for DRV in $DRIVES
 			DEVICE=$(echo "$X" | sed 's/=.*//g')
 			FSID=$(echo "$X" | sed 's/^.*=//;s/\..*//' | tr '[:upper:]' '[:lower:]')
 			expand_fsid $FSID
-			echo "$KILL" | grep -q "$(basename $DEVICE)" || echo "  $CWHT+-- $CPUR$DEVICE  $CGRN$SIZE  $CWHT$FS"
+			echo "$MOUNTED" | grep -q "$DEVICE " && PARTATTR="$PARTATTR${CYEL}[Mounted]$COFF "
+			echo "$KILL" | grep -q "$(basename $DEVICE)" || echo "  $CWHT+-- $CPUR$DEVICE  $CGRN$SIZE  $CWHT$FS  $PARTATTR"
 		done
 	fi
 done
@@ -179,7 +191,7 @@ test ! -z "$RAID" && echo
 for DRV in $RAID
 	do
 	get_device_info $DRV
-	echo "$CCYA$DRV: $CRED$MDTYPE $CGRN($DEVSIZE)$COFF"
+	echo "$CCYA$DRV: $CRED$MDTYPE $CGRN($DEVSIZE)  $CWHT$ATTRIBS$COFF"
 	echo "  $CWHT+-- ${CGRN}Members: $CWHT$MEMBERS$COFF"
 done
 
