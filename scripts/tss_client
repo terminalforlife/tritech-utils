@@ -373,9 +373,9 @@ push_sysinfo () {
 # After that, the MAC address is stored in a database on the TSS server
 # and should be usable to pull the PCID without ever prompting again.
 detect_current_pc () {
-	test -e "$TSS_STATE_FILE" && load_tss_state
 	test "$TSS_CLIENT_DISABLE" = "1" && return 255
 	test ! -z "$PCID" && test ! -z "$WOID" && test ! -z "$MAC" && return 0
+	test -e "$TSS_STATE_FILE" && load_tss_state
 	MAC="$(shopt -u nullglob; cat /sys/class/net/{eth*,wlan*}/address 2>/dev/null | tr \\n ' ')"
 	COMMAND="MACADDR_TO_PCID $MAC" tss_command
 	test ! -z "$PCID" && COMMAND="PCID_TO_WOID $PCID" tss_command
