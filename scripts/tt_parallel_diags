@@ -2,8 +2,8 @@
 
 # Attempts to run parallel disk diags and burn-ins.
 
-VER=1.0
-VERDATE=2013-12-04
+VER=1.0.1
+VERDATE=2013-12-11
 
 export FORK=0
 export BURNSECS=600
@@ -13,7 +13,8 @@ shopt -s nullglob
 . tss_client
 
 PCDATA=/mnt/cifs/computer_data/$PCID
-THRM="/sys/bus/acpi/drivers/thermal/LNXTHERM:00/thermal_zone/temp"
+THRM="/sys/bus/acpi/drivers/thermal/LNXTHERM:00/thermal_zone/temp /sys/devices/platform/coretemp.*/temp*_input"
+for X in $THRM; do test -e $X && THRM=$X; done
 SEP="${CPUR}||$COFF"
 WARNSOUND=/usr/share/sounds/tritech-utils/temp_warn.wav
 WARNSOUND=/usr/share/sounds/tritech-utils/diags_complete.wav
