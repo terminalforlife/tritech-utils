@@ -1,7 +1,7 @@
 #!/bin/bash
 
-VER="5.0.2"
-VERDATE="2013-11-30"
+VER="5.0.3"
+VERDATE="2013-12-13"
 
 # Tritech Service System Windows installation clean tool for Linux
 # Copyright (C) by c02ware and Jody Bruchon
@@ -120,6 +120,7 @@ PHOTOEXP="Nova Development/Photo Explosion*/*"
 SAFARI="Apple Computer/Safari"
 SAS="SUPERAntiSpyware"
 SASLOGS="${SAS}.com/$SAS/AppLogs"
+SAVCELOGS='Symantec/Symantec AntiVirus Corporate Edition/*/Logs'
 SPYBOTSD="Spybot - Search & Destroy/Logs"
 TBPROF="Mozilla/Thunderbird/Profiles/*"
 TMAVLOGS="Trend Micro/pc-cillin/Log"
@@ -557,6 +558,7 @@ NAME="$LOCAL/SlimWare Utilities Inc/DriverUpdate/Logs"; DESC="DriverUpdate"; add
 NAME="$LOCAL/Spotify/Browser"; DESC="Spotify"; add_to_wipe
 NAME="$LOCAL/Spotify/Storage"; DESC="Spotify"; add_to_wipe
 NAME="$LOCAL/SupportSoft"; DESC="SupportSoft"; add_to_wipe
+NAME="$LOCAL/$SAVCELOGS"; DESC="Symantec AV logs"; add_to_wipe
 NAME="$LOCAL/$TBPROF/X*.mfl"; DESC="Thunderbird MFLs"; add_to_delete
 NAME="$LOCAL/TelevisionFanatic"; DESC="TelevisionFanatic"; add_to_wipe
 NAME="$LOCAL/*.tmp"; DESC="Temporary files"; add_to_delete
@@ -584,14 +586,22 @@ NAME="$LOCAL/YuMp3"; DESC="YuMp3 Toolbar"; add_to_wipe
 NAME="$LOCAL/Zoom_Downloader"; DESC="Zoom Downloader"; add_to_wipe
 NAME="$LOCAL/Zynga"; DESC="Zynga"; add_to_wipe
 
+NAME="$PF/24x7Help"; DESC="24x7 Help"; add_to_wipe
+NAME="$PF/ATI/CIM/Reports/Report.xml.*.xml"; DESC="ATI CIM reports"; add_to_delete
+NAME="$PF/Babylon"; DESC="Babylon toolbar"; add_to_wipe
 NAME="$PF/Common Files/Windows Live/.cache"; DESC="WL cache"; add_to_wipe
 NAME="$PF/Citrix/GoToMyPC/*.log"; DESC="GoToMyPC logs"; add_to_delete
+NAME="$PF/DriverUpdate"; DESC="DriverUpdate"; add_to_delete
+NAME="$PF/Google/CrashReports"; DESC="Google Crash Reports"; add_to_wipe
 NAME="$PF/Hewlett-Packard/Documentation"; DESC="HP documentation"; add_to_delete
+NAME="$PF/HP/Temp"; DESC="HP temporary files"; add_to_wipe
 NAME="$PF/Online Services"; DESC="Online Services"; add_to_wipe
 NAME="$PF/Mozilla*/install.log"; DESC="Mozilla install logs"; add_to_delete
 NAME="$PF/LimeWire/*.log"; DESC="LimeWire error logs"; add_to_delete
 NAME="$PF/MyWebSearch/bar/Cache"; DESC="MyWebSearch bar cache"; add_to_wipe
 NAME="$PF/$MSSQLLOG"; DESC="MSSQL Setup Logs"; add_to_wipe
+NAME="$PF/Strongvault Online Backup"; DESC="Strongvault Backup"; add_to_wipe
+NAME="$PF/Trend Micro/Internet Security/Log"; DESC="Trend Micro logs"; add_to_wipe
 NAME="$PF/$YMSGR/cache"; DESC="Yahoo Messenger"; add_to_wipe
 NAME="$PF/$YMSGR/Cache"; DESC="Yahoo Messenger"; add_to_wipe
 NAME="$PF/$YMSGR/imvcache"; DESC="Yahoo Messenger"; add_to_wipe
@@ -690,6 +700,7 @@ NAME="$ROAM/Kodak/Temp"; DESC="Kodak temporary files"; add_to_wipe
 NAME="$ROAM/$LFCONNECT"; DESC="Leapfrog cache"; add_to_wipe
 NAME="$ROAM/$LWMOZ/X*.mfl"; DESC="LimeWire"; add_to_delete
 NAME="$ROAM/$LWMOZ/Cache"; DESC="LimeWire"; add_to_wipe
+NAME="$ROAM/*.log"; DESC="Misc roaming logs"; add_to_delete
 NAME="$ROAM/LogMeIn"; DESC="LogMeIn logs"; add_to_wipe
 NAME="$ROAM/$MBAMLOGS"; DESC="Malwarebytes"; add_to_wipe
 NAME="$ROAM/$MBAMQUAR"; DESC="Malwarebytes"; add_to_wipe
@@ -733,9 +744,10 @@ NAME="$ROAM/MySpace/IM/SkypeCache"; DESC="MySpaceIM"; add_to_wipe
 NAME="$ROAM/MySpace/IM/Images"; DESC="MySpaceIM"; add_to_wipe
 NAME="$ROAM/MySpace/*/Logs"; DESC="MySpaceIM"; add_to_wipe
 NAME="$ROAM/NCH Swift Sound/Talk/Logs"; DESC="NCH SS talk logs"; add_to_wipe
-NAME="$ROAM/NortonInstaller"; DESC="Norton Installer"; add_to_wipe
-NAME="$ROAM/Norton Utilities*/nu.log"; DESC="Norton Utilities logs"; add_to_delete
-NAME="$ROAM/Norton Utilities*/log"; DESC="Norton Utilities logs"; add_to_wipe
+NAME="$ROAM/Norton/FSDUI*.log"; DESC="Norton"; add_to_delete
+NAME="$ROAM/NortonInstaller"; DESC="Norton"; add_to_wipe
+NAME="$ROAM/Norton Utilities*/nu.log"; DESC="Norton"; add_to_delete
+NAME="$ROAM/Norton Utilities*/log"; DESC="Norton"; add_to_wipe
 NAME="$ROAM/OfficeGuardian/\~SACThumbnail"; DESC="OfficeGuardian"; add_to_wipe
 NAME="$ROAM/OpenCandy"; DESC="OpenCandy downloader"; add_to_wipe
 NAME="$ROAM/$PARETOAS/*/Logs"; DESC="ParetoLogic logs"; add_to_wipe
@@ -762,6 +774,7 @@ NAME="$ROAM/Real/RealPlayer/db/Backup"; DESC="RealPlayer"; add_to_wipe
 NAME="$ROAM/Real/RealPlayer/History"; DESC="RealPlayer"; add_to_wipe
 NAME="$ROAM/Real/RealPlayer/ThumbsCache"; DESC="RealPlayer"; add_to_wipe
 NAME="$ROAM/Real/RealPlayer/WatchFolders"; DESC="RealPlayer"; add_to_wipe
+NAME="$ROAM/Registry Mechanic"; DESC="Registry Mechanic"; add_to_wipe
 NAME="$ROAM/Roxio Log Files"; DESC="Roxio Log Files"; add_to_wipe
 NAME="$ROAM/$SAFARI/PubSub"; DESC="Safari PubSub data"; add_to_wipe
 NAME="$ROAM/$SASLOGS"; DESC="SUPERAntiSpyware logs"; add_to_wipe
@@ -776,9 +789,11 @@ NAME="$ROAM/skype.dat"; DESC="VIRUS: skype.dat"; add_to_delete
 NAME="$ROAM/SPORE/GraphicsCache*.package"; DESC="SPORE caches"; add_to_delete
 NAME="$ROAM/$SPYBOTSD"; DESC="Spybot SnD logs"; add_to_wipe
 NAME="$ROAM/Spyware Terminator"; DESC="Spyware Terminator"; add_to_wipe
+NAME="$ROAM/Starware"; DESC="Starware toolbar"; add_to_wipe
 NAME="$ROAM/supportdotcom/logs"; DESC="Support.com logs"; add_to_wipe
 NAME="$ROAM/SupportSoft"; DESC="Dell Support Center"; add_to_wipe
 NAME="$ROAM/Symantec/Dumps"; DESC="Symantec dumps"; add_to_wipe
+NAME="$ROAM/$SAVCELOGS"; DESC="Symantec AV logs"; add_to_wipe
 NAME="$ROAM/Symantec/LiveUpdate/*Log*"; DESC="Symantec LiveUpdate"; add_to_delete
 NAME="$ROAM/Symantec/LiveUpdate/Downloads"; DESC="Symantec LiveUpdate"; add_to_wipe
 NAME="$ROAM/Systweak"; DESC="Systweak"; add_to_wipe
