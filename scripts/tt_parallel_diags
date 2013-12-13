@@ -234,11 +234,15 @@ while [ $DIC -lt $DI ]
 	do
 	XD=$(echo $DSK[DIC] | sed 's#/dev/##')
 	tt__hdd_smart_status $XD -q
+	test -z "$LCC" && LCC=0
+	test -z "$RSC" && RSC=0
+	test -z "$UNC" && UNC=0
 	test $LCC -gt 300000 && N_BADHDD=1
 	test $RSC -gt 50 && N_BADHDD=1
 	test $UNC -gt 50 && N_BADHDD=1
 	test "$BADHDD" = "1" && echo "$CWHT$XD$CRED SMART data shows failure is likely$COFF"
 	echo "$CWHT+-- SMART data: $S"
+	DIC=$((DIC + 1))
 done
 
 A_HDD=1
