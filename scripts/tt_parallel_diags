@@ -242,7 +242,7 @@ while [ $DIC -lt $DI ]
 	test $RSC -gt 50 && N_BADHDD=1
 	test $UNC -gt 50 && N_BADHDD=1
 	test "$BADHDD" = "1" && echo "$CWHT$XD$CRED SMART data shows failure is likely$COFF"
-	echo "$CWHT+-- SMART data: $S"
+	test -n "$S" && echo "$CWHT+-- SMART data: $S"
 	DIC=$((DIC + 1))
 done
 

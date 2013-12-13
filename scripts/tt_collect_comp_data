@@ -42,7 +42,5 @@ for X in /dev/sd? /dev/hd?
 		done
 	fi
 done
-sort < $PCDATA/disk_space_temp.txt | uniq > $PCDATA/disk_space.txt
-rm -f $PCDATA/disk_space_temp.txt
 echo "Finished collecting computer data."
 
