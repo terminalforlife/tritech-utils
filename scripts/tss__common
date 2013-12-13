@@ -137,6 +137,7 @@ do_windows_folder_detection () {
 		fi
 	done
 }
+
 do_windows_folder_detection
 
 . tss__functions

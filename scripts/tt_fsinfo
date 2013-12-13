@@ -159,6 +159,7 @@ for DRV in $DRIVES
 			then echo -n " (no partitions)"; NPD=1
 		fi
 		echo
+		tt__hdd_smart_status $X
 		else ZERO="$ZERO $X"
 	fi
 

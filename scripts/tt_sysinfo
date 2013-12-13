@@ -49,27 +49,7 @@ for X in /sys/block/sd*
 			then echo "$CWHT$Y$COFF:  $CPUR$SIZE$COFF GB  (Model $DN)"
 			else echo "$CWHT$Y$COFF:  $CPUR$SIZETB$COFF TB    (Model $DN)"
 		fi
-		if smartctl -V >/dev/null 2>/dev/null
-			then
-			unset S LCC RSC UNC
-			LCC=$(smartctl -A /dev/$Y | grep Load_Cycle_Count | sed 's/ ([^)]*)*//;s/.* //g')
-			if [ -n "$LCC" ]
-				then
-				test $LCC -lt 200000 && S="${CGRN}LCC=$LCC$COFF"
-				test $LCC -ge 200000 && S="${CYEL}LCC=$LCC$COFF"
-				test $LCC -ge 300000 && S="${CRED}LCC=$LCC$COFF"
-				test $LCC -gt 800000 && unset S
-			fi
-			RSC=$(smartctl -A /dev/$Y | grep Reallocated_Sector_Ct | sed 's/ ([^)]*)$//;s/.* //g')
-			if [ -n "$RSC" ]
-				then
-				test $RSC -gt 0 && test $RSC -lt 100 && S="$S  ${CYEL}RSC=$RSC$COFF"
-				test $RSC -ge 100 && test $RSC -lt 100000 && S="$S  ${CRED}RSC=$RSC$COFF"
-			fi
-			UNC=$(smartctl -A /dev/$Y | grep Reported_Uncorrect | sed 's/ ([^)])$//;s/.* //g')
-			test -n "$UNC" && test $UNC -gt 0 && test $UNC -lt 500000 && S="$S  ${CRED}UNC=$UNC$COFF"
-			test -n "$S" && echo "$CWHT$Y$COFF:  $CWHT+-- ${CCYA}SMART data: $S"
-		fi
+		tt__hdd_smart_status $Y
 	fi
 done
 
