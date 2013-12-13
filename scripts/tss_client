@@ -374,8 +374,11 @@ push_sysinfo () {
 # and should be usable to pull the PCID without ever prompting again.
 detect_current_pc () {
 	test "$TSS_CLIENT_DISABLE" = "1" && return 255
+	# This check must ALWAYS happen BEFORE loading the TSS state!
 	test ! -z "$PCID" && test ! -z "$WOID" && test ! -z "$MAC" && return 0
 	test -e "$TSS_STATE_FILE" && load_tss_state
+	# Duplicate check required in case TSS state file contains disabled state
+	test "$TSS_CLIENT_DISABLE" = "1" && return 255
 	MAC="$(shopt -u nullglob; cat /sys/class/net/{eth*,wlan*}/address 2>/dev/null | tr \\n ' ')"
 	COMMAND="MACADDR_TO_PCID $MAC" tss_command
 	test ! -z "$PCID" && COMMAND="PCID_TO_WOID $PCID" tss_command
@@ -430,7 +433,7 @@ save_tss_state () {
 load_tss_state () {
 	if [ -e "$TSS_STATE_FILE" ]
 		then
-		grep -q '^disable$' $TSS_STATE_FILE && TSS_CLIENT_DISABLE=1 && return 0
+		grep -q '^disable$' $TSS_STATE_FILE && export TSS_CLIENT_DISABLE=1 && return 0
 		for X in PCID WOID MAC CPU RAM HDD OS \
 			A_HDD A_BURNIN A_CLEANER A_BACKUP A_VIRUS A_MBR A_CDROM \
 			N_OVERHEAT N_SPACE N_SLOWAV N_LOWRAM \
