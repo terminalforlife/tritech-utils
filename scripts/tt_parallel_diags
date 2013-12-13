@@ -2,8 +2,8 @@
 
 # Attempts to run parallel disk diags and burn-ins.
 
-VER=1.0.1
-VERDATE=2013-12-11
+VER=1.1
+VERDATE=2013-12-13
 
 export FORK=0
 export BURNSECS=600
@@ -227,6 +227,19 @@ while [ $DIC -lt $DI ]
 	DIC=$((DIC + 1))
 done
 echo
+
+DIC=0
+# Retrieve SMART status indicators and evaluate
+while [ $DIC -lt $DI ]
+	do
+	XD=$(echo $DSK[DIC] | sed 's#/dev/##')
+	tt__hdd_smart_status $XD -q
+	test $LCC -gt 300000 && N_BADHDD=1
+	test $RSC -gt 50 && N_BADHDD=1
+	test $UNC -gt 50 && N_BADHDD=1
+	test "$BADHDD" = "1" && echo "$CWHT$XD$CRED SMART data shows failure is likely$COFF"
+	echo "$CWHT+-- SMART data: $S"
+done
 
 A_HDD=1
 

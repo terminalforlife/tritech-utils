@@ -2,8 +2,8 @@
 
 # Basic client library debug tool for TSS
 
-VER=0.1
-VERDATE=2013-04-16
+VER=0.2
+VERDATE=2013-12-13
 
 tt_cifs -c || exit 1
 

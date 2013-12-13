@@ -36,7 +36,7 @@ tt__hdd_smart_status () {
 		fi
 		UNC=$(smartctl -A /dev/$1 | grep Reported_Uncorrect | sed 's/ ([^)])$//;s/.* //g')
 		test -n "$UNC" && test $UNC -gt 0 && test $UNC -lt 500000 && S="$S  ${CRED}UNC=$UNC$COFF"
-		test -n "$S" && echo "$CWHT$1$COFF:  $CWHT+-- ${CCYA}SMART data: $S"
+		test "$2" != "-q" && test -n "$S" && echo "$CWHT$1$COFF:  $CWHT+-- ${CCYA}SMART data: $S"
 	fi
 }
 export tt__hdd_smart_status
