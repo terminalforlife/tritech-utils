@@ -1,6 +1,9 @@
 #!/bin/sh
 
-echo "Scanning for executable files."
+echo "Scanning for executable files. Be VERY patient."
 sleep 1
 
-find -type f -exec tss_file_tool winexec '{}' \; | grep -v not_winexec | less
+T=$(mktemp)
+find -type f -exec tss_file_tool winexec '{}' \; | grep -v not_winexec > $T
+less $T
+rm -f $T
