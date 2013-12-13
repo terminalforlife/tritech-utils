@@ -39,14 +39,6 @@ for X in /dev/sd? /dev/hd?
 			do
 			dd if=$Y bs=512 count=1 2>/dev/null > $PCDATA/bootsect-$(basename $Y).raw
 			dd if=$Y bs=512 count=1 2>/dev/null | hexdump -C > $PCDATA/bootsect-$(basename $Y)-hexdump.txt
-			YY=/mnt/$(basename $Y)
-			unset M
-			MTPT=0; mountpoint -q $YY && MTPT=1
-			if [ "$MTPT" = "0" ]
-				then mount $YY 2>/dev/null || M=FAIL
-			fi
-			test -z "$M" && df -h $Y >> $PCDATA/disk_space_temp.txt
-			test "$MTPT" = "0" && umount $YY 2>/dev/null
 		done
 	fi
 done
