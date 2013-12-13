@@ -585,6 +585,7 @@ NAME="$LOCAL/$V7HIST1"; DESC="IE history"; add_to_wipe
 NAME="$LOCAL/$V7HIST2"; DESC="IE history"; add_to_wipe
 NAME="$LOCAL/Vuze_Remote"; DESC="Vuze Remote spyware"; add_to_wipe
 NAME="$LOCAL/Wajam"; DESC="Wajam"; add_to_wipe
+NAME="$ROAM/$STARTMENU/Wajam"; DESC="Wajam"; add_to_wipe
 NAME="$LOCAL/$WDSMART/.txt"; DESC="WD SmartWare"; add_to_delete
 NAME="$LOCAL/WhiteSmoke_*"; DESC="WhiteSmoke Toolbar"; add_to_wipe
 NAME="$LOCAL/Windows Live/.cache"; DESC="Windows Live cache"; add_to_wipe
@@ -660,17 +661,21 @@ done
 NAME="$ROAM/$AVIRALOGS"; DESC="Avira AntiVir"; add_to_wipe
 NAME="$ROAM/$AVIRAREPS"; DESC="Avira AntiVir"; add_to_wipe
 NAME="$ROAM/BabSolution"; DESC="Babylon toolbar"; add_to_wipe
+NAME="$ROAM/Babylon"; DESC="Babylon toolbar"; add_to_wipe
 NAME="$ROAM/bfgbartb"; DESC="Big Fish Games"; add_to_wipe
 NAME="$ROAM/BfgBar"; DESC="Big Fish Games"; add_to_wipe
 NAME="$ROAM/Big Fish Games"; DESC="Big Fish Games"; add_to_wipe
 NAME="$ROAM/BigFishGamesCache"; DESC="Big Fish Games"; add_to_wipe
 NAME="$ROAM/Brother/BrLog/*.log"; DESC="Brother logs"; add_to_wipe
 NAME="$ROAM/BrowserProtect"; DESC="BrowserProtect"; add_to_wipe
+NAME="$ROAM/$STARTMENU/BrowserProtect"; DESC="BrowserProtect"; add_to_wipe
 NAME="$ROAM/ClickPotatoLiteSA"; DESC="ClickPotato"; add_to_wipe
+NAME="$ROAM/Complitly"; DESC="Complitly spyware"; add_to_wipe
 NAME="$ROAM/Digital Album Organizer/album/*_cache"; DESC="Digital Album Organizer"; add_to_wipe
 NAME="$ROAM/DriverCure"; DESC="DriverCure"; add_to_wipe
 NAME="$ROAM/Error*Fix/Logs"; DESC="ErrorFix"; add_to_wipe
 NAME="$ROAM/F-Secure/logs"; DESC="F-Secure"; add_to_wipe
+NAME="$ROAM/File Scout"; DESC="File Scout"; add_to_wipe
 NAME="$ROAM/$FLASH1"; DESC="Flash cache"; add_to_wipe
 NAME="$ROAM/$FLASH2"; DESC="Flash cache"; add_to_wipe
 
@@ -683,6 +688,7 @@ NAME="$ROAM/$FFPROF/cookies.sqlite"; DESC="Mozilla applications"; add_to_delete
 NAME="$ROAM/$FFPROF/downloads.sqlite"; DESC="Mozilla applications"; add_to_delete
 NAME="$ROAM/$FFPROF/extensions/*/*/conduit*"; DESC="Mozilla applications"; add_to_delete
 NAME="$ROAM/$FFPROF/extensions/*/*/Conduit*"; DESC="Mozilla applications"; add_to_delete
+NAME="$ROAM/$FFPROF/extensions/*/ffxtlbr@incredibar.com"; DESC="Mozilla applications"; add_to_delete
 NAME="$ROAM/$FFPROF/extensions/*/*/npConduitFirefoxPlugin.dll"; DESC="Mozilla applications"; add_to_delete
 NAME="$ROAM/$FFPROF/extensions/*/*/npPriceGong_FF.dll"; DESC="Mozilla applications"; add_to_delete
 NAME="$ROAM/$FFPROF/extensions/engine@conduit.com"; DESC="Mozilla applications"; add_to_delete
@@ -703,6 +709,9 @@ NAME="$ROAM/GamesBar"; DESC="GamesBar"; add_to_wipe
 NAME="$ROAM/GARMIN/Events"; DESC="Garmin logs"; add_to_wipe
 NAME="$ROAM/GARMIN/Logs"; DESC="Garmin logs"; add_to_wipe
 NAME="$ROAM/Geek Squad"; DESC="Geek Squad"; add_to_wipe
+NAME="$ROAM/Genieo"; DESC="Genieo"; add_to_wipe
+NAME="$ROAM/$STARTMENU/Genieo"; DESC="Genieo"; add_to_wipe
+NAME="$ROAM/Google/Local Search History"; DESC="Google search history"; add_to_wipe
 NAME="$ROAM/Google/Google Toolbar/Update"; DESC="Google Toolbar updates"; add_to_wipe
 NAME="$ROAM/GTek"; DESC="Dell Support Center"; add_to_wipe
 NAME="$ROAM/Gtek"; DESC="Dell Support Center"; add_to_wipe
@@ -710,6 +719,7 @@ NAME="$ROAM/HBLiteSA"; DESC="HotBar Lite SA"; add_to_wipe
 NAME="$ROAM/Hewlett-Packard/HP Setup/Logs"; DESC="HP temporary files"; add_to_wipe
 NAME="$ROAM/Hewlett-Packard/HP Support Framework/Logs"; DESC="HP temporary files"; add_to_wipe
 NAME="$ROAM/HP/Installer/Temp"; DESC="HP temporary files"; add_to_wipe
+NAME="$ROAM/hpqlog"; DESC="HP temporary files"; add_to_wipe
 NAME="$ROAM/IMVU/Cache"; DESC="IMVU"; add_to_wipe
 NAME="$ROAM/IMVU/AssetCache"; DESC="IMVU"; add_to_wipe
 NAME="$ROAM/IMVU/HttpCache"; DESC="IMVU"; add_to_wipe
@@ -745,6 +755,8 @@ NAME="$ROAM/McAfee.com/*.log"; DESC="McAfee"; add_to_delete
 NAME="$ROAM/Move Networks/QMCache00"; DESC="Move Media Player cache"; add_to_wipe
 NAME="$ROAM/MP3Rocket/tvimages"; DESC="MP3 Rocket"; add_to_wipe
 NAME="$ROAM/$MOZCNTRL/Cache"; DESC="MozillaControl cache"; add_to_wipe
+NAME="$ROAM/Mozilla/Extensions/SpecialSavings@SpecialSavings.com"; DESC="SpecialSavings"; add_to_wipe
+NAME="$ROAM/Mozilla/Extensions/speedanalysis02@SpeedAnalysis.com"; DESC="SpeedAnalysis"; add_to_wipe
 NAME="$ROAM/$MS/BingBar"; DESC="Bing Bar"; add_to_wipe
 NAME="$ROAM/$MS/CryptnetUrlCache"; DESC="MS crypto cert cache"; add_to_wipe
 NAME="$ROAM/$MS/Dr Watson"; DESC="MS app crash dumps"; add_to_wipe
@@ -815,8 +827,10 @@ NAME="$ROAM/$SAFARI/PubSub"; DESC="Safari PubSub data"; add_to_wipe
 NAME="$ROAM/$SASLOGS"; DESC="SUPERAntiSpyware logs"; add_to_wipe
 NAME="$ROAM/ScanQuery"; DESC="ScanQuery"; add_to_wipe
 NAME="$ROAM/SearchDonkey"; DESC="SearchDonkey"; add_to_wipe
-NAME="$ROAM/SecondLife/browser_profile/Cache"; DESC="SecondLife Gecko cache"; add_to_wipe
-NAME="$ROAM/SecondLife/logs"; DESC="SecondLife logs"; add_to_wipe
+NAME="$ROAM/SecondLife/*/browser_profile/cache"; DESC="SecondLife"; add_to_wipe
+NAME="$ROAM/SecondLife/browser_profile/*ache"; DESC="SecondLife"; add_to_wipe
+NAME="$ROAM/SecondLife/logs"; DESC="SecondLife"; add_to_wipe
+NAME="$ROAM/SHAPE Services/Mobiola WebCamera for iPhone/logs"; DESC="Mobiola logs"; add_to_wipe
 NAME="$ROAM/Sierra Wireless/Logs"; DESC="Sierra Wireless"; add_to_wipe
 NAME="$ROAM/Skype/DbTemp"; DESC="Skype"; add_to_wipe
 NAME="$ROAM/Skype/temp-*"; DESC="Skype"; add_to_delete
@@ -828,10 +842,11 @@ NAME="$ROAM/Spyware Terminator"; DESC="Spyware Terminator"; add_to_wipe
 NAME="$ROAM/Starware"; DESC="Starware toolbar"; add_to_wipe
 NAME="$ROAM/supportdotcom/logs"; DESC="Support.com logs"; add_to_wipe
 NAME="$ROAM/SupportSoft"; DESC="Dell Support Center"; add_to_wipe
-NAME="$ROAM/Symantec/Dumps"; DESC="Symantec dumps"; add_to_wipe
-NAME="$ROAM/$SAVCELOGS"; DESC="Symantec AV logs"; add_to_wipe
-NAME="$ROAM/Symantec/LiveUpdate/*Log*"; DESC="Symantec LiveUpdate"; add_to_delete
-NAME="$ROAM/Symantec/LiveUpdate/Downloads"; DESC="Symantec LiveUpdate"; add_to_wipe
+NAME="$ROAM/Symantec/Dumps"; DESC="Symantec software"; add_to_wipe
+NAME="$ROAM/$SAVCELOGS"; DESC="Symantec software"; add_to_wipe
+NAME="$ROAM/Symantec/LiveUpdate/*Log*"; DESC="Symantec software"; add_to_delete
+NAME="$ROAM/Symantec/LiveUpdate/Downloads"; DESC="Symantec software"; add_to_wipe
+NAME="$ROAM/Syncios/log.txt"; DESC="Syncios log"; add_to_delete
 NAME="$ROAM/Systweak"; DESC="Systweak"; add_to_wipe
 NAME="$ROAM/TeamViewer/*_logfile.log"; DESC="TeamViewer logs"; add_to_wipe
 NAME="$ROAM/temp"; DESC="Temporary files (roaming)"; add_to_wipe
@@ -839,6 +854,7 @@ NAME="$ROAM/Temp"; DESC="Temporary files (roaming)"; add_to_wipe
 NAME="$ROAM/$TMAVLOGS"; DESC="Trend Micro AV logs"; add_to_wipe
 NAME="$ROAM/Toolbar4/*/cache"; DESC="Toolbar4"; add_to_wipe
 NAME="$ROAM/Trusteer/Rapport/logs"; DESC="Trusteer Rapport"; add_to_wipe
+NAME="$ROAM/Trusteer/Rapport/user/logs"; DESC="Trusteer Rapport"; add_to_wipe
 NAME="$ROAM/Uniblue"; DESC="Uniblue data"; add_to_wipe
 NAME="$ROAM/uTorrent/*.torrent"; DESC="uTorrent"; add_to_delete
 NAME="$ROAM/utorrent/*.torrent"; DESC="uTorrent"; add_to_delete
@@ -856,6 +872,7 @@ NAME="$ROAM/Yahoo!/Companion"; DESC="Yahoo Companion"; add_to_wipe
 
 NAME="$P/.thumbnails"; DESC="User thumbnails"; add_to_wipe
 NAME="$P/Cookies"; DESC="IE cookies"; add_to_wipe
+NAME="$P/CyberLink/CLFaceLogin"; DESC="CyberLink logs"; add_to_wipe
 NAME="$P/Music/$ITAAC"; DESC="iTunes AA cache"; add_to_wipe
 NAME="$P/My Documents/My Music/$ITAAC"; DESC="iTunes caches"; add_to_wipe
 NAME="$P/My Documents/My Pictures/iPod Photo Cache"; DESC="iTunes caches"; add_to_wipe
