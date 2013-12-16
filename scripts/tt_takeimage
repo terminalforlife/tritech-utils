@@ -36,7 +36,7 @@ echo -en "\n\nImage file name? "
 read IMGNAME
 test -z "$IMGNAME" && echo "No image file name given." && exit 1
 IMGNAME="$BASE/${IMGNAME}.lzo"
-ENDSECT=$(fdisk -lu $DEV | tail -n 1 | tr ' ' '\n' | grep -v '^$' | grep -v '\*' | head -n 3 | tail -n 1)
+ENDSECT=$(fdisk -lu $DEV | grep -v 'does not end on cylinder boundary' | tail -n 1 | tr ' ' '\n' | grep -v '^$' | grep -v '\*' | head -n 3 | tail -n 1)
 
 echo -e "\nImaging $CWHT$ENDSECT$COFF sectors ($(expr $ENDSECT / 2048) MB) from $CWHT$DEV$COFF"
 echo "to $CWHT$IMGNAME$COFF"
