@@ -930,7 +930,7 @@ if [ ! "$WINDIR" = "__NONE__" ]
 	debug/WIA/wiatrace.log 'inf/setupapi.*.log' 'ModemLog*.txt' \
 	Microsoft.NET/Framework*/'*/*.log' 'Panther/*.log' \
 	'Panther/UnattendGC/*.log' SchedLgU.Txt ntbtlog.txt \
-	'SoftwareDistribution/*.log' $SYS32/'*.log' \
+	'SoftwareDistribution/*.log' sectest.db $SYS32/'*.log' \
 	$SYS32/'LogFiles/*/*.log' $SYS32/'LogFiles/*/*.etl' \
 	$SYS32/'LogFiles/*/*.etl.*' $SYS32/'Macromed/Flash/*.log' \
 	$SYS32/MsDtc/Trace/dtctrace.log $SYS32/'wbem/Logs/*.log' \
