@@ -2,8 +2,8 @@
 
 # Displays info on storage devices in the system
 
-VER=1.6
-VERDATE="2013-12-13"
+VER=1.7
+VERDATE="2013-12-17"
 
 . tss__common
 
@@ -23,6 +23,7 @@ get_device_info () {
 	Z=$(cat /sys/block/$1/size)
 	if [ -e /sys/block/$1/device/model ]
 		then MODEL=$(cat /sys/block/$1/device/model)
+		DSN=$(hdparm -I /dev/$1 2>/dev/null | grep 'Serial Number:' | sed 's/[^:]*[^a-zA-Z0-9]*//;s/ *$//g')
 		else MODEL="(No model)"
 	fi
 	DEVSIZE=$(expr $Z / 2 \* 1024 / 1000000000)
@@ -153,8 +154,9 @@ for DRV in $DRIVES
 	test "$NP" = "1" && NPT=1
 	get_device_info $X
 	if [ "$DEVSIZE" != "0 MB" ]
-		then
-		echo -en "$CPUR$X: $CGRN$DEVSIZE  $CWHT$PTTYPE  $CRED$TYPE $CCYA$MODEL $CWHT$ATTRIBS$COFF"
+		then unset DSN2
+		test -n "$DSN" && DSN2=" $COFF($DSN) "
+		echo -en "$CPUR$X: $CGRN$DEVSIZE  $CWHT$PTTYPE  $CRED$TYPE $CCYA$MODEL$DSN2 $CWHT$ATTRIBS$COFF"
 		if [[ "$NP" = "0" && "$NPT" = "1" && "$NPD" = "0" ]]
 			then echo -n " (no partitions)"; NPD=1
 		fi
