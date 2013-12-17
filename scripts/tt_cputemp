@@ -1,0 +1,29 @@
+#!/bin/bash
+
+# Show CPU temperature
+
+VER=1.0
+VERDATE=2013-12-17
+
+shopt -s nullglob
+
+. tss__common
+
+THRM="/sys/bus/acpi/drivers/thermal/LNXTHERM:00/thermal_zone/temp /sys/devices/platform/coretemp.*/temp*_input"
+for X in $THRM; do test -e $X && THRM=$X; done
+
+# These thresholds may need to change in the future
+TEMP_YELLOW=68
+TEMP_RED=78
+TEMP_BOGUS=110
+N_OVERHEAT=0
+
+if [ -e $THRM ]
+	then CPUTEMP="$(expr $(cat $THRM) / 1000)"
+	echo -n "CPU temp: $CGRN"
+	test $CPUTEMP -gt $TEMP_YELLOW && echo -n "$CYEL"
+	test $CPUTEMP -gt $TEMP_RED && test $CPUTEMP -lt 100 && echo -n "$CRED" && temp_warn
+	test $CPUTEMP -ge $TEMP_BOGUS && echo -n "$CPUR"
+	echo "$CPUTEMP${CWHT} C$COFF"
+	else echo "No CPU temperature sensor available."
+fi

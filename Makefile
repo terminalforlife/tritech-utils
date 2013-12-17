@@ -62,6 +62,7 @@ install: tritech-utils manual
 	install -D -o root -g root -m 0755 scripts/tt_cleaner $(DESTDIR)/$(bindir)/tt_cleaner
 	install -D -o root -g root -m 0755 scripts/tt_collect_comp_data $(DESTDIR)/$(bindir)/tt_collect_comp_data
 	install -D -o root -g root -m 0755 scripts/tt_collect_files $(DESTDIR)/$(bindir)/tt_collect_files
+	install -D -o root -g root -m 0755 scripts/tt_cputemp $(DESTDIR)/$(bindir)/tt_cputemp
 	install -D -o root -g root -m 0755 scripts/tt_drivetest $(DESTDIR)/$(bindir)/tt_drivetest
 	install -D -o root -g root -m 0755 scripts/tt_driverdrop $(DESTDIR)/$(bindir)/tt_driverdrop
 	install -D -o root -g root -m 0755 scripts/tt_find_executables $(DESTDIR)/$(bindir)/tt_find_executables
