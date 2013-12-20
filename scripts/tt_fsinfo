@@ -2,8 +2,8 @@
 
 # Displays info on storage devices in the system
 
-VER=1.7
-VERDATE="2013-12-17"
+VER=1.7.1
+VERDATE="2013-12-20"
 
 . tss__common
 
@@ -119,7 +119,10 @@ for DRIVE in $DRIVES
 			PS=$(echo $LINE | cut -d" " -f2)
 			PE=$(echo $LINE | cut -d" " -f3)
 			PSIZE=$(expr $PE - $PS)
-			PSIZE=$(expr $PSIZE \* $HWSS2)
+			if [ $HWSS1 -eq 512 ]
+				then PSIZE=$(expr $PSIZE / 2)
+				else PSIZE=$(expr $PSIZE \* $HWSS2)a
+			fi
 			PN=$(echo $LINE | cut -d" " -f1)
 			PT=$(echo $LINE | cut -d" " -f6)
 			echo "$DRIVE$PN=$PT.$PSIZE" >> $PART
