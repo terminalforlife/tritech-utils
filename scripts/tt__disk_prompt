@@ -1,7 +1,7 @@
 #!/bin/ash
 
-VER="0.2.1"
-VERDATE="2013-04-26"
+VER="0.2.2"
+VERDATE="2013-12-26"
 
 # Finds all possible hard drives on the system, provides info on each,
 # and prompts which one to use. Aborts if no drives exist or if the
@@ -40,8 +40,7 @@ if [ "$PREF" = "" ]
   then echo "WARNING: No non-USB and non-removable disks detected."
   echo "Do not trust that the default device chosen for you is correct!"
   PREF=$(cat $DISKS | head -n 1 | cut -d" " -f 2)
-  echo "$PREF was chosen as the default out of ALL possible disks."
-  else echo "$PREF is probably the first internal hard drive."
+  echo "$CYEL$PREF$COFF was chosen as the default out of ALL possible disks."
 fi
 
 tt_fsinfo nopart
