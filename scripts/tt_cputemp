@@ -8,8 +8,7 @@ VERDATE=2013-12-17
 shopt -s nullglob
 
 . tss__common
-
-THRM="/sys/bus/acpi/drivers/thermal/LNXTHERM:00/thermal_zone/temp /sys/devices/platform/coretemp.*/temp*_input"
+THRM="/sys/bus/acpi/drivers/thermal/LNXTHERM:00/thermal_zone/temp /sys/devices/platform/coretemp.*/temp*_input /sys/bus/pci/drivers/k*temp/*:*/temp1_input"
 for X in $THRM; do test -e $X && THRM=$X; done
 
 # These thresholds may need to change in the future
