@@ -58,6 +58,7 @@ enumerate_partitions () {
 		done < $PART_TEMP
 	fi
 	rm -f $PART_TEMP; unset PART_TEMP
+	hdparm -z /dev/$DEV 2>/dev/null >/dev/null
 }
 
 maximize_last_partition () {
@@ -182,9 +183,20 @@ fi
 # Create fdisk script to repartition the device
 # Win7 requires a boot partition and must be handled specially
 enumerate_partitions
-maximize_last_partition
 PART=$DEV$CNT
+# Get size of dropped partition from imaging
+SZFILE=/sys/block/$DEV/$PART/size
+test ! -e $SZFILE && sync && sleep 2
+if [ -e $SZFILE ]
+	then OLDSIZE=$(cat $SZFILE)
+	else echo "Timed out waiting for $SZFILE to appear"
+fi
+maximize_last_partition
 read_new_partition_table
+T=0; while [ "$OLDSIZE" = "$(cat $SZFILE)" ]
+	do T=$((T + 1)); sleep 1
+	test "$T" = "5" && echo "New partition table failed to register." && clean_exit 12
+done
 
 # Change boot sector head counts for NTFS filesystems if not using UEFI
 if [ "$UEFI" = "0" ]
