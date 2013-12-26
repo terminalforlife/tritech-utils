@@ -1,21 +1,23 @@
 #!/bin/bash
 
-VER="1.1.7"
-VERDATE="2013-08-28"
+VER="2.0"
+VERDATE="2013-12-26"
 
 shopt -s nullglob
 . tss__common
 
-echo "Tritech automatic image drop, version $VER. last updated $VERDATE"
-echo "Copyright (c) by c02ware and Jody Bruchon"
+echo "${CWHT}Tritech automatic system image drop $CGRN$VER ($VERDATE)$COFF"
 
 DISKS="$(mktemp)"
 TMPFILE="$(mktemp)"
 
-control_c () {
-	echo "Interrupted, cleaning up."
-	rm -f "$DISKS"
-	rm -f "$TMPFILE"
+trap clean_exit INT QUIT ABRT TERM HUP
+
+clean_exit () {
+	test "$1" != "0" && echo "Interrupted, cleaning up."
+	rm -f "$DISKS" "$TMPFILE" "$PART_TEMP"
+	EXIT="$1"; test -n "$EXIT" && EXIT=0
+	exit $EXIT
 }
 
 check_mounts () {
@@ -23,40 +25,99 @@ check_mounts () {
 	grep -q "/dev/${DEV}" /proc/mounts && umount /dev/${DEV}* 2>/dev/null
 	if grep -q "/dev/${DEV}" /proc/mounts
 		then echo "${CRED}Device ${CCYA}${DEV}${CRED} is mounted according to /proc/mounts. Aborting.${COFF}"
-		exit 4
+		clean_exit 4
 	fi
 }
 
+enumerate_partitions () {
+	test ! -e "/dev/$DEV" && echo "enumerate_partitions: '/dev/$DEV' does not exist" && return 1
+	unset START END TYPE GPT DISK_GUID GUID; CNT=0
+	PART_TEMP=$(mktemp)
+	if [ "$(tss_file_tool gpt /dev/$DEV)" = "yes" ]
+		then GPT=1
+		sync
+		sgdisk -e /dev/$DEV 2>/dev/null >/dev/null
+		sgdisk -p /dev/$DEV 2>/dev/null | grep '^Number' -A 128 | grep -v '^Number' | sed 's/^ *//;s/  */ /g' > $PART_TEMP
+		DISK_GUID="$(sgdisk -p /dev/$DEV 2>/dev/null | grep '^Disk identifier' | cut -d: -f2 | tr -d ' ')"
+		while read LINE
+			do CNT=$((CNT + 1))
+			START[CNT]=$(echo "$LINE" | cut -d\  -f2)
+			SIZE[CNT]=$(echo "$LINE" | cut -d\  -f3)
+			TYPE[CNT]=$(echo "$LINE" | cut -d\  -f6)
+			GUID[CNT]=$(sgdisk -i $CNT /dev/$DEV 2>/dev/null | grep '^Partition unique GUID' | cut -d: -f2 | tr -d ' ')
+		done < $PART_TEMP
+		else GPT=0  # MBR partitioning
+		sync
+		sfdisk --force -d -uS /dev/$DEV 2>/dev/null | sed 's/ *//g' | tr = , | grep -v 'Id,0' | grep "^/dev/" > $PART_TEMP
+		while read LINE
+			do CNT=$((CNT + 1))
+			START[CNT]=$(echo "$LINE" | cut -d\  -f2)
+			SIZE[CNT]=$(echo "$LINE" | cut -d\  -f4)
+			TYPE[CNT]=$(echo "$LINE" | cut -d\  -f6)
+			FLAG[CNT]=$(echo "$LINE" | cut -d\  -f7)
+		done < $PART_TEMP
+	fi
+	rm -f $PART_TEMP; unset PART_TEMP
+}
+
+maximize_last_partition () {
+	if [ "$GPT" = "1" ]
+		then
+		# For GPT: delete, recreate, set type GUID, set partition GUID
+		sgdisk -d $CNT 2>/dev/null >/dev/null || echo "sgdisk failed!"
+		sgdisk -n $CNT:${START[CNT]}:0 2>/dev/null >/dev/null || echo "sgdisk failed!"
+		sgdisk -t $CNT:${TYPE[CNT]} 2>/dev/null >/dev/null || echo "sgdisk failed!"
+		sgdisk -u $CNT:${GUID[CNT]} 2>/dev/null >/dev/null || echo "sgdisk failed!"
+		else
+		# For MBR: sfdisk can change an existing partition's size without deleting
+		echo ",+,,," | sfdisk /dev/$DEV --force -uS -N $CNT -H $HEADS 2>/dev/null >/dev/null || echo "sfdisk failed!"
+	fi
+}
+
+read_new_partition_table () {
+	# This wait is required to allow the partition table to be re-read
+	sync
+	hdparm -z /dev/$DEV 2>/dev/null >/dev/null
+	echo "Waiting for new partitions to come up..."
+	T=0
+	while true
+		do
+		sync
+		test -e /dev/$PART && break
+		sleep 1
+		T=$((T + 1))
+		test "$T" = "5" && echo "timeout." && clean_exit 1
+	done
+}
+
 if [ "$NTFSMOUNT" = "0" ]
-	then echo "${CRED}WARNING:${COFF} No NTFS mount found! Auto HAL will be skipped."
-	else echo "Using ${CCYA}${NTFSMOUNT}${COFF} as NTFS mount command."
+	then echo "${CRED}WARNING:${COFF} No NTFS mount command found! Auto HAL will be skipped."
 fi
 
 # Attempt to mount the Tritech share
 if [ "$BASE" = "/mnt/cifs" ]
-	then tt_cifs
-	else echo "${CYEL}Using $BASE as base directory instead of default CIFS.${COFF}"
+	then tt_cifs -q
+	else echo "${CYEL}Using $BASE as base directory.${COFF}"
 fi
 
 # Check for presence of disk images
 if [ ! -d "$IMGDIR" ]
-	then echo "${CRED}Image directory not found, aborting: ${CCYA}${IMGDIR}${COFF}"
-	exit 2
+	then echo "${CRED}Image directory not found: ${CCYA}${IMGDIR}${COFF}"
+	clean_exit 2
 fi
 
 tt__disk_prompt $TMPFILE
 DEV=$(cat $TMPFILE)
-rm -f $TMPFILE
 
 if [ ! -e /sys/block/$DEV ]
-	then echo "${CRED}Device ${CCYA}${DEV}${CRED} does not exist. Aborting.${COFF}"
-	exit 4
+	then echo "${CRED}Device ${CCYA}${DEV}${CRED} does not exist.${COFF}"
+	clean_exit 4
 fi
 
 check_mounts
-
+test -d /sys/firmware/efi && echo "${CGRN}This system seems to be in ${CWHT}EFI$CGRN mode.$COFF"
 # Select an image to drop
-echo -e "\n${CGRN}Choose an image to drop:${COFF}\n"
+echo "${CGRN}Choose an image to drop:${COFF}"
 
 # Enumerate image names
 IC=0
@@ -65,135 +126,108 @@ for X in ${IMGDIR}/*.lzo
 	IMAGE[IC]="$(basename "$X")"
 	echo "$IC: ${IMAGE[IC]}"
 done
-test $IC = 0 && echo "Error: no images available in $IMGDIR" && exit 1
+test $IC = 0 && echo "Error: no images available in $IMGDIR" && clean_exit 1
 
-echo -en "\nWhich image (1): "
+echo -n "Which image (1): "
 read IMGNUM
 test "$IMGNUM" = "" && IMGNUM="1"
 IMG="${IMAGE[IMGNUM]}"
-XP=0; HAL=0; V7IMG=0; WIN7=0; PART="${DEV}1"
+XP=0; UEFI=0
 
-echo "$IMG" | grep -q "^xp" && HAL=1 && XP=1
-echo "$IMG" | grep -q "^vista" && V7IMG=1
-echo "$IMG" | grep -q "^win7" && V7IMG=1 && WIN7=1 && PART="${DEV}2"
-echo "$IMG" | grep -q "^win8-bios" && V7IMG=1 && WIN7=1 && PART="${DEV}2"
-echo "$IMG" | grep -q "^win8-uefi" && echo "UEFI imaging not yet supported." && exit 1
+echo "$IMG" | grep -q "^xp" && XP=1
+echo "$IMG" | grep -q -- "-uefi" && UEFI=1
 
 if [ ! -e $IMGDIR/$IMG ]
 	then echo "${CRED}ERROR: $CCYA$IMGDIR/$IMG$CRED not found. Aborting.$COFF"
-	exit 6
+	clean_exit 6
 fi
 
 # Get head count to do geometry recalculations
-echo -en "Enter the geometric head count from 1 to 255 for $DEV (255): "
-read HEADS
-test "$HEADS" = "" && HEADS="255"
-# Verify that the head count is a valid number
-HEADS="$(echo -n "$HEADS" | grep -v '[a-zA-Z]' | grep '[0-9]' | cut -b 1-3)"
-if ! echo "$HEADS" | grep -q '[0-9]'
-	then echo "You did not enter a valid number. Aborting."
-	eval $FAIL_COMMAND &
-	exit 7
+if [ $UEFI -eq 0 ]
+	then echo -n "Enter the geometric head count from 1 to 255 for $DEV (255): "
+	read HEADS
+	test "$HEADS" = "" && HEADS="255"
+	# Verify that the head count is a valid number
+	HEADS="$(echo -n "$HEADS" | grep -v '[a-zA-Z]' | grep '[0-9]' | cut -b 1-3)"
+	if ! echo "$HEADS" | grep -q '[0-9]'
+		then echo "You did not enter a valid number. Aborting."
+		eval $FAIL_COMMAND &
+		clean_exit 7
+	fi
+	XHEADS=$(printf "%x" $HEADS)
+	case $(echo -n "$XHEADS" | wc -c) in
+		1|2) ;;
+		*) echo "You did not enter a valid number. Aborting."
+		clean_exit 7 ;;
+	esac
+	BLOCKS=$(cat /sys/block/$DEV/size)
+	CYLS=$(expr $BLOCKS / $HEADS / 63)
+	echo "$DEV: ${HEADS}/${XHEADS} heads, $CYLS cylinders, 63 sectors."
 fi
-case $(printf "%x" $HEADS | wc -c) in
-	1|2) ;;
-	*) echo "You did not enter a valid number. Aborting."
-	exit 7 ;;
-esac
-BLOCKS=$(cat /sys/block/$DEV/size)
-CYLS=$(expr $BLOCKS / $HEADS / 63)
-XHEADS=$(printf "%x" $HEADS)
-
-echo "$DEV: ${HEADS}/${XHEADS} heads, $CYLS cylinders, 63 sectors."
 check_mounts
-echo "Dropping image $IMG to ${DEV}, please wait."
 
+# Use sgdisk to destroy GPT backup sectors, then drop an image
+echo "Dropping image $IMG to ${DEV}, please wait."
+sgdisk -Z /dev/$DEV 2>/dev/null >/dev/null
+sync
 if ! $CATCOM "$IMGDIR/$IMG" | lzop -dc > /dev/$DEV
 	then echo "Decompressing $IMGDIR/$IMG to $DEV failed. Aborting." 
 	eval $FAIL_COMMAND &
-	exit 8
+	clean_exit 8
 fi
 
-sync
-
+### FIXME: Code for XP mode, Vista+ mode, UEFI+GPT mode.
 # Create fdisk script to repartition the device
 # Win7 requires a boot partition and must be handled specially
-test "$V7IMG" = "0" && OFFSET=63
-test "$V7IMG" = "1" && OFFSET=2048
-if [ "$WIN7" = "1" ]
-	then
-	OFFSET=$(fdisk -lu /dev/$DEV | grep /dev/${DEV}2 | sed 's/\*//' | awk '{print $2}')
-	echo -e "x\nc\n${CYLS}\nh\n${HEADS}\nr\nd\n2\nn\np\n2\n${OFFSET}\n\nt\n2\n7\nw" > $TMPFILE
+enumerate_partitions
+maximize_last_partition
+PART=$DEV$CNT
+read_new_partition_table
 
-	else
-	echo -e "x\nc\n${CYLS}\nh\n${HEADS}\nr\nd\nn\np\n1\n${OFFSET}\n\nt\n7\na\n1\nw" > $TMPFILE
-fi
-
-# fdisk -u required due to cylinder mode fdisk becoming deprecated
-if ! busybox fdisk -u /dev/$DEV < $TMPFILE > /dev/null
-	then echo "fdisk /dev/$DEV failed. Retrying..."
-	echo "w" > $TMPFILE
-	sleep 2
-	if ! busybox fdisk -u /dev/$DEV < $TMPFILE > /dev/null
-		then echo "fdisk failed twice, aborting."
-		rm -f $TMPFILE
-		eval $FAIL_COMMAND &
-		exit 10
-	fi
-fi
-
-rm -f $TMPFILE
-
-# This wait is required to allow the partition table to be re-read
-T=0
-while true
-	do test -b /dev/$PART && break
-	sleep 1
-	T=$((T + 1))
-	test "$T" -eq "10" && echo "Timeout waiting for partition." && exit 1
-done
-
-# Change boot sector head count
-if ! tss_file_tool ntfsgeom "/dev/$PART" $XHEADS
-	then echo "Modifying NTFS boot sector geometry failed. Aborting."
-	eval $FAIL_COMMAND &
-	exit 9
+# Change boot sector head counts for NTFS filesystems if not using UEFI
+if [ "$UEFI" = "0" ]
+	then for PARTS in /dev/${DEV}[0-9]*
+		do if [ "$(tss_file_tool ntfs $PARTS)" = "yes" ]
+			then if ! tss_file_tool ntfsgeom "$PARTS" $XHEADS
+				then echo "Modifying NTFS boot sector geometry failed. Aborting."
+				eval $FAIL_COMMAND &
+				clean_exit 9
+			fi
+		fi
+	done
 fi
 
 # Resize the filesystem to fit the new parition
-if ! yes | ntfsresize -f /dev/$PART
+if ! yes | ntfsresize -f /dev/$PART 2>/dev/null >/dev/null
 	then echo "NTFS resize on $PART failed. Aborting."
 	eval $FAIL_COMMAND &
-	exit 11
+	clean_exit 11
 fi
 
-# Mount the filesystem and change into it to run autohal
-test -d /mnt/$PART || mkdir /mnt/$PART
-if ! $NTFSMOUNT /dev/$PART /mnt/$PART
-	then echo "Mounting $PART as NTFS failed. Aborting."
-	eval $FAIL_COMMAND &
-	exit 12
-fi
-
-cd /mnt/$PART
-
-test "$HAL" = "1" && tt_autohal
-
-if [ "$NTFSMOUNT" = "0" ]
-	then echo "intelppm.sys removal skipped due to no NTFS mount."
-	else
-	test "$V7IMG" = "0" && tt__intelppm
-	test "$V7IMG" = "1" && echo "Vista/Win7 detected. Skipping intelppm.sys check."
+# Windows XP requires extra work that Vista and up don't
+if [ "$XP" = "1" ]
+	then
+	# Mount the filesystem and change into it to run autohal
+	test -d /mnt/$PART || mkdir /mnt/$PART
+	if ! $NTFSMOUNT /dev/$PART /mnt/$PART
+		then echo "Mounting $PART as NTFS failed. Aborting."
+		eval $FAIL_COMMAND &
+		clean_exit 12
+	fi
+	cd /mnt/$PART
+	# Insert an appropriate HAL and handle intelppm if needed
+	tt_autohal
+	if [ "$NTFSMOUNT" = "0" ]
+		then echo "intelppm.sys removal skipped due to no NTFS mount."
+		else tt__intelppm
+	fi
+	cd $STARTDIR
+	if [ ! "$NTFSMOUNT" = "0" ]
+		then umount -l /mnt/$PART || echo "Unmounting /mnt/$PART failed!"
+	fi
 fi
 
 sync
-cd $STARTDIR
-if [ ! "$NTFSMOUNT" = "0" ]
-	then umount -l /mnt/$PART || echo "Unmounting /mnt/$PART failed!"
-fi
-
-sync
-
 echo "The image drop was successful."
 eval $PASS_COMMAND &
-
+clean_exit 0
