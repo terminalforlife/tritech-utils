@@ -61,6 +61,7 @@ enumerate_partitions () {
 }
 
 maximize_last_partition () {
+	sync
 	if [ "$GPT" = "1" ]
 		then
 		# For GPT: delete, recreate, set type GUID, set partition GUID
@@ -70,14 +71,15 @@ maximize_last_partition () {
 		sgdisk -u $CNT:${GUID[CNT]} 2>/dev/null >/dev/null || echo "sgdisk failed!"
 		else
 		# For MBR: sfdisk can change an existing partition's size without deleting
-		echo ",+,,," | sfdisk /dev/$DEV --force -uS -N $CNT -H $HEADS 2>/dev/null >/dev/null || echo "sfdisk failed!"
+		echo ",+,,," | sfdisk /dev/$DEV --no-reread --force -uS -N $CNT -H $HEADS 2>/dev/null >/dev/null || echo "sfdisk failed!"
 	fi
 }
 
 read_new_partition_table () {
 	# This wait is required to allow the partition table to be re-read
-	sync
+	sync; sleep 1
 	hdparm -z /dev/$DEV 2>/dev/null >/dev/null
+	sleep 1
 	echo "Waiting for new partitions to come up..."
 	T=0
 	while true
