@@ -21,7 +21,7 @@ get_device_info () {
 		*)  TYPE="Type err?" ;;
 	esac
 	Z=$(cat /sys/block/$1/size)
-	if [ -e /sys/block/$1/device/model ]
+	if [[ "$Z" -gt 0 && -e /sys/block/$1/device/model ]]
 		then MODEL=$(cat /sys/block/$1/device/model)
 		DSN=$(hdparm -I /dev/$1 2>/dev/null | grep 'Serial Number:' | sed 's/[^:]*[^a-zA-Z0-9]*//;s/ *$//g')
 		else MODEL="(No model)"
@@ -187,7 +187,7 @@ for DRV in $DRIVES
 			unset LEN
 			DEVICE=$(echo "$X" | sed 's/=.*//g')
 			FSID=$(echo "$X" | sed 's/^.*=//;s/\..*//' | tr '[:upper:]' '[:lower:]')
-			expand_fsid $FSID
+			expand_fsid "$FSID"
 			echo "$MOUNTED" | grep -q "$DEVICE " && PARTATTR="$PARTATTR${CYEL}[Mounted]$COFF "
 			echo "$KILL" | grep -q "$(basename $DEVICE)" || echo "  $CWHT+-- $CPUR$DEVICE  $CGRN$SIZE  $CWHT$FS  $PARTATTR"
 		done
