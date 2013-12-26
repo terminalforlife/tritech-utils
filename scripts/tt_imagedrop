@@ -66,10 +66,10 @@ maximize_last_partition () {
 	if [ "$GPT" = "1" ]
 		then
 		# For GPT: delete, recreate, set type GUID, set partition GUID
-		sgdisk -d $CNT 2>/dev/null >/dev/null || echo "sgdisk failed!"
-		sgdisk -n $CNT:${START[CNT]}:0 2>/dev/null >/dev/null || echo "sgdisk failed!"
-		sgdisk -t $CNT:${TYPE[CNT]} 2>/dev/null >/dev/null || echo "sgdisk failed!"
-		sgdisk -u $CNT:${GUID[CNT]} 2>/dev/null >/dev/null || echo "sgdisk failed!"
+		sgdisk -d $CNT /dev/$DEV 2>/dev/null >/dev/null || echo "sgdisk failed!"
+		sgdisk -n $CNT:${START[CNT]}:0 /dev/$DEV 2>/dev/null >/dev/null || echo "sgdisk failed!"
+		sgdisk -t $CNT:${TYPE[CNT]} /dev/$DEV 2>/dev/null >/dev/null || echo "sgdisk failed!"
+		sgdisk -u $CNT:${GUID[CNT]} /dev/$DEV 2>/dev/null >/dev/null || echo "sgdisk failed!"
 		else
 		# For MBR: sfdisk can change an existing partition's size without deleting
 		echo ",+,,," | sfdisk /dev/$DEV --no-reread --force -uS -N $CNT -H $HEADS 2>/dev/null >/dev/null || echo "sfdisk failed!"
