@@ -37,7 +37,6 @@ install: tritech-utils manual
 	install -D -o root -g root -m 0644 tt_beacon.1.gz $(DESTDIR)/$(mandir)/man1/tt_beacon.1.gz
 
 	install -D -o root -g root -m 0755 scripts/tss__common $(DESTDIR)/$(bindir)/tss__common
-	install -D -o root -g root -m 0755 scripts/tss__functions $(DESTDIR)/$(bindir)/tss__functions
 	install -D -o root -g root -m 0755 scripts/tss_alsamixerinit $(DESTDIR)/$(bindir)/tss_alsamixerinit
 	install -D -o root -g root -m 0755 scripts/tss_bootstrap $(DESTDIR)/$(bindir)/tss_bootstrap
 	install -D -o root -g root -m 0755 scripts/tss_client $(DESTDIR)/$(bindir)/tss_client
