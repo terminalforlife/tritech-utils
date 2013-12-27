@@ -6,16 +6,6 @@ if [ -z "$TSS_FUNCTIONS" ]; then
 # Scripts can check for TSS_FUNCTIONS to ensure this file is loaded
 TSS_FUNCTIONS=1
 
-tt__check_if_ntfs () {
-	test ! -e "$1" && echo "Invalid partition device" && exit 2
-	SIGNATURE="$(dd if="$1" bs=1 count=4 skip=3 2>/dev/null)"
-	if [ "$SIGNATURE" == "NTFS" ]
-		then echo "NTFS detected."; exit 0
-		else echo "Not an NTFS filesystem."; exit 1
-	fi
-}
-export tt__check_if_ntfs
-
 tt__hdd_smart_status () {
 	if smartctl -V >/dev/null 2>/dev/null
 		then
