@@ -81,7 +81,6 @@ read_new_partition_table () {
 	sync; sleep 1
 	hdparm -z /dev/$DEV 2>/dev/null >/dev/null
 	sleep 1
-	echo "Waiting for new partitions to come up..."
 	T=0
 	while true
 		do
@@ -89,7 +88,7 @@ read_new_partition_table () {
 		test -e /dev/$PART && break
 		sleep 1
 		T=$((T + 1))
-		test "$T" = "5" && echo "timeout." && clean_exit 1
+		test "$T" = "5" && clean_exit 1
 	done
 }
 
@@ -192,10 +191,11 @@ if [ -e $SZFILE ]
 	else echo "Timed out waiting for $SZFILE to appear"
 fi
 maximize_last_partition
+echo "Waiting for new partitions to come up."
 read_new_partition_table
-T=0; while [ "$OLDSIZE" = "$(cat $SZFILE)" ]
-	do T=$((T + 1)); sleep 1
-	test "$T" = "5" && echo "New partition table failed to register." && clean_exit 12
+U=0; while [ "$OLDSIZE" = "$(cat $SZFILE)" ]
+	do U=$((U + 1)); read_new_partition_table
+	test "$U" = "5" && echo "New partition table failed to register." && clean_exit 12
 done
 
 # Change boot sector head counts for NTFS filesystems if not using UEFI
