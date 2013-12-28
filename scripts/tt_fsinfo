@@ -121,7 +121,7 @@ for DRIVE in $DRIVES
 			PSIZE=$(expr $PE - $PS)
 			if [ $HWSS1 -eq 512 ]
 				then PSIZE=$(expr $PSIZE / 2)
-				else PSIZE=$(expr $PSIZE \* $HWSS2)a
+				else PSIZE=$(expr $PSIZE \* $HWSS2)
 			fi
 			PN=$(echo $LINE | cut -d" " -f1)
 			PT=$(echo $LINE | cut -d" " -f6)
