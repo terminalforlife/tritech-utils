@@ -195,7 +195,16 @@ echo "Waiting for new partitions to come up."
 read_new_partition_table
 U=0; while [ "$OLDSIZE" = "$(cat $SZFILE)" ]
 	do U=$((U + 1)); read_new_partition_table
-	test "$U" = "5" && echo "New partition table failed to register." && clean_exit 12
+	if [ "$U" = "5" 
+		then tt_fsinfo
+		unset Q; while [ "$Q" != "n" ]
+			do
+			echo "New partition table on $DEV may be incorrect. Continue (y/n)? "
+			read -n 1 Q
+			Q="$(echo $Q | tr '[:upper:]' '[:lower:]')"
+			test "$Q" = "y" && clean_exit 12
+		done
+	fi
 done
 
 # Change boot sector head counts for NTFS filesystems if not using UEFI
