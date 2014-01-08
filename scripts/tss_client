@@ -350,6 +350,7 @@ read_sysinfo () {
 		fi
 	done
 	HDD="$(echo "$HDD" | sed 's/, $//')"
+	test $(echo "$HDD" | wc -c) -lt 8 && echo "${CRED}read_sysinfo:$COFF drive info too short: '$HDD'" && unset HDD
 	get_os_version
 	MSDM=/sys/firmware/acpi/tables/MSDM
 	test -e $MSDM && PRODKEY="$(strings $MSDM | tail -n 1)"
