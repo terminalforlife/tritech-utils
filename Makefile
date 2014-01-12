@@ -70,6 +70,7 @@ install: tritech-utils manual
 	install -D -o root -g root -m 0755 scripts/tt_imagedrop $(DESTDIR)/$(bindir)/tt_imagedrop
 	install -D -o root -g root -m 0755 scripts/tt_instance_finder $(DESTDIR)/$(bindir)/tt_instance_finder
 	install -D -o root -g root -m 0755 scripts/tt_mpkg $(DESTDIR)/$(bindir)/tt_mpkg
+	install -D -o root -g root -m 0755 scripts/tt_netmgr $(DESTDIR)/$(bindir)/tt_netmgr
 	install -D -o root -g root -m 0755 scripts/tt_parallel_diags $(DESTDIR)/$(bindir)/tt_parallel_diags
 	install -D -o root -g root -m 0755 scripts/tt_pkg_install $(DESTDIR)/$(bindir)/tt_pkg_install
 	install -D -o root -g root -m 0755 scripts/tt_pkg_remove $(DESTDIR)/$(bindir)/tt_pkg_remove
@@ -78,7 +79,6 @@ install: tritech-utils manual
 	install -D -o root -g root -m 0755 scripts/tt_sysinfo $(DESTDIR)/$(bindir)/tt_sysinfo
 	install -D -o root -g root -m 0755 scripts/tt_sysupdate $(DESTDIR)/$(bindir)/tt_sysupdate
 	install -D -o root -g root -m 0755 scripts/tt_takeimage $(DESTDIR)/$(bindir)/tt_takeimage
-	install -D -o root -g root -m 0755 scripts/tt_wifi $(DESTDIR)/$(bindir)/tt_wifi
 	install -D -o root -g root -m 0755 scripts/tt_winver $(DESTDIR)/$(bindir)/tt_winver
 	install -D -o root -g root -m 0755 scripts/tt_zero_image $(DESTDIR)/$(bindir)/tt_zero_image
 

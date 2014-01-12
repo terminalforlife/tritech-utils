@@ -1,0 +1,110 @@
+#!/bin/sh
+
+VER=0.1
+VERDATE=2014-01-09
+
+echo "TSS network connection manager $VER ($VERDATE)"
+
+# When started, collect information about current interface states
+# Attempt to locate a configuration file
+# Default to setting up one (and only one) Internet-enabled link
+# Set up a control socket only root can touch
+
+SYSNET=/sys/class/net
+WPA_CONF=/etc/wpa.conf
+
+turn_on_link () {
+	ip link show dev $1 | grep -q UP || ip link set up dev $1
+}
+
+get_interface_state () {
+	unset IFACE_WIFI IFACE_WIRED IFACE_LO IFACE_OTHER
+	unset IF_CARRIER IF_INET IF_INET_IP
+	INTERFACES="$(echo $SYSNET/* | sed "s#$SYSNET/##g")"
+	for X in $INTERFACES
+		do
+		case "$X" in
+			eth*) IFACE_WIRED="$IFACE_WIRED $X"; turn_on_link $X ;;
+			wlan*) IFACE_WIFI="$IFACE_WIFI $X"; turn_on_link $X ;;
+			lo*) IFACE_LO="$IFACE_LO $X"; turn_on_link $X ;;
+			*) IFACE_OTHER="$IFACE_OTHER $X" ;;
+		esac
+		test "$(cat $SYSNET/$X/carrier 2>/dev/null)" = "1" && IF_CARRIER="$IF_CARRIER $X"
+	done
+	# If a default route exists, assume the dev is the Internet dev
+	IF_INET="$(ip route | grep -m 1 ^default | sed 's/.* dev //g')"
+	test -n "$IF_INET" && IF_INET_IP="$(ip addr show dev $IF_INET | grep -m 1 '    inet' | sed 's#    inet \([0-9]*\.[0-9]*\.[0-9]*\.[0-9]*\)/.*#\1#')"
+}
+
+get_wireless_networks () {
+	eval ESSID=("null" $(iwlist $USE scan | grep ESSID | sed 's/.*"\(.*\)"/"\1" /g' | tr -d \\n))
+	EC=${#ESSID[@]}; EC=$((EC - 1))
+}
+
+setup_local_loopback () {
+	ip link set up dev lo
+	ip addr show dev lo | grep -q '^    inet ' || ip addr add 127.0.0.1/8 dev lo
+}
+
+setup_internet_connection () {
+	get_interface_state
+	if [ -z "$IF_INET_IP" ]
+		then
+		# unmount any CIFS filesystems before possibly disconnecting things
+		umount -f $(cat /proc/mounts | grep '[^ ]* [^ ]* cifs' | cut -d' ' -f2)
+		killall -q udhcpc
+		killall -q wpa_supplicant
+		sleep 0.2
+		killall -q -9 udhcpc
+		killall -q -9 wpa_supplicant
+		get_interface_state
+		for X in $IFACE_WIRED
+			do echo "$IF_CARRIER" | grep -q " $X" && udhcpc -t 3 -n -i $X >/dev/null
+			get_interface_state
+			test ! -z "$IF_INET_IP" && break
+		done
+		# If wired interfaces don't work, set up wireless connectivity
+		if [ ! -z "$IFACE_WIFI" ]
+			then for USE in $IFACE_WIFI
+				do get_wireless_networks
+				echo -e "\nWireless networks found on interface $USE"
+				echo "-----------------------------------------"
+				CNT=0; N=999
+				while [ $N -gt $CNT ]
+					do echo "0: Manual wireless network configuration"
+					CNT=0; while [ $CNT -lt $EC ]
+						do
+						CNT=$((CNT + 1))
+						echo "$CNT: ${ESSID[$CNT]}" >&2
+					done
+					echo -en "\nSelect network (hit enter to skip): "
+					read N
+					test -z "$N" && break
+					N="$(echo "$N" | tr -cd '[:digit:]')"
+					test -z "$N" && N=9999
+				done
+				test ! -z "$N" && if [ "$N" = "0" ]
+					then
+					# Manual configuration
+					echo "Manual config not yet written"
+					else PS=1
+					while [[ $PS -ne 0 && $PS -lt 8 ]]
+						do echo -n "Network password: "
+						read PASS; PS=$(echo "$PASS" | wc -c)
+					done
+					if [ $PS -ne 0 ]
+						then wpa_passphrase "${ESSID[$N]}" "$PASS" > $WPA_CONF
+						wpa_supplicant -B -Dwext -i$USE -c$WPA_CONF
+						udhcpc -i $USE >/dev/null
+					fi
+				fi
+			get_interface_state
+			test ! -z "$IF_INET_IP" && break
+			done
+		fi
+	fi
+	test ! -z "$IF_INET_IP" && echo "Internet up: $IF_INET_IP on $IF_INET"
+}
+
+setup_local_loopback
+setup_internet_connection
