@@ -43,6 +43,7 @@ install: tritech-utils manual
 	install -D -o root -g root -m 0755 scripts/tss_client_tool $(DESTDIR)/$(bindir)/tss_client_tool
 	install -D -o root -g root -m 0755 scripts/tss_dm_start $(DESTDIR)/$(bindir)/tss_dm_start
 	install -D -o root -g root -m 0755 scripts/tss_ip_to_mac $(DESTDIR)/$(bindir)/tss_ip_to_mac
+	install -D -o root -g root -m 0755 scripts/tss_netmgr $(DESTDIR)/$(bindir)/tss_netmgr
 	install -D -o root -g root -m 0755 scripts/tss_push_all $(DESTDIR)/$(bindir)/tss_push_all
 	install -D -o root -g root -m 0755 scripts/tt__auto_hal $(DESTDIR)/$(bindir)/tt__auto_hal
 	install -D -o root -g root -m 0755 scripts/tt__disk_prompt $(DESTDIR)/$(bindir)/tt__disk_prompt
@@ -70,7 +71,6 @@ install: tritech-utils manual
 	install -D -o root -g root -m 0755 scripts/tt_imagedrop $(DESTDIR)/$(bindir)/tt_imagedrop
 	install -D -o root -g root -m 0755 scripts/tt_instance_finder $(DESTDIR)/$(bindir)/tt_instance_finder
 	install -D -o root -g root -m 0755 scripts/tt_mpkg $(DESTDIR)/$(bindir)/tt_mpkg
-	install -D -o root -g root -m 0755 scripts/tt_netmgr $(DESTDIR)/$(bindir)/tt_netmgr
 	install -D -o root -g root -m 0755 scripts/tt_parallel_diags $(DESTDIR)/$(bindir)/tt_parallel_diags
 	install -D -o root -g root -m 0755 scripts/tt_pkg_install $(DESTDIR)/$(bindir)/tt_pkg_install
 	install -D -o root -g root -m 0755 scripts/tt_pkg_remove $(DESTDIR)/$(bindir)/tt_pkg_remove
