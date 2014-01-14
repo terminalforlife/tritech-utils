@@ -17,7 +17,7 @@ THRM="/sys/bus/acpi/drivers/thermal/LNXTHERM:00/thermal_zone/temp /sys/devices/p
 for X in $THRM; do test -e $X && THRM=$X; done
 SEP="${CPUR}||$COFF"
 WARNSOUND=/usr/share/sounds/tritech-utils/temp_warn.wav
-WARNSOUND=/usr/share/sounds/tritech-utils/diags_complete.wav
+DONESOUND=/usr/share/sounds/tritech-utils/diags_complete.wav
 
 # These thresholds may need to change in the future
 TEMP_YELLOW=68
