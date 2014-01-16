@@ -195,7 +195,7 @@ echo "Waiting for new partitions to come up."
 read_new_partition_table
 U=0; while [ "$OLDSIZE" = "$(cat $SZFILE)" ]
 	do U=$((U + 1)); read_new_partition_table
-	if [ "$U" = "5" 
+	if [ "$U" = "5" ]
 		then tt_fsinfo
 		unset Q; while [ "$Q" != "n" ]
 			do
