@@ -74,6 +74,7 @@ maximize_last_partition () {
 		# For MBR: sfdisk can change an existing partition's size without deleting
 		echo ",+,,," | sfdisk /dev/$DEV --no-reread --force -uS -N $CNT -H $HEADS 2>/dev/null >/dev/null || echo "sfdisk failed!"
 	fi
+	hdparm -z /dev/$DEV 2>/dev/null >/dev/null
 }
 
 read_new_partition_table () {
@@ -193,7 +194,8 @@ fi
 maximize_last_partition
 echo "Waiting for new partitions to come up."
 read_new_partition_table
-U=0; while [ "$OLDSIZE" = "$(cat $SZFILE)" ]
+NEWSIZE="$(cat $SZFILE)"
+U=0; while [ $OLDSIZE -le $NEWSIZE ]
 	do U=$((U + 1)); read_new_partition_table
 	if [ "$U" = "5" ]
 		then tt_fsinfo
@@ -205,6 +207,7 @@ U=0; while [ "$OLDSIZE" = "$(cat $SZFILE)" ]
 			test "$Q" = "y" && clean_exit 12
 		done
 	fi
+	NEWSIZE="$(cat $SZFILE)"
 done
 
 # Change boot sector head counts for NTFS filesystems if not using UEFI
