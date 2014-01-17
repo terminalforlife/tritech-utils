@@ -1,7 +1,7 @@
 #!/bin/bash
 
-VER="2.0"
-VERDATE="2013-12-26"
+VER="2.0.1"
+VERDATE="2014-01-16"
 
 shopt -s nullglob
 . tss__common
@@ -29,8 +29,8 @@ check_mounts () {
 	fi
 }
 
-enumerate_partitions () {
-	test ! -e "/dev/$DEV" && echo "enumerate_partitions: '/dev/$DEV' does not exist" && return 1
+scan_partitions () {
+	test ! -e "/dev/$DEV" && echo "scan_partitions: '/dev/$DEV' does not exist" && return 1
 	unset START END TYPE GPT DISK_GUID GUID; CNT=0
 	PART_TEMP=$(mktemp)
 	if [ "$(tss_file_tool gpt /dev/$DEV)" = "yes" ]
@@ -62,7 +62,7 @@ enumerate_partitions () {
 }
 
 maximize_last_partition () {
-	sync
+	sync; sleep 1
 	if [ "$GPT" = "1" ]
 		then
 		# For GPT: delete, recreate, set type GUID, set partition GUID
@@ -72,7 +72,7 @@ maximize_last_partition () {
 		sgdisk -u $CNT:${GUID[CNT]} /dev/$DEV 2>/dev/null >/dev/null || echo "sgdisk failed!"
 		else
 		# For MBR: sfdisk can change an existing partition's size without deleting
-		echo ",+,,," | sfdisk /dev/$DEV --no-reread --force -uS -N $CNT -H $HEADS 2>/dev/null >/dev/null || echo "sfdisk failed!"
+		echo ",+,,," | sfdisk /dev/$DEV --no-reread --force -uS -N $CNT -H $HEADS 2>/dev/null >/dev/null
 	fi
 	hdparm -z /dev/$DEV 2>/dev/null >/dev/null
 }
@@ -182,33 +182,13 @@ fi
 ### FIXME: Code for XP mode, Vista+ mode, UEFI+GPT mode.
 # Create fdisk script to repartition the device
 # Win7 requires a boot partition and must be handled specially
-enumerate_partitions
+scan_partitions
 PART=$DEV$CNT
-# Get size of dropped partition from imaging
 SZFILE=/sys/block/$DEV/$PART/size
-test ! -e $SZFILE && sync && sleep 2
-if [ -e $SZFILE ]
-	then OLDSIZE=$(cat $SZFILE)
-	else echo "Timed out waiting for $SZFILE to appear"
-fi
+OLDSIZE=$(cat $SZFILE)
 maximize_last_partition
 echo "Waiting for new partitions to come up."
 read_new_partition_table
-NEWSIZE="$(cat $SZFILE)"
-U=0; while [ $OLDSIZE -le $NEWSIZE ]
-	do U=$((U + 1)); read_new_partition_table
-	if [ "$U" = "5" ]
-		then tt_fsinfo
-		unset Q; while [ "$Q" != "n" ]
-			do
-			echo "New partition table on $DEV may be incorrect. Continue (y/n)? "
-			read -n 1 Q
-			Q="$(echo $Q | tr '[:upper:]' '[:lower:]')"
-			test "$Q" = "y" && clean_exit 12
-		done
-	fi
-	NEWSIZE="$(cat $SZFILE)"
-done
 
 # Change boot sector head counts for NTFS filesystems if not using UEFI
 if [ "$UEFI" = "0" ]
