@@ -21,7 +21,7 @@ if [ -e $THRM ]
 	then CPUTEMP="$(expr $(cat $THRM) / 1000)"
 	echo -n "CPU temp: $CGRN"
 	test $CPUTEMP -gt $TEMP_YELLOW && echo -n "$CYEL"
-	test $CPUTEMP -gt $TEMP_RED && test $CPUTEMP -lt 100 && echo -n "$CRED" && temp_warn
+	test $CPUTEMP -gt $TEMP_RED && test $CPUTEMP -lt 100 && echo -n "$CRED"
 	test $CPUTEMP -ge $TEMP_BOGUS && echo -n "$CPUR"
 	echo "$CPUTEMP${CWHT} C$COFF"
 	else echo "No CPU temperature sensor available."
