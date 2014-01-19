@@ -51,7 +51,7 @@ setup_internet_connection () {
 	if [ -z "$IF_INET_IP" ]
 		then
 		# unmount any CIFS filesystems before possibly disconnecting things
-		umount -f $(cat /proc/mounts | grep '[^ ]* [^ ]* cifs' | cut -d' ' -f2)
+		umount -f $(cat /proc/mounts | grep '[^ ]* [^ ]* cifs' | cut -d' ' -f2) 2>/dev/null
 		killall -q udhcpc
 		killall -q wpa_supplicant
 		sleep 0.2
