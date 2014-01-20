@@ -66,21 +66,20 @@ test "$1" = "-v" && V=1
 test "$1" = "-d" && V=1 && DBG=1
 test "$1" = "-a" && ABRT=0
 
-echo "$CCYA$P$COFF: Tritech Service System updater, version $VER"
+echo "${CWHT}Tritech Service System updater $CGRN$VER $CCYA($VERDATE)$COFF"
 
 if [ "$BASH" = "" ]
 	then test -e /bin/bash && exec bash $0
-	echo "$CRED$P$COFF: This script must be run under GNU bash."
-	echo "$CRED$P$COFF: /bin/bash does not exist, can't continue."
+	echo "$CRED$P$COFF must be run under GNU bash (/bin/bash)."
 	exit 1
 fi
 
 # Allow an interactive user abort unless otherwise specified
 if [ "$ABRT" = "1" ]
 	then
-	echo "$CPUR$P$COFF: Press a key to abort."
+	echo "${CYEL}Press a key to abort updating.$COFF"
 	read -t 2 -s -n 1 && \
-		echo "$CYEL$P$COFF: User aborted update, terminating." && \
+		echo "${CYEL}User aborted update, terminating.$COFF" && \
 		exit 1
 fi
 
@@ -90,20 +89,10 @@ try_using_cifs () {
 # CIFS repository
 Z=0
 CIFS=0
-echo -n "$CGRN$P$COFF: Trying CIFS: "
+echo -n "Trying CIFS: "
 if tt_cifs -c
 	then Y=/mnt/cifs ; Z="/mnt/cifs/$VF"; mkdir -p $Y 2>/dev/null
-	test "$V" = "1" && echo "$CGRN$P$COFF: CIFS=$CIFS with path $Z"
-	if [ -e "$Z" ]
-		then TV=$(cat $Z)
-		echo "$CGRN$P$COFF: found repo version $CGRN$TV$COFF on ${CWHT}CIFS server$COFF"
-		if [ "$TV" -gt "$REPOVER" ]
-			then REPOVER=$TV; UPDX=$X; UPDY=$Y; UPDPATH="$Y/$VP"; CIFS=1
-			test "$V" = "1" && echo "$CGRN$P$COFF: RV $REPOVER at $CGRN$UPDPATH$COFF higher!"
-			else test "$V" = "1" && echo "$CPUR$P$COFF: New RV $TV not higher than current $REPOVER, skipping."
-		fi
-		else test "$V" = "1" && echo "$CRED$P$COFF: $Z does not seem to exist."
-	fi
+	test "$V" = "1" && echo "CIFS=$CIFS with path $Z"
 fi
 }
 
@@ -111,32 +100,36 @@ test ! "$1" = "-l" && try_using_cifs
 
 # We rely on fstab being set up properly as of version 0.4
 
+test "$V" = "0" && echo -n "Scanning repositories: "
 for Y in /mnt/*
 	do Z="$Y/$VF"
-	test "$V" = "1" && echo "$CYEL$P$COFF: Trying mountpoint $Y"
+	test "$V" = "1" && echo "Trying mountpoint $Y"
 	M=0; cat /proc/mounts | cut -d" " -f2 | grep -q "$Y" \
-		&& M=1 && test "$V" = "1" && echo "$CYEL$P$COFF: $Y already mounted"
+		&& M=1 && test "$V" = "1" && echo "$Y already mounted"
 	/bin/mount "$Y" -o ro >/dev/null 2>/dev/null && MOK=1
 	if [ "$V" = "1" ]
-		then test "$MOK" = "1" && echo "$CYEL$P$COFF: $Y mounted."
-		test ! "$MOK" = "1" && echo "$CGRN$P$COFF: $Y mount failed."
+		then test "$MOK" = "1" && echo "$Y mounted."
+		test ! "$MOK" = "1" && echo "$Y mount failed."
 	fi
 	if [ -e "$Z" ]
 		then TV=$(cat $Z)
-		echo "$CGRN$P$COFF: found repo version $CGRN$TV$COFF on $CWHT$Y$COFF"
+		if [ "$V" = "1" ]
+			then echo "found repo version $CGRN$TV$COFF on $CWHT$Y$COFF"
+			else echo -n "$CWHT$(basename $Y)$COFF "
+		fi
 		if [ "$TV" -gt "$REPOVER" ]
 			then REPOVER=$TV; UPDY=$Y; UPDPATH="$Y/$VP"; CIFS=0
-			test "$V" = "1" && echo "$CGRN$P$COFF: RV $REPOVER at $CGRN$UPDPATH$COFF higher!"
-			else test "$V" = "1" && echo "$CPUR$P$COFF: RV $TV not higher than $REPOVER, skipping."
+			test "$V" = "1" && echo "RV $REPOVER at $CGRN$UPDPATH$COFF higher!"
+			else test "$V" = "1" && echo "RV $TV not higher than $REPOVER, skipping."
 		fi
-		else test "$V" = "1" && echo "$CRED$P$COFF: $CRED$Z$COFF does not seem to exist."
+		else test "$V" = "1" && echo "$CRED$Z$COFF does not seem to exist."
 	fi
 	test "$M" = "0" && umount $Y >/dev/null 2>/dev/null
 done
-
+echo
 
 if [ "$REPOVER" = "0" ]
-	then echo "$CGRN$P$COFF: No update repositories found, not updating."
+	then echo "No update repositories found, not updating."
 	exit 1
 fi
 
@@ -147,7 +140,7 @@ fi
 
 # Start processing the package repository
 I=0; USE=0; J=0; GOOD=0
-echo "$CGRN$P$COFF: Chose repository $CCYA$(basename "$UPDY")$COFF"
+echo "Chose repository $CCYA$(basename "$UPDY")$COFF"
 
 # Self-update check
 UPDATE=0
@@ -166,7 +159,7 @@ if [ -e $UPDPATH/$P ]
 		fi
 	fi
 	if [ $UPDATE = 1 ]
-		then echo "$CWHT$P$COFF: Newer update script in repo. Performing self-update."
+		then echo "Newer update script in repository. Performing self-update."
 		ERR=0
 		NEW="/tmp/$P"
 		cp $UPDPATH/$P $NEW || ERR=1
@@ -175,30 +168,30 @@ if [ -e $UPDPATH/$P ]
 		test "$MTD" = "1" && umount $UPDY 2>/dev/null
 		if [ "$ERR" = "0" ]
 			then
-			exec $NEW "$@"
+			$NEW "$@"
 			exit
 			
 			else
-			echo "$CRED$P$COFF: Self-update failed, continuing as normal."
+			echo "Self-update failed, continuing as normal."
 		fi
 	fi
 fi
 
 for X in ${UPDPATH}/*.pkglist
 		do X=$(basename "$X" | sed s/.pkglist//g)
-		test "$V" = "1" && echo "$CYEL$P$COFF: Adding $CYEL$X$COFF"
+		test "$V" = "1" && echo "Adding $CYEL$X$COFF"
 		cnf[I]="$X"; (( I ++ )); GOOD=1
 done
 if [ "$I" -gt "1" ]
-	then echo "$CGRN$P$COFF: Multiple configurations available, please select one."
+	then echo -e "Multiple configurations available, please select one.\n"
 	while [ $J -lt $I ]
-		do echo "$CPUR$P$COFF: $J: ${cnf[$J]}"
+		do echo "$CWHT$J:$COFF ${cnf[$J]}"
 		(( J ++ ))
 	done
-	echo -n "$CPUR$P$COFF: Enter choice (10s timer, default 0, \"n\" to cancel): "
+	echo -en "\nEnter choice (10s timer, default 0, \"n\" to cancel): "
 	X=0; read -t 10 X || echo
 	if [ "$X" = "n" ]
-		then echo "$CYEL$P$COFF: User canceled update process."
+		then echo "User canceled update process."
 		exit 1
 	fi
 	X=$(echo $X | sed 's/[^0-9]//g')
@@ -208,11 +201,11 @@ if [ "$I" -gt "1" ]
 	fi
 fi
 
-echo "${cnf[$USE]}" | grep -q '*' && echo "$CYEL$P$COFF: No configurations present in this repository." && exit 1
+echo "${cnf[$USE]}" | grep -q '*' && echo "${CRED}No configurations present in this repository.$COFF" && exit 1
 
-test "$GOOD" = "0" && echo "$CRED$P$COFF: No usable configurations in this repository." && exit 1
+test "$GOOD" = "0" && echo "${CRED}No usable configurations in this repository.$COFF" && exit 1
 
-echo -e "$CGRN$P$COFF: Selected $CCYA${cnf[$USE]}$COFF, unpacking packages."
+echo -en "Selected $CCYA${cnf[$USE]}$COFF, "
 UP="$UPDPATH/${cnf[$USE]}"
 
 echo -n "Unpacking packages: "
@@ -231,9 +224,9 @@ for X in $(cat ${UP}.pkglist)
 		fi
 	done
 	if [ "$Y" = "none" ]
-		then echo -n "$CRED$X$COFF "
+		then echo -n " $CRED$X$COFF"
 		else
-		echo -n "$CGRN$X$COFF "
+		echo -n "${CGRN}.$COFF"
 		test "$DBG" = "0" && unpack_package "$Y"
 #    if sha1sum -c "$Y.sha1sum" >/dev/null 2>/dev/null
 #      then
@@ -248,7 +241,7 @@ wait ${SUBPID[@]}
 
 echo
 cd /
-test "$V" = "1" && echo "$CGRN$P$COFF: Done working; unmounting package source."
+test "$V" = "1" && echo "Done working; unmounting package source."
 test "$MTD" = "1" && umount $UPDY
 
 # Run post-install scripts

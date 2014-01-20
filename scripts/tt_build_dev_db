@@ -37,7 +37,7 @@ for X in $@
 	esac
 done
 
-test -z "$DRVROOT" && DRVROOT=/home/tritech/source/drivers
+test -z "$DRVROOT" && DRVROOT=~tritech/source/drivers
 #export DRVROOT=$SOURCE/drivers
 test -z "$DRVBASE" && DRVBASE=$(basename $DRVROOT)
 test -z "$DBFILE" && DBFILE="$DRVROOT/devicedb.txt"
