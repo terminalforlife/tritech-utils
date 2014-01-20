@@ -61,10 +61,10 @@ setup_internet_connection () {
 		for X in $IFACE_WIRED
 			do echo "$IF_CARRIER" | grep -q " $X" && udhcpc -t 3 -n -i $X >/dev/null
 			get_interface_state
-			test ! -z "$IF_INET_IP" && break
+			test ! -z "$IF_INET_IP" && break 2
 		done
 		# If wired interfaces don't work, set up wireless connectivity
-		if [ ! -z "$IFACE_WIFI" ]
+		if [[ -z "$IF_INET_IP" && ! -z "$IFACE_WIFI" ]]
 			then for USE in $IFACE_WIFI
 				do get_wireless_networks
 				echo -e "\nWireless networks found on interface $USE"
@@ -108,3 +108,4 @@ setup_internet_connection () {
 
 setup_local_loopback
 setup_internet_connection
+test -z "$IFACE_WIRED$IFACE_WIFI" && echo "No network adapters available."
