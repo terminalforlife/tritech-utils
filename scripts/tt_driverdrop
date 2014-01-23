@@ -1,7 +1,9 @@
 #!/bin/bash
 
-VER=0.2
-VERDATE=2013-12-05
+VER=0.3
+VERDATE=2014-01-17
+
+BLACKLIST=" acpi:dev=pnp0a03 acpi:dev=pnp0a08 acpi:dev=pnp0c0f"
 
 . tss__common
 
@@ -118,38 +120,41 @@ echo -n "${CWHT}Scanning devices: "
 echo -n "${CCYA}PCI $COFF"; TYPE="pci"
 for X in $(lspci -mmn | tr -d ' ')
 	do
-	unset FUNC CC CV CD VID PID VEN DEV SUBSYS REV CLASS SC PROT
+	unset FUNC CC CV CD VID PID VEN DEV SUBSYS REV CLASS SC PROT THISDEV
 	CC=":cc=$(echo "$X" | cut -d\" -f2)"
 	VEN=":ven=$(echo "$X" | cut -d\" -f4)"
 	DEV=":dev=$(echo "$X" | cut -d\" -f6)"
 	test ! -z "$(echo "$X" | cut -d\" -f8)" && SUBSYS=":subsys=$(echo "$X" | cut -d\" -f8,10 | tr -d \" )"
 	test ! -z "$(echo "$X" | cut -d\" -f7 | sed 's/-p..//')" && REV=":rev=$(echo "$X" | cut -d\" -f7 | sed 's/-p..//;s/-r//')"
-	DEVS="$DEVS $TYPE$FUNC$CC$CV$CD$VID$PID$VEN$DEV$SUBSYS$REV$CLASS$SC$PROT"
+	THISDEV="$TYPE$FUNC$CC$CV$CD$VID$PID$VEN$DEV$SUBSYS$REV$CLASS$SC$PROT"
+	echo "$BLACKLIST" | grep -q " $THISDEV" || DEVS="$DEVS $THISDEV"
 done
 
 echo -n "${CYEL}USB $COFF"; TYPE="usb"
 for X in $(echo /sys/bus/usb/devices/* | tr ' ' \\n | grep -v ':')
 	do
-	unset FUNC CC CV CD VID PID VEN DEV SUBSYS REV CLASS SC PROT
+	unset FUNC CC CV CD VID PID VEN DEV SUBSYS REV CLASS SC PROT THISDEV
 	CLASS=":class=$(cat $X/bDeviceClass 2>/dev/null || cat $X/bInterfaceClass 2>/dev/null)"
 	SC=":sc=$(cat $X/bDeviceSubClass 2>/dev/null || cat $X/bInterfaceSubClass 2>/dev/null)"
 	PROT=":prot=$(cat $X/bDeviceProtocol 2>/dev/null || cat $X/bInterfaceProtocol 2>/dev/null)"
 	VID=":vid=$(cat $X/idVendor 2>/dev/null)"
 	PID=":pid=$(cat $X/idProduct 2>/dev/null)"
-	DEVS="$DEVS $TYPE$FUNC$CC$CV$CD$VID$PID$VEN$DEV$SUBSYS$REV$CLASS$SC$PROT"
+	THISDEV="$TYPE$FUNC$CC$CV$CD$VID$PID$VEN$DEV$SUBSYS$REV$CLASS$SC$PROT"
+	echo "$BLACKLIST" | grep -q " $THISDEV" || DEVS="$DEVS $THISDEV"
 done
 
 echo -n "${CPUR}ACPI $COFF"; TYPE="acpi"
 for X in $(echo /sys/bus/acpi/devices/* | tr '[:upper:]' '[:lower:]' | tr ' ' \\n | sed 's#/sys/bus/acpi/devices/\(.*\):.*#\1#g' | grep -v ^lnx | grep -v ^device | sort | uniq)
 	do
-	unset FUNC CC CV CD VID PID VEN DEV SUBSYS REV CLASS SC PROT
+	unset FUNC CC CV CD VID PID VEN DEV SUBSYS REV CLASS SC PROT THISDEV
 	DEV=":dev=$X"
-	DEVS="$DEVS $TYPE$FUNC$CC$CV$CD$VID$PID$VEN$DEV$SUBSYS$REV$CLASS$SC$PROT"
+	THISDEV="$TYPE$FUNC$CC$CV$CD$VID$PID$VEN$DEV$SUBSYS$REV$CLASS$SC$PROT"
+	echo "$BLACKLIST" | grep -q " $THISDEV" || DEVS="$DEVS $THISDEV"
 done
 echo -n "${CGRN}HDAUDIO $COFF"; TYPE="hdaudio"
 for X in /proc/asound/card*/codec#*
 	do
-	unset FUNC CV CD VID PID VEN DEV SUBSYS REV CLASS SC PROT
+	unset FUNC CC CV CD VID PID VEN DEV SUBSYS REV CLASS SC PROT THISDEV
 	SCORE=0; BEST=0; DV=0
 	CARD="$(echo "$X" | cut -d/ -f4)"
 	FUNC=":func=02"; grep -iq 'No Modem Function Group' $X && FUNC=":func=01"
@@ -159,7 +164,8 @@ for X in /proc/asound/card*/codec#*
 	DEV=":dev=$(grep '^Vendor Id: 0x' $X | sed 's/.*0x....\(....\).*/\1/')"
 	SUBSYS=":subsys=$(grep '^Subsystem Id: 0x' $X | cut -dx -f2)"
 	REV=":rev=$(grep '^Revision Id: 0x' $X | sed 's/.*0x\(....\).*/\1/')"
-	DEVS="$DEVS $TYPE$FUNC$CV$CD$VID$PID$VEN$DEV$SUBSYS$REV$CLASS$SC$PROT"
+	THISDEV="$TYPE$FUNC$CC$CV$CD$VID$PID$VEN$DEV$SUBSYS$REV$CLASS$SC$PROT"
+	echo "$BLACKLIST" | grep -q " $THISDEV" || DEVS="$DEVS $THISDEV"
 done
 
 echo
