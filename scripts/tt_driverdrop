@@ -3,7 +3,7 @@
 VER=0.3
 VERDATE=2014-01-17
 
-BLACKLIST=" acpi:dev=pnp0a03 acpi:dev=pnp0a08 acpi:dev=pnp0c0f"
+BLACKLIST=" acpi:dev=pnp0103 acpi:dev=pnp0a03 acpi:dev=pnp0a08 acpi:dev=pnp0c0f"
 
 . tss__common
 
