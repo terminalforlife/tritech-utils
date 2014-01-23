@@ -284,7 +284,7 @@ for X in $NODRV
 			then
 			NODRV="$(echo "$NODRV" | tr ' ' \\n | grep -v "$X" | tr \\n ' ' | sed 's/  / /g')"
 			test $DBG -gt 1 && echo -e "\n${CGRN}Using $LINE$COFF"
-			test $DBG -le 1 && echo "[${CGRN}OK${COFF}]"
+			test $DBG -le 1 && echo -e "\b [${CGRN}OK${COFF}]"
 			break
 		fi
 	done < $TF
@@ -300,6 +300,7 @@ if [ $DBG -gt 1 ]
 	exit
 fi
 
+NODRV=$(echo "$NODRV" | sed 's/^ //;s/  */ /g')
 if [ ! -z "$NODRV" ]
 	then echo -e "\n${CYEL}NOTICE:$COFF no specific drivers were found for these device IDs:"
 	for X in $NODRV; do echo "$CWHT$X$COFF"; done
