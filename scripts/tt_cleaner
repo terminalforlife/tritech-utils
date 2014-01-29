@@ -500,6 +500,7 @@ NAME="$LOCAL/join.me/*.log"; DESC="LMI join.me logs"; add_to_delete
 NAME="$LOCAL/$JAVACACHE"; DESC="Java"; add_to_wipe
 NAME="$LOCAL/$JSYSCACHE"; DESC="Java"; add_to_wipe
 NAME="$LOCAL/Live_TV"; DESC="Live_TV spyware"; add_to_wipe
+NAME="$LOCAL/lptmp*"; DESC="LastPass"; add_to_wipe
 NAME="$LOCAL/LogiShrd/Vid"; DESC="Logitech Vid cache"; add_to_wipe
 NAME="$LOCAL/$MPARTCACHE"; DESC="WMP cache"; add_to_wipe
 NAME="$LOCAL/$MPTRANSC"; DESC="WMP cache"; add_to_wipe
@@ -508,6 +509,7 @@ NAME="$LOCAL/$MS/CryptnetUrlCache"; DESC="MS crypto cert cache"; add_to_wipe
 NAME="$LOCAL/$MS/Feeds Cache"; DESC="MS feeds cache"; add_to_wipe
 NAME="$LOCAL/$MS/$IE/DOMStore"; DESC="IE DOMStore"; add_to_wipe
 NAME="$LOCAL/$MS/$IE/Recovery"; DESC="IE session recovery"; add_to_wipe
+NAME="$LOCAL/$MS/Media Player/Cache*"; DESC="Windows Media Player"; add_to_wipe
 NAME="$LOCAL/$MS/Media Player/lastplayed.wpl"; DESC="Windows Media Player"; add_to_delete
 NAME="$LOCAL/$MS/OneNote/*/TemporaryOneNoteOfflineCache.onecache"; DESC="MS OneNote cache"; add_to_delete
 NAME="$LOCAL/$MS/OfficeStarter"; DESC="Microsoft Office"; add_to_wipe
@@ -598,7 +600,6 @@ NAME="$LOCAL/Zoom_Downloader"; DESC="Zoom Downloader"; add_to_wipe
 NAME="$LOCAL/Zynga"; DESC="Zynga"; add_to_wipe
 
 NAME="$PF/24x7Help"; DESC="24x7 Help"; add_to_wipe
-NAME="$ROAM/$STARTMENU/24x7 Help"; DESC="24x7 Help"; add_to_wipe
 NAME="$PF/ATI/CIM/Reports/Report.xml.*.xml"; DESC="ATI CIM reports"; add_to_delete
 NAME="$PF/Babylon"; DESC="Babylon toolbar"; add_to_wipe
 NAME="$PF/Common Files/Windows Live/.cache"; DESC="WL cache"; add_to_wipe
@@ -612,9 +613,8 @@ NAME="$PF/Mozilla*/install.log"; DESC="Mozilla install logs"; add_to_delete
 NAME="$PF/MyWebSearch/bar/Cache"; DESC="MyWebSearch bar cache"; add_to_wipe
 NAME="$PF/$MSSQLLOG"; DESC="MSSQL Setup Logs"; add_to_wipe
 NAME="$PF/Online Services"; DESC="Online Services"; add_to_wipe
-NAME="$ROAM/$STARTMENU/PriceGong"; DESC="PriceGong"; add_to_wipe
+NAME="$PF/Rhapsody/radfile.rcf"; DESC="Rhapsody"; add_to_delete
 NAME="$PF/Strongvault Online Backup"; DESC="Strongvault Backup"; add_to_wipe
-NAME="$ROAM/$STARTMENU/Strongvault Online Backup"; DESC="Strongvault Backup"; add_to_wipe
 NAME="$PF/Trend Micro/Internet Security/Log"; DESC="Trend Micro logs"; add_to_wipe
 NAME="$PF/Wajam"; DESC="Wajam"; add_to_wipe
 NAME="$PF/$YMSGR/cache"; DESC="Yahoo Messenger"; add_to_wipe
@@ -624,6 +624,7 @@ NAME="$PF/$YMSGR/logs"; DESC="Yahoo Messenger"; add_to_wipe
 NAME="$PF/$YMSGR/Logs"; DESC="Yahoo Messenger"; add_to_wipe
 
 NAME="$ROAM/24x7 Help"; DESC="24x7 Help"; add_to_wipe
+NAME="$ROAM/$STARTMENU/24x7 Help"; DESC="24x7 Help"; add_to_wipe
 NAME="$ROAM/$AAWLOGS"; DESC="Ad-Aware"; add_to_wipe
 NAME="$ROAM/$AAWQ"; DESC="Ad-Aware"; add_to_wipe
 NAME="$ROAM/AdwareAlert/Log"; DESC="AdwareAlert"; add_to_wipe
@@ -806,6 +807,7 @@ NAME="$ROAM/$PHOTOEXP/Temp.dat"; DESC="Photo Explosion"; add_to_wipe
 NAME="$ROAM/PictureMover/Log"; DESC="PictureMover"; add_to_wipe
 NAME="$ROAM/PictureMover/imageS"; DESC="PictureMover"; add_to_wipe
 NAME="$ROAM/PriceGong"; DESC="PriceGong"; add_to_wipe
+NAME="$ROAM/$STARTMENU/PriceGong"; DESC="PriceGong"; add_to_wipe
 NAME="$ROAM/Pure Networks/Log"; DESC="Pure Networks logs"; add_to_wipe
 NAME="$ROAM/Pure Networks/Platform/MiniDumps"; DESC="Pure Networks dumps"; add_to_wipe
 NAME="$ROAM/QuestBrwSearch"; DESC="QuestBrwSearch"; add_to_wipe
@@ -840,6 +842,7 @@ NAME="$ROAM/SPORE/GraphicsCache*.package"; DESC="SPORE caches"; add_to_delete
 NAME="$ROAM/$SPYBOTSD"; DESC="Spybot SnD logs"; add_to_wipe
 NAME="$ROAM/Spyware Terminator"; DESC="Spyware Terminator"; add_to_wipe
 NAME="$ROAM/Starware"; DESC="Starware toolbar"; add_to_wipe
+NAME="$ROAM/$STARTMENU/Strongvault Online Backup"; DESC="Strongvault Backup"; add_to_wipe
 NAME="$ROAM/supportdotcom/logs"; DESC="Support.com logs"; add_to_wipe
 NAME="$ROAM/SupportSoft"; DESC="Dell Support Center"; add_to_wipe
 NAME="$ROAM/Symantec/Dumps"; DESC="Symantec software"; add_to_wipe
