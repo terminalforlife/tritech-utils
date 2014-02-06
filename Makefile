@@ -8,7 +8,8 @@ mandir=${prefix}/man
 datarootdir=${prefix}/share
 datadir=${datarootdir}
 ver=$(shell grep TRITECH_UTILS_VER tritech_utils.h | sed 's/.* "\([^"]*\)"/\1/')
-arch=$(shell uname -m | sed s/_/-/g | sed 's/i[34567]86/i386/')
+libc_arch=$(shell test -e /lib/libc.so.0 && echo -n "uclibc-")
+arch=$(shell echo -n "$(libc_arch)"; uname -m | sed 's/_/-/g;s/i[34567]86/i386/')
 
 all: tritech-utils manual test
 
@@ -82,12 +83,16 @@ install: tritech-utils manual
 	install -D -o root -g root -m 0755 scripts/tt_winver $(DESTDIR)/$(bindir)/tt_winver
 	install -D -o root -g root -m 0755 scripts/tt_zero_image $(DESTDIR)/$(bindir)/tt_zero_image
 
-package: tritech-utils manual test
+package: clean tritech-utils manual test
+	-test ! "$(arch)" = "x86-64" && echo "ARCH $(arch) != x86-64, aborting" && exit
 	-test -d $(CURDIR)/pkg && rm -rf $(CURDIR)/pkg
 	mkdir $(CURDIR)/pkg
 	make DESTDIR=$(CURDIR)/pkg install
+	set
 	tar -C pkg -c usr | xz -e > tritech-utils_$(ver)-$(arch).pkg.tar.xz
-	-./build-i386.sh
+	-test -z "$(DO_CHROOT_BUILD)" && ./chroot_build.sh uclibc-x86-64
+	-test -z "$(DO_CHROOT_BUILD)" && ./chroot_build.sh uclibc-i386
+	-test -z "$(DO_CHROOT_BUILD)" && ./chroot_build.sh i386
 
 clean:
 	-rm -rf $(CURDIR)/pkg
