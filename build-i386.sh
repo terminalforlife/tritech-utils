@@ -1,6 +1,5 @@
 #!/bin/sh
 
-
 test "$UID" != "0" && echo "You must be root to auto-build a 32-bit package." && exit 1
 export CHROOT=/x32
 export WD=$(pwd)

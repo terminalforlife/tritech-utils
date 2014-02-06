@@ -23,6 +23,7 @@ if [ -e "$P" ]
 	then echo "Peeling out package $1"
 	for X in $(cat $P | grep -v '/$'); do rm -f "./$X"; done
 	for X in $(cat $P | grep '/$' | sort -r); do rmdir "./$X"; done
+	rm -f $P
 	else echo "Bad package spec: '$1'"
 	exit 1
 fi
