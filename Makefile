@@ -88,7 +88,6 @@ package: clean tritech-utils manual test
 	-test -d $(CURDIR)/pkg && rm -rf $(CURDIR)/pkg
 	mkdir $(CURDIR)/pkg
 	make DESTDIR=$(CURDIR)/pkg install
-	set
 	tar -C pkg -c usr | xz -e > tritech-utils_$(ver)-$(arch).pkg.tar.xz
 	-test -z "$(DO_CHROOT_BUILD)" && ./chroot_build.sh uclibc-x86-64
 	-test -z "$(DO_CHROOT_BUILD)" && ./chroot_build.sh uclibc-i386
