@@ -564,7 +564,9 @@ NAME="$LOCAL/ShopAtHome"; DESC="ShopAtHome"; add_to_wipe
 NAME="$LOCAL/ShoppingReport2"; DESC="ShoppingReport2"; add_to_wipe
 NAME="$LOCAL/simppulltoolbar"; DESC="Simppull Toolbar"; add_to_wipe
 NAME="$LOCAL/SiteRanker"; DESC="SiteRanker"; add_to_wipe
+NAME="$LOCAL/SlimWare Utilities Inc/DriverUpdate/Downloads"; DESC="DriverUpdate"; add_to_wipe
 NAME="$LOCAL/SlimWare Utilities Inc/DriverUpdate/Logs"; DESC="DriverUpdate"; add_to_wipe
+NAME="$LOCAL/SlimWare Utilities Inc/DriverUpdate/Updates"; DESC="DriverUpdate"; add_to_wipe
 NAME="$LOCAL/Spotify/Browser"; DESC="Spotify"; add_to_wipe
 NAME="$LOCAL/Spotify/Storage"; DESC="Spotify"; add_to_wipe
 NAME="$LOCAL/SupportSoft"; DESC="SupportSoft"; add_to_wipe
@@ -676,6 +678,7 @@ NAME="$ROAM/Digital Album Organizer/album/*_cache"; DESC="Digital Album Organize
 NAME="$ROAM/DriverCure"; DESC="DriverCure"; add_to_wipe
 NAME="$ROAM/Error*Fix/Logs"; DESC="ErrorFix"; add_to_wipe
 NAME="$ROAM/F-Secure/logs"; DESC="F-Secure"; add_to_wipe
+NAME="$ROAM/FixCleaner"; DESC="FixCleaner"; add_to_wipe
 NAME="$ROAM/File Scout"; DESC="File Scout"; add_to_wipe
 NAME="$ROAM/$FLASH1"; DESC="Flash cache"; add_to_wipe
 NAME="$ROAM/$FLASH2"; DESC="Flash cache"; add_to_wipe
