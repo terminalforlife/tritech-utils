@@ -93,6 +93,12 @@ if [[ "$TSS_CLIENT" = "1" && ! -z "$PCID" ]]
 	test -z "$NOTES" && NOTES="(none) "
 	echo "${CBLU}TSS:  ${CCYA}Diags: $CWHT$DIAGS$COFF ${CCYA}Notes: $CWHT$NOTES$COFF"
 	echo "${CBLU}TSS:  ${CCYA}OS:    $CWHT$OS$COFF"
+	if [ -n "$PROBDESC" ]
+		then
+		echo -e "${CBLU}TSS:  ${CCYA}--- Problem Description ---"
+		echo -n "$PROBDESC" | fold -s -w 50 | sed "s/^/${CBLU}TSS:  $CWHT/"
+		echo "$COFF"
+	fi
 fi
 
 # If this is a Windows 8 or higher machine with a UEFI BIOS embedded
