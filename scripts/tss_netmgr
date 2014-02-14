@@ -1,7 +1,7 @@
 #!/bin/bash
 
-VER=0.1
-VERDATE=2014-01-21
+VER=0.2
+VERDATE=2014-02-14
 
 # When started, collect information about current interface states
 # Attempt to locate a configuration file
@@ -57,14 +57,16 @@ setup_internet_connection () {
 		killall -q -9 wpa_supplicant
 		get_interface_state
 		for X in $IFACE_WIRED
-			do echo "$IF_CARRIER" | grep -q " $X" && udhcpc -t 3 -n -i $X >/dev/null
+			do ip addr flush dev $X
+			echo "$IF_CARRIER" | grep -q " $X" && udhcpc -t 3 -n -i $X >/dev/null
 			get_interface_state
 			test ! -z "$IF_INET_IP" && break 2
 		done
 		# If wired interfaces don't work, set up wireless connectivity
 		if [[ -z "$IF_INET_IP" && ! -z "$IFACE_WIFI" ]]
 			then for USE in $IFACE_WIFI
-				do get_wireless_networks
+				do ip addr flush dev $USE
+				get_wireless_networks
 				echo -e "\nWireless networks found on interface $USE"
 				echo "-----------------------------------------"
 				CNT=0; N=999
@@ -101,7 +103,6 @@ setup_internet_connection () {
 			done
 		fi
 	fi
-	test ! -z "$IF_INET_IP" && echo "Internet up: $IF_INET_IP on $IF_INET"
 }
 
 # This hackish option is for network cards that refuse
@@ -110,9 +111,21 @@ if [ "$1" = "--init" ]
 	then echo "Initializing network connections."
 	get_interface_state
 	get_interface_state
-	sleep 3
+	sleep 2
+	# For some reason, read doesn't work the first time during bootup
+	read -t 1 X; unset X
 fi
 echo "TSS network connection manager $VER ($VERDATE)"
 setup_local_loopback
 setup_internet_connection
+if [ "$1" = "--init" ]
+	then while [ -z "$IF_INET_IP" ]
+		do
+		echo "No network connection; trying again. Press a key to abort."
+		unset X; read -t 1 X
+		test ! -z "$X" && break
+		setup_internet_connection
+	done
+fi
+test ! -z "$IF_INET_IP" && echo "Internet up: $IF_INET_IP on $IF_INET"
 test -z "$IFACE_WIRED$IFACE_WIFI" && echo "No network adapters available."
