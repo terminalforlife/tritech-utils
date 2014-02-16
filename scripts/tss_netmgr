@@ -112,8 +112,6 @@ if [ "$1" = "--init" ]
 	get_interface_state
 	get_interface_state
 	sleep 2
-	# For some reason, read doesn't work the first time during bootup
-	read -t 1 X; unset X
 fi
 echo "TSS network connection manager $VER ($VERDATE)"
 setup_local_loopback
@@ -121,8 +119,8 @@ setup_internet_connection
 if [ "$1" = "--init" ]
 	then while [ -z "$IF_INET_IP" ]
 		do
-		echo "No network connection; trying again. Press a key to abort."
-		unset X; read -t 1 X
+		test -z "$Q" && echo "Trying to bring up a network connection. Press a key to abort."
+		Q=1; unset X; read -t 1 X
 		test ! -z "$X" && break
 		setup_internet_connection
 	done
