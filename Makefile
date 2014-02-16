@@ -1,6 +1,6 @@
 CC=gcc
-CFLAGS=-Os -pipe -s
-LDFLAGS=-Wl,--hash-style=gnu
+CFLAGS=-Os -pipe -s -D_FILE_OFFSET_BITS=64
+LDFLAGS=-Wl,--hash-style=gnu -Wl,-Os
 
 prefix=/usr
 bindir=${prefix}/bin
@@ -25,18 +25,16 @@ test:	tritech-utils
 	./test.sh
 
 install: tritech-utils manual
+	install -D -o root -g root -m 0644 read_inf_section.1.gz $(DESTDIR)/$(mandir)/man1/read_inf_section.1.gz
+	install -D -o root -g root -m 0644 suggest_decompressor.1.gz $(DESTDIR)/$(mandir)/man1/suggest_decompressor.1.gz
+	install -D -o root -g root -m 0644 tss_file_tool.1.gz $(DESTDIR)/$(mandir)/man1/tss_file_tool.1.gz
+	install -D -o root -g root -m 0644 tt_beacon.1.gz $(DESTDIR)/$(mandir)/man1/tt_beacon.1.gz
 	install -D -o root -g root -m 0644 sounds/diags_complete.wav $(DESTDIR)/$(datadir)/sounds/tritech-utils/diags_complete.wav
 	install -D -o root -g root -m 0644 sounds/temp_warn.wav $(DESTDIR)/$(datadir)/sounds/tritech-utils/temp_warn.wav
 	install -D -o root -g root -m 0755 -s read_inf_section $(DESTDIR)/$(bindir)/read_inf_section
 	install -D -o root -g root -m 0755 -s suggest_decompressor $(DESTDIR)/$(bindir)/suggest_decompressor
 	install -D -o root -g root -m 0755 -s tss_file_tool $(DESTDIR)/$(bindir)/tss_file_tool
 	install -D -o root -g root -m 0755 -s tt_beacon $(DESTDIR)/$(bindir)/tt_beacon
-
-	install -D -o root -g root -m 0644 read_inf_section.1.gz $(DESTDIR)/$(mandir)/man1/read_inf_section.1.gz
-	install -D -o root -g root -m 0644 suggest_decompressor.1.gz $(DESTDIR)/$(mandir)/man1/suggest_decompressor.1.gz
-	install -D -o root -g root -m 0644 tss_file_tool.1.gz $(DESTDIR)/$(mandir)/man1/tss_file_tool.1.gz
-	install -D -o root -g root -m 0644 tt_beacon.1.gz $(DESTDIR)/$(mandir)/man1/tt_beacon.1.gz
-
 	install -D -o root -g root -m 0755 scripts/tss__common $(DESTDIR)/$(bindir)/tss__common
 	install -D -o root -g root -m 0755 scripts/tss_alsamixerinit $(DESTDIR)/$(bindir)/tss_alsamixerinit
 	install -D -o root -g root -m 0755 scripts/tss_bootstrap $(DESTDIR)/$(bindir)/tss_bootstrap
@@ -56,7 +54,6 @@ install: tritech-utils manual
 	install -D -o root -g root -m 0755 scripts/tt_autohal $(DESTDIR)/$(bindir)/tt_autohal
 	install -D -o root -g root -m 0755 scripts/tt_backup_cust_data $(DESTDIR)/$(bindir)/tt_backup_cust_data
 	install -D -o root -g root -m 0755 scripts/tt_beepsong $(DESTDIR)/$(bindir)/tt_beepsong
-#	install -D -o root -g root -m 0755 scripts/tt_beacon $(DESTDIR)/$(bindir)/tt_beacon
 	install -D -o root -g root -m 0755 scripts/tt_build_dev_db $(DESTDIR)/$(bindir)/tt_build_dev_db
 	install -D -o root -g root -m 0755 scripts/tt_burnin $(DESTDIR)/$(bindir)/tt_burnin
 	install -D -o root -g root -m 0755 scripts/tt_cifs $(DESTDIR)/$(bindir)/tt_cifs
