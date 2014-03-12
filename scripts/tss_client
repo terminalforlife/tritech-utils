@@ -5,8 +5,8 @@
 # Prevent loading twice
 if [ -z "$TSS_CLIENT" ]; then
 
-#VER=0.5
-#VERDATE=2013-10-02
+#VER=0.6
+#VERDATE=2014-03-12
 
 # Scripts can check this variable to ensure these functions are loaded
 TSS_CLIENT=1
@@ -132,12 +132,12 @@ tss_command () {
 	TSS_SERVER="$(echo "$TSS_SERVER" | head -n 1)"
 	TSS_PORT="$(echo "$TSS_PORT" | head -n 1)"
 	test "$COMMAND" = "" && echo "{CRED}tss_command:$COFF No command given" >&2 && return 1
-	TSSC_RETRY=3
+	TSSC_RETRY=2
 	while [ $TSSC_RETRY -gt 0 ]
 		do if ! RESPONSE="$(echo "$COMMAND" | socat - tcp-connect:$TSS_SERVER:$TSS_PORT 2>>$LOGFILE)"
 			then
 			echo "${CRED}tss_command:$COFF Command failed: echo \"$COMMAND\" | socat - tcp-connect:$TSS_SERVER:$TSS_PORT" >&2 
-			sleep 0.3
+			sleep 1
 			TSSC_ERR=1
 			else
 			test $V -gt 0 && echo "${CGRN}tss_command:$COFF CMD $CPUR$COMMAND$COFF, RES $CBLU$RESPONSE$COFF" >&2
@@ -147,6 +147,7 @@ tss_command () {
 		TSSC_RETRY=$((TSSC_RETRY - 1))
 	done
 	unset TSSC_RETRY
+	return $TSSC_ERR
 }
 
 # Perform actions based on server response
@@ -202,6 +203,7 @@ tss_proc_response () {
 
 		### End response processing
 	esac
+	return $TSSC_ERR
 }
 
 # Find a TSS server on the network.
@@ -384,6 +386,7 @@ push_sysinfo () {
 	read_sysinfo
 	COMMAND="STORE_PC_SPECS $PCID $TSS_SYSINFO" tss_command
 	tss_proc_response
+	return $TSSC_ERR
 }
 
 # Try to figure out what PC we're running on
@@ -495,6 +498,7 @@ pull_actions () {
 	test -z "$WOID" && echo "${CRED}pull_actions:$COFF WOID not set" && return 1
 	COMMAND="READ_ACTIONS $WOID" tss_command
 	tss_proc_response
+	return $TSSC_ERR
 }
 
 # Push the list of performed actions to the TSS server
@@ -504,6 +508,7 @@ push_actions () {
 	test -z "$WOID" && echo "${CRED}push_actions:$COFF WOID not set" && return 1
 	compact_actions
 	COMMAND="WRITE_ACTIONS $WOID $ACTIONS" tss_command
+	return $TSSC_ERR
 }
 
 # Read "Problem Description" work order field
@@ -513,6 +518,7 @@ read_probdesc () {
 	test -z "$WOID" && echo "${CRED}read_probdesc:$COFF WOID not set" && return 1
 	COMMAND="READ_PROBDESC $WOID" tss_command
 	tss_proc_response
+	return $TSSC_ERR
 }
 
 ### End functions
