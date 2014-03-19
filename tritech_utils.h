@@ -4,5 +4,5 @@
  */
 
 #define TRITECH_UTILS_VER "1.8"
-#define TRITECH_UTILS_DATE "2013-12-26"
+#define TRITECH_UTILS_DATE "2014-03-15"
 

@@ -538,6 +538,7 @@ NAME="$LOCAL/NCH"; DESC="NCH spyware"; add_to_wipe
 NAME="$LOCAL/ooVoo_Video_Chat"; DESC="ooVoo Toolbar"; add_to_wipe
 NAME="$LOCAL/oovootoolbar"; DESC="ooVoo Toolbar"; add_to_wipe
 NAME="$LOCAL/Nero/MobileSync.Thumbnails"; DESC="Nero MobileSync"; add_to_wipe
+NAME="$LOCAL/Oberon Games/*/cache"; DESC="Oberon Games"; add_to_wipe
 NAME="$LOCAL/OpenCandy"; DESC="OpenCandy downloader"; add_to_wipe
 NAME="$LOCAL/Opera/*/cache"; DESC="Opera caches"; add_to_wipe
 NAME="$LOCAL/OLYMPUS/OLYMPUS Data/cache"; DESC="Olympus cache"; add_to_wipe
@@ -584,6 +585,7 @@ NAME="$LOCAL/Topix"; DESC="Tific"; add_to_wipe
 NAME="$LOCAL/Trusteer/Rapport/user/logs"; DESC="Trusteer Rapport"; add_to_wipe
 NAME="$LOCAL/Unity/WebPlayer/Cache"; DESC="Unity WebPlayer cache"; add_to_wipe
 NAME="$LOCAL/verizontb"; DESC="Verizon Toolbar"; add_to_wipe
+NAME="$LOCAL/VisualBee*"; DESC="VisualBee"; add_to_wipe
 NAME="$LOCAL/$VS/$WIN/*.tmp"; DESC="Windows temp files (VS)"; add_to_delete
 NAME="$LOCAL/$V7HIST1"; DESC="IE history"; add_to_wipe
 NAME="$LOCAL/$V7HIST2"; DESC="IE history"; add_to_wipe
