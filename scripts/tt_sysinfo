@@ -43,13 +43,14 @@ for X in /sys/block/sd*
 		SIZE=$(cat "$X/size")
 		SIZE=$(expr $SIZE \* 512 / 1000000000)
 		SIZETB=$(expr $SIZE / 1000)
+		SIZETB2="$SIZETB.$(expr $(expr $SIZE - $SIZETB \* 1000) / 100)"
 		DN=$(hdparm -I /dev/$Y 2>/dev/null | grep 'Model Number:' | sed 's/[^:]*[^a-zA-Z0-9]*//;s/ *$//g')
 		DSN=$(hdparm -I /dev/$Y 2>/dev/null | grep 'Serial Number:' | sed 's/[^:]*[^a-zA-Z0-9]*//;s/ *$//g')
 		test "$DN" = "" && DN="unknown"
 		test "$DSN" = "" && DSN="unknown"
 		if [ "$SIZETB" -eq 0 ]
 			then echo "$CWHT$Y$COFF:  $CPUR$SIZE$COFF GB  (Model $DN, Serial $DSN)"
-			else echo "$CWHT$Y$COFF:  $CPUR$SIZETB$COFF TB    (Model $DN, Serial $DSN)"
+			else echo "$CWHT$Y$COFF:  $CPUR$SIZETB2$COFF TB    (Model $DN, Serial $DSN)"
 		fi
 		tt__hdd_smart_status $Y
 	fi

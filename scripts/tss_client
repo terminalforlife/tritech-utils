@@ -356,13 +356,14 @@ read_sysinfo () {
 			SIZE=$(cat "$X/size")
 			SIZE=$(expr $SIZE \* 512 / 1000000000)
 			SIZETB=$(expr $SIZE / 1000)
+			SIZETB2="$SIZETB.$(expr $(expr $SIZE - $SIZETB \* 1000) / 100)"
 			DMN=$($HDPARM -I /dev/$Y 2>/dev/null | grep 'Model Number:' | sed 's/[^:]*[^a-zA-Z0-9]*//;s/ *$//g')
 			DSN=$($HDPARM -I /dev/$Y 2>/dev/null | grep 'Serial Number:' | sed 's/[^:]*[^a-zA-Z0-9]*//;s/ *$//g')
 			if [ ! "$DMN" = "" ]
 				then
 				if [ "$SIZETB" -eq 0 ]
 					then HDD="$HDD${SIZE}GB ($DMN/$DSN), "
-					else HDD="$HDD${SIZETB}TB ($DMN/$DSN), "
+					else HDD="$HDD${SIZETB2}TB ($DMN/$DSN), "
 				fi
 			fi
 		fi
