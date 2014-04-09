@@ -9,11 +9,11 @@
 
 #include "tritech_utils.h"
 
-int check_if_ntfs(unsigned char *bp) {
+int check_if_ntfs(uint8_t *bp) {
 	return strncmp(bp + 3, "NTFS", 4);
 }
 
-int change_ntfs_geometry(FILE *fp, unsigned char *bp, unsigned char heads) {
+int change_ntfs_geometry(FILE *fp, uint8_t *bp, uint8_t heads) {
 	bp += 26;
 	*bp = heads;
 	bp -= 26;
@@ -23,19 +23,8 @@ int change_ntfs_geometry(FILE *fp, unsigned char *bp, unsigned char heads) {
 	else return 0;
 }
 
-int usage(char **argv) {
-		fprintf(stderr, "tss_check Version %s (%s)\n", TRITECH_UTILS_VER, TRITECH_UTILS_DATE);
-		fprintf(stderr, "Usage: %s command dev/device|/path/to/file [hex-head-count]\n\n", argv[0]);
-		fprintf(stderr, "Commands:\n");
-		fprintf(stderr, "gpt     \tChecks for GPT partitioning.\n");
-		fprintf(stderr, "ntfs    \tChecks for an NTFS filesystem signature.\n");
-		fprintf(stderr, "winexec \tChecks for a DOS/Windows EXE signature.\n");
-		fprintf(stderr, "ntfsgeom\tChange NTFS partition head count. Requires two-digit hex-head-count.\n");
-		exit(1);
-}
-
 int main(int argc, char **argv) {
-	if(argc < 3 || argc > 4) usage(argv);
+	if(argc < 3 || argc > 4) goto usage;
 	
 	FILE *fp;
 	uint8_t buffer[512];
@@ -53,18 +42,18 @@ int main(int argc, char **argv) {
 		exit(1);
 	}
 
-	if(strcmp(argv[1], "ntfs") == 0) {
-		if(check_if_ntfs(buffer) == 0) {
+	if(!strcmp(argv[1], "ntfs")) {
+		if(!check_if_ntfs(buffer)) {
 			puts("yes");
 		} else {
 			puts("no");
 		}
 	} else if(!strcmp(argv[1], "ntfsgeom")) {
-		if(argc != 4) usage(argv);
+		if(argc != 4) goto usage;
 		/* Convert heads from command line and verify validity */
-		if(strlen(argv[3]) != 2) usage(argv);
+		if(strlen(argv[3]) != 2) goto usage;
 		heads = strtol(argv[3],NULL,16);
-		if(heads < 1) {
+		if(!heads) {
 			printf("Invalid head count specified: %s\n",argv[3]);
 			exit(1);
 		}
@@ -97,5 +86,15 @@ int main(int argc, char **argv) {
 	}
 	fclose(fp);
 	exit(0);
+
+usage:
+	fprintf(stderr, "tss_check Version %s (%s)\n", TRITECH_UTILS_VER, TRITECH_UTILS_DATE);
+	fprintf(stderr, "Usage: %s command dev/device|/path/to/file [hex-head-count]\n\n", argv[0]);
+	fprintf(stderr, "Commands:\n");
+	fprintf(stderr, "gpt     \tChecks for GPT partitioning.\n");
+	fprintf(stderr, "ntfs    \tChecks for an NTFS filesystem signature.\n");
+	fprintf(stderr, "winexec \tChecks for a DOS/Windows EXE signature.\n");
+	fprintf(stderr, "ntfsgeom\tChange NTFS partition head count. Requires two-digit hex-head-count.\n");
+	exit(1);
 }
 
