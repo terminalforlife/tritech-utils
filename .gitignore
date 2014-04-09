@@ -1,0 +1,40 @@
+#
+# Kbuild ignores
+#
+.*
+*.o
+*.o.*
+*.a
+*.s
+*.1.gz
+Kbuild
+Config.in
+
+#
+# Never ignore these
+#
+!.gitignore
+
+#
+# Normal output
+#
+/read_inf_section
+/suggest_decompressor
+/tss_file_tool
+/tt_beacon
+
+#
+# Backups / patches
+#
+*~
+*.orig
+*.rej
+/*.patch
+
+#
+# debugging stuff
+#
+core
+.gdb_history
+.gdbinit
+
