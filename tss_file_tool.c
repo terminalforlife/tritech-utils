@@ -80,7 +80,7 @@ int main(int argc, char **argv) {
 			puts("not_winexec");
 		}
 	} else {
-		printf("Unknown check request: %s\n",argv[1]);
+		printf("Unknown command %s\n",argv[1]);
 		fclose(fp);
 		exit(1);
 	}
