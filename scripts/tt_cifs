@@ -17,24 +17,24 @@ unset CACHE
 test $(uname -r | cut -d. -f2) -gt 4 && CACHE=",cache=loose"
 
 test "$V" = "2" && \
-  echo "${CWHT}TSS CIFS automount version $CGRN$VER$CWHT, updated $CGRN$VERDATE$COFF"
+	echo "${CWHT}TSS CIFS automount version $CGRN$VER$CWHT, updated $CGRN$VERDATE$COFF"
 
 # Help text
 if [[ "$1" = "-h" || "$1" = "--help" ]]
-  then
-  echo "Usage:"
-  echo "$0 -c"
-  echo "   Print critical information, be less verbose"
-  echo "$0 -q"
-  echo "   Quiet mode, only returns exit status"
-  echo "$0 -B"
-  echo "   Disable beacon mode, uses a hard-coded server instead"
-  echo "$0 -s beacon_string"
-  echo "   Instead of waiting for a beacon, pretend that a beacon"
-  echo "   returned beacon_string in the following format:"
-  echo "   cifs:ip.addr.of.server/share:username:password"
-  echo "   Ex.: $0 -s \"cifs:10.10.0.4/tss:tssuser:Supers3creT\""
-  exit 2
+	then
+	echo "Usage:"
+	echo "$0 -c"
+	echo "   Print critical information, be less verbose"
+	echo "$0 -q"
+	echo "   Quiet mode, only returns exit status"
+	echo "$0 -B"
+	echo "   Disable beacon mode, uses a hard-coded server instead"
+	echo "$0 -s beacon_string"
+	echo "   Instead of waiting for a beacon, pretend that a beacon"
+	echo "   returned beacon_string in the following format:"
+	echo "   cifs:ip.addr.of.server/share:username:password"
+	echo "   Ex.: $0 -s \"cifs:10.10.0.4/tss:tssuser:Supers3creT\""
+	exit 2
 fi
 
 # See if we are already mounted and don't waste any time if we are
@@ -50,30 +50,30 @@ rm -f $TEMP
 # Then we kill socat if it's running and process the file.
 
 if [ $BCN = 1 ]
-  then
-  test "$V" = "2" && \
-    echo -n "${CPUR}Waiting for a beacon: $COFF"
+	then
+	test "$V" = "2" && \
+		echo -n "${CPUR}Waiting for a beacon: $COFF"
 
-  socat -u udp4-listen:60606,reuseaddr - > $TEMP &
-  CNT=0; TO=5
-  while [ $CNT -lt $TO ]
-    do sleep 1
-    test -s "$TEMP" && break
-    CNT=$(( CNT + 1 ))
-  done
-  kill $! 2>/dev/null
+	socat -u udp4-listen:60606,reuseaddr - > $TEMP &
+	CNT=0; TO=5
+	while [ $CNT -lt $TO ]
+		do sleep 1
+		test -s "$TEMP" && break
+		CNT=$(( CNT + 1 ))
+	done
+	kill $! 2>/dev/null
 
-  if [ ! -s "$TEMP" ]
-    then
-    test $V = 2 && echo "${CRED}no beacons received.$COFF"
-  fi
+	if [ ! -s "$TEMP" ]
+		then
+		test $V = 2 && echo "${CRED}no beacons received.$COFF"
+	fi
 fi
 
 if [ "$1" = "-s" ]
-  then
-  test "$2" = "" && echo "${CRED}-s option specified without a string$COFF" && exit 2
-  echo "$2" > $TEMP
-  BCN=1
+	then
+	test "$2" = "" && echo "${CRED}-s option specified without a string$COFF" && exit 2
+	echo "$2" > $TEMP
+	BCN=1
 fi
 
 # Lots of ugly sed crap to split the beacon string
@@ -81,87 +81,87 @@ fi
 # cifs:ip.addr.of.server/share_name:username:password
 
 if [ $BCN = 1 ]
-  then
-  RAW="$(cat $TEMP | head -n 1)"
-  SVRX="$(echo $RAW | sed s/cifs:// | sed s/:.*//g)"
-  SVR="$(echo "$SVRX" | sed 's/\/.*//')"
-  UN="$(echo $RAW | sed s/cifs:[^:]*:// | sed s/\:.*//)"
-  PW="$(echo $RAW | sed s/cifs:.*://)"
-  rm -f $TEMP
+	then
+	RAW="$(cat $TEMP | head -n 1)"
+	SVRX="$(echo $RAW | sed s/cifs:// | sed s/:.*//g)"
+	SVR="$(echo "$SVRX" | sed 's/\/.*//')"
+	UN="$(echo $RAW | sed s/cifs:[^:]*:// | sed s/\:.*//)"
+	PW="$(echo $RAW | sed s/cifs:.*://)"
+	rm -f $TEMP
 fi
 
 # Fallback hard-coded server, and indicate what is being used
 if [ "$SVR" = "" ]
-  then SVR="192.168.0.15"
-  SVRX="192.168.0.15/tritech"
-  UN="tritech"
-  PW=""
-  test $V = 2 && echo "${CYEL}Hard-coded server $SVR$COFF"
-  else
-  test $V = 2 && echo "${CGRN}Beacon-provided server $SVR$COFF"
+	then SVR="192.168.0.15"
+	SVRX="192.168.0.15/tritech"
+	UN="tritech"
+	PW=""
+	test $V = 2 && echo "${CYEL}Hard-coded server $SVR$COFF"
+	else
+	test $V = 2 && echo "${CGRN}Beacon-provided server $SVR$COFF"
 fi
 
 # Sanity check: can't proceed if there is no server value at all
 if [[ "$SVRX" = "" || "$UN" = "" ]]
-  then
-  test $V -gt 1 && echo "${CRED}Error in data, info: cifs:$SVRX:$UN:$PW$COFF"
-  exit 1
+	then
+	test $V -gt 1 && echo "${CRED}Error in data, info: cifs:$SVRX:$UN:$PW$COFF"
+	exit 1
 fi
 
 # Verify the share string has a slash in it
 if ! echo "$SVRX" | grep -q /
-  then
-  echo "${CRED}Server string seems invalid: $SVRX$COFF"
-  exit 1
+	then
+	echo "${CRED}Server string seems invalid: $SVRX$COFF"
+	exit 1
 fi
 
 # Ping the server. If unreachable, try until we time out.
 TIMEOUT=3
 
 if ! ping -c 1 -W 1 $SVR >/dev/null 2>/dev/null
-  then test "$V" = "2" && echo -n "${CYEL}Trying to reach $SVR: $COFF"
-  X=$TIMEOUT; Y=0
-  while [ "$X" -gt "0" ]
-    do test "$V" -gt "0" && echo -n "${CWHT}${X}${COFF} "
-    if ! ping -c 1 -W 1 $SVR >/dev/null 2>/dev/null
-      then X=$(expr $X - 1)
-      else Y=1
-    fi
-    test "$Y" -eq "1" && break
-    sleep 1
-    if [ "$X" -eq "0" ]
-      then echo "${CRED}failed.${COFF}"; exit 1
-    fi
-  done
+	then test "$V" = "2" && echo -n "${CYEL}Trying to reach $SVR: $COFF"
+	X=$TIMEOUT; Y=0
+	while [ "$X" -gt "0" ]
+		do test "$V" -gt "0" && echo -n "${CWHT}${X}${COFF} "
+		if ! ping -c 1 -W 1 $SVR >/dev/null 2>/dev/null
+			then X=$(expr $X - 1)
+			else Y=1
+		fi
+		test "$Y" -eq "1" && break
+		sleep 1
+		if [ "$X" -eq "0" ]
+			then echo "${CRED}failed.${COFF}"; exit 1
+		fi
+	done
 fi
 
 if ! ping -c 1 -W 1 $SVR >/dev/null 2>/dev/null
-  then test "$V" = "2" && \
-    echo "${CRED}All pings to server $SVR timed out.${COFF}"
-  exit 1
+	then test "$V" = "2" && \
+		echo "${CRED}All pings to server $SVR timed out.${COFF}"
+	exit 1
 fi
 
 test "$V" = "2" && echo -n "${CYEL}Mounting...$COFF"
 
 TESTLINE=$(mount | grep "on /mnt/cifs type")
 if [ ! "$TESTLINE" = "" ]
-  then
-  if echo $TESTLINE | cut -d" " -f1 | grep -q "$SVRX"
-    then
-    test "$V" -gt "0" && echo "$CGRN$SVRX $CWHT=>$CGRN /mnt/cifs (already mounted)$COFF"
-    exit
-  
-    else
-    test "$V" -gt "0" && echo "${CRED}/mnt/cifs is used by a different mount; aborting.$COFF"
-    exit 1
-  fi
+	then
+	if echo $TESTLINE | cut -d" " -f1 | grep -q "$SVRX"
+		then
+		test "$V" -gt "0" && echo "$CGRN$SVRX $CWHT=>$CGRN /mnt/cifs (already mounted)$COFF"
+		exit
+
+		else
+		test "$V" -gt "0" && echo "${CRED}/mnt/cifs is used by a different mount; aborting.$COFF"
+		exit 1
+	fi
 fi
 
 # Added cache=loose due to default change causing breakage in kernels >3.6.11
 if mount.cifs //$SVRX /mnt/cifs -o user="$UN",pass="$PW"$CACHE 2>/dev/null >/dev/null
-  then
-  test "$V" -gt "0" && echo "$CGRN$SVRX $CWHT=>$CGRN /mnt/cifs$COFF"
-  else test "$V" -gt "0" && echo "${CRED}failed.$COFF"
-  exit 1
+	then
+	test "$V" -gt "0" && echo "$CGRN$SVRX $CWHT=>$CGRN /mnt/cifs$COFF"
+	else test "$V" -gt "0" && echo "${CRED}failed.$COFF"
+	exit 1
 fi
 
