@@ -39,7 +39,6 @@ int main(int argc, char **argv) {
 	
 	FILE *fp;
 	uint8_t buffer[512];
-	uint8_t *bp = buffer;
 	uint8_t heads;
 	
 	fp = fopen(argv[2], "r+");
@@ -48,14 +47,14 @@ int main(int argc, char **argv) {
 		exit(1);
 	}
 
-	fread(bp, 512, 1, fp);
+	fread(buffer, 512, 1, fp);
 	if(ferror(fp) != 0) {
 		printf("Error reading first sector of %s\n",argv[1]);
 		exit(1);
 	}
 
 	if(strcmp(argv[1], "ntfs") == 0) {
-		if(check_if_ntfs(bp) == 0) {
+		if(check_if_ntfs(buffer) == 0) {
 			puts("yes");
 		} else {
 			puts("no");
@@ -69,11 +68,11 @@ int main(int argc, char **argv) {
 			printf("Invalid head count specified: %s\n",argv[3]);
 			exit(1);
 		}
-		if(check_if_ntfs(bp)) {
+		if(check_if_ntfs(buffer)) {
 			printf("%s is not an NTFS filesystem.\n", argv[2]);
 			exit(1);
 		}
-		if(change_ntfs_geometry(fp, bp, heads)) {
+		if(change_ntfs_geometry(fp, buffer, heads)) {
 			printf("Error writing to %s\n",argv[2]);
 			exit(1);
 		} else {
