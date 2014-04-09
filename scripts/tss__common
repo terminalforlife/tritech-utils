@@ -125,8 +125,8 @@ do_windows_folder_detection () {
 
 	# Use a progress bar version of "cat" if available
 	export CATCOM=cat
-	pv --version 2>&1 >/dev/null && \
-		export CATCOM='pv -pterab -B 131072' && export PV=1
+	pv --version 2>/dev/null >/dev/null &&
+		export CATCOM='pv -pterab' && export PV=1
 
 	# Find an NTFS mount command
 	export NTFSMOUNT=0
