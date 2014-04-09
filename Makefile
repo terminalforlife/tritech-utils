@@ -1,6 +1,6 @@
 CC=gcc
-CFLAGS=-Os -pipe -s -D_FILE_OFFSET_BITS=64
-LDFLAGS=-Wl,--hash-style=gnu -Wl,-Os
+CFLAGS=-O2 -pipe -s -D_FILE_OFFSET_BITS=64
+LDFLAGS=-Wl,--hash-style=gnu
 
 prefix=/usr
 bindir=${prefix}/bin
