@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <string.h>
 
 #include "tritech_utils.h"
@@ -37,9 +38,9 @@ int main(int argc, char **argv) {
 	if(argc < 3 || argc > 4) usage(argv);
 	
 	FILE *fp;
-	unsigned char buffer[512];
-	unsigned char *bp = buffer;
-	unsigned char heads;
+	uint8_t buffer[512];
+	uint8_t *bp = buffer;
+	uint8_t heads;
 	
 	fp = fopen(argv[2], "r+");
 	if(!fp) {
@@ -59,7 +60,7 @@ int main(int argc, char **argv) {
 		} else {
 			puts("no");
 		}
-	} else if(strcmp(argv[1], "ntfsgeom") == 0) {
+	} else if(!strcmp(argv[1], "ntfsgeom")) {
 		if(argc != 4) usage(argv);
 		/* Convert heads from command line and verify validity */
 		if(strlen(argv[3]) != 2) usage(argv);
@@ -68,7 +69,7 @@ int main(int argc, char **argv) {
 			printf("Invalid head count specified: %s\n",argv[3]);
 			exit(1);
 		}
-		if(check_if_ntfs(bp) != 0) {
+		if(check_if_ntfs(bp)) {
 			printf("%s is not an NTFS filesystem.\n", argv[2]);
 			exit(1);
 		}
@@ -78,13 +79,13 @@ int main(int argc, char **argv) {
 		} else {
 			printf("Geometry change for %s: %d heads\n", argv[2], heads);
 		}
-	} else if(strcmp(argv[1], "gpt") == 0) {
+	} else if(!strcmp(argv[1], "gpt")) {
 		if(buffer[450] == 0xEE) {
 			puts("yes");
 		} else {
 			puts("no");
 		}
-	} else if(strcmp(argv[1], "winexec") == 0) {
+	} else if(!strcmp(argv[1], "winexec")) {
 		if(buffer[0] == 0x4D && buffer[1] == 0x5A) {
 			puts(argv[2]);
 		} else {
