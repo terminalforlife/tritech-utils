@@ -19,7 +19,12 @@ test $(uname -r | cut -d. -f2) -gt 4 && CACHE=",cache=loose"
 test "$V" = "2" && \
 	echo "${CWHT}TSS CIFS automount version $CGRN$VER$CWHT, updated $CGRN$VERDATE$COFF"
 
-# Help text
+# Check for socat (required for beacon capability)
+if ! socat -V 2>/dev/null >/dev/null
+	then BCN=0
+	test "$V" = "2" && echo "${CWHT}socat$CYEL not found; beacon capabilities disabled"
+fi
+
 if [[ "$1" = "-h" || "$1" = "--help" ]]
 	then
 	echo "Usage:"
