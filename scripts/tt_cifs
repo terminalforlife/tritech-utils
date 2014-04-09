@@ -19,6 +19,11 @@ test $(uname -r | cut -d. -f2) -gt 4 && CACHE=",cache=loose"
 test "$V" = "2" && \
 	echo "${CWHT}TSS CIFS automount version $CGRN$VER$CWHT, updated $CGRN$VERDATE$COFF"
 
+if ! mount.cifs -V 2>/dev/null >/dev/null
+	then echo "${CWHT}mount.cifs$CRED required but not found."
+	exit 1
+fi
+
 # Check for socat (required for beacon capability)
 if ! socat -V 2>/dev/null >/dev/null
 	then BCN=0
