@@ -13,20 +13,17 @@ VERDATE="2013-12-17"
 
 echo "${CCYA}CPU:  $CGRN$(cat /proc/cpuinfo | grep "model name" | sed s/.*:[^A-Za-z]*//g | head -n 1)$COFF ($CBLU$(cat /proc/cpuinfo | grep "model name" | wc -l) cores$COFF)"
 
-VALID="256 384 512 768 1024 1280 1536 2048 3072 3584 4096 5120 6144 7168 8192 10240 12288 16384 20480 24576 32768"
-MEMT=$(cat /proc/meminfo | grep MemTotal | awk '{print $2}')
-# Attempt to normalize memory count to a known good value
-VX=131072
-for X in $(echo $VALID)
-	do
-	X=$(expr $X \* 1024)
-	if [[ "$MEMT" -gt $VX && "$MEMT" -le $X ]]
-		then MEMT=$(expr $X / 1024)
-		break
-		else VX=$X
-	fi
-done
-# Ugly math to convert KiB to decimalized KB
+if dmidecode -t memory | grep -q '^\sSize: '
+	then
+	for X in $(dmidecode -t memory | grep '^\sSize: ' | cut -d: -f2 | cut -d\  -f2)
+		do MEMT=$((MEMT + X))
+	done
+	else
+	VALID="256 384 512 768 1024 1280 1536 2048 3072 3584 4096 5120 6144 7168 8192 10240 12288 16384 20480 24576 32768"
+	MEMT=$(cat /proc/meminfo | grep MemTotal | awk '{print $2}')
+	MEMT=$((MEMT + 11000))
+	MEMT=$(expr $MEMT / 1024)
+fi
 MEMG=$(expr $MEMT / 1024)
 MEML=$(expr $MEMT % 1024)
 MEML=$(expr $MEML \* 10)

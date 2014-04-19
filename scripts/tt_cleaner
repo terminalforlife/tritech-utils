@@ -1,7 +1,7 @@
 #!/bin/bash
 
-VER="5.0.4"
-VERDATE="2013-12-17"
+VER="5.0.5"
+VERDATE="2014-04-14"
 
 # Tritech Service System Windows installation clean tool for Linux
 # Copyright (C) by c02ware and Jody Bruchon
@@ -185,12 +185,12 @@ for FILE in $ADD
 			then
 			if [ "$NOSIZE" = "0" ]
 				then
-				ADD=$(du -s "$FILE" 2>/dev/null | cut -f1)
+				ADD=$(du -s -- "$FILE" 2>/dev/null | cut -f1)
 				CLEANED=$(( CLEANED + ADD ))
 			fi
 			for E in "$FILE"
 				do
-				test "$NODEL" = "0" && rm -rf "$E" 2>/dev/null && mkdir "$FILE" 2>/dev/null
+				test "$NODEL" = "0" && rm -rf -- "$E" 2>/dev/null && mkdir "$FILE" 2>/dev/null
 				test "$DEBUG" = "1" && echo "\"$E\" "
 			done
 			CLEAN_TYPE="$DESC"
@@ -222,11 +222,11 @@ for FILE in $ADD
 		then
 		if [ "$NOSIZE" = "0" ]
 			then
-			ADD=$(du -s "$FILE" | cut -f1)
+			ADD=$(du -s -- "$FILE" | cut -f1)
 			CLEANED=$(( CLEANED + ADD ))
 		fi
 		for E in "$FILE"
-			do test "$NODEL" = "0" && rm -rf "$E" 2>/dev/null
+			do test "$NODEL" = "0" && rm -rf -- "$E" 2>/dev/null
 			test "$DEBUG" = "1" && echo " \"$E\" "
 		done
 		CLEAN_TYPE="$DESC"
@@ -244,11 +244,11 @@ for FILE in $(grep -i "^${SP}/" $TMPFILE | grep -i "/${NAME}\$")
 		then
 		if [ "$NOSIZE" = "0" ]
 			then
-			ADD=$(du -s "$FILE" | cut -f1)
+			ADD=$(du -s -- "$FILE" | cut -f1)
 			CLEANED=$(( CLEANED + ADD ))
 		fi
 		for E in "$FILE"
-		 do test "$NODEL" = "0" && rm -f "$E" 2>/dev/null
+		 do test "$NODEL" = "0" && rm -f -- "$E" 2>/dev/null
 		 test "$DEBUG" = "1" && echo " \"$E\" "
 		done
 		CLEAN_TYPE="$DESC"

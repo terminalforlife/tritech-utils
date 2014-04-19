@@ -32,7 +32,7 @@ clean_exit () {
 	#kill -9 $(jobs -p) 2>/dev/null >/dev/null
 	if [ $FORK -eq 0 ]
 		then rm "$BTEMP" "${DTEMP[@]}"
-		test "$TSS_CLIENT" = "1" && while true
+		test "$TSS_CLIENT" = "1" && test "$TSS_CLIENT_DISABLE" != "1" && while true
 			do
 			push_actions && break
 			echo "Could not push diagnostic results; a network cable is unplugged or wifi got disconnected."
