@@ -474,6 +474,7 @@ NAME="$LOCAL/Google/Google Desktop/*/*.ht1"; DESC="Google Desktop"; add_to_delet
 NAME="$LOCAL/Google/Google Desktop/*/db*"; DESC="Google Desktop"; add_to_delete
 NAME="$LOCAL/Google/Google Desktop/*/safeweb"; DESC="Google Desktop"; add_to_delete
 NAME="$LOCAL/Google/GoogleEarth/webdata"; DESC="Google Earth"; add_to_wipe
+NAME="$LOCAL/Google/GoogleEarth/unified_cache_*"; DESC="Google Earth"; add_to_wipe
 NAME="$LOCAL/Google/GoogleEarth/dbCache*"; DESC="Google Earth"; add_to_delete
 NAME="$LOCAL/Google/Picasa2/db3/*thumbs*.db"; DESC="Picasa"; add_to_delete
 NAME="$LOCAL/Google/Picasa2/db3/preview*.db"; DESC="Picasa"; add_to_delete
