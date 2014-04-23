@@ -18,6 +18,7 @@ fi
 test ! -d $CHROOT && echo "$CHROOT not present, not building $CHROOT_ARCH package." && exit 1
 test ! -x $CHROOT/bin/sh && echo "$CHROOT does not seem to be a chroot; aborting." && exit 1
 
+echo "Performing package build for $CHROOT"
 mount --bind /dev $CHROOT/dev
 mount --bind /usr/src $CHROOT/usr/src
 mount --bind /home $CHROOT/home

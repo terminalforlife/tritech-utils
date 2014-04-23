@@ -42,7 +42,7 @@ void handle_signal(int signum)
 	}
 }
 
-int do_beep(void)
+static inline int do_beep(void)
 {
 	const struct timespec len = {0, 500000000};
 	const int freq = 3000;

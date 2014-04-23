@@ -9,12 +9,9 @@
 
 #include "tritech_utils.h"
 
-int check_if_ntfs(uint8_t *bp)
-{
-	return strncmp((char *)(bp + 3), "NTFS", 4);
-}
+#define CHECK_IF_NTFS(a) strncmp((char *)(a + 3), "NTFS", 4)
 
-int change_ntfs_geometry(FILE *fp, uint8_t *bp, uint8_t heads)
+static inline int change_ntfs_geometry(FILE *fp, uint8_t *bp, uint8_t heads)
 {
 	bp += 26;
 	*bp = heads;
@@ -46,7 +43,7 @@ int main(int argc, char **argv)
 	}
 
 	if(!strcmp(argv[1], "ntfs")) {
-		if(!check_if_ntfs(buffer)) {
+		if(!CHECK_IF_NTFS(buffer)) {
 			puts("yes");
 		} else {
 			puts("no");
@@ -60,7 +57,7 @@ int main(int argc, char **argv)
 			printf("Invalid head count specified: %s\n",argv[3]);
 			return EXIT_FAILURE;
 		}
-		if(check_if_ntfs(buffer)) {
+		if(CHECK_IF_NTFS(buffer)) {
 			printf("%s is not an NTFS filesystem.\n", argv[2]);
 			return EXIT_FAILURE;
 		}

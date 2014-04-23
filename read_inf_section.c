@@ -26,7 +26,7 @@ void die(char *message, int error)
 	exit(error);
 }
 
-int find_section_header(FILE *fp, char *line)
+static inline int find_section_header(FILE *fp, char *line)
 {
 	char buffer[MAXLEN];
 	char *res;
@@ -40,7 +40,7 @@ int find_section_header(FILE *fp, char *line)
 	}
 }
 
-int output_extended_section(FILE *fp, char *line)
+static int output_extended_section(FILE *fp, char *line)
 {
 	char buffer[MAXLEN];
 	int buflen;
@@ -56,7 +56,7 @@ int output_extended_section(FILE *fp, char *line)
 	}
 }
 
-int output_section(FILE *fp)
+static inline int output_section(FILE *fp)
 {
 	char buffer[MAXLEN];
 	int buflen;
