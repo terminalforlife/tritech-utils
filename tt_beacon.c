@@ -26,7 +26,7 @@ int main(int argc, char **argv)
 	fprintf(stderr, "Tritech Service System UDP beacon utility %s (%s)\n", TRITECH_UTILS_VER, TRITECH_UTILS_DATE);
 	if (argc != 5) {
 		fprintf(stderr, "Usage: %s broadcast_addr port interval \"beacon text string\"\n", argv[0]);
-		exit(1);
+		return EXIT_FAILURE;
 	}
 
 	address = argv[1];
@@ -36,14 +36,14 @@ int main(int argc, char **argv)
 
 	if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) == -1) {
 		perror("socket");
-		exit(1);
+		return EXIT_FAILURE;
 	}
 
 	dest_addr.sin_family = AF_INET;
 	dest_addr.sin_port = htons(port);
 	if (inet_pton(AF_INET, address, &(dest_addr.sin_addr)) != 1) {
 		perror("inet_pton");
-		exit(1);
+		return EXIT_FAILURE;
 	}
 
 	setsockopt(sockfd, SOL_SOCKET, SO_BROADCAST, &broadcast, sizeof broadcast);
@@ -54,12 +54,11 @@ int main(int argc, char **argv)
 		if (sendto(sockfd, beacon_str, strlen(beacon_str), MSG_DONTROUTE,
 				(struct sockaddr *)&dest_addr, sizeof dest_addr) == -1) {
 			perror("sendto");
-			exit(1);
+			return EXIT_FAILURE;
 		}
 		sleep(interval);
 	} while (1);
 
 	close(sockfd);
-
-	exit(0);
+	return EXIT_SUCCESS;
 }

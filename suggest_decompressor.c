@@ -8,8 +8,9 @@
 
 #include "tritech_utils.h"
 
-int main(int argc, char **argv) {
-	unsigned char *ext;
+int main(int argc, char **argv)
+{
+	char *ext;
 	struct ext_t {
 		const char *ext;
 		const char *decomp;
@@ -40,23 +41,23 @@ int main(int argc, char **argv) {
 
 	if(argc < 2) {
 		fprintf(stderr, "Tritech compression extension helper %s (%s)", TRITECH_UTILS_VER, TRITECH_UTILS_DATE);
-		fprintf(stderr, "Suggests a decompressor for a given file name\n", argv[0]);
+		fprintf(stderr, "Suggests a decompressor for a given file name\n");
 		fprintf(stderr, "Usage: %s compressed_file.ext\n", argv[0]);
-		exit(1);
+		return EXIT_FAILURE;
 	}
 	ext = strrchr(argv[1], '.');
 	if(!ext) {
 		fprintf(stderr, "File name does not have an extension.\n");
-		exit(1);
+		return EXIT_FAILURE;
 	}
 	ext++;
 
 	for (p = ext_table; p->ext != NULL; ++p) {
 		if (strcmp(p->ext, ext) == 0) {
 			printf("%s\n", p->decomp);
-			exit(0);
+			return EXIT_SUCCESS;
 		}
 	}
 	fprintf(stderr, "No decompressor known for extension \"%s\".\n", ext);
-	exit(1);
+	return EXIT_SUCCESS;
 }

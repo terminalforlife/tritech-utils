@@ -1,5 +1,6 @@
 CC=gcc
-CFLAGS=-D_FILE_OFFSET_BITS=64 -O2 -pipe -flto
+BUILD_CFLAGS=-D_FILE_OFFSET_BITS=64
+CFLAGS=-O2 -pipe -flto -Wall -pedantic
 LDFLAGS=-Wl,--hash-style=gnu -Wl,--gc-sections -s -flto
 
 prefix=/usr
@@ -10,6 +11,9 @@ datadir=${datarootdir}
 ver=$(shell grep TRITECH_UTILS_VER tritech_utils.h | sed 's/.* "\([^"]*\)"/\1/')
 libc_arch=$(shell test -e /lib/libc.so.0 && echo -n "uclibc-")
 arch=$(shell echo -n "$(libc_arch)"; uname -m | sed 's/_/-/g;s/i[34567]86/i386/')
+
+.c.o:
+	$(CC) -c $(BUILD_CFLAGS) $(CFLAGS) $<
 
 all: tritech-utils manual test
 

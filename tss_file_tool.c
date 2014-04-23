@@ -9,11 +9,13 @@
 
 #include "tritech_utils.h"
 
-int check_if_ntfs(uint8_t *bp) {
-	return strncmp(bp + 3, "NTFS", 4);
+int check_if_ntfs(uint8_t *bp)
+{
+	return strncmp((char *)(bp + 3), "NTFS", 4);
 }
 
-int change_ntfs_geometry(FILE *fp, uint8_t *bp, uint8_t heads) {
+int change_ntfs_geometry(FILE *fp, uint8_t *bp, uint8_t heads)
+{
 	bp += 26;
 	*bp = heads;
 	bp -= 26;
@@ -23,23 +25,24 @@ int change_ntfs_geometry(FILE *fp, uint8_t *bp, uint8_t heads) {
 	else return 0;
 }
 
-int main(int argc, char **argv) {
-	if(argc < 3 || argc > 4) goto usage;
-	
+int main(int argc, char **argv)
+{
 	FILE *fp;
 	uint8_t buffer[512];
 	uint8_t heads;
+
+	if(argc < 3 || argc > 4) goto usage;
 	
 	fp = fopen(argv[2], "r+");
 	if(!fp) {
 		printf("Can't open %s\n",argv[2]);
-		exit(1);
+		return EXIT_FAILURE;
 	}
 
 	fread(buffer, 512, 1, fp);
 	if(ferror(fp) != 0) {
 		printf("Error reading first sector of %s\n",argv[1]);
-		exit(1);
+		return EXIT_FAILURE;
 	}
 
 	if(!strcmp(argv[1], "ntfs")) {
@@ -55,15 +58,15 @@ int main(int argc, char **argv) {
 		heads = strtol(argv[3],NULL,16);
 		if(!heads) {
 			printf("Invalid head count specified: %s\n",argv[3]);
-			exit(1);
+			return EXIT_FAILURE;
 		}
 		if(check_if_ntfs(buffer)) {
 			printf("%s is not an NTFS filesystem.\n", argv[2]);
-			exit(1);
+			return EXIT_FAILURE;
 		}
 		if(change_ntfs_geometry(fp, buffer, heads)) {
 			printf("Error writing to %s\n",argv[2]);
-			exit(1);
+			return EXIT_FAILURE;
 		} else {
 			printf("Geometry change for %s: %d heads\n", argv[2], heads);
 		}
@@ -82,10 +85,10 @@ int main(int argc, char **argv) {
 	} else {
 		printf("Unknown command %s\n",argv[1]);
 		fclose(fp);
-		exit(1);
+		return EXIT_FAILURE;
 	}
 	fclose(fp);
-	exit(0);
+	return EXIT_SUCCESS;
 
 usage:
 	fprintf(stderr, "tss_check Version %s (%s)\n", TRITECH_UTILS_VER, TRITECH_UTILS_DATE);
@@ -95,6 +98,6 @@ usage:
 	fprintf(stderr, "ntfs    \tChecks for an NTFS filesystem signature.\n");
 	fprintf(stderr, "winexec \tChecks for a DOS/Windows EXE signature.\n");
 	fprintf(stderr, "ntfsgeom\tChange NTFS partition head count. Requires two-digit hex-head-count.\n");
-	exit(1);
+	return EXIT_FAILURE;
 }
 
