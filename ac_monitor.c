@@ -19,6 +19,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <linux/kd.h>
+#include "tritech_utils.h"
 
 #ifndef CLOCK_TICK_RATE
 #define CLOCK_TICK_RATE 1193180
@@ -70,7 +71,7 @@ int main(int argc, char **argv)
 	char buf[16];
 	int status = 0, newstat;
 
-	printf("TSS power monitor version %s (%s)\n");
+	printf("TSS power monitor version %s (%s)\n", TRITECH_UTILS_VER, TRITECH_UTILS_DATE);
 	printf("Copyright (c) by Jody Bruchon\n");
 	strncpy(path, power_path, PATH_MAX);
 
