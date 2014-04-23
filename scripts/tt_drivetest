@@ -7,7 +7,7 @@ VER="0.3"
 VERDATE="2010-10-12"
 
 echo "Tritech drive testing tool version $VER, last updated $VERDATE"
-echo "Copyright (c) by c02ware and Jody Bruchon"
+echo "Copyright (c) by Jody Bruchon <jody@c02ware.com>
 
 DISKTEMP=$(mktemp)
 

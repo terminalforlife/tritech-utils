@@ -7,6 +7,6 @@ VERDATE="2011-09-15"
 # for a given machine, and install it.
 
 echo "${COFF}Tritech AutoHAL tool version ${VER}"
-echo "Copyright (c) c02ware and Jody Bruchon"
+echo "Copyright (c) by Jody Bruchon <jody@c02ware.com>"
 
 . /usr/bin/tt__auto_hal

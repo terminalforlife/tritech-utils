@@ -4,7 +4,7 @@ VER="0.2"
 VERDATE="2013-08-28"
 
 echo "Tritech NTFS geometry fixer version $VER, last updated $VERDATE"
-echo "Copyright (c) c02ware and Jody Bruchon"
+echo "Copyright (c) Jody Bruchon <jody@c02ware.com>
 
 # NTFS geometry setting helper application
 tt_fsinfo
