@@ -1,6 +1,6 @@
 CC=gcc
-CFLAGS=-O2 -pipe -s -D_FILE_OFFSET_BITS=64
-LDFLAGS=-Wl,--hash-style=gnu
+CFLAGS=-D_FILE_OFFSET_BITS=64 -O2 -pipe -flto
+LDFLAGS=-Wl,--hash-style=gnu -Wl,--gc-sections -s -flto
 
 prefix=/usr
 bindir=${prefix}/bin
@@ -13,9 +13,10 @@ arch=$(shell echo -n "$(libc_arch)"; uname -m | sed 's/_/-/g;s/i[34567]86/i386/'
 
 all: tritech-utils manual test
 
-tritech-utils: read_inf_section suggest_decompressor tss_file_tool tt_beacon
+tritech-utils: ac_monitor read_inf_section suggest_decompressor tss_file_tool tt_beacon
 
 manual:
+	gzip -9 < ac_monitor.1 > ac_monitor.1.gz
 	gzip -9 < read_inf_section.1 > read_inf_section.1.gz
 	gzip -9 < suggest_decompressor.1 > suggest_decompressor.1.gz
 	gzip -9 < tss_file_tool.1 > tss_file_tool.1.gz
@@ -25,12 +26,14 @@ test:	tritech-utils
 	./test.sh
 
 install: tritech-utils manual
+	install -D -o root -g root -m 0644 ac_monitor.1.gz $(DESTDIR)/$(mandir)/man1/ac_monitor.1.gz
 	install -D -o root -g root -m 0644 read_inf_section.1.gz $(DESTDIR)/$(mandir)/man1/read_inf_section.1.gz
 	install -D -o root -g root -m 0644 suggest_decompressor.1.gz $(DESTDIR)/$(mandir)/man1/suggest_decompressor.1.gz
 	install -D -o root -g root -m 0644 tss_file_tool.1.gz $(DESTDIR)/$(mandir)/man1/tss_file_tool.1.gz
 	install -D -o root -g root -m 0644 tt_beacon.1.gz $(DESTDIR)/$(mandir)/man1/tt_beacon.1.gz
 	install -D -o root -g root -m 0644 sounds/diags_complete.wav $(DESTDIR)/$(datadir)/sounds/tritech-utils/diags_complete.wav
 	install -D -o root -g root -m 0644 sounds/temp_warn.wav $(DESTDIR)/$(datadir)/sounds/tritech-utils/temp_warn.wav
+	install -D -o root -g root -m 0755 -s ac_monitor $(DESTDIR)/$(bindir)/ac_monitor
 	install -D -o root -g root -m 0755 -s read_inf_section $(DESTDIR)/$(bindir)/read_inf_section
 	install -D -o root -g root -m 0755 -s suggest_decompressor $(DESTDIR)/$(bindir)/suggest_decompressor
 	install -D -o root -g root -m 0755 -s tss_file_tool $(DESTDIR)/$(bindir)/tss_file_tool
@@ -92,8 +95,8 @@ package: clean tritech-utils manual test
 
 clean:
 	-rm -rf $(CURDIR)/pkg
-	-rm -f read_inf_section suggest_decompressor tss_file_tool tt_beacon
-	-rm -f *.1.gz test/ntfs_test
+	-rm -f ac_monitor read_inf_section suggest_decompressor tss_file_tool tt_beacon
+	-rm -f *.1.gz *~ *.o test/ntfs_test
 
 distclean: clean
 	-rm -f tritech-utils_*.pkg.tar.xz

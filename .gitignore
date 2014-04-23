@@ -1,5 +1,5 @@
 #
-# Kbuild ignores
+# Build ignores
 #
 .*
 *.o
@@ -16,12 +16,15 @@ Config.in
 !.gitignore
 
 #
-# Normal output
+# Normal output and testing dirs
 #
+/foo
+/ac_monitor
 /read_inf_section
 /suggest_decompressor
 /tss_file_tool
 /tt_beacon
+/debug.log
 
 #
 # Backups / patches
