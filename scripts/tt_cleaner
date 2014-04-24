@@ -42,7 +42,7 @@ if [[ "$1" = "-h" || "$1" = "--help" ]]
 	echo "$0 -d      debug mode: -n, plus shows what would be deleted"
 	echo "$0 -h      this help screen"
 	echo "$0 --help  this help screen with four wasted keystrokes"
-	echo -e "\nCopyright (C) Jody Bruchon <jody@c02ware.com>
+	echo -e "\nCopyright (C) Jody Bruchon <jody@c02ware.com>"
 	exit 0
 fi
 
