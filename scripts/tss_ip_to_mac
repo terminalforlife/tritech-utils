@@ -13,8 +13,10 @@ test ! "$TSS_CLIENT" = "1" && echo "TSS client did not load." && exit 1
 # An IP address must be passed on the command line.
 test "$1" = "" && echo "Must provide an IP address" && exit 1
 IP="$1"
+IFACE="$(ip addr | grep inet\ $(echo $IP | cut -d. -f1-3). | tr ' ' \\n | tail -n 1)"
 
-IPMAC=$(arping -c 1 -f $IP | grep '\[.*\]' | tail -n 1 | sed 's/[^[]*\[//;s/\].*//')
+echo "Running: arping -I $IFACE -c 1 -f $IP | grep '\[.*\]' | tail -n 1 | sed 's/[^[]*\[//;s/\].*//'"
+IPMAC=$(arping -I $IFACE -c 1 -f $IP | grep '\[.*\]' | tail -n 1 | sed 's/[^[]*\[//;s/\].*//')
 
 # BusyBox arping collapses 00 to 0 and returns lowercase; normal arping uses uppercase
 # This line normalizes the arping outputs to lowercase without collapsed zeroes
@@ -25,6 +27,6 @@ test "$IPMAC" = "" && echo "Failed." && exit 2
 
 COMMAND="MACADDR_TO_PCID $IPMAC" tss_command
 if [ "$(echo "$RESPONSE" | sed 's/\s.*//g')" = "PCID" ]
-	then echo "${CGRN}PCID$CWHT $(echo "$RESPONSE" | sed s/[A-Za-z_]*\s//) for $CWHT$IPMAC$COFF"
+	then echo "${CGRN}$(echo "$RESPONSE" | sed s/[A-Za-z_]*\s//) for $CWHT$IPMAC$COFF"
 	else echo "${CRED}No PCID for $CWHT$IPMAC$COFF"
 fi
