@@ -1,7 +1,7 @@
 #!/bin/bash
 
-VER="5.0.5"
-VERDATE="2014-04-14"
+VER="5.0.6"
+VERDATE="2014-05-03"
 
 # Tritech Service System Windows installation clean tool for Linux
 # Copyright (C) by Jody Bruchon <jody@c02ware.com>
@@ -459,12 +459,13 @@ NAME="$LOCAL/Diagnostics"; DESC="Windows Diagnostics"; add_to_wipe
 NAME="$LOCAL/ElevatedDiagnostics"; DESC="Windows Diagnostics"; add_to_wipe
 NAME="$LOCAL/EMBARQTOOLBAR"; DESC="Embarq Toolbar"; add_to_wipe
 NAME="$LOCAL/Facebook/Messenger/fbmessenger.cache"; DESC="FB Messenger cache"; add_to_wipe
-NAME="$LOCAL/FunWebProducts"; DESC="FunWebProducts"; add_to_wipe
+NAME="$LOCAL/Flixster/WebData/Cache"; DESC="Flixster"; add_to_wipe
 NAME="$LOCAL/$FFPROF/*Cache*"; DESC="Mozilla Firefox"; add_to_wipe
 NAME="$LOCAL/$FFPROF/urlclassifier3.sqlite"; DESC="Mozilla Firefox"; add_to_delete
 NAME="$LOCAL/$FFPROF/X*.mfl"; DESC="Mozilla Firefox"; add_to_delete
 NAME="$LOCAL/$FFPROF/minidumps"; DESC="Mozilla Firefox"; add_to_wipe
 NAME="$LOCAL/$FFPROF/thumbnails"; DESC="Mozilla Firefox"; add_to_wipe
+NAME="$LOCAL/FunWebProducts"; DESC="FunWebProducts"; add_to_wipe
 NAME="$LOCAL/Funmoods"; DESC="Funmoods"; add_to_wipe
 NAME="$LOCAL/GDIPFONTCACHEV1.DAT"; DESC="User font cache"; add_to_delete
 NAME="$LOCAL/Geckofx/1.9/*/*Cache*"; DESC="Gecko runtime"; add_to_wipe
@@ -883,6 +884,7 @@ NAME="$P/.thumbnails"; DESC="User thumbnails"; add_to_wipe
 NAME="$P/Cookies"; DESC="IE cookies"; add_to_wipe
 NAME="$P/CyberLink/CLFaceLogin"; DESC="CyberLink logs"; add_to_wipe
 NAME="$P/Music/$ITAAC"; DESC="iTunes AA cache"; add_to_wipe
+NAME="$P/Philips/iSite*"; DESC="Philips iSiteLogs"; add_to_wipe
 NAME="$P/My Documents/My Music/$ITAAC"; DESC="iTunes caches"; add_to_wipe
 NAME="$P/My Documents/My Pictures/iPod Photo Cache"; DESC="iTunes caches"; add_to_wipe
 NAME="$P/Pictures/iPod Photo Cache"; DESC="iTunes caches"; add_to_wipe
@@ -1003,8 +1005,9 @@ find . 2>/dev/null >$TMPFILE
 NAME='Thumbs\.db'; DESC="Thumbnail DBs"; SP='\.'; add_to_scan
 NAME='ehthumbs_vista.db'; DESC="Thumbnail DBs"; SP='\.'; add_to_scan
 NAME='\.thumbnails'; DESC="Thumbnails"; SP="\./$P"; add_to_scan
-NAME='~\$[^/]*\.[^/]*'; DESC="Office temp files"; SP='\.'; add_to_scan
-NAME='~WRL[^/]*\.tmp'; DESC="Office temp files"; SP='\.'; add_to_scan
+NAME='\~\$[^/]*\.[^/]*'; DESC="Office temp files"; SP='\.'; add_to_scan
+NAME='\~WRL[^/]*\.tmp'; DESC="Office temp files"; SP='\.'; add_to_scan
+NAME='\~uTorrentPartFile_.*.dat'; DESC="uTorrent part file"; SP='\.'; add_to_scan
 
 # Windows folder viruses
 for X in \
