@@ -79,6 +79,12 @@ int main(int argc, char **argv)
 		} else {
 			puts("not_winexec");
 		}
+	} else if(!strcmp(argv[1], "registry")) {
+		if(!strncmp((char *)buffer, "regf", 4)) {
+			puts("yes");
+		} else {
+			puts("no");
+		}
 	} else {
 		printf("Unknown command %s\n",argv[1]);
 		fclose(fp);
@@ -95,6 +101,7 @@ usage:
 	fprintf(stderr, "ntfs    \tChecks for an NTFS filesystem signature.\n");
 	fprintf(stderr, "winexec \tChecks for a DOS/Windows EXE signature.\n");
 	fprintf(stderr, "ntfsgeom\tChange NTFS partition head count. Requires two-digit hex-head-count.\n");
+	fprintf(stderr, "registry\tChecks if the file is a Windows registry hive.\n");
 	return EXIT_FAILURE;
 }
 

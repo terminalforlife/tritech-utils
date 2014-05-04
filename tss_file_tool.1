@@ -1,4 +1,4 @@
-.TH tss_file_tool "1" "14 Aug 2013" "tritech-utils" "Tritech Service System"
+.TH tss_file_tool "1" "2 May 2014" "tritech-utils" "Tritech Service System"
 
 .SH NAME
 tss_file_tool \- Perform various checks on devices/files
@@ -30,6 +30,10 @@ Many versions of Windows require the \fIheads\fP field in an NTFS boot
 sector to match the value reported by the BIOS, or Windows will not boot.
 This utility simplifies changing the value, which normally requires a 
 hex editor or very ugly shell scripting kludges.
+.PP
+.I registry
+checks for the presense of the "regf" signature indicating a Windows registry
+hive file. Returns "yes" if the signature is found.
 .SH OPTIONS
 .PP
 .I hex-head-count
