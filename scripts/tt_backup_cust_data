@@ -160,8 +160,11 @@ EXIST="$(cat /proc/mounts | grep "/dev/$PART" | head -n 1 | awk '{ print $2 }')"
 if [ "$EXIST" = "" ]
 	then
 	if ! mount /mnt/$PART
-		then echo "${CRED}mount /mnt/$PART failed$COFF"
-		exit 1
+		then echo "${CRED}mount /mnt/$PART failed, trying read-only$COFF"
+		if ! mount /dev/$PART /mnt/$PART -o ro
+			then echo "${CRED}Cannot mount /mnt/$PART, giving up.$COFF"
+			exit 1
+		fi
 	fi
 	MTPT="/mnt/$PART"
 	echo "${CWHT}Mounted /dev/$PART at $CBLU$MTPT$COFF"
