@@ -109,24 +109,30 @@ select_backup_data () {
 }
 
 scan_for_quickbooks_data () {
-	test "$IDX" = "" && IDX=0
-	echo "Scanning for QuickBooks data files..."
-	for X in $(find -name '*.qbw') $(find -name '*.QBW')
-		do
-		if [ -e "$X" ]
-			then
-			echo -n "$X ? "
-			read -n 1 Y
-			if [[ "$Y" = "y" || "$Y" = "Y" ]]
+	echo -n "Scan for QuickBooks data files? "
+	read -n 1 Y
+	if [[ "$Y" != "y" && "$Y" != "Y" ]]
+		then echo
+		else
+		test "$IDX" = "" && IDX=0
+		echo "Scanning for QuickBooks data files..."
+		for X in $(find -name '*.qbw') $(find -name '*.QBW')
+			do
+			if [ -e "$X" ]
 				then
-				echo -e "\r${CGRN}Backing up $CWHT$X$COFF"
-				FILES[$IDX]="$X"
-				IDX=$((IDX + 1))
-				else
-				echo -e "\r${CYEL}Ignoring   $CBLU$X$COFF"
+				echo -n "$X ? "
+				read -n 1 Y
+				if [[ "$Y" = "y" || "$Y" = "Y" ]]
+					then
+					echo -e "\r${CGRN}Backing up $CWHT$X$COFF"
+					FILES[$IDX]="$X"
+					IDX=$((IDX + 1))
+					else
+					echo -e "\r${CYEL}Ignoring   $CBLU$X$COFF"
+				fi
 			fi
-		fi
-	done
+		done
+	fi
 }
 ### End functions
 
@@ -164,6 +170,7 @@ if [ "$EXIST" = "" ]
 		if ! mount /dev/$PART /mnt/$PART -o ro
 			then echo "${CRED}Cannot mount /mnt/$PART, giving up.$COFF"
 			exit 1
+			else RO=1
 		fi
 	fi
 	MTPT="/mnt/$PART"
@@ -205,12 +212,16 @@ if [ ! -d $BU ]
 fi
 cd $MTPT
 
-echo "${CYEL}Press a key to bypass running tt_cleaner...$COFF"
-X=0
-read -t 3 -s -n 1 && echo "${CPUR}Not running tt_cleaner due to user keypress.$COFF" && X=1
-test $X -eq 0 && echo "Please wait while the cleaner is run." && \
-	tt_cleaner -Q | tee -a $LOGFILE
-unset X
+# If we mounted read-only, don't bother running the cleaner
+if [ "$RO" != "1" ]
+	then
+	echo "${CYEL}Press a key to bypass running tt_cleaner...$COFF"
+	X=0
+	read -t 3 -s -n 1 && echo "${CPUR}Not running tt_cleaner due to user keypress.$COFF" && X=1
+	test $X -eq 0 && echo "Please wait while the cleaner is run." && \
+		tt_cleaner -Q | tee -a $LOGFILE
+	unset X
+fi
 
 select_backup_data
 scan_for_quickbooks_data
