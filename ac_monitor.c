@@ -53,7 +53,7 @@ static inline int do_beep(void)
 	}
 	
 	/* Beep */
-	ioctl(confd, KIOCSOUND, (int)(CLOCK_TICK_RATE/freq));
+	ioctl(confd, KIOCSOUND, CLOCK_TICK_RATE / freq);
 	nanosleep(&len, NULL);
 	ioctl(confd, KIOCSOUND, 0);
 	close(confd);
