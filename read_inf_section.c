@@ -13,14 +13,14 @@
 
 #define MAXLEN 1024
 
-void usage(char **argv, int value)
+static void usage(char **argv, int value)
 {
 	fprintf(stderr, "Tritech INF/REG/INI file section reader %s (%s)\n", TRITECH_UTILS_VER, TRITECH_UTILS_DATE);
 	fprintf(stderr, "Usage:  %s [-a] filename.xxx section_header\n", argv[0]);
 	exit(value);
 }
 
-void die(char *message, int error)
+static void die(char *message, int error)
 {
 	fprintf(stderr, "Died with error %d: %s\n", error, message);
 	exit(error);
