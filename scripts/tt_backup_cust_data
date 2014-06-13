@@ -1,7 +1,7 @@
 #!/bin/bash
 
-VER=0.6.2
-VERDATE="2013-08-18"
+VER=0.6.3
+VERDATE="2014-05-16"
 
 . tss__common
 . tss_client
@@ -94,15 +94,16 @@ select_backup_data () {
 		fi
 		if [ "$ADD" = "1" ]
 			then
-			echo -n "$X ? "
+			SZ="$(du -sh "$X" 2>/dev/null | cut -f1)"
+			echo -n "$X ($SZ)? "
 			read -n 1 Y
 			if [[ "$Y" = "y" || "$Y" = "Y" ]]
 				then
-				echo -e "\r${CGRN}Backing up $CWHT$X$COFF"
+				echo -e "\r${CGRN}Backing up $CWHT$X $CWHT($SZ)$COFF"
 				FILES[$IDX]="$X"
 				IDX=$((IDX + 1))
 				else
-				echo -e "\r${CYEL}Ignoring   $CBLU$X$COFF"
+				echo -e "\r${CYEL}Ignoring   $CBLU$X $CWHT($SZ)$COFF"
 			fi
 		fi
 	done
@@ -120,7 +121,7 @@ scan_for_quickbooks_data () {
 			do
 			if [ -e "$X" ]
 				then
-				echo -n "$X ? "
+				echo -n "$X ($(du -sh "$X" 2>/dev/null | cut -f1))? "
 				read -n 1 Y
 				if [[ "$Y" = "y" || "$Y" = "Y" ]]
 					then
@@ -197,7 +198,7 @@ fi
 BU="$BACKUPROOT/$WOID"
 echo "${CWHT}Using $CPUR$BU$COFF as backup area"
 
-tt_cifs
+test "$BASE" = "/mnt/cifs" && tt_cifs
 
 echo -n "${CWHT}Please specify backup or restore (b/r): $COFF"
 read -n 1 BR; echo
