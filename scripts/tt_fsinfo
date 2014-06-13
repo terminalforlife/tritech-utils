@@ -57,6 +57,7 @@ expand_fsid () {
 		 b)   FS="FAT32       " ;;
 		 c)   FS="FAT32       " ;;
 		 e)   FS="FAT16       " ;;
+		 f)   FS="DOS Extended" ;;
 		27)   FS="Acer Rec    " ;;
 		81)   FS="Minix       " ;;
 		82)   FS="Linux swap  " ;;
@@ -130,6 +131,7 @@ for DRIVE in $DRIVES
 	fi
 done
 
+# Load all RAID slaves and prevent their individual display
 KILL="$(echo /sys/block/md*/slaves/* | tr ' ' '\n' | grep -v '\*' | sed 's#.*/##g' | tr '\n' ' ')"
 
 for X in $(echo /dev/md?* | tr ' ' '\n' | grep -v '\?' | sed s#/dev/##g | tr '\n' ' ')
