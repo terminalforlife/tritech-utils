@@ -67,20 +67,20 @@ int main(int argc, char **argv)
 		} else {
 			printf("Geometry change for %s: %d heads\n", argv[2], heads);
 		}
-	} else if(!strcmp(argv[1], "gpt")) {
+	} else if(!strncmp(argv[1], "gpt", 3)) {
 		if(buffer[450] == 0xEE) {
 			puts("yes");
 		} else {
 			puts("no");
 		}
-	} else if(!strcmp(argv[1], "winexec")) {
+	} else if(!strncmp(argv[1], "winexec", 7)) {
 		if(buffer[0] == 0x4D && buffer[1] == 0x5A) {
 			puts(argv[2]);
 		} else {
 			puts("not_winexec");
 		}
-	} else if(!strcmp(argv[1], "registry")) {
-		if(!strncmp((char *)buffer, "regf", 4)) {
+	} else if(!strncmp(argv[1], "registry", 8)) {
+		if(!strncmp(buffer, "regf", 4)) {
 			puts("yes");
 		} else {
 			puts("no");
