@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# VER=0.2
+# VERDATE=2014-06-16
+
 # Prevent loading if we are already loaded
 if [ -z "$TSS_COMMON" ]; then
 
@@ -82,6 +85,9 @@ do_windows_folder_detection () {
 	export V7=0
 	export HALDLL=$N
 	export KERNEL=$N
+	export REG_SAM=$N
+	export REG_SW=$N
+	export REG_SYS=$N
 
 	for X in WINDOWS Windows windows WINXP WinXP winxp WINNT WinNT winnt
 		do test -d $X && export WINDIR=$X; done
@@ -97,6 +103,15 @@ do_windows_folder_detection () {
 
 	for X in config Config CONFIG
 		do test -d $WINDIR/$SYS32/$X && export CONFIG=$X; done
+
+	for X in sam Sam SAM
+		do test -d $WINDIR/$SYS32/$CONFIG/$X && export REG_SAM=$X; done
+
+	for X in software Software SOFTWARE
+		do test -d $WINDIR/$SYS32/$CONFIG/$X && export REG_SW=$X; done
+
+	for X in system System SYSTEM
+		do test -d $WINDIR/$SYS32/$CONFIG/$X && export REG_SYS=$X; done
 
 	for X in systemprofile SYSTEMPROFILE SystemProfile
 		do test -d $WINDIR/$SYS32/$CONFIG/$X && export SYSPROF=$X; done

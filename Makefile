@@ -1,6 +1,6 @@
 CC=gcc
 BUILD_CFLAGS=-D_FILE_OFFSET_BITS=64
-CFLAGS=-O2 -pipe -flto -Wall -pedantic
+CFLAGS=-O2 -pipe -flto -Wall -pedantic -fno-unwind-tables -fno-asynchronous-unwind-tables
 LDFLAGS=-Wl,--hash-style=gnu -Wl,--gc-sections -s -flto -static-libgcc
 
 prefix=/usr

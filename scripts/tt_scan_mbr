@@ -87,6 +87,11 @@ if [ "$FOUND" == "0" ]
 		echo "${CGRN}Writing new signature to $CWHT$NEWSIG$COFF"
 		dd if=/dev/$DISK of="$NEWSIG" bs=437 count=1 2>/dev/null || echo "${CRED}Error writing MBR signature.$COFF"
 	fi
+	tt_beepsong entryofthegladiators
+	X=0; while [ $X -lt 5 ]
+		do aplay /usr/share/sounds/tritech-utils/diags_complete.wav || break
+		X=$((X + 1))
+	done
 fi
 
 # Exit status reflects status of MBR (0=clean)
