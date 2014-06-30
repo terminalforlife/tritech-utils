@@ -62,6 +62,7 @@ install: tritech-utils manual
 	install -D -o root -g root -m 0755 scripts/tt__intelppm $(DESTDIR)/$(bindir)/tt__intelppm
 	install -D -o root -g root -m 0755 scripts/tt_add_win_exe_sums $(DESTDIR)/$(bindir)/tt_add_win_exe_sums
 	install -D -o root -g root -m 0755 scripts/tt_autohal $(DESTDIR)/$(bindir)/tt_autohal
+	install -D -o root -g root -m 0755 scripts/tt_autoruns $(DESTDIR)/$(bindir)/tt_autoruns
 	install -D -o root -g root -m 0755 scripts/tt_backup_cust_data $(DESTDIR)/$(bindir)/tt_backup_cust_data
 	install -D -o root -g root -m 0755 scripts/tt_beepsong $(DESTDIR)/$(bindir)/tt_beepsong
 	install -D -o root -g root -m 0755 scripts/tt_build_dev_db $(DESTDIR)/$(bindir)/tt_build_dev_db
@@ -89,6 +90,8 @@ install: tritech-utils manual
 	install -D -o root -g root -m 0755 scripts/tt_takeimage $(DESTDIR)/$(bindir)/tt_takeimage
 	install -D -o root -g root -m 0755 scripts/tt_winver $(DESTDIR)/$(bindir)/tt_winver
 	install -D -o root -g root -m 0755 scripts/tt_zero_image $(DESTDIR)/$(bindir)/tt_zero_image
+	mkdir -p $(DESTDIR)/$(datarootdir)/tritech-utils
+	cp -a win_svc_templates $(DESTDIR)/$(datarootdir)/tritech-utils/
 
 package: clean tritech-utils manual test
 	-test ! "$(arch)" = "x86-64" && echo "ARCH $(arch) != x86-64, aborting" && exit

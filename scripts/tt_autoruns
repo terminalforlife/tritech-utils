@@ -1,0 +1,307 @@
+#!/bin/bash
+
+shopt -s checkwinsize
+#shopt -s nullglob
+shopt -s nocaseglob
+
+eval $(resize)
+
+VER=0.0
+VERDATE="2014-06-30"
+
+. tss__common
+
+echo "${CWHT}Tritech Service System Autoruns $CGRN$VER ($VERDATE)$COFF"
+
+clean_exit () {
+	test "$MTD" = "1" && umount -l "$MTPT"
+	rm -f $TMP
+	umount -d -l $REGMTPT 2>/dev/null
+	# Break during 'read -s' leaves local echo OFF, fix it
+	stty echo
+	exit $1
+}
+
+trap clean_exit INT QUIT TERM HUP
+
+### Begin functions
+
+# Clean data for use in regular expressions
+escape_regex () {
+	RXS="$(echo -E "$RXS" | sed 's/\\/\\\\/g')"
+	for CHAR in \. \[ \] \^ \$
+		do RXS="$(echo -E "$RXS" | sed "s/\\${CHAR}/\\\\${CHAR}/g")"
+	done
+	RXS="$(echo -E "$RXS" | sed 's/\?/\./g')"
+	RXS="$(echo -E "$RXS" | sed 's/\*/\.\*/g')"
+}
+
+# Reset full-screen pager (see below)
+reset_line_pager () {
+	DISPCNT=$((LINES - 1))
+}
+
+# Handle full-screen paging display
+line_pager () {
+	test -z "$DISPCNT" && reset_line_pager
+	if [[ ! -z "$LL" && $LL -gt $COLUMNS ]]
+		then while [ $LL -gt $COLUMNS ]
+			do DISPCNT=$((DISPCNT - 1))
+			LL=$((LL - COLUMNS))
+		done
+	fi
+	unset LL
+	DISPCNT=$((DISPCNT - 1))
+	if [ $DISPCNT -lt 1 ]
+		then
+		echo -n "More . . ."
+		read -s -n 1 DUMMY
+		echo -en '\r                   \r'
+		if [ "$DUMMY" != "" ]
+			then DISPCNT=1
+			else reset_line_pager
+		fi
+	fi
+}
+
+# Load Windows registry service definitions into service variables
+load_services () {
+	echo -en "${CWHT}Loading services... $COFF"
+	SC=0	# Service count
+	unset SVC
+	for D in $REGMTPT/$CCS/Services/*
+		do
+		test ! -d "$D" && continue
+		IP="$D/ImagePath"
+		test ! -e "$IP" && IP="$D/MofImagePath"
+		test ! -e "$IP" && continue
+		SVCPATH[$SC]="$(cat "$IP")"
+		DN[$SC]="$(cat "$D/DisplayName.sz" 2>/dev/null)"
+		echo "${DN[$SC]}" | grep -q ',-[0-9]*' && DN[$SC]="unsupported display name"
+		START[$SC]=$(cat "$D/Start.dw" 2>/dev/null)
+		case ${START[$SC]} in
+			"00000000") START[$SC]="Boot" ;;
+			"00000001") START[$SC]="System" ;;
+			"00000002") START[$SC]="Automatic" ;;
+			"00000003") START[$SC]="Manual" ;;
+			"00000004") START[$SC]="Disabled" ;;
+				"") START[$SC]="Empty" ;;
+		esac
+		TYPE[$SC]=$(cat "$D/Type.dw" 2>/dev/null)
+		case ${TYPE[$SC]} in
+			"00000001") TYPE[$SC]="Kernel" ;;
+			"00000002") TYPE[$SC]="File system" ;;
+			"00000004") TYPE[$SC]="Adapter" ;;
+			"00000010") TYPE[$SC]="Service" ;;
+			"00000020") TYPE[$SC]="Shared Service" ;;
+				"") TYPE[$SC]="Empty" ;;
+		esac
+		SHR[$SC]=0
+		if echo -E "${SVCPATH[$SC]}" | grep -iq "svchost.exe -k"
+			then SHR[$SC]="1"
+			for SDLL in "$D/Parameters/ServiceDll.sz" "$D/Parameters/ServiceDll.esz"
+				do test -e "$SDLL" && SVCPATH[$SC]="$(cat "$SDLL" 2>/dev/null)"
+			done
+		fi
+		SNAME[$SC]="$(basename "$D" | tr -d \\n)"
+		SVC[$SC]="${SNAME[$SC]}:${DN[$SC]}:${START[$SC]}:${TYPE[$SC]}:${SVCPATH[$SC]}:${SHR[$SC]}"
+		SC=$((SC + 1))
+#		echo -en "\r$SC"
+	done
+	echo -e "${CGRN}done.$COFF"
+}
+
+# Show details of the chosen service index number
+service_detail () {
+	echo -En "$COFF$1: "
+	echo -En "$CWHT${SNAME[$1]} "
+	echo -En "$CYEL${DN[$1]} "
+	echo -En "$CPUR${START[$1]} "
+	echo -En "$CCYA${TYPE[$1]} "
+	echo -En "$CGRN${SVCPATH[$1]}"
+	echo "$COFF"
+	LL=$(echo "$1: ${SNAME[$1]} ${DN[$1]} ${START[$1]} ${TYPE[$1]} ${SVCPATH[$1]}" | wc -c)
+}
+
+# Show all details for all system services
+all_service_details () {
+	echo "${CWHT}All service details$COFF"
+	line_pager
+	echo
+	line_pager
+	C=0
+	while [ $C -lt $SC ]
+		do
+		service_detail $C
+		line_pager
+		C=$((C + 1))
+	done
+}
+
+# Dump semicolon-separated raw service info to a text file
+dump_services_to_file () {
+	C=0
+	: > $1
+	while [ $C -lt $SC ]
+		do
+		echo "${SVC[$C]}" >> $1
+		C=$((C + 1))
+	done
+
+}
+
+# Show details for services that are non-standard
+non_windows_service_details () {
+	SVC_TEMPLATE="$WIN_SVC_TEMPLATES/$WINVER"
+	if [ ! -e "$SVC_TEMPLATE" ]
+		then echo "Cannot load services template: $WINVER"
+		return 1
+	fi
+	echo "${CWHT}Non-Windows service details (using template $CGRN$WINVER$CWHT)$COFF"
+	line_pager
+	echo
+	line_pager
+	echo -en "${CYEL}Please be patient.$COFF\r"
+	C=0; NONE=1
+	# Loop through all services
+	while [ $C -lt $SC ]
+		do
+		CX=0
+		DISP=1
+		# Check against service template
+		RXS="${SVC[$C]}"; escape_regex
+		if grep -iq "^$RXS" "$SVC_TEMPLATE"
+			then DISP=0
+		fi
+		# If no exact match found in template, show the service
+		if [ "$DISP" = "1" ]
+			then service_detail $C
+			line_pager
+			NONE=0
+		fi
+		C=$((C + 1))
+	done
+	test "$NONE" = "1" && echo "${CGRN}--- No non-Windows services found ---$COFF"
+}
+
+### End functions
+
+SHARE_DIR=/usr/share/tritech-utils
+WIN_SVC_TEMPLATES=$SHARE_DIR/win_svc_templates
+REGMTPT=/mnt/loop
+LOGFILE="/var/log/$(basename "$0").log"
+
+if mountpoint -q $REGMTPT
+	then echo "Something is mounted at $REGMTPT, unmount it first."
+	clean_exit 1
+fi
+
+TMP=$(mktemp)
+tt__disk_prompt $TMP
+DEV="$(cat $TMP)"
+rm -f $TMP
+
+PART="$(cat /proc/partitions | awk '{ print $3" "$4 }' | \
+	grep $DEV\[1-9\] | sort -gr | \
+	awk '{ print $2 }' | tr \\n ' ')"
+DEFAULT="$(echo $PART | tr ' ' \\n | head -n 1)"
+
+test -z "$PART" && echo "$CWHT$DEV$CRED has no partitions, aborting.$COFF" && clean_exit 1
+
+echo "${CCYA}Available partitions: $CWHT$PART$COFF"
+echo "${CWHT}$DEFAULT$CCYA is the largest partition.$COFF"
+tt_fsinfo | grep "/dev/$DEV"
+echo -n "${COFF}Which partition (enter for $CWHT$DEFAULT$COFF)? "
+read X
+PART="$DEFAULT"
+test ! -z "$X" && PART="$X"
+if [ ! -e /dev/$X ]
+	then echo "${CWHT}/dev/$X$CRED does not exist, aborting.$COFF"
+	clean_exit 1
+fi
+
+echo "${CWHT}Using $CGRN/mnt/$PART$CWHT as hard drive$COFF"
+
+EXIST="$(cat /proc/mounts | grep "/dev/$PART" | head -n 1 | awk '{ print $2 }')"
+if [ "$EXIST" = "" ]
+	then
+	if ! mount /mnt/$PART
+		then echo "${CRED}mount /mnt/$PART failed. Aborting.$COFF"
+		clean_exit 1
+	fi
+	MTPT="/mnt/$PART"
+	MTD=1
+	echo "${CWHT}Mounted /dev/$PART at $CBLU$MTPT$COFF"
+	else
+	MTPT="$EXIST"
+	MTD=0
+	echo "${CWHT}Using existing mountpoint at $CBLU$MTPT$COFF"
+fi
+
+cd "$MTPT"
+do_windows_folder_detection
+echo -en "\n${CWHT}Detecting Windows version... "
+WINVER="$(tt_winver -A)"; echo "$CGRN$WINVER$COFF"
+
+#IFS0="$IFS"
+#IFS1=$(echo -en "\n\b")
+#IFS="$IFS1"
+
+if [ "$REG_SYS" != "__NONE__" ]
+	then
+	mount.winregfs "$WINDIR/$SYS32/$CONFIG/$REG_SYS" $REGMTPT
+	# Find CurrentControlSet
+	CCS="ControlSet$(cat "$REGMTPT/Select/Current.dw" | sed 's/^00000//')"
+	if [ ! -e "$REGMTPT/$CCS" ]
+		then echo "CurrentControlSet invalid: '$CCS'"
+		clean_exit
+	fi
+	load_services
+	umount $REGMTPT
+fi
+
+# Menu items
+MCNT=1
+MENU[$MCNT]="all_service_details"; MENU_NAME[$MCNT]="Show details for ALL services"; MENU_OPT[$MCNT]=""
+MCNT=$((MCNT + 1))
+MENU[$MCNT]="non_windows_service_details"; MENU_NAME[$MCNT]="Show details for non-Windows services"; MENU_OPT[$MCNT]=""
+MCNT=$((MCNT + 1))
+MENU[$MCNT]="dump_services_to_file $DUMPFILE"; MENU_NAME[$MCNT]="Dump all service entries to a file"; MENU_OPT[$MCNT]="DF"
+MCNT=$((MCNT + 1))
+MENU[$MCNT]="clean_exit"; MENU_NAME[$MCNT]="Exit program"; MENU_OPT[$MCNT]=""
+
+# Menu loop
+while true
+	do
+	echo -e "\n\nAutoruns command menu\n"
+	CMD=1
+	while [ $CMD -le $MCNT ]
+		do echo "$CMD: ${MENU_NAME[$CMD]}"
+		CMD=$((CMD + 1))
+	done
+	stty cooked
+	echo -en "\nCommand? "; read Y
+	echo
+	CMD=1
+	while [ $CMD -le $MCNT ]
+		do if [ "$CMD" = "$Y" ]
+			then
+			case ${MENU_OPT[$CMD]} in
+			"DF")	DUMPFILE="/tmp/services.txt"
+				echo -n "Dump file name (ENTER for $DUMPFILE)? "
+				read DFN
+				test -n "$DFN" && DUMPFILE="$DFN"
+				${MENU[$CMD]} "$DUMPFILE"
+				break
+				;;
+			*) 	${MENU[$CMD]}
+				break
+				;;
+			esac
+			break
+		fi
+		CMD=$((CMD + 1))
+	done
+done
+
+clean_exit

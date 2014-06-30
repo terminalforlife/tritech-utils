@@ -1,0 +1,355 @@
+ACPI:Microsoft ACPI Driver:Boot:Kernel:system32\drivers\acpi.sys:0
+AFD:Ancilliary Function Driver for Winsock:System:Kernel:\SystemRoot\system32\drivers\afd.sys:0
+ALG:unsupported display name:Manual:Service:%SystemRoot%\System32\alg.exe:0
+AMD External Events Utility::Automatic:Service:%SystemRoot%\system32\atiesrxx.exe:0
+AR5416:Atheros AR5008 Wireless Network Adapter Service:Manual:Kernel:system32\DRIVERS\athwx.sys:0
+AdobeARMservice:Adobe Acrobat Update Service:Automatic:Service:"C:\Program Files (x86)\Common Files\Adobe\ARM\1.0\armsvc.exe":0
+AdobeFlashPlayerUpdateSvc:Adobe Flash Player Update Service:Manual:Service:C:\Windows\SysWOW64\Macromed\Flash\FlashPlayerUpdateService.exe:0
+AeLookupSvc:unsupported display name:Automatic:Shared Service:%SystemRoot%\System32\aelupsvc.dll:1
+AgereSoftModem:Agere Systems Soft Modem:Manual:Kernel:system32\DRIVERS\agrsm64.sys:0
+AmdK8:AMD K8 Processor Driver:Manual:Kernel:system32\DRIVERS\amdk8.sys:0
+Appinfo:unsupported display name:Manual:Shared Service:%SystemRoot%\System32\appinfo.dll:1
+AswRdr:aswRdr:System:Kernel:\SystemRoot\system32\drivers\aswRdr.sys:0
+AsyncMac:RAS Asynchronous Media Driver:Manual:Kernel:system32\DRIVERS\asyncmac.sys:0
+AudioEndpointBuilder:unsupported display name:Automatic:Shared Service:%SystemRoot%\System32\Audiosrv.dll:1
+AudioSrv:unsupported display name:Automatic:Shared Service:%SystemRoot%\System32\Audiosrv.dll:1
+BFE:unsupported display name:Automatic:Shared Service:%SystemRoot%\System32\bfe.dll:1
+BITS:unsupported display name:Automatic:Shared Service:%SystemRoot%\System32\qmgr.dll:1
+BTHMODEM:Bluetooth Serial Communications Driver:Disabled:Kernel:\SystemRoot\system32\drivers\bthmodem.sys:0
+BattC::Empty:Empty:system32\drivers\battc.sys:0
+BrFiltLo:Brother USB Mass-Storage Lower Filter Driver:Manual:Kernel:\SystemRoot\system32\drivers\brfiltlo.sys:0
+BrFiltUp:Brother USB Mass-Storage Upper Filter Driver:Manual:Kernel:\SystemRoot\system32\drivers\brfiltup.sys:0
+BrSerWdm:Brother WDM Serial driver:Disabled:Kernel:\SystemRoot\system32\drivers\brserwdm.sys:0
+BrUsbMdm:Brother MFC USB Fax Only Modem:Disabled:Kernel:\SystemRoot\system32\drivers\brusbmdm.sys:0
+BrUsbSer:Brother MFC USB Serial WDM Driver:Manual:Kernel:\SystemRoot\system32\drivers\brusbser.sys:0
+Browser:unsupported display name:Automatic:Shared Service:%SystemRoot%\System32\browser.dll:1
+Brserid:Brother MFC Serial Port Interface Driver (WDM):Disabled:Kernel:\SystemRoot\system32\drivers\brserid.sys:0
+CLFS:Common Log (CLFS):Boot:Kernel:System32\CLFS.sys:0
+COMSysApp:unsupported display name:Manual:Service:%SystemRoot%\system32\dllhost.exe /Processid:{02D4B3F1-FD88-11D1-960D-00805FC79235}:0
+CertPropSvc:unsupported display name:Manual:Shared Service:%SystemRoot%\System32\certprop.dll:1
+CmBatt:Microsoft ACPI Control Method Battery Driver:Manual:Kernel:system32\DRIVERS\CmBatt.sys:0
+Compbatt:Microsoft Composite Battery Driver:Boot:Kernel:system32\DRIVERS\compbatt.sys:0
+CryptSvc:unsupported display name:Automatic:Shared Service:%SystemRoot%\system32\cryptsvc.dll:1
+DFSR:unsupported display name:Manual:Service:%SystemRoot%\system32\DFSR.exe:0
+DPS:unsupported display name:Automatic:Shared Service:%SystemRoot%\system32\dps.dll:1
+DXGKrnl:LDDM Graphics Subsystem:Manual:Kernel:\SystemRoot\System32\drivers\dxgkrnl.sys:0
+DcomLaunch:unsupported display name:Automatic:Shared Service:%SystemRoot%\system32\rpcss.dll:1
+DfsC:unsupported display name:System:File system:System32\Drivers\dfsc.sys:0
+Dhcp:unsupported display name:Automatic:Shared Service:%SystemRoot%\System32\dhcpcsvc.dll:1
+Dnscache:unsupported display name:Automatic:Shared Service:%SystemRoot%\System32\dnsrslvr.dll:1
+E1G60:Intel(R) PRO/1000 NDIS 6 Adapter Driver:Manual:Kernel:system32\DRIVERS\E1G6032E.sys:0
+EMDMgmt:unsupported display name:Automatic:Shared Service:%systemroot%\system32\emdmgmt.dll:1
+EapHost:unsupported display name:Manual:Shared Service:%SystemRoot%\System32\eapsvc.dll:1
+Ecache:ReadyBoost Caching Driver:Boot:Kernel:System32\drivers\ecache.sys:0
+EventSystem:unsupported display name:Automatic:Shared Service:%systemroot%\system32\es.dll:1
+Eventlog:unsupported display name:Automatic:Shared Service:%SystemRoot%\System32\svchost.exe -k LocalServiceNetworkRestricted:1
+FDResPub:unsupported display name:Automatic:Shared Service:%SystemRoot%\system32\fdrespub.dll:1
+FileInfo:File Information FS MiniFilter:Boot:File system:system32\drivers\fileinfo.sys:0
+Filetrace:FileTrace:Manual:File system:system32\drivers\filetrace.sys:0
+FltMgr:FltMgr:Boot:File system:system32\drivers\fltmgr.sys:0
+FontCache:Windows Font Cache Service:Automatic:Shared Service:%SystemRoot%\system32\FntCache.dll:1
+FontCache3.0.0.0:unsupported display name:Manual:Service:%systemroot%\Microsoft.Net\Framework64\v3.0\WPF\PresentationFontCache.exe:0
+HCW85BDA:Hauppauge WinTV 885 Video Capture:Manual:Kernel:system32\drivers\HCW85BDA.sys:0
+HDAudBus:Microsoft UAA Bus Driver for High Definition Audio:Manual:Kernel:system32\DRIVERS\HDAudBus.sys:0
+HTTP:HTTP:Manual:Kernel:system32\drivers\HTTP.sys:0
+HdAudAddService:Microsoft 1.1 UAA Function Driver for High Definition Audio Service:Manual:Kernel:system32\drivers\HdAudio.sys:0
+HidBth:Microsoft Bluetooth HID Miniport:Disabled:Kernel:\SystemRoot\system32\drivers\hidbth.sys:0
+HidIr:Microsoft Infrared HID Driver:Manual:Kernel:system32\DRIVERS\hidir.sys:0
+HidUsb:Microsoft HID Class Driver:Manual:Kernel:system32\DRIVERS\hidusb.sys:0
+HpCISSs::Disabled:Kernel:\SystemRoot\system32\drivers\hpcisss.sys:0
+IKEEXT:unsupported display name:Automatic:Shared Service:%SystemRoot%\System32\ikeext.dll:1
+IPBusEnum:unsupported display name:Manual:Shared Service:%SystemRoot%\system32\ipbusenum.dll:1
+IPMIDRV::Disabled:Kernel:\SystemRoot\system32\drivers\ipmidrv.sys:0
+IPNAT:IP Network Address Translator:Manual:Kernel:system32\DRIVERS\ipnat.sys:0
+IRENUM:IR Bus Enumerator:Manual:Kernel:system32\drivers\irenum.sys:0
+IntcAzAudAddService:Service for Realtek HD Audio (WDM):Manual:Kernel:system32\drivers\RTKVHD64.sys:0
+IpFilterDriver:unsupported display name:Manual:Kernel:system32\DRIVERS\ipfltdrv.sys:0
+IpInIp:IP in IP Tunnel Driver:Manual:Kernel:system32\DRIVERS\ipinip.sys:0
+KSecDD::Boot:Kernel:System32\Drivers\ksecdd.sys:0
+KeyIso:unsupported display name:Manual:Shared Service:%SystemRoot%\system32\lsass.exe:0
+KtmRm:unsupported display name:Automatic:Shared Service:%systemroot%\system32\msdtckrm.dll:1
+L1E:NDIS Miniport Driver for Atheros AR8121/AR8113/AR8114 PCI-E Ethernet Controller:Manual:Kernel:system32\DRIVERS\L1E60x64.sys:0
+LSI_FC::Disabled:Kernel:\SystemRoot\system32\drivers\lsi_fc.sys:0
+LSI_SAS::Disabled:Kernel:\SystemRoot\system32\drivers\lsi_sas.sys:0
+LSI_SCSI::Disabled:Kernel:\SystemRoot\system32\drivers\lsi_scsi.sys:0
+LanmanServer:unsupported display name:Automatic:Shared Service:%SystemRoot%\system32\srvsvc.dll:1
+LanmanWorkstation:unsupported display name:Automatic:Shared Service:%SystemRoot%\System32\wkssvc.dll:1
+MMCSS:unsupported display name:Automatic:Shared Service:%SystemRoot%\system32\mmcss.dll:1
+MRxDAV:WebDav Client Redirector Driver:Manual:File system:\SystemRoot\system32\drivers\mrxdav.sys:0
+MSDTC:unsupported display name:Manual:Service:%SystemRoot%\System32\msdtc.exe:0
+MSKSSRV:Microsoft Streaming Service Proxy:Manual:Kernel:system32\drivers\MSKSSRV.sys:0
+MSPCLOCK:Microsoft Streaming Clock Proxy:Manual:Kernel:system32\drivers\MSPCLOCK.sys:0
+MSPQM:Microsoft Streaming Quality Manager Proxy:Manual:Kernel:system32\drivers\MSPQM.sys:0
+MSTEE:Microsoft Streaming Tee/Sink-to-Sink Converter:Manual:Kernel:system32\drivers\MSTEE.sys:0
+MSiSCSI:unsupported display name:Manual:Shared Service:%systemroot%\system32\iscsiexe.dll:1
+Mcx2Svc:unsupported display name:Disabled:Shared Service:%SystemRoot%\system32\Mcx2Svc.dll:1
+Modem::Manual:Kernel:system32\drivers\modem.sys:0
+MountMgr:Mount Point Manager:Boot:Kernel:System32\drivers\mountmgr.sys:0
+MozillaMaintenance:Mozilla Maintenance Service:Manual:Service:"C:\Program Files (x86)\Mozilla Maintenance Service\maintenanceservice.exe":0
+MpsSvc:unsupported display name:Automatic:Shared Service:%SystemRoot%\system32\mpssvc.dll:1
+Mraid35x::Disabled:Kernel:\SystemRoot\system32\drivers\mraid35x.sys:0
+Mup:Mup:Boot:File system:System32\Drivers\mup.sys:0
+NDIS:NDIS System Driver:Boot:Kernel:system32\drivers\ndis.sys:0
+NETwLv64:    Intel(R) Wireless WiFi Link 5000 Series Adapter Driver for Windows Vista 64 Bit:Manual:Kernel:system32\DRIVERS\NETwLv64.sys:0
+NativeWifiP:NativeWiFi Filter:Manual:Kernel:system32\DRIVERS\nwifi.sys:0
+NdisTapi:unsupported display name:Manual:Kernel:system32\DRIVERS\ndistapi.sys:0
+NdisWan:unsupported display name:Manual:Kernel:system32\DRIVERS\ndiswan.sys:0
+Ndisuio:NDIS Usermode I/O Protocol:Manual:Kernel:system32\DRIVERS\ndisuio.sys:0
+NetBIOS:NetBIOS Interface:System:File system:system32\DRIVERS\netbios.sys:0
+NetTcpPortSharing:unsupported display name:Disabled:Shared Service:"%systemroot%\Microsoft.NET\Framework64\v3.0\Windows Communication Foundation\SMSvcHost.exe":0
+Netlogon:unsupported display name:Manual:Shared Service:%systemroot%\system32\lsass.exe:0
+Netman:unsupported display name:Manual:Shared Service:%SystemRoot%\System32\netman.dll:1
+NlaSvc:unsupported display name:Automatic:Shared Service:%SystemRoot%\System32\nlasvc.dll:1
+PEAUTH:PEAUTH:Automatic:Kernel:system32\drivers\peauth.sys:0
+PNRPAutoReg:unsupported display name:Manual:Shared Service:%SystemRoot%\system32\p2psvc.dll:1
+PNRPsvc:unsupported display name:Manual:Shared Service:%SystemRoot%\system32\p2psvc.dll:1
+PSched:unsupported display name:System:Kernel:system32\DRIVERS\pacer.sys:0
+Parport:Parallel port driver:Disabled:Kernel:\SystemRoot\system32\drivers\parport.sys:0
+PcaSvc:unsupported display name:Automatic:Shared Service:%SystemRoot%\System32\pcasvc.dll:1
+PerfHost:unsupported display name:Manual:Service:%SystemRoot%\SysWow64\perfhost.exe:0
+PlugPlay:unsupported display name:Automatic:Shared Service:%SystemRoot%\system32\umpnpmgr.dll:1
+PolicyAgent:unsupported display name:Automatic:Shared Service:%SystemRoot%\System32\ipsecsvc.dll:1
+PptpMiniport:WAN Miniport (PPTP):Manual:Kernel:system32\DRIVERS\raspptp.sys:0
+Processor:Processor Driver:Manual:Kernel:system32\DRIVERS\processr.sys:0
+ProfSvc:unsupported display name:Automatic:Shared Service:%systemroot%\system32\profsvc.dll:1
+ProtectedStorage:unsupported display name:Manual:Shared Service:%SystemRoot%\system32\lsass.exe:0
+QWAVE:unsupported display name:Manual:Shared Service:%windir%\system32\qwave.dll:1
+QWAVEdrv:unsupported display name:Manual:Kernel:\SystemRoot\system32\drivers\qwavedrv.sys:0
+RDPCDD:RDPCDD:System:Kernel:System32\DRIVERS\RDPCDD.sys:0
+RDPENCDD:RDP Encoder Mirror Driver:System:Kernel:system32\drivers\rdpencdd.sys:0
+RTL8169:Realtek 8169 NT Driver:Manual:Kernel:system32\DRIVERS\Rtlh64.sys:0
+RasAcd:Remote Access Auto Connection Driver:System:Kernel:System32\DRIVERS\rasacd.sys:0
+RasAuto:unsupported display name:Manual:Shared Service:%SystemRoot%\System32\rasauto.dll:1
+RasMan:unsupported display name:Manual:Shared Service:%SystemRoot%\System32\rasmans.dll:1
+RasPppoe:unsupported display name:Manual:Kernel:system32\DRIVERS\raspppoe.sys:0
+RasSstp:unsupported display name:Manual:Kernel:system32\DRIVERS\rassstp.sys:0
+Rasl2tp:WAN Miniport (L2TP):Manual:Kernel:system32\DRIVERS\rasl2tp.sys:0
+RemoteAccess:unsupported display name:Disabled:Shared Service:%SystemRoot%\System32\mprdim.dll:1
+RemoteRegistry:unsupported display name:Manual:Shared Service:%SystemRoot%\system32\regsvc.dll:1
+RpcLocator:unsupported display name:Manual:Service:%SystemRoot%\system32\locator.exe:0
+RpcSs:unsupported display name:Automatic:Shared Service:%SystemRoot%\system32\rpcss.dll:1
+SCPolicySvc:unsupported display name:Manual:Shared Service:%SystemRoot%\System32\certprop.dll:1
+SCardSvr:unsupported display name:Manual:Shared Service:%SystemRoot%\System32\SCardSvr.dll:1
+SDRSVC:unsupported display name:Manual:Service:%Systemroot%\System32\SDRSVC.dll:1
+SENS:unsupported display name:Automatic:Shared Service:%SystemRoot%\System32\sens.dll:1
+SLUINotify:unsupported display name:Manual:Shared Service:%SystemRoot%\system32\SLUINotify.dll:1
+SNMPTRAP:unsupported display name:Manual:Service:%SystemRoot%\System32\snmptrap.exe:0
+SSDPSRV:unsupported display name:Manual:Shared Service:%SystemRoot%\System32\ssdpsrv.dll:1
+SamSs:unsupported display name:Automatic:Shared Service:%SystemRoot%\system32\lsass.exe:0
+Schedule:unsupported display name:Automatic:Shared Service:%systemroot%\system32\schedsvc.dll:1
+Serenum:Serenum Filter Driver:Manual:Kernel:\SystemRoot\system32\drivers\serenum.sys:0
+Serial:Serial Port Driver:Manual:Kernel:\SystemRoot\system32\drivers\serial.sys:0
+SessionEnv:unsupported display name:Manual:Shared Service:%SystemRoot%\system32\sessenv.dll:1
+SharedAccess:unsupported display name:Disabled:Shared Service:%SystemRoot%\System32\ipnathlp.dll:1
+ShellHWDetection:unsupported display name:Automatic:Shared Service:%SystemRoot%\System32\shsvcs.dll:1
+SiSRaid2::Boot:Kernel:\SystemRoot\system32\drivers\sisraid2.sys:0
+SiSRaid4::Boot:Kernel:\SystemRoot\system32\drivers\sisraid4.sys:0
+Smb:unsupported display name:System:Kernel:system32\DRIVERS\smb.sys:0
+Spooler:unsupported display name:Automatic:00000110:%SystemRoot%\System32\spoolsv.exe:0
+SstpSvc:unsupported display name:Manual:Shared Service:%SystemRoot%\system32\sstpsvc.dll:1
+Sym_hi::Disabled:Kernel:\SystemRoot\system32\drivers\sym_hi.sys:0
+Sym_u3::Disabled:Kernel:\SystemRoot\system32\drivers\sym_u3.sys:0
+Symc8xx::Disabled:Kernel:\SystemRoot\system32\drivers\symc8xx.sys:0
+SysMain:Superfetch:Disabled:Shared Service:%systemroot%\system32\sysmain.dll:1
+TBS:unsupported display name:Automatic:Shared Service:%SystemRoot%\System32\tbssvc.dll:1
+TDPIPE:TDPIPE:Manual:Kernel:system32\drivers\tdpipe.sys:0
+TDTCP:TDTCP:Manual:Kernel:system32\drivers\tdtcp.sys:0
+THREADORDER:unsupported display name:Manual:Shared Service:%SystemRoot%\system32\mmcss.dll:1
+TabletInputService:unsupported display name:Automatic:Shared Service:%SystemRoot%\System32\TabSvc.dll:1
+TapiSrv:unsupported display name:Manual:Shared Service:%SystemRoot%\System32\tapisrv.dll:1
+Tcpip:unsupported display name:Boot:Kernel:System32\drivers\tcpip.sys:0
+Tcpip6:Microsoft IPv6 Protocol Driver:Manual:Kernel:system32\DRIVERS\tcpip.sys:0
+TermDD:Terminal Device Driver:System:Kernel:system32\DRIVERS\termdd.sys:0
+TermService:unsupported display name:Automatic:Shared Service:%SystemRoot%\System32\termsrv.dll:1
+Themes:unsupported display name:Automatic:Shared Service:%SystemRoot%\system32\shsvcs.dll:1
+TrkWks:unsupported display name:Automatic:Shared Service:%SystemRoot%\System32\trkwks.dll:1
+TrustedInstaller:unsupported display name:Manual:Service:%SystemRoot%\servicing\TrustedInstaller.exe:0
+UI0Detect:unsupported display name:Manual:00000110:%SystemRoot%\system32\UI0Detect.exe:0
+USBSTOR:USB Mass Storage Driver:Manual:Kernel:system32\DRIVERS\USBSTOR.SYS:0
+UlSata::Boot:Kernel:\SystemRoot\system32\drivers\ulsata.sys:0
+UxSms:unsupported display name:Automatic:Shared Service:%SystemRoot%\System32\uxsms.dll:1
+VSS:unsupported display name:Manual:Service:%systemroot%\system32\vssvc.exe:0
+VST64HWBS2::Manual:Kernel:system32\DRIVERS\VSTBS26.SYS:0
+VST64_DPV::Manual:Kernel:system32\DRIVERS\VSTDPV6.SYS:0
+VgaSave::System:Kernel:\SystemRoot\System32\drivers\vga.sys:0
+W32Time:unsupported display name:Automatic:Shared Service:%systemroot%\system32\w32time.dll:1
+WMPNetworkSvc:unsupported display name:Manual:Service:"%ProgramFiles%\Windows Media Player\wmpnetwk.exe":0
+WPCSvc:unsupported display name:Manual:Shared Service:%SystemRoot%\System32\wpcsvc.dll:1
+WPDBusEnum:unsupported display name:Automatic:Shared Service:%SystemRoot%\system32\wpdbusenum.dll:1
+WSearch:Windows Search:Disabled:Service:%systemroot%\system32\SearchIndexer.exe /Embedding:0
+WUDFRd::Manual:Kernel:system32\DRIVERS\WUDFRd.sys:0
+WacomPen:Wacom Serial Pen HID Driver:Disabled:Kernel:\SystemRoot\system32\drivers\wacompen.sys:0
+Wanarp:Remote Access IP ARP Driver:Manual:Kernel:system32\DRIVERS\wanarp.sys:0
+Wanarpv6:Remote Access IPv6 ARP Driver:System:Kernel:system32\DRIVERS\wanarp.sys:0
+WcsPlugInService:unsupported display name:Manual:Shared Service:%SystemRoot%\System32\WcsPlugInService.dll:1
+Wd:Microsoft Watchdog Timer Driver:Disabled:Kernel:\SystemRoot\system32\drivers\wd.sys:0
+Wdf01000:Kernel Mode Driver Frameworks service:Boot:Kernel:system32\drivers\Wdf01000.sys:0
+WdiServiceHost:unsupported display name:Manual:Shared Service:%SystemRoot%\system32\wdi.dll:1
+WdiSystemHost:unsupported display name:Manual:Shared Service:%SystemRoot%\system32\wdi.dll:1
+WebClient:unsupported display name:Automatic:Shared Service:%SystemRoot%\System32\webclnt.dll:1
+Wecsvc:unsupported display name:Manual:Shared Service:%SystemRoot%\system32\wecsvc.dll:1
+WerSvc:unsupported display name:Automatic:Shared Service:%SystemRoot%\System32\WerSvc.dll:1
+WinDefend:Windows Defender:Manual:Shared Service:%ProgramFiles%\Windows Defender\mpsvc.dll:1
+WinHttpAutoProxySvc:unsupported display name:Manual:Shared Service:winhttp.dll:1
+WinRM:unsupported display name:Manual:Shared Service:%SystemRoot%\system32\WsmSvc.dll:1
+Winmgmt:unsupported display name:Automatic:Shared Service:%SystemRoot%\system32\wbem\WMIsvc.dll:1
+Wlansvc:unsupported display name:Automatic:Shared Service:%SystemRoot%\System32\wlansvc.dll:1
+WmiAcpi:Microsoft Windows Management Interface for ACPI:Manual:Kernel:system32\DRIVERS\wmiacpi.sys:0
+adp94xx::Disabled:Kernel:\SystemRoot\system32\drivers\adp94xx.sys:0
+adpahci::Boot:Kernel:\SystemRoot\system32\drivers\adpahci.sys:0
+adpu160m::Disabled:Kernel:\SystemRoot\system32\drivers\adpu160m.sys:0
+adpu320::Disabled:Kernel:\SystemRoot\system32\drivers\adpu320.sys:0
+agp440:Intel AGP Bus Filter:Manual:Kernel:\SystemRoot\system32\drivers\agp440.sys:0
+aic78xx::Disabled:Kernel:\SystemRoot\system32\drivers\djsvs.sys:0
+aliide::Boot:Kernel:\SystemRoot\system32\drivers\aliide.sys:0
+amdide::Boot:Kernel:\SystemRoot\system32\drivers\amdide.sys:0
+amdkmdag::Manual:Kernel:system32\DRIVERS\atikmdag.sys:0
+amdkmdap::Manual:Kernel:system32\DRIVERS\atikmpag.sys:0
+arc::Disabled:Kernel:\SystemRoot\system32\drivers\arc.sys:0
+arcsas::Disabled:Kernel:\SystemRoot\system32\drivers\arcsas.sys:0
+aswHwid:avast! HardwareID:Automatic:Kernel:\SystemRoot\system32\drivers\aswHwid.sys:0
+aswMonFlt:aswMonFlt:Automatic:File system:\SystemRoot\system32\drivers\aswMonFlt.sys:0
+aswSP:aswSP:System:File system:\SystemRoot\system32\drivers\aswSP.sys:0
+aswSnx:aswSnx:System:File system:\SystemRoot\system32\drivers\aswSnx.sys:0
+aswTdi:aswTdi:System:Kernel:\SystemRoot\system32\drivers\aswTdi.sys:0
+atapi:IDE Channel:Boot:Kernel:system32\drivers\atapi.sys:0
+avast! Antivirus:avast! Antivirus:Automatic:Shared Service:"C:\Program Files\AVAST Software\Avast\AvastSvc.exe":0
+blbdrive::Disabled:Kernel:\SystemRoot\system32\drivers\blbdrive.sys:0
+bowser:Bowser:Manual:File system:system32\DRIVERS\bowser.sys:0
+cdfs:CD/DVD File System Reader:Disabled:File system:system32\DRIVERS\cdfs.sys:0
+cdrom:CD-ROM Driver:System:Kernel:system32\DRIVERS\cdrom.sys:0
+circlass:Consumer IR Devices:Manual:Kernel:system32\DRIVERS\circlass.sys:0
+clr_optimization_v2.0.50727_32:Microsoft .NET Framework NGEN v2.0.50727_X86:Manual:Service:%systemroot%\Microsoft.NET\Framework\v2.0.50727\mscorsvw.exe:0
+clr_optimization_v2.0.50727_64:Microsoft .NET Framework NGEN v2.0.50727_X64:Manual:Service:%systemroot%\Microsoft.NET\Framework64\v2.0.50727\mscorsvw.exe:0
+cmdide::Boot:Kernel:\SystemRoot\system32\drivers\cmdide.sys:0
+crcdisk:Crcdisk Filter Driver:Boot:Kernel:system32\drivers\crcdisk.sys:0
+disk:Disk Driver:Boot:Kernel:system32\drivers\disk.sys:0
+dot3svc:unsupported display name:Manual:Shared Service:%SystemRoot%\System32\dot3svc.dll:1
+drmkaud:Microsoft Kernel DRM Audio Descrambler:Manual:Kernel:system32\drivers\drmkaud.sys:0
+e1express:Intel(R) PRO/1000 PCI Express Network Connection Driver:Manual:Kernel:system32\DRIVERS\e1e6032e.sys:0
+ehRecvr:unsupported display name:Manual:Service:%systemroot%\ehome\ehRecvr.exe:0
+ehSched:unsupported display name:Manual:Service:%systemroot%\ehome\ehsched.exe:0
+ehstart:unsupported display name:Automatic:Shared Service:%SystemRoot%\ehome\ehstart.dll:1
+elxstor::Disabled:Kernel:\SystemRoot\system32\drivers\elxstor.sys:0
+fdPHost:unsupported display name:Manual:Shared Service:%SystemRoot%\system32\fdPHost.dll:1
+fdc:Floppy Disk Controller Driver:Manual:Kernel:system32\DRIVERS\fdc.sys:0
+flpydisk:Floppy Disk Driver:Disabled:Kernel:system32\DRIVERS\flpydisk.sys:0
+gagp30kx:Microsoft Generic AGPv3.0 Filter for K8 Processor Platforms:Manual:Kernel:\SystemRoot\system32\drivers\gagp30kx.sys:0
+gpsvc:unsupported display name:Automatic:Service:%SystemRoot%\System32\gpsvc.dll:1
+hidserv:unsupported display name:Automatic:Shared Service:%SystemRoot%\system32\hidserv.dll:1
+hkmsvc:unsupported display name:Manual:Shared Service:%SystemRoot%\system32\kmsvc.dll:1
+i2omp::Disabled:Kernel:\SystemRoot\system32\drivers\i2omp.sys:0
+i8042prt:i8042 Keyboard and PS/2 Mouse Port Driver:System:Kernel:system32\DRIVERS\i8042prt.sys:0
+iScsiPrt:iScsiPort Driver:Manual:Kernel:system32\DRIVERS\msiscsi.sys:0
+iaStorV:Intel RAID Controller Vista:Boot:Kernel:\SystemRoot\system32\drivers\iastorv.sys:0
+idsvc:unsupported display name:Manual:Shared Service:"%systemroot%\Microsoft.NET\Framework64\v3.0\Windows Communication Foundation\infocard.exe":0
+igfx::Manual:Kernel:system32\DRIVERS\igdkmd64.sys:0
+iirsp::Disabled:Kernel:\SystemRoot\system32\drivers\iirsp.sys:0
+intelide::Boot:Kernel:system32\drivers\intelide.sys:0
+intelppm:Intel Processor Driver:Manual:Kernel:system32\DRIVERS\intelppm.sys:0
+iphlpsvc:unsupported display name:Automatic:Shared Service:%SystemRoot%\System32\iphlpsvc.dll:1
+isapnp:PnP ISA/EISA Bus Driver:Disabled:Kernel:\SystemRoot\system32\drivers\isapnp.sys:0
+iteatapi:ITEATAPI_Service_Install:Boot:Kernel:\SystemRoot\system32\drivers\iteatapi.sys:0
+iteraid:ITERAID_Service_Install:Boot:Kernel:\SystemRoot\system32\drivers\iteraid.sys:0
+kbdclass:Keyboard Class Driver:System:Kernel:system32\DRIVERS\kbdclass.sys:0
+kbdhid:Keyboard HID Driver:System:Kernel:system32\DRIVERS\kbdhid.sys:0
+ksthunk:Kernel Streaming Thunks:Manual:Kernel:\SystemRoot\system32\drivers\ksthunk.sys:0
+lltdio:Link-Layer Topology Discovery Mapper I/O Driver:Automatic:Kernel:system32\DRIVERS\lltdio.sys:0
+lltdsvc:unsupported display name:Manual:Shared Service:%SystemRoot%\System32\lltdsvc.dll:1
+lmhosts:unsupported display name:Automatic:Shared Service:%SystemRoot%\System32\lmhsvc.dll:1
+luafv:UAC File Virtualization:Automatic:File system:\SystemRoot\system32\drivers\luafv.sys:0
+megasas::Disabled:Kernel:\SystemRoot\system32\drivers\megasas.sys:0
+monitor:Microsoft Monitor Class Function Driver Service:Manual:Kernel:system32\DRIVERS\monitor.sys:0
+mouclass:Mouse Class Driver:System:Kernel:system32\DRIVERS\mouclass.sys:0
+mouhid:Mouse HID Driver:Manual:Kernel:system32\DRIVERS\mouhid.sys:0
+mpio:Microsoft Multi-Path Bus Driver:Disabled:Kernel:\SystemRoot\system32\drivers\mpio.sys:0
+mpsdrv:unsupported display name:Manual:Kernel:System32\drivers\mpsdrv.sys:0
+mrxsmb:SMB MiniRedirector Wrapper and Engine:Manual:File system:system32\DRIVERS\mrxsmb.sys:0
+mrxsmb10:SMB 1.x MiniRedirector:Manual:File system:system32\DRIVERS\mrxsmb10.sys:0
+mrxsmb20:SMB 2.0 MiniRedirector:Manual:File system:system32\DRIVERS\mrxsmb20.sys:0
+msahci::Boot:Kernel:system32\DRIVERS\msahci.sys:0
+msdsm:Microsoft Multi-Path Device Specific Module:Disabled:Kernel:\SystemRoot\system32\drivers\msdsm.sys:0
+msisadrv:ISA/EISA Class Driver:Boot:Kernel:system32\drivers\msisadrv.sys:0
+msiserver:unsupported display name:Manual:Service:%systemroot%\system32\msiexec /V:0
+mssmbios:Microsoft System Management BIOS Driver:Manual:Kernel:system32\DRIVERS\mssmbios.sys:0
+mv2::Manual:Kernel:system32\DRIVERS\mv2.sys:0
+napagent:unsupported display name:Manual:Shared Service:%SystemRoot%\system32\qagentRT.dll:1
+netbt:NETBT:System:Kernel:System32\DRIVERS\netbt.sys:0
+netprofm:unsupported display name:Automatic:Shared Service:%SystemRoot%\System32\netprofm.dll:1
+netr7364:USB Wireless 802.11 b/g Adaptor Driver for Vista:Manual:Kernel:system32\DRIVERS\netr7364.sys:0
+nfrd960::Disabled:Kernel:\SystemRoot\system32\drivers\nfrd960.sys:0
+nsi:unsupported display name:Automatic:Shared Service:%systemroot%\system32\nsisvc.dll:1
+nsiproxy:NSI proxy service:System:Kernel:system32\drivers\nsiproxy.sys:0
+nv_agp:NVIDIA nForce AGP Bus Filter:Manual:Kernel:\SystemRoot\system32\drivers\nv_agp.sys:0
+nvlddmkm::Manual:Kernel:system32\DRIVERS\nvlddmkm.sys:0
+nvraid::Boot:Kernel:\SystemRoot\system32\drivers\nvraid.sys:0
+nvstor::Boot:Kernel:system32\DRIVERS\nvstor.sys:0
+ohci1394:VIA OHCI Compliant IEEE 1394 Host Controller:Manual:Kernel:system32\DRIVERS\ohci1394.sys:0
+p2pimsvc:unsupported display name:Manual:Shared Service:%SystemRoot%\system32\p2psvc.dll:1
+p2psvc:unsupported display name:Manual:Shared Service:%SystemRoot%\system32\p2psvc.dll:1
+partmgr:Partition Manager:Boot:Kernel:System32\drivers\partmgr.sys:0
+pci:PCI Bus Driver:Boot:Kernel:system32\drivers\pci.sys:0
+pciide::Boot:Kernel:system32\DRIVERS\pciide.sys:0
+pcmcia::Disabled:Kernel:\SystemRoot\system32\drivers\pcmcia.sys:0
+pla:unsupported display name:Manual:Shared Service:%systemroot%\system32\pla.dll:1
+ql2300:QLogic Fibre Channel Miniport Driver:Disabled:Kernel:\SystemRoot\system32\drivers\ql2300.sys:0
+ql40xx:QLogic iSCSI Miniport Driver:Disabled:Kernel:\SystemRoot\system32\drivers\ql40xx.sys:0
+rdbss:Redirected Buffering Sub Sysytem:System:File system:system32\DRIVERS\rdbss.sys:0
+rdpdr:Terminal Server Device Redirector Driver:Disabled:Kernel:\SystemRoot\system32\drivers\rdpdr.sys:0
+rimmptsk::Automatic:Kernel:system32\DRIVERS\rimmpx64.sys:0
+rimsptsk::Automatic:Kernel:system32\DRIVERS\rimspx64.sys:0
+rismxdp:Ricoh xD-Picture Card Driver:Automatic:Kernel:system32\DRIVERS\rixdpx64.sys:0
+rpcnet:Remote Procedure Call (RPC) Net:Automatic:Service:C:\Windows\SysWOW64\rpcnet.exe:0
+rspndr:Link-Layer Topology Discovery Responder:Automatic:Kernel:system32\DRIVERS\rspndr.sys:0
+sbp2port:SBP-2 Transport/Protocol Bus Driver:Disabled:Kernel:\SystemRoot\system32\drivers\sbp2port.sys:0
+sdbus::Manual:Kernel:system32\DRIVERS\sdbus.sys:0
+seclogon:unsupported display name:Automatic:Shared Service:%windir%\system32\seclogon.dll:1
+sermouse:Serial Mouse Driver:Disabled:Kernel:\SystemRoot\system32\drivers\sermouse.sys:0
+sffdisk:SFF Storage Class Driver:Disabled:Kernel:\SystemRoot\system32\drivers\sffdisk.sys:0
+sffp_mmc:SFF Storage Protocol Driver for MMC:Manual:Kernel:\SystemRoot\system32\drivers\sffp_mmc.sys:0
+sffp_sd:SFF Storage Protocol Driver for SDBus:Manual:Kernel:\SystemRoot\system32\drivers\sffp_sd.sys:0
+sfloppy:High-Capacity Floppy Disk Drive:Disabled:Kernel:\SystemRoot\system32\drivers\sfloppy.sys:0
+slsvc:unsupported display name:Automatic:Service:%SystemRoot%\system32\SLsvc.exe:0
+smserial::Manual:Kernel:system32\DRIVERS\smserial.sys:0
+srv::Manual:File system:System32\DRIVERS\srv.sys:0
+srv2:srv2:Manual:File system:System32\DRIVERS\srv2.sys:0
+srvnet::Manual:File system:System32\DRIVERS\srvnet.sys:0
+stisvc:unsupported display name:Automatic:Service:%SystemRoot%\System32\wiaservc.dll:1
+swenum:Software Bus Driver:Manual:Kernel:system32\DRIVERS\swenum.sys:0
+swprv:unsupported display name:Manual:Service:%Systemroot%\System32\swprv.dll:1
+tcpipreg:TCP/IP Registry Compatibility:Automatic:Kernel:System32\drivers\tcpipreg.sys:0
+tdx:unsupported display name:System:Kernel:system32\DRIVERS\tdx.sys:0
+tssecsrv:Terminal Services Security Filter Driver:Manual:Kernel:System32\DRIVERS\tssecsrv.sys:0
+tunmp:Microsoft Tun Miniport Adapter Driver:Manual:Kernel:system32\DRIVERS\tunmp.sys:0
+tunnel:Microsoft IPv6 Tunnel Miniport Adapter Driver:Manual:Kernel:system32\DRIVERS\tunnel.sys:0
+uagp35:Microsoft AGPv3.5 Filter:Manual:Kernel:\SystemRoot\system32\drivers\uagp35.sys:0
+udfs:udfs:Disabled:File system:system32\DRIVERS\udfs.sys:0
+uliagpkx:Uli AGP Bus Filter:Manual:Kernel:\SystemRoot\system32\drivers\uliagpkx.sys:0
+uliahci::Boot:Kernel:\SystemRoot\system32\drivers\uliahci.sys:0
+ulsata2::Boot:Kernel:\SystemRoot\system32\drivers\ulsata2.sys:0
+umbus:UMBus Enumerator Driver:Manual:Kernel:system32\DRIVERS\umbus.sys:0
+upnphost:unsupported display name:Automatic:Shared Service:%SystemRoot%\System32\upnphost.dll:1
+usbccgp:Microsoft USB Generic Parent Driver:Manual:Kernel:system32\DRIVERS\usbccgp.sys:0
+usbcir:eHome Infrared Receiver (USBCIR):Manual:Kernel:system32\DRIVERS\usbcir.sys:0
+usbehci:Microsoft USB 2.0 Enhanced Host Controller Miniport Driver:Manual:Kernel:system32\DRIVERS\usbehci.sys:0
+usbhub:USB2 Enabled Hub:Manual:Kernel:system32\DRIVERS\usbhub.sys:0
+usbohci:Microsoft USB Open Host Controller Miniport Driver:Manual:Kernel:system32\DRIVERS\usbohci.sys:0
+usbprint:Microsoft USB PRINTER Class:Disabled:Kernel:\SystemRoot\system32\drivers\usbprint.sys:0
+usbuhci:Microsoft USB Universal Host Controller Miniport Driver:Manual:Kernel:system32\DRIVERS\usbuhci.sys:0
+usbvideo:USB Video Device (WDM):Manual:Kernel:System32\Drivers\usbvideo.sys:0
+uvnc_service:uvnc_service:Automatic:Service:"C:\Program Files\UltraVNC\WinVNC.exe" -service:0
+vds:unsupported display name:Manual:Service:%SystemRoot%\System32\vds.exe:0
+vga::Manual:Kernel:system32\DRIVERS\vgapnp.sys:0
+viaide::Boot:Kernel:\SystemRoot\system32\drivers\viaide.sys:0
+volmgr:Volume Manager Driver:Boot:Kernel:system32\drivers\volmgr.sys:0
+volmgrx:Dynamic Volume Manager:Boot:Kernel:System32\drivers\volmgrx.sys:0
+volsnap:Storage volumes:Boot:Kernel:system32\drivers\volsnap.sys:0
+vsmraid::Boot:Kernel:\SystemRoot\system32\drivers\vsmraid.sys:0
+wcncsvc:unsupported display name:Manual:Shared Service:%SystemRoot%\System32\wcncsvc.dll:1
+wercplsupport:unsupported display name:Manual:Shared Service:%SystemRoot%\System32\wercplsupport.dll:1
+winachsf::Manual:Kernel:system32\DRIVERS\VSTCNXT6.SYS:0
+wmiApSrv:unsupported display name:Manual:Service:%systemroot%\system32\wbem\WmiApSrv.exe:0
+ws2ifsl:Winsock IFS driver:Disabled:Kernel:\SystemRoot\system32\drivers\ws2ifsl.sys:0
+wscsvc:unsupported display name:Automatic:Shared Service:%SystemRoot%\System32\wscsvc.dll:1
+wuauserv:unsupported display name:Automatic:Shared Service:%systemroot%\system32\wuaueng.dll:1
+wudfsvc:unsupported display name:Automatic:Shared Service:%SystemRoot%\System32\WUDFSvc.dll:1
