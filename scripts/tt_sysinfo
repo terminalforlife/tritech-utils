@@ -1,7 +1,7 @@
 #!/bin/bash
 
-VER="1.15"
-VERDATE="2014-04-25"
+VER="1.16"
+VERDATE="2014-06-25"
 
 #echo "Tritech system info tool $VER, updated on $VERDATE"
 #echo "Copyright (c) by Jody Bruchon <jody@c02ware.com>"
@@ -57,7 +57,7 @@ VGA="$(lspci -mm | grep "VGA compatible" | cut -d\" -f6 | sed 's/^ *//' | head -
 echo "${CPUR}VGA:  $VGA$COFF"
 unset BIOS
 for X in "Vendor:" "Version:" "Release Date:"
-	do BIOS="$BIOS $(dmidecode -t bios | grep "$X" | cut -d: -f2)"
+	do BIOS="$BIOS $(dmidecode -t bios | grep -m 1 "$X" | cut -d: -f2)"
 done
 BIOS="$(echo "$BIOS" | sed 's/^ *//')"
 echo "${CPUR}ROM:  $BIOS$COFF"

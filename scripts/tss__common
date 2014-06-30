@@ -105,13 +105,13 @@ do_windows_folder_detection () {
 		do test -d $WINDIR/$SYS32/$X && export CONFIG=$X; done
 
 	for X in sam Sam SAM
-		do test -d $WINDIR/$SYS32/$CONFIG/$X && export REG_SAM=$X; done
+		do test -e $WINDIR/$SYS32/$CONFIG/$X && export REG_SAM=$X; done
 
 	for X in software Software SOFTWARE
-		do test -d $WINDIR/$SYS32/$CONFIG/$X && export REG_SW=$X; done
+		do test -e $WINDIR/$SYS32/$CONFIG/$X && export REG_SW=$X; done
 
 	for X in system System SYSTEM
-		do test -d $WINDIR/$SYS32/$CONFIG/$X && export REG_SYS=$X; done
+		do test -e $WINDIR/$SYS32/$CONFIG/$X && export REG_SYS=$X; done
 
 	for X in systemprofile SYSTEMPROFILE SystemProfile
 		do test -d $WINDIR/$SYS32/$CONFIG/$X && export SYSPROF=$X; done
