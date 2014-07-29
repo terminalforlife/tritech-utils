@@ -171,7 +171,6 @@ echo -n "${CGRN}HDAUDIO $COFF"; TYPE="hdaudio"
 for X in /proc/asound/card*/codec#*
 	do
 	unset FUNC CC CV CD VID PID VEN DEV SUBSYS REV CLASS SC PROT THISDEV
-	SCORE=0; BEST=0; DV=0
 	CARD="$(echo "$X" | cut -d/ -f4)"
 	FUNC=":func=02"; grep -iq 'No Modem Function Group' $X && FUNC=":func=01"
 	CV=":cv=$(cut -dx -f2 < /sys/class/sound/$CARD/device/vendor)"
