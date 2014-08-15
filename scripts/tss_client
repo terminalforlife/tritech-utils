@@ -5,8 +5,8 @@
 # Prevent loading twice
 if [ -z "$TSS_CLIENT" ]; then
 
-#VER=0.6.1
-#VERDATE=2014-04-17
+#VER=0.6.2
+#VERDATE=2014-08-15
 
 # Scripts can check this variable to ensure these functions are loaded
 TSS_CLIENT=1
@@ -37,7 +37,7 @@ get_os_version () {
 	PART=$(cat /proc/partitions | grep 'sd.[0-9]$' | sort -k3 -g | tail -n 1 | awk '{print $4}')
 	M=0
 	if ! mountpoint -q /mnt/$PART
-		then mount -o ro /mnt/$PART || return 1
+		then ntfs-3g -o ro /dev/$PART /mnt/$PART || return 1
 		M=1
 	fi
 	# Low disk space check

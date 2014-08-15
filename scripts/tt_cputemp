@@ -2,13 +2,13 @@
 
 # Show CPU temperature
 
-VER=1.0
-VERDATE=2013-12-17
+VER=1.0.1
+VERDATE=2014-08-07
 
 shopt -s nullglob
 
 . tss__common
-THRM="/sys/bus/acpi/drivers/thermal/LNXTHERM:00/thermal_zone/temp /sys/devices/platform/coretemp.*/temp*_input /sys/bus/pci/drivers/k*temp/*:*/temp1_input"
+THRM="/sys/bus/acpi/drivers/thermal/LNXTHERM:00/thermal_zone/temp /sys/devices/platform/coretemp.*/temp*_input /sys/bus/pci/drivers/k*temp/*:*/temp1_input /sys/class/thermal/thermal_zone0/temp /sys/bus/platform/devices/coretemp.0/hwmon/hwmon0/temp2_input /sys/bus/platform/devices/coretemp.0/hwmon/hwmon0/temp4_input"
 for X in $THRM; do test -e $X && THRM=$X; done
 
 # These thresholds may need to change in the future
@@ -17,8 +17,8 @@ TEMP_RED=78
 TEMP_BOGUS=110
 N_OVERHEAT=0
 
-if [ -e $THRM ]
-	then CPUTEMP="$(expr $(cat $THRM) / 1000)"
+if [ -e "$THRM" ]
+	then CPUTEMP="$(expr $(cat "$THRM") / 1000)"
 	echo -n "CPU temp: $CGRN"
 	test $CPUTEMP -gt $TEMP_YELLOW && echo -n "$CYEL"
 	test $CPUTEMP -gt $TEMP_RED && test $CPUTEMP -lt 100 && echo -n "$CRED"

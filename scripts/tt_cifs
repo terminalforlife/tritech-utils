@@ -2,8 +2,8 @@
 
 # Mounts the Tritech CIFS source share to /mnt/cifs
 
-VER=1.0.7
-VERDATE="2013-04-16"
+VER=1.0.8
+VERDATE="2014-08-15"
 
 . tss__common
 
@@ -103,8 +103,8 @@ fi
 
 # Fallback hard-coded server, and indicate what is being used
 if [ "$SVR" = "" ]
-	then SVR="192.168.0.15"
-	SVRX="192.168.0.15/tritech"
+	then SVR="192.168.0.1"
+	SVRX="192.168.0.1/tritech"
 	UN="tritech"
 	PW=""
 	test $V = 2 && echo "${CYEL}Hard-coded server $SVR$COFF"
