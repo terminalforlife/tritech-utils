@@ -5,8 +5,8 @@
 # Prevent loading twice
 if [ -z "$TSS_CLIENT" ]; then
 
-#VER=0.6.2
-#VERDATE=2014-08-15
+#VER=0.6.3
+#VERDATE=2014-09-16
 
 # Scripts can check this variable to ensure these functions are loaded
 TSS_CLIENT=1
@@ -337,9 +337,9 @@ read_sysinfo () {
 
 	# Read DMI memory size and decide if MB or GB is more appropriate.
 	# The calculations make MEMT reporting more friendly, i.e. 1280 MB -> "1.25GB"
-	if dmidecode -t memory | grep -q '^\sSize: '
+	if dmidecode -t memory 2>/dev/null | grep -q '^\sSize: '
 		then
-		for X in $(dmidecode -t memory | grep '^\sSize: ' | cut -d: -f2 | cut -d\  -f2)
+		for X in $(dmidecode -t memory 2>/dev/null | grep '^\sSize: ' | cut -d: -f2 | cut -d\  -f2)
 			do MEMT=$((MEMT + X))
 		done
 		else
