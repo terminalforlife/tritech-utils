@@ -7,6 +7,8 @@ shopt -s nullglob
 
 test "$BASE" = "/mnt/cifs" && tt_cifs -q
 
+LZOP=/bin/lzop; test -e /usr/bin/lzop && LZOP=/usr/bin/lzop
+
 control_c () {
 	echo -e "\nInterrupted, cleaning up..."
 	test -e "$IMGNAME" && rm -f "$IMGNAME"
@@ -41,5 +43,5 @@ ENDSECT=$(fdisk -lu $DEV | grep -v 'does not end on cylinder boundary' | tail -n
 echo -e "\nImaging $CWHT$ENDSECT$COFF sectors ($(expr $ENDSECT / 2048) MB) from $CWHT$DEV$COFF"
 echo "to $CWHT$IMGNAME$COFF"
 ERR=0
-dd if=$DEV bs=512 count=$ENDSECT | pv -pterab -s $(expr $ENDSECT \* 512) | lzop -1 > "$IMGNAME" || ERR=1
+dd if=$DEV bs=512 count=$ENDSECT | pv -pterab -s $(expr $ENDSECT \* 512) | $LZOP -1 > "$IMGNAME" || ERR=1
 test $ERR = 1 && echo "Error occurred, removing $IMGNAME" && rm -f $IMGNAME && exit 1

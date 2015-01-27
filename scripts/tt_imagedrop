@@ -8,6 +8,7 @@ shopt -s nullglob
 
 echo "${CWHT}Tritech automatic system image drop $CGRN$VER ($VERDATE)$COFF"
 
+LZOP=/bin/lzop; test -e /usr/bin/lzop && LZOP=/usr/bin/lzop
 DISKS="$(mktemp)"
 TMPFILE="$(mktemp)"
 
@@ -173,7 +174,7 @@ check_mounts
 echo "Dropping image $IMG to ${DEV}, please wait."
 sgdisk -Z /dev/$DEV 2>/dev/null >/dev/null
 sync
-if ! $CATCOM "$IMGDIR/$IMG" | lzop -dc > /dev/$DEV
+if ! $CATCOM "$IMGDIR/$IMG" | $LZOP -dc > /dev/$DEV
 	then echo "Decompressing $IMGDIR/$IMG to $DEV failed. Aborting." 
 	eval $FAIL_COMMAND &
 	clean_exit 8

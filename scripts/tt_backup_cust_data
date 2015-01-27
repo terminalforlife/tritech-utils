@@ -1,7 +1,7 @@
 #!/bin/bash
 
-VER=0.6.3
-VERDATE="2014-05-16"
+VER=0.7.1
+VERDATE="2015-01-14"
 
 . tss__common
 . tss_client
@@ -196,7 +196,22 @@ if [ "$WOID" = "" ]
 	else echo "${CGRN}Autodetected work order $CPUR$WOID$COFF"
 fi
 BU="$BACKUPROOT/$WOID"
-echo "${CWHT}Using $CPUR$BU$COFF as backup area"
+
+# Allow user to change backup data location
+echo -n "${CWHT}Use default backup data location '$CPUR$BU$COFF' (y/n)? $COFF"
+read -n 1 UDBA; echo
+
+case $UDBA in
+	n|N)
+	echo -n "Enter path to backup data location: "
+	read BU
+	# TODO: add rsync-native mode ability
+	RSM=0
+	;;
+esac
+
+
+echo "${CWHT}Using $CPUR$BU$COFF as backup data location"
 
 test "$BASE" = "/mnt/cifs" && tt_cifs
 
@@ -206,7 +221,7 @@ read -n 1 BR; echo
 case $BR in
 
 b|B)
-if [ ! -d $BU ]
+test "$RSM" = "0" && if [ ! -d $BU ]
 	then
 	mkdir -p $BU \
 	|| (echo "mkdir $BU failed" && exit 1)
@@ -229,7 +244,7 @@ scan_for_quickbooks_data
 test "$IDX" -eq "0" && echo "Nothing to back up!" && exit 1
 
 # Change backup destination if in rsync-native mode
-test "$RSM" = "1" && BU="${RSYNC_USER}@ae86::tritech/$BACKUPDIR/$WOID"
+test "$RSM" = "1" && BU="${RSYNC_USER}@core::tritech/$BACKUPDIR/$WOID"
 
 C=0
 while [ "$C" -lt "$IDX" ]
@@ -263,7 +278,7 @@ test -d $BU || \
 	(echo "${CRED}$BU does not exist$COFF" && exit 1)
 
 # Change backup destination if in rsync-native mode
-test "$RSM" = "1" && BU="${RSYNC_USER}@ae86::tritech/$BACKUPDIR/$WOID"
+test "$RSM" = "1" && BU="${RSYNC_USER}@core::tritech/$BACKUPDIR/$WOID"
 
 rsync -rtv --delete "$BU/" "$MTPT/Backup/" | \
 	tee -a $LOGFILE | line_rotate || \
