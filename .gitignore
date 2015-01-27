@@ -25,6 +25,8 @@ Config.in
 /tss_file_tool
 /tt_beacon
 /debug.log
+/pkg
+/tritech-utils_*.pkg.tar.xz
 
 #
 # Backups / patches

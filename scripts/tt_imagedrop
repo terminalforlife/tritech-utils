@@ -1,7 +1,7 @@
 #!/bin/bash
 
-VER="2.0.1"
-VERDATE="2014-01-16"
+VER="2.1"
+VERDATE="2015-01-27"
 
 shopt -s nullglob
 . tss__common
@@ -9,6 +9,8 @@ shopt -s nullglob
 echo "${CWHT}Tritech automatic system image drop $CGRN$VER ($VERDATE)$COFF"
 
 LZOP=/bin/lzop; test -e /usr/bin/lzop && LZOP=/usr/bin/lzop
+GZIP=/bin/gzip; test -e /usr/bin/gzip && GZIP=/usr/bin/gzip
+XZ=/bin/xz; test -e /usr/bin/xz && XZ=/usr/bin/xz
 DISKS="$(mktemp)"
 TMPFILE="$(mktemp)"
 
@@ -125,7 +127,7 @@ echo "${CGRN}Choose an image to drop:${COFF}"
 
 # Enumerate image names
 IC=0
-for X in ${IMGDIR}/*.lzo
+for X in ${IMGDIR}/*.lzo ${IMGDIR}/*.gz ${IMGDIR}/*.lzma ${IMGDIR}/*.xz
 	do IC=$((IC + 1))
 	IMAGE[IC]="$(basename "$X")"
 	echo "$IC: ${IMAGE[IC]}"
@@ -174,7 +176,12 @@ check_mounts
 echo "Dropping image $IMG to ${DEV}, please wait."
 sgdisk -Z /dev/$DEV 2>/dev/null >/dev/null
 sync
-if ! $CATCOM "$IMGDIR/$IMG" | $LZOP -dc > /dev/$DEV
+echo "$IMG" | grep -q '.lzo$' && DECOMP=$LZOP
+echo "$IMG" | grep -q '.gz$' && DECOMP=$GZIP
+echo "$IMG" | grep -q '.lzma$' && DECOMP=$XZ
+echo "$IMG" | grep -q '.xz$' && DECOMP=$XZ
+test -z "$DECOMP" && echo "Image decompressor for $IMG not available. Aborting." && exit 1
+if ! $CATCOM "$IMGDIR/$IMG" | $DECOMP -dc > /dev/$DEV
 	then echo "Decompressing $IMGDIR/$IMG to $DEV failed. Aborting." 
 	eval $FAIL_COMMAND &
 	clean_exit 8
