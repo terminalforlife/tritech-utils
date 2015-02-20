@@ -5,8 +5,8 @@
 # Prevent loading twice
 if [ -z "$TSS_CLIENT" ]; then
 
-#VER=0.6.3
-#VERDATE=2014-09-16
+#VER=0.7
+#VERDATE=2015-02-16
 
 # Scripts can check this variable to ensure these functions are loaded
 TSS_CLIENT=1
@@ -20,13 +20,6 @@ test -z "$TSS_COMMON" && . tss__common
 LOGFILE=/var/log/tss_client.log
 test "$V" = "" && export V=0
 
-# Hard-coded CIFS server settings. FIXME: move to a config file
-test "$TSS_SERVER" = "" && export TSS_SERVER=192.168.0.15
-test "$TSS_PORT" = "" && export TSS_PORT=60607
-test "$TSS_CIFS_BASE" = "" && export TSS_CIFS_BASE="tritech"
-test "$TSS_CIFS_SHARE" = "" && export TSS_CIFS_SHARE="tritech"
-test "$TSS_CIFS_UN" = "" && export TSS_CIFS_UN="tritech"
-test "$TSS_CIFS_PW" = "" && export TSS_CIFS_PW=""
 
 ### Begin functions
 
@@ -253,10 +246,10 @@ detect_tss_server () {
 	
 	# Fallback hard-coded server, and indicate what is being used
 	if [ -z "$SVR" ]
-		then SVR="$TSS_SERVER"
-		SVRX="$TSS_CIFS_BASE"
-		SVRX="$(echo "$SVRX" | sed 's.[^/]*/..')"
-		SVRSHARE="$(echo "$SVRX" | sed 's#/.*##')"
+		then
+		SVR="192.168.0.1"
+		SVRX="tritech"
+		SVRSHARE="tritech"
 		UN="tritech"
 		PW=""
 		test $V -gt 0 && echo "${CYEL}Hard-coded server $SVR$COFF" >&2
@@ -407,6 +400,7 @@ detect_current_pc () {
 	test -e "$TSS_STATE_FILE" && load_tss_state
 	# Duplicate check required in case TSS state file contains disabled state
 	test "$TSS_CLIENT_DISABLE" = "1" && return 255
+	test -z "$TSS_SERVER" && detect_tss_server
 	MAC="$(shopt -u nullglob; cat /sys/class/net/{eth*,wlan*}/address 2>/dev/null | tr \\n ' ')"
 	COMMAND="MACADDR_TO_PCID $MAC" tss_command
 	test ! -z "$PCID" && COMMAND="PCID_TO_WOID $PCID" tss_command
@@ -474,9 +468,7 @@ load_tss_state () {
 			unset TSS_TEMP_STATE
 		done
 		if [[ -z "$TSS_SERVER" || -z "$TSS_PORT" ]]
-			then
-			export TSS_SERVER=192.168.0.15
-			export TSS_PORT=60607
+			then detect_tss_server
 		fi
 		else
 		detect_current_pc
