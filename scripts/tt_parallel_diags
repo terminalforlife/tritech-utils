@@ -2,8 +2,8 @@
 
 # Attempts to run parallel disk diags and burn-ins.
 
-VER=1.1.1
-VERDATE=2014-08-15
+VER=1.1.2
+VERDATE=2015-01-31
 
 export FORK=0
 export BURNSECS=600
@@ -13,8 +13,10 @@ shopt -s nullglob
 . tss_client
 
 PCDATA=/mnt/cifs/computer_data/$PCID
-THRM="/sys/bus/acpi/drivers/thermal/LNXTHERM:00/thermal_zone/temp /sys/devices/platform/coretemp.*/temp*_input /sys/bus/pci/drivers/k*temp/*:*/temp1_input /sys/class/thermal/thermal_zone0/temp /sys/bus/platform/devices/coretemp.0/hwmon/hwmon0/temp2_input /sys/bus/platform/devices/coretemp.0/hwmon/hwmon0/temp4_input"
-for X in $THRM; do test -e $X && THRM=$X; done
+unset THRM
+for X in /sys/bus/acpi/drivers/thermal/LNXTHERM:00/thermal_zone/temp /sys/devices/platform/coretemp.*/temp*_input /sys/bus/pci/drivers/k*temp/*:*/temp1_input /sys/class/thermal/thermal_zone0/temp /sys/bus/platform/devices/coretemp.0/hwmon/hwmon0/temp2_input /sys/bus/platform/devices/coretemp.0/hwmon/hwmon0/temp4_input
+	do test -e "$X" && THRM="$X"
+done
 SEP="${CPUR}||$COFF"
 WARNSOUND=/usr/share/sounds/tritech-utils/temp_warn.wav
 DONESOUND=/usr/share/sounds/tritech-utils/diags_complete.wav
@@ -177,24 +179,25 @@ while true
 		echo -n "$CPUTEMP${CWHT} C$COFF"
 	fi
 	CNT=1
-	for X in /sys/devices/virtual/thermal/cooling_device*
-		do if [ "$(cat $X/type)" = "Fan" ]
-			then
-			CS="$(cat $X/cur_state)"
-			MS="$(cat $X/max_state)"
-			if [ $CS -eq 0 ]
-				then FAN="${COFF}Off"
-				else
-				test $CS -eq $MS && FRAC="(max)"
-				test $MS -eq 1 && unset FRAC
-				test $CS -ne $MS && FRAC="($CS/$MS)"
-				FAN="${CWHT}On $CBLU$FRAC$COFF"
-			fi
-			echo -n " $SEP Fan $CNT: $FAN"
-			CNT=$((CNT+1))
-		fi
-	done
+#	for X in /sys/devices/virtual/thermal/cooling_device*
+#		do if [ "$(cat $X/type)" = "Fan" ]
+#			then
+#			CS="$(cat $X/cur_state)"
+#			MS="$(cat $X/max_state)"
+#			if [ $CS -eq 0 ]
+#				then FAN="${COFF}Off"
+#				else
+#				test $CS -eq $MS && FRAC="(max)"
+#				test $MS -eq 1 && unset FRAC
+#				test $CS -ne $MS && FRAC="($CS/$MS)"
+#				FAN="${CWHT}On $CBLU$FRAC$COFF"
+#			fi
+#			echo -n " $SEP Fan $CNT: $FAN"
+#			CNT=$((CNT+1))
+#		fi
+#	done
 	echo
+	# Check disk tests to see if they have completed
 	if [ $DDONE = 0 ]
 		then DIC=0; DFINISH=0
 		while [ $DIC -lt $DI ]
@@ -207,6 +210,7 @@ while true
 			fi
 			echo "$DSTAT"
 			DSTAT="$(echo "$DSTAT" | sed 's/^.*: //')"
+			# Increment finished test counter as tests complete
 			if [[ "$DSTAT" = "FAIL" || "$DSTAT" = "PASS" ]]
 				then DFINISH=$((DFINISH + 1))
 			fi
@@ -245,11 +249,29 @@ while [ $DIC -lt $DI ]
 	test -z "$LCC" && LCC=0
 	test -z "$RSC" && RSC=0
 	test -z "$UNC" && UNC=0
-	test $LCC -gt 300000 && N_BADHDD=1
-	test $RSC -gt 50 && N_BADHDD=1
-	test $UNC -gt 50 && N_BADHDD=1
-	test "$BADHDD" = "1" && echo "$CWHT$XD$CRED SMART data shows failure is likely$COFF"
-	test -n "$S" && echo "$CWHT+-- SMART data: $S"
+
+	# Some drives return huge raw numbers that are not real
+	test $LCC -gt 1000000 && LCC=0
+	test $RSC -gt 1000000 && RSC=0
+	test $UNC -gt 1000000 && UNC=0
+
+	# Some drives return a bogus 65536 UNC count
+	test $UNC -eq 65536 && UNC=0
+
+	# Decide if the drive might be bad based on SMART data
+	test $UNC -ne 65536 && test $UNC -gt 10 && SMART_BADHDD=1
+	test $LCC -gt 550000 && SMART_BADHDD=1
+	test $RSC -gt 50 && SMART_BADHDD=1
+	if [ "$SMART_BADHDD" = "1" ]
+		then echo "$CWHT$XD$CRED SMART data shows failure is likely$COFF"
+		N_BADHDD=1;
+	fi
+
+	# Produce a SMART information string
+	test $LCC -gt 0 && S="$S LCC=$LCC"
+	test $RSC -gt 0 && S="$S RSC=$RSC"
+	test $UNC -gt 0 && S="$S UNC=$UNC"
+	test -n "$S" && echo "$CWHT+-- SMART data:$S"
 	DIC=$((DIC + 1))
 done
 
