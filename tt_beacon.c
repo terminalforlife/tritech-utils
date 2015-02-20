@@ -22,7 +22,10 @@ int main(int argc, char **argv)
 	unsigned int port;
 	unsigned int interval;
 	char *beacon_str;
-	struct sockaddr_in dest_addr;
+	union {
+		struct sockaddr sa;
+		struct sockaddr_in sa_in;
+	} dest_addr;
 
 	fprintf(stderr, "Tritech Service System UDP beacon utility %s (%s)\n", TRITECH_UTILS_VER, TRITECH_UTILS_DATE);
 	if (argc != 5) {
@@ -40,9 +43,9 @@ int main(int argc, char **argv)
 		return EXIT_FAILURE;
 	}
 
-	dest_addr.sin_family = AF_INET;
-	dest_addr.sin_port = htons(port);
-	if (inet_pton(AF_INET, address, &(dest_addr.sin_addr)) != 1) {
+	dest_addr.sa_in.sin_family = AF_INET;
+	dest_addr.sa_in.sin_port = htons(port);
+	if (inet_pton(AF_INET, address, &(dest_addr.sa_in.sin_addr)) != 1) {
 		perror("inet_pton");
 		return EXIT_FAILURE;
 	}
@@ -53,7 +56,7 @@ int main(int argc, char **argv)
 
 	while (1) {
 		if (sendto(sockfd, beacon_str, strlen(beacon_str), MSG_DONTROUTE,
-				(struct sockaddr *)&dest_addr, sizeof dest_addr) == -1) {
+				&(dest_addr.sa), sizeof dest_addr.sa) == -1) {
 			/* Only error out on the first packet sending attempt */
 			if (initial == 2) {
 				perror("sendto");

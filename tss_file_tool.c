@@ -80,7 +80,7 @@ int main(int argc, char **argv)
 			puts("not_winexec");
 		}
 	} else if(!strncmp(argv[1], "registry", 8)) {
-		if(!strncmp(buffer, "regf", 4)) {
+		if(!strncmp((char *)buffer, "regf", 4)) {
 			puts("yes");
 		} else {
 			puts("no");
