@@ -17,6 +17,7 @@ int main(int argc, char **argv)
 {
 	int sockfd;
 	int broadcast = 1;
+	int initial = 2;
 	char *address;
 	unsigned int port;
 	unsigned int interval;
@@ -50,14 +51,27 @@ int main(int argc, char **argv)
 
 	fprintf(stderr, "Sending \"%s\" to addr %s port %d every %d seconds.\n", beacon_str, address, port, interval);
 
-	do {
+	while (1) {
 		if (sendto(sockfd, beacon_str, strlen(beacon_str), MSG_DONTROUTE,
 				(struct sockaddr *)&dest_addr, sizeof dest_addr) == -1) {
-			perror("sendto");
-			return EXIT_FAILURE;
+			/* Only error out on the first packet sending attempt */
+			if (initial == 2) {
+				perror("sendto");
+				return EXIT_FAILURE;
+			}
+			/* Warn user if sending fails (but only once for each set of failures) */
+			if (initial == 0) {
+				fprintf(stderr, "warning: packet failed to send; will keep trying.\n");
+				initial = 1;
+			}
+			/* Throttle send attempts while they're failing */
+			sleep(interval << 2);
+			continue;
 		}
+		/* On successful send, reset warnings and sleep normally */
+		initial = 0;
 		sleep(interval);
-	} while (1);
+	}
 
 	close(sockfd);
 	return EXIT_SUCCESS;
