@@ -1,5 +1,5 @@
 CC=gcc
-BUILD_CFLAGS=-D_FILE_OFFSET_BITS=64 -Wall -pedantic
+BUILD_CFLAGS=-D_FILE_OFFSET_BITS=64 -Wall -pedantic -fstrict-aliasing -Wstrict-aliasing=2
 CFLAGS=-O2 -pipe
 LDFLAGS=-Wl,--hash-style=gnu -s -static-libgcc
 
@@ -15,12 +15,13 @@ ver=$(shell grep TRITECH_UTILS_VER tritech_utils.h | sed 's/.* "\([^"]*\)"/\1/')
 libc_arch=$(shell test -e /lib/libc.so.0 && echo -n "uclibc-")
 arch=$(shell echo -n "$(libc_arch)"; uname -m | sed 's/_/-/g;s/i[34567]86/i386/')
 
+OBJS=ac_monitor.o read_inf_section.o suggest_decompressor.o tss_file_tool.o tt_beacon.o
 .c.o:
 	$(CC) -c $(BUILD_CFLAGS) $(CFLAGS) $<
 
 all: tritech-utils manual test
 
-tritech-utils: ac_monitor read_inf_section suggest_decompressor tss_file_tool tt_beacon
+tritech-utils: $(OBJS) ac_monitor read_inf_section suggest_decompressor tss_file_tool tt_beacon
 
 manual:
 	gzip -9 < ac_monitor.1 > ac_monitor.1.gz
