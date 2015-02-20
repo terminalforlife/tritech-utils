@@ -2,8 +2,8 @@
 
 # Mounts the Tritech CIFS source share to /mnt/cifs
 
-VER=1.0.8
-VERDATE="2014-08-15"
+VER=1.1
+VERDATE="2015-02-17"
 
 . tss__common
 
@@ -13,8 +13,12 @@ test "$1" = "-q" && V=0
 test "$1" = "-B" && BCN=0
 test "$1" = "-s" && BCN=0
 
-unset CACHE
-test $(uname -r | cut -d. -f2) -gt 4 && CACHE=",cache=loose"
+# Cache mode must be loose for certain kernel versions
+# At some point this was fixed (works fine with 3.18.5)
+unset CACHE LOOSE
+test $(uname -r | cut -d. -f2) -gt 4 && \
+	test $(uname -r | cut -d. -f2) -lt 16 && \
+	CACHE=",cache=loose" && LOOSE="$CYEL (loose cache)$COFF"
 
 test "$V" = "2" && \
 	echo "${CWHT}TSS CIFS automount version $CGRN$VER$CWHT, updated $CGRN$VERDATE$COFF"
@@ -168,10 +172,20 @@ if [ ! "$TESTLINE" = "" ]
 	fi
 fi
 
+# Try a SMB3 mount if possible for better performance
+if mount -t cifs -o vers=3.0,user="$UN",pass="$PW"$CACHE //$SVRX /mnt/cifs 2>/dev/null >/dev/null
+	then
+	test "$V" -gt "0" && echo "$CGRN$SVRX $CWHT=>$CGRN /mnt/cifs ${CWHT}(SMB 3.0)$LOOSE$COFF"
+	exit
+	else test "$V" -gt "0" && echo "${CRED}failed.$COFF"
+fi
+
+# Fall back to default CIFS mount command and options
 # Added cache=loose due to default change causing breakage in kernels >3.6.11
 if mount.cifs //$SVRX /mnt/cifs -o user="$UN",pass="$PW"$CACHE 2>/dev/null >/dev/null
 	then
-	test "$V" -gt "0" && echo "$CGRN$SVRX $CWHT=>$CGRN /mnt/cifs$COFF"
+	test "$V" -gt "0" && echo "$CGRN$SVRX $CWHT=>$CGRN /mnt/cifs ${CYEL}(SMB1/2)$LOOSE$COFF"
+	exit
 	else test "$V" -gt "0" && echo "${CRED}failed.$COFF"
 	exit 1
 fi
