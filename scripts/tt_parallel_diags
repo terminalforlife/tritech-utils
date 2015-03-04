@@ -103,7 +103,7 @@ disktest () {
 }
 
 pv_tail () {
-	cat "$1" | tr \\r \\n | tail -n 1
+	tr \\r \\n < "$1" | tail -n 1
 }
 
 # Function names called with tempfile name, then device
@@ -169,7 +169,7 @@ while true
 		fi
 		else echo -n "Burn-in: PASS"
 	fi
-	if [ -e $THRM ]
+	if [ -e "$THRM" ]
 		then CPUTEMP="$(expr $(cat $THRM) / 1000)"
 		echo -n " $SEP Temp $CGRN"
 		test $CPUTEMP -gt $TEMP_YELLOW && echo -n "$CYEL"
