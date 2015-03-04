@@ -13,10 +13,14 @@
 
 #define MAXLEN 1024
 
-static void usage(char **argv, int value)
+char **global_argv;
+
+static void usage(int value)
 {
-	fprintf(stderr, "Tritech INF/REG/INI file section reader %s (%s)\n", TRITECH_UTILS_VER, TRITECH_UTILS_DATE);
-	fprintf(stderr, "Usage:  %s [-a] filename.xxx section_header\n", argv[0]);
+	fprintf(stderr, "Tritech INF/REG/INI file section reader %s (%s)\n",
+			TRITECH_UTILS_VER, TRITECH_UTILS_DATE);
+	fprintf(stderr, "Usage:  %s [-a] filename.xxx section_header\n",
+			global_argv[0]);
 	exit(value);
 }
 
@@ -40,7 +44,7 @@ static inline int find_section_header(FILE *fp, char *line)
 	}
 }
 
-static int output_extended_section(FILE *fp, char *line)
+static int output_ext_section(FILE *fp, char *line)
 {
 	char buffer[MAXLEN];
 	int buflen;
@@ -82,13 +86,15 @@ int main(int argc, char **argv)
 	char *origline;
 	int read_more = 0;
 
+	global_argv = argv;
+
 	switch (argc) {
 	case 4:
 		if (strncmp(argv[1], "-a", 3) == 0) {
 			read_more = 1;
 			inf_file = argv[2];
 			origline = argv[3];
-		} else usage(argv, 1);
+		} else usage(1);
 		break;
 
 	case 3:
@@ -97,19 +103,19 @@ int main(int argc, char **argv)
 		break;
 
 	default:
-		usage(argv, 1);
+		usage(1);
 		break;
 	}
 
 	errno = 0;
-	if ((strncmp(inf_file, "-", 1) == 0) && (strlen(argv[1]) == 1)) {
+	if (*inf_file == '-' && strlen(argv[1]) == 1) {
 		fp = stdin;
 	} else {
 		fp = fopen(inf_file, "r");
 		if (errno != 0) die("Failed to open the specified file", errno);
 	}
 
-	strncpy(line, "[", 2);
+	line[0] = '['; line[1] = '\0';
 	strncat(line, origline, MAXLEN-4);
 	if (read_more == 0) strncat(line, "]", 2);
 
@@ -123,7 +129,7 @@ int main(int argc, char **argv)
 		output_section(fp);
 		break;
 	case 1:
-		output_extended_section(fp, line);
+		output_ext_section(fp, line);
 		break;
 	default:
 		fprintf(stderr, "Internal error: bad value %d for read_more\n", read_more);
