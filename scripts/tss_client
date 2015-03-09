@@ -5,8 +5,8 @@
 # Prevent loading twice
 if [ -z "$TSS_CLIENT" ]; then
 
-#VER=0.7
-#VERDATE=2015-02-16
+#VER=0.8
+#VERDATE=2015-03-09
 
 # Scripts can check this variable to ensure these functions are loaded
 TSS_CLIENT=1
@@ -169,7 +169,13 @@ tss_proc_response () {
 
 		FAIL) echo "${CRED}tss_proc_response:$COFF Got ${CRED}FAIL$COFF for command '$CPUR$COMMAND$COFF'" >&2; return 1 ;;
 
+		EMPTY_TECHNOTES) TECHNOTES=""; ;;
+
+		EMPTY_CUSTNOTES) CUSTNOTES=""; ;;
+
 		EMPTY_PROBDESC) echo "${CRED}tss_proc_response:$COFF Empty problem description for WOID $CPUR$WOID$COFF" >&2; return 1 ;;
+
+		EMPTY_CUSTINFO) echo "${CRED}tss_proc_response:$COFF Empty customer information for PCID $CPUR$PCID$COFF" >&2; return 1 ;;
 
 		MACADDR) MAC="$RP_ALL"; merge_mac_and_macaddr; save_tss_state ;;
 
@@ -187,8 +193,25 @@ tss_proc_response () {
 		save_tss_state
 		;;
 
+		CUSTNOTES)
+		export CUSTNOTES="$(echo "$RP_ALL" | tr \\n ' ')"
+		;;
+
+		TECHNOTES)
+		export TECHNOTES="$(echo "$RP_ALL" | tr \\n ' ')"
+		;;
+
 		PROBDESC)
 		export PROBDESC="$(echo "$RP_ALL" | tr \\n ' ')"
+		;;
+
+		CUSTINFO)
+		NAME="$(echo "$RP_ALL" | cut -d: -f1)"
+		COMPANY="$(echo "$RP_ALL" | cut -d: -f2)"
+		PHONE1="$(echo "$RP_ALL" | cut -d: -f3)"
+		PHONE2="$(echo "$RP_ALL" | cut -d: -f4)"
+		PHONE3="$(echo "$RP_ALL" | cut -d: -f5)"
+		MODEL="$(echo "$RP_ALL" | cut -d: -f6)"
 		save_tss_state
 		;;
 
@@ -432,6 +455,7 @@ detect_current_pc () {
 	test ! -z "$MAC" && COMMAND="STORE_MACADDR $PCID $MAC" tss_command
 	tss_proc_response
 	pull_actions
+	read_custinfo
 	test -z "$OS" && push_sysinfo
 	test "$OS" = "__NONE__" && push_sysinfo
 	save_tss_state
@@ -444,7 +468,8 @@ save_tss_state () {
 		A_HDD A_BURNIN A_CLEANER A_BACKUP A_VIRUS A_MBR A_CDROM \
 			N_OVERHEAT N_SPACE N_SLOWAV N_LOWRAM \
 			N_BADRAM N_BADHDD N_VIRUS \
-			TSS_SYSINFO ACTIONS PROBDESC \
+			TSS_SYSINFO ACTIONS \
+			NAME COMPANY PHONE1 PHONE2 PHONE3 MODEL \
 			TSS_CIFS_BASE TSS_CIFS_PW TSS_CIFS_UN TSS_CIFS_SHARE TSS_PORT TSS_SERVER
 		do echo "$X=${!X}" >> $TSS_STATE_FILE
 	done
@@ -460,7 +485,8 @@ load_tss_state () {
 			A_HDD A_BURNIN A_CLEANER A_BACKUP A_VIRUS A_MBR A_CDROM \
 			N_OVERHEAT N_SPACE N_SLOWAV N_LOWRAM \
 			N_BADRAM N_BADHDD N_VIRUS \
-			TSS_SYSINFO ACTIONS PROBDESC \
+			TSS_SYSINFO ACTIONS \
+			NAME COMPANY PHONE1 PHONE2 PHONE3 MODEL \
 			TSS_CIFS_BASE TSS_CIFS_PW TSS_CIFS_UN TSS_CIFS_SHARE TSS_PORT TSS_SERVER
 			do TSS_TEMP_STATE="$(grep "^$X=" "$TSS_STATE_FILE" | sed 's/[^=]*=//')"
 			test ! "$TSS_TEMP_STATE" = "" && \
@@ -470,6 +496,13 @@ load_tss_state () {
 		if [[ -z "$TSS_SERVER" || -z "$TSS_PORT" ]]
 			then detect_tss_server
 		fi
+
+		# We don't cache these multi-line fields. They're harder to store and they
+		# often will change on us without notice. Load them on every invocation instead.
+		read_probdesc
+		read_custnotes
+		read_technotes
+
 		else
 		detect_current_pc
 	fi
@@ -480,14 +513,45 @@ clear_tss_state () {
 	for X in PCID WOID MAC CPU RAM HDD OS \
 		A_HDD A_BURNIN A_CLEANER A_BACKUP A_VIRUS A_MBR A_CDROM \
 		N_OVERHEAT N_SPACE N_SLOWAV N_LOWRAM \
-		N_BADRAM N_BADHDD N_VIRUS PROBDESC \
+		N_BADRAM N_BADHDD N_VIRUS \
 		TSS_SYSINFO ACTIONS TSS_CLIENT_DISABLE \
+		NAME COMPANY PHONE1 PHONE2 PHONE3 MODEL \
 		RESPONSE RCMD RP_ALL RP1 SVR_TEMP BCN \
 		TSS_CIFS_BASE TSS_CIFS_PW TSS_CIFS_UN TSS_CIFS_SHARE TSS_PORT TSS_SERVER
 		do unset $X
 	done
 	rm -f $TSS_STATE_FILE 2>/dev/null
 	save_tss_state
+}
+
+# Pull the customer-visible notes from the TSS server
+read_custnotes () {
+	test "$TSS_CLIENT_DISABLE" = "1" && return 255
+	detect_current_pc
+	test -z "$WOID" && echo "${CRED}pull_actions:$COFF WOID not set" && return 1
+	COMMAND="READ_CUSTNOTES $WOID" tss_command
+	tss_proc_response
+	return $TSSC_ERR
+}
+
+# Pull the technician-only notes from the TSS server
+read_technotes () {
+	test "$TSS_CLIENT_DISABLE" = "1" && return 255
+	detect_current_pc
+	test -z "$WOID" && echo "${CRED}pull_actions:$COFF WOID not set" && return 1
+	COMMAND="READ_TECHNOTES $WOID" tss_command
+	tss_proc_response
+	return $TSSC_ERR
+}
+
+# Pull the customer information from the TSS server
+read_custinfo () {
+	test "$TSS_CLIENT_DISABLE" = "1" && return 255
+	detect_current_pc
+	test -z "$PCID" && echo "${CRED}pull_actions:$COFF PCID not set" && return 1
+	COMMAND="READ_CUSTINFO $PCID" tss_command
+	tss_proc_response
+	return $TSSC_ERR
 }
 
 # Pull the list of actions that have already been performed from the TSS server

@@ -1,7 +1,7 @@
 #!/bin/bash
 
-VER="1.16.2"
-VERDATE="2015-02-20"
+VER="1.16.3"
+VERDATE="2015-03-09"
 
 #echo "Tritech system info tool $VER, updated on $VERDATE"
 #echo "Copyright (c) by Jody Bruchon <jody@c02ware.com>"
@@ -10,6 +10,10 @@ VERDATE="2015-02-20"
 
 . tss__common
 . tss_client
+
+# Verbosity level
+V=0
+test "$1" = "-v" && V=1
 
 echo "${CCYA}CPU:  $CGRN$(cat /proc/cpuinfo | grep "model name" | sed s/.*:[^A-Za-z]*//g | head -n 1)$COFF ($CBLU$(cat /proc/cpuinfo | grep "model name" | wc -l) cores$COFF)"
 
@@ -29,8 +33,8 @@ MEML=$(expr $MEMT % 1024)
 MEML=$(expr $MEML \* 10)
 MEML=$(expr $MEML / 512)
 MEML=$(expr $MEML \* 5)
-test "$MEMT" -lt 1024 && echo "${CPUR}RAM:  $CRED$MEMT$COFF MB"
-test "$MEMT" -gt 1023 && echo "${CPUR}RAM:  $CRED${MEMG}.${MEML}$COFF GB"
+test "$MEMT" -lt 1024 && echo "${CPUR}RAM:  $CWHT$MEMT$COFF MB"
+test "$MEMT" -gt 1023 && echo "${CPUR}RAM:  $CWHT${MEMG}.${MEML}$COFF GB"
 
 # Calculate the stupid bogus marketing GB size of all hard drives
 for X in /sys/block/sd*
@@ -54,13 +58,13 @@ for X in /sys/block/sd*
 done
 
 VGA="$(lspci -mm | grep "VGA compatible" | cut -d\" -f6 | sed 's/^ *//' | head -n 1)"
-echo "${CPUR}VGA:  $VGA$COFF"
+test $V -gt 0 && echo "${CPUR}VGA:  $VGA$COFF"
 unset BIOS
 for X in "Vendor:" "Version:" "Release Date:"
 	do BIOS="$BIOS $(dmidecode -t bios 2>/dev/null | grep -m 1 "$X" | cut -d: -f2)"
 done
 BIOS="$(echo "$BIOS" | sed 's/^ *//')"
-echo "${CPUR}ROM:  $BIOS$COFF"
+test $V -gt 0 && echo "${CPUR}ROM:  $BIOS$COFF"
 
 unset NET
 for X in /sys/class/net/eth* /sys/class/net/en*
@@ -84,7 +88,9 @@ fi
 # If TSS client available, try to display TSS record for system.
 if [[ "$TSS_CLIENT" = "1" && ! -z "$PCID" ]]
 	then
-	echo "${CBLU}TSS:  ${CPUR}PCID: $CWHT$PCID  ${CPUR}WOID: $CWHT$WOID$COFF"
+	echo "${CBLU}TSS:  ${CPUR}PCID: $CWHT$PCID  ${CPUR}WOID: $CWHT$WOID  ${CPUR}Model: $CWHT$MODEL$COFF"
+	echo "${CBLU}TSS:  ${CPUR}Name: $CWHT$NAME  ${CPUR}Company: $CWHT$COMPANY$COFF"
+	echo "${CBLU}TSS:  ${CPUR}Phone Numbers: $CWHT$PHONE1  $PHONE2  $PHONE3$COFF"
 	unset DIAGS NOTES
 	for X in A_HDD A_BURNIN A_CLEANER A_BACKUP A_VIRUS A_MBR A_CDROM
 		do if [ "$(eval echo "\$$X")" = "1" ]
@@ -102,9 +108,27 @@ if [[ "$TSS_CLIENT" = "1" && ! -z "$PCID" ]]
 	echo "${CBLU}TSS:  ${CCYA}OS:    $CWHT$OS$COFF"
 	if [ -n "$PROBDESC" ]
 		then
-		echo -e "${CBLU}TSS:  ${CCYA}--- Problem Description ---"
-		echo -n "$PROBDESC" | fold -s -w 50 | sed "s/^/${CBLU}TSS:  $CWHT/"
+		echo -e "${CBLU}TSS:  ${CCYA}----- Problem Description -----$COFF"
+		echo -n "$PROBDESC" | fold -s -w 60 | sed "s/^/${CBLU}TSS:  $CWHT/"
 		echo "$COFF"
+		else
+		echo -e "${CBLU}TSS:  ${CCYA}- Problem Description is Missing -$COFF"
+	fi
+	if [ -n "$CUSTNOTES" ]
+		then
+		echo -e "${CBLU}TSS:  ${CCYA}----- Customer-Visible Notes -----$COFF"
+		echo -n "$CUSTNOTES" | fold -s -w 60 | sed "s/^/${CBLU}TSS:  $CWHT/"
+		echo "$COFF"
+		else
+		echo -e "${CBLU}TSS:  ${CCYA}- No Customer-Visible Notes Present -$COFF"
+	fi
+	if [ -n "$TECHNOTES" ]
+		then
+		echo -e "${CBLU}TSS:  ${CCYA}----- Technician-Only Notes -----$COFF"
+		echo -n "$TECHNOTES" | fold -s -w 60 | sed "s/^/${CBLU}TSS:  $CWHT/"
+		echo "$COFF"
+		else
+		echo -e "${CBLU}TSS:  ${CCYA}- No Technician-Only Notes Present -$COFF"
 	fi
 fi
 
