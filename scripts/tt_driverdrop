@@ -1,7 +1,7 @@
 #!/bin/bash
 
-VER=0.3.1
-VERDATE=2015-01-14
+VER=0.3.2
+VERDATE=2015-03-09
 
 BLACKLIST=" acpi:dev=pnp0103 acpi:dev=pnp0a03 acpi:dev=pnp0a08 acpi:dev=pnp0c0f"
 
@@ -31,9 +31,10 @@ TF2=$(mktemp)
 
 test ! -e "$DBFILE" && echo "$CPUR$DBFILE$CRED is missing. Giving up.$COFF" && exit 1
 ! grep -q "^CONSISTENT" "$DBFILE" && echo "$CPUR$DBFILE$CRED is inconsistent. Giving up.$COFF" && exit 1
+
 # Cache the database locally if it's on the network
 if grep -q "^/mnt/cifs" "$DBFILE"
-	then BF2=$(mktemp)
+	then DBF2=$(mktemp)
 	cat "$DBFILE" > $DBF2
 	DBFILE="$DBF2"
 fi

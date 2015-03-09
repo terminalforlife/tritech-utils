@@ -101,7 +101,6 @@ dispatch () {
 			done
 		done
 		SUB=$((SUB + 1))
-		echo "exec: $(echo "$@" | sed 's/(/\\(/g;s/)/\\)/g')"
 		eval "$(echo "$@" | sed 's/(/\\(/g;s/)/\\)/g')" &
 		SUBPID[$SUB]=$!
 	else eval "$(echo "$@" | sed 's/(/\\(/g;s/)/\\)/g')" &
@@ -359,17 +358,6 @@ INFC=0
 IFS0="$IFS"
 IFS1=$(echo -en "\n\b")
 IFS="$IFS1"
-
-# Run a scan for bad characters if we are NOT in a Windows INF folder
-#if ! pwd | grep -iq '/windows/inf'
-#	then
-#	find $DRVROOT -name '* *' | while read LINE
-#		do mv "$LINE" "$(echo -E "$LINE" | sed 's/ /_/g')"
-#	done
-#	find $DRVROOT -name '*&*' | while read LINE
-#		do mv "$LINE" "$(echo -E "$LINE" | sed 's/&/_/g')"
-#	done
-#fi
 
 # Load SHA1 hashes from driver database
 CONSISTENT=0
