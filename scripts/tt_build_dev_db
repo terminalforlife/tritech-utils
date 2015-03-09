@@ -1,7 +1,7 @@
 #!/bin/bash
 
-VER=0.3
-VERDATE="2014-07-25"
+VER=0.4
+VERDATE="2015-03-09"
 
 # Device database version created by this version of driver drop
 # Must be a three-digit number
@@ -54,6 +54,7 @@ WD="$(basename "$WD")"
 
 TF="$(mktemp)"
 TF2="$(mktemp)"
+TF3="$(mktemp)"
 TD="$(mktemp -d)"
 export DRVROOT DRVBASE DBFILE LOGFILE TD WD DBG FORK
 
@@ -61,7 +62,7 @@ export DRVROOT DRVBASE DBFILE LOGFILE TD WD DBG FORK
 control_c () {
 	if [ $FORK -eq 1 ]
 		then
-		rm -f $TF $TF2 $TFPI $TFPI2
+		rm -f $TF $TF2 $TF3 $TFPI $TFPI2 $XX
 		exit 1
 	fi
 	echo -e "\nInterrupted, cleaning up."
@@ -69,7 +70,7 @@ control_c () {
 	/bin/kill $! 2>/dev/null
 	sleep 1
 	/bin/kill -9 $! 2>/dev/null
-	rm -rf $TD $TF $TF2
+	rm -rf $TD $TF $TF2 $TF3 $XX
 	exit 1
 }
 trap control_c INT TERM HUP ABRT
@@ -100,6 +101,7 @@ dispatch () {
 			done
 		done
 		SUB=$((SUB + 1))
+		echo "exec: $(echo "$@" | sed 's/(/\\(/g;s/)/\\)/g')"
 		eval "$(echo "$@" | sed 's/(/\\(/g;s/)/\\)/g')" &
 		SUBPID[$SUB]=$!
 	else eval "$(echo "$@" | sed 's/(/\\(/g;s/)/\\)/g')" &
@@ -242,8 +244,8 @@ sanitize_inf_file () {
 	# Strip anything after a semicolon (comments) and blank lines
 	# We want to minimize the number of lines processed in the main loop.
 	tr -d \\0\\r < "$1" | grep -v '^;' | tr \\011 ' ' | grep -v '^$' | \
-#		grep -v '^\s$' | tr '[:upper:]' '[:lower:]' | sed 's/.*devicedesc//g;s/;.*//g' > $2
-		tr '[:upper:]' '[:lower:]' | sed 's/.*devicedesc//g;s/;.*//g' > $2
+#		grep -v '^\s$' | tr '[:upper:]' '[:lower:]' | sed 's/.*devicedesc//g;s/;.*//g' > "$2" \
+		tr '[:upper:]' '[:lower:]' | sed 's/.*devicedesc//g;s/;.*//g' > "$2"
 }
 
 clean_out_inf () {
@@ -266,12 +268,12 @@ add_inf () {
 
 process_inf () {
 	export FORK=1
-	FILE="$1"
+	FILE="$@"
 	TFPI=$(mktemp)
 	TFPI2=$(mktemp)
 	DBFILE2="$TD/inf_$(basename $TFPI)"
 	clear_winver_flags
-	sanitize_inf_file "$FILE" $TFPI
+	sanitize_inf_file "$FILE" "$TFPI"
 	get_manufacturer_names $TF
 
 	for SEC in ${MFGNAME[@]}
@@ -359,15 +361,15 @@ IFS1=$(echo -en "\n\b")
 IFS="$IFS1"
 
 # Run a scan for bad characters if we are NOT in a Windows INF folder
-if ! pwd | grep -iq '/windows/inf'
-	then
-	find $DRVROOT -name '* *' | while read LINE
-		do mv "$LINE" "$(echo -E "$LINE" | sed 's/ /_/g')"
-	done
-	find $DRVROOT -name '*&*' | while read LINE
-		do mv "$LINE" "$(echo -E "$LINE" | sed 's/&/_/g')"
-	done
-fi
+#if ! pwd | grep -iq '/windows/inf'
+#	then
+#	find $DRVROOT -name '* *' | while read LINE
+#		do mv "$LINE" "$(echo -E "$LINE" | sed 's/ /_/g')"
+#	done
+#	find $DRVROOT -name '*&*' | while read LINE
+#		do mv "$LINE" "$(echo -E "$LINE" | sed 's/&/_/g')"
+#	done
+#fi
 
 # Load SHA1 hashes from driver database
 CONSISTENT=0
@@ -383,6 +385,14 @@ if [ -e "$DBFILE" ]
 	test "$Q" = "0" && echo -n "Loading INF files: "
 fi
 
+# The next step needs a list of INF files; make that list here.
+echo -n "Making a list of INF files..."
+DEPTH=10
+pwd | grep -iq '/windows/inf' && DEPTH=1
+find . -maxdepth $DEPTH -name '*.inf' | sed 's#^\./##' > $TF3
+find . -maxdepth $DEPTH -name '*.INF' | sed 's#^\./##' >> $TF3
+echo "...done: $(wc -l < $TF3) files found."
+
 # If the database exists and is consistent, check for and handle changed files.
 if [[ -e "$DBFILE"  && "$CONSISTENT" = "1" ]]
 	then grep '^SHA1:[^:]' $DBFILE > $TF
@@ -393,48 +403,47 @@ if [[ -e "$DBFILE"  && "$CONSISTENT" = "1" ]]
 			test $DBG -le 1 && test "$Q" = "0" && echo -n "${CCYA}-$COFF"
 		fi
 	done
-	DEPTH=10
-	pwd | grep -iq '/windows/inf' && DEPTH=1
-	for X in $(find . -maxdepth $DEPTH -name '*.inf') $(find . -maxdepth $DEPTH -name '*.INF')
+
+	# Read the list of INF files and decide what to do with them
+	while read X
 		do
-		X="$(echo "$X" | sed 's/.\///')"
 		HASH=$(grep -m 1 "^SHA1:$X:" $TF)
 		if [ -z "$HASH" ]
 			then
 			XX=$(mktemp)
-			sanitize_inf_file $X $XX
+			sanitize_inf_file "$X" "$XX"
 			if ! check_inf_not_allowed "$XX" "$X"
 				then clean_out_inf "$X"
 				add_inf "$X"
 			fi
-			rm -f $XX
+			rm -f "$XX"
 			else
 			HASH2="SHA1:$X:$(sha1sum "$X" | cut -d\  -f1)"
 			if [ ! "$HASH" = "$HASH2" ]
 				then
 				XX=$(mktemp)
-				sanitize_inf_file $X $XX
+				sanitize_inf_file "$X" "$XX"
 				if ! check_inf_not_allowed "$XX" "$X"
 					then clean_out_inf "$X"
 					add_inf "$X"
 				fi
-				rm -f $XX
+				rm -f "$XX"
 				else
 				test $DBG -gt 1 && echo -n "$CBLU$X$COFF "
 				test $DBG -le 1 && test "$Q" = "0" && echo -n "${CBLU}|$COFF"
 			fi
 		fi
-	done
+	done < $TF3
+
 	# If database missing or inconsistent, toss it and rebuild.
 	else
-	for X in $(find . -name '*.inf') $(find . -name '*.INF')
+	while read X
 		do
-		X="$(echo "$X" | sed 's/.\///')"
 		XX=$(mktemp)
-		sanitize_inf_file $X $XX
+		sanitize_inf_file "$X" "$XX"
 		check_inf_not_allowed "$XX" "$X" || add_inf "$X"
-		rm -f $XX
-	done
+		rm -f "$XX"
+	done < $TF3
 fi
 IFS="$IFS0"
 
@@ -447,13 +456,14 @@ fi
 export MFGNAME DBFILE
 
 FILENUM=0
-for FILE in ${INF[@]}
+while [ $FILENUM != $INFC ]
 	do
+	CUR_INF="${INF[FILENUM]}"
 	test $DBG -gt 0 && echo
 	(( FILENUM ++ ))
 	test "$Q" = "0" && echo "$FILENUM/${#INF[@]}:  $FILE"
 	test "$Q" = "1" && echo -en "Processed $FILENUM of ${#INF[@]}\r"
-	dispatch process_inf "$FILE"
+	dispatch process_inf "$CUR_INF"
 done
 
 wait $(jobs -p)
@@ -464,7 +474,7 @@ cat "$DBFILE" $TD/inf_* 2>/dev/null | sort -g | uniq >> $TF && cat $TF > $DBFILE
 chmod 644 "$DBFILE"
 
 sleep 1
-rm -rf $TF $TF2 $TD
+rm -rf $TF $TF2 $TF3 $TD
 
 if [ "$ERR" = "1" ]
 	then
