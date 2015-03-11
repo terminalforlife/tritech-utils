@@ -5,8 +5,8 @@
 # Prevent loading twice
 if [ -z "$TSS_CLIENT" ]; then
 
-#VER=0.8
-#VERDATE=2015-03-09
+#VER=0.8.1
+#VERDATE=2015-03-10
 
 # Scripts can check this variable to ensure these functions are loaded
 TSS_CLIENT=1
@@ -151,10 +151,10 @@ tss_proc_response () {
 		echo "${CRED}tss_proc_response:$COFF Empty response" >&2
 		return 1
 	fi
-	RCMD="$(echo "$RESPONSE" | cut -d" " -f1)"
+	RCMD="$(echo "$RESPONSE" | head -n 1 | cut -d" " -f1)"
 	RP_ALL="$(echo "$RESPONSE" | cut -d" " -f2-)"
-	RP1="$(echo "$RESPONSE" | cut -d" " -f2)"
-	case $RCMD in
+	RP1="$(echo "$RESPONSE" | head -n 1 | cut -d" " -f2)"
+	case "$RCMD" in
 		### Start response processing
 
 		PONG|OK) ;;
@@ -194,11 +194,11 @@ tss_proc_response () {
 		;;
 
 		CUSTNOTES)
-		export CUSTNOTES="$(echo "$RP_ALL" | tr \\n ' ')"
+		export CUSTNOTES="$RP_ALL"
 		;;
 
 		TECHNOTES)
-		export TECHNOTES="$(echo "$RP_ALL" | tr \\n ' ')"
+		export TECHNOTES="$RP_ALL"
 		;;
 
 		PROBDESC)
