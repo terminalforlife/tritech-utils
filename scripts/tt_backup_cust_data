@@ -116,7 +116,7 @@ scan_for_quickbooks_data () {
 		then echo
 		else
 		test "$IDX" = "" && IDX=0
-		echo "Scanning for QuickBooks data files..."
+		echo -e "\nScanning for QuickBooks data files..."
 		for X in $(find -name '*.qbw') $(find -name '*.QBW')
 			do
 			if [ -e "$X" ]
