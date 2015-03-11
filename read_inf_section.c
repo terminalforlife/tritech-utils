@@ -107,10 +107,15 @@ static inline void strip_comments(char *buffer)
 			if (!quote) quote = 1;
 			else quote = 0;
 		}
-		/* Terminate line at semicolon */
-		if (!quote && buffer[i] == ';') {
-			buffer[i] = '\0';
-			return;
+
+		/* Terminate line at semicolon, replace tabs with spaces */
+		if (!quote) {
+			if (buffer[i] == ';') {
+				buffer[i] = '\0';
+				return;
+			} else if (buffer[i] == '\t') {
+				buffer[i] = ' ';
+			}
 		}
 		i++;
 	}
