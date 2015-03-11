@@ -96,25 +96,25 @@ static inline int find_section_header(FILE *fp, char *line)
 	}
 }
 
-static int output_ext_section(FILE *fp, char *line)
+static inline void strip_comments(char *buffer)
 {
-	char buffer[MAXLEN];
-	int buflen;
+	int quote = 0;
+	int i = 0;
 
-	while(1) {
-		if (fgets(buffer, MAXLEN, fp)) {
-			utf16_to_utf8(buffer);
-			/* Strip lines with nothing but comments */
-			if (buffer[0] == ';') continue;
-			buflen = strlen(buffer);
-			if (buffer[0] == '[') {
-				if (strncasecmp(line, buffer, strlen(line)) != 0) {
-					return 0;
-				}
-			}
-			if (buflen > 1) puts(buffer);
-		} else return 1;
+	while (i < MAXLEN) {
+		/* Don't strip if inside quote marks */
+		if (buffer[i] == '"') {
+			if (!quote) quote = 1;
+			else quote = 0;
+		}
+		/* Terminate line at semicolon */
+		if (!quote && buffer[i] == ';') {
+			buffer[i] = '\0';
+			return;
+		}
+		i++;
 	}
+	return;
 }
 
 static inline int output_section(FILE *fp, char *line)
@@ -126,7 +126,9 @@ static inline int output_section(FILE *fp, char *line)
 		if (fgets(buffer, MAXLEN, fp)) {
 			utf16_to_utf8(buffer);
 			/* Strip lines with nothing but comments */
-			if (buffer[0] == ';') continue;
+			strip_comments(buffer);
+			/* Don't process empty lines */
+			if (buffer[0] == '\0') continue;
 			buflen = strlen(buffer);
 			if (buflen > 0 && buffer[0] == ' ') printf("--SPACE--\n");
 			if (buffer[0] == '[') {
