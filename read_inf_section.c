@@ -13,7 +13,9 @@
 
 #define MAXLEN 1024
 
-char **global_argv;
+static char **global_argv;
+/* If UTF-16 detected, set this to 1 */
+static int read_more = 0;
 
 static void usage(int value)
 {
@@ -30,17 +32,67 @@ static void die(char *message, int error)
 	exit(error);
 }
 
+/* Convert UTF-16 to UTF-8, stripping leading white space
+ * This uses a "dirty" technique where null bytes are removed but proper
+ * Unicode isn't verified. The current purpose of this program is to
+ * retrieve data from INF files that are 99.9999% of the time going to be
+ * ASCII characters, so this is okay for this purpose. In the future, this
+ * should probably be changed to a proper Unicode conversion routine for
+ * more general-purpose use. The Unicode gods frown upon this code!
+ */
+static void utf16_to_utf8(char * const restrict buf)
+{
+	int src = 0;
+	int dest = 0;
+	int strip_space = 1;
+	unsigned char *line = (unsigned char *)buf;
+
+	/* Nuke the byte order marker (BOM) on the first line */
+	if (line[0] == 0xff && line[1] == 0xfe) src = 2;
+
+	/* Iterate through the array, copying nonzero bytes backwards */
+	while (src < (MAXLEN - 1)) {
+		/* End the line on CR or LF */
+		if (line[src] == '\n' || line[src] == '\r') break;
+		/* Skip zero bytes */
+		if (line[src] == '\0') {
+			/* Two nulls in a row ends the string */
+			if (line[src+1] == '\0') break;
+			src++;
+			continue;
+		}
+		/* Remove any leading whitespace characters */
+		if (strip_space) {
+			if (line[src] == ' ' || line[src] == '\t') {
+				src++;
+				continue;
+			} else strip_space = 0;
+		}
+		/* Copy byte down */
+		line[dest] = line[src];
+		dest++; src++;
+	}
+	/* Null-terminate the final string */
+	line[dest] = '\0';
+
+	return;
+}
+
 static inline int find_section_header(FILE *fp, char *line)
 {
 	char buffer[MAXLEN];
 	char *res;
 
+	memset(buffer, 0, MAXLEN);
 	while(1) {
 		res = fgets(buffer, MAXLEN, fp);
-		buffer[(strlen(buffer) - 1)] = '\0';
-		if (res) {
-			if (strncasecmp(line, buffer, strlen(line)) == 0) return 0;
-		} else return 1;
+		if (!res) return 1;
+
+		utf16_to_utf8(buffer);
+		if (strncasecmp(line, buffer, strlen(line)) == 0) {
+			if (read_more) puts(buffer);
+			return 0;
+		}
 	}
 }
 
@@ -51,29 +103,39 @@ static int output_ext_section(FILE *fp, char *line)
 
 	while(1) {
 		if (fgets(buffer, MAXLEN, fp)) {
+			utf16_to_utf8(buffer);
+			/* Strip lines with nothing but comments */
+			if (buffer[0] == ';') continue;
 			buflen = strlen(buffer);
-			if (buffer[(buflen - 2)] == 0x0d) buflen--;
-			buffer[(buflen - 1)] = '\0';
-			if ((buffer[0] == '[') && (strncasecmp(line, buffer, strlen(line)) != 0)) return 0;
+			if (buffer[0] == '[') {
+				if (strncasecmp(line, buffer, strlen(line)) != 0) {
+					return 0;
+				}
+			}
 			if (buflen > 1) puts(buffer);
 		} else return 1;
 	}
 }
 
-static inline int output_section(FILE *fp)
+static inline int output_section(FILE *fp, char *line)
 {
 	char buffer[MAXLEN];
 	int buflen;
 
 	while(1) {
 		if (fgets(buffer, MAXLEN, fp)) {
+			utf16_to_utf8(buffer);
+			/* Strip lines with nothing but comments */
+			if (buffer[0] == ';') continue;
 			buflen = strlen(buffer);
-			if (buffer[(buflen - 2)] == 0x0d) buflen--;
-			buffer[(buflen - 1)] = '\0';
-			if (buffer[0] != '[') {
-				if (buflen > 1) puts(buffer);
+			if (buflen > 0 && buffer[0] == ' ') printf("--SPACE--\n");
+			if (buffer[0] == '[') {
+				if (read_more) {
+					/* Read all sections with the same title */
+					if (strncasecmp(line, buffer, strlen(line)) != 0) return 0;
+				} else return 1;
 			}
-			else return 0;
+			if (buflen > 0) puts(buffer);
 		} else return 1;
 	}
 }
@@ -84,7 +146,7 @@ int main(int argc, char **argv)
 	char *inf_file;
 	char line[MAXLEN];
 	char *origline;
-	int read_more = 0;
+	int found_one = 0;
 
 	global_argv = argv;
 
@@ -119,22 +181,19 @@ int main(int argc, char **argv)
 	strncat(line, origline, MAXLEN-4);
 	if (read_more == 0) strncat(line, "]", 2);
 
-	if (find_section_header(fp, line) != 0) {
-		fprintf(stderr, "%s: Section [%s] not found in file %s\n", argv[0], origline, inf_file);
-		return EXIT_FAILURE;
+	/* Output one section, or all matching section prefixes if '-a' specified */
+	while (1) {
+		if (find_section_header(fp, line) != 0) {
+			if (!found_one) {
+				fprintf(stderr, "%s: Section [%s] not found in file %s\n",
+						argv[0], origline, inf_file);
+				exit(EXIT_FAILURE);
+			}
+		}
+		found_one = 1;
+		if (output_section(fp, line)) break;
+		if (!read_more) break;
 	}
 
-	switch (read_more) {
-	case 0:
-		output_section(fp);
-		break;
-	case 1:
-		output_ext_section(fp, line);
-		break;
-	default:
-		fprintf(stderr, "Internal error: bad value %d for read_more\n", read_more);
-		exit(255);
-		break;
-	}
 	return EXIT_SUCCESS;
 }
