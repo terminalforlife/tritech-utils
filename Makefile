@@ -1,5 +1,5 @@
 CC=gcc
-BUILD_CFLAGS=-D_FILE_OFFSET_BITS=64 -Wall -pedantic -fstrict-aliasing -Wstrict-aliasing=2
+BUILD_CFLAGS=-std=gnu99 -D_FILE_OFFSET_BITS=64 -Wall -pedantic -fstrict-aliasing -Wstrict-aliasing=2
 CFLAGS=-O2 -pipe
 LDFLAGS=-Wl,--hash-style=gnu -s -static-libgcc
 
@@ -109,7 +109,7 @@ package: clean tritech-utils manual test
 
 clean:
 	-rm -rf $(CURDIR)/pkg
-	-rm -f ac_monitor read_inf_section suggest_decompressor tss_file_tool tt_beacon
+	-rm -f ac_monitor format_device_entry read_inf_section suggest_decompressor tss_file_tool tt_beacon
 	-rm -f *.1.gz *~ scripts/*~ *.o test/ntfs_test
 
 distclean: clean

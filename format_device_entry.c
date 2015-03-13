@@ -7,7 +7,7 @@
 #include <string.h>
 #include <unistd.h>
 
-//#include "tritech_utils.h"
+#include "tritech_utils.h"
 
 #define MAXLEN 1024
 #define SUBSIZE 32
@@ -217,12 +217,16 @@ int main(int argc, char **argv)
 
 		if (comma == 0) fprintf(stderr, "error: no comma in device line (required)\n");
 		i = 0;
-		printf("%s", type);
-		while (*(id[i].label) != '\0') {
-			printf("%s", id[i].data);
-			i++;
+
+		/* Output final device entry (if the "type" field is filled) */
+		if (*type != '\0') {
+			printf("%s", type);
+			while (*(id[i].label) != '\0') {
+				printf("%s", id[i].data);
+				i++;
+			}
+			printf(":win=%s:dv=%s:inf=%s\n", argv[1], argv[2], argv[3]);
 		}
-		printf(":win=%s:dv=%s:inf=%s\n", argv[1], argv[2], argv[3]);
 	}
 
 	exit(EXIT_SUCCESS);

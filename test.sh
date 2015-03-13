@@ -75,6 +75,12 @@ if [ "$(./suggest_decompressor foo.tar.lzo)" = "lzop" ]
 	else echo "broken" && ERR=1
 fi
 
+echo -n "format_device_entry:        "
+if [ "$(echo ',hdaudio\func_01&ven_8086&dev_24c5&subsys_deadbeef&rev_c0' | ./format_device_entry x y z)" = "hdaudio:ven=8086:dev=24c5:subsys=deadbeef:rev=c0:func=01:win=x:dv=y:inf=z" ]
+	then echo "OK"
+	else echo "broken" && ERR=1
+fi
+
 test "$ERR" = "0" && echo "--- All tests passed ---"
 test "$ERR" = "1" && echo "-x- Some tests failed -x-"
 echo
