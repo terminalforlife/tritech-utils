@@ -1,11 +1,11 @@
 #!/bin/bash
 
-VER=0.4
-VERDATE="2015-03-09"
+VER=0.5
+VERDATE="2015-03-11"
 
 # Device database version created by this version of driver drop
 # Must be a three-digit number
-DBVER=002
+DBVER=003
 
 . tss__common
 
@@ -14,6 +14,18 @@ DBG=0
 ERR=0
 FORK=0
 Q=0
+
+if ! jodyhash -v 2>/dev/null >/dev/null
+	then
+	echo "Error: the 'jodyhash' utility is required to build databasees."
+	exit 1
+fi
+
+FDE=0
+if echo ',*pnp0c0d' | format_device_entry x y z >/dev/null 2>/dev/null
+	then FDE=1
+	else echo "Warning: the format_device_entry tool was not found, using slow version"
+fi
 
 for X in $@
 	do case $X in
@@ -108,6 +120,55 @@ dispatch () {
 	fi
 }
 
+process_device_entries () {
+	if [ "$FDE" != "1" ]
+		then
+		while read X
+			do
+			#echo " --- X Raw: $CYEL$X$COFF"
+			X="$(echo "$X" | sed 's/.*,[^a-z*]*//;s/,.*//;s/acpi\\/acpi\\dev_/;s/^\*/acpi\\dev_/')"
+			#echo " --- X Cook: $CGRN$X$COFF"
+			TYPE="$(echo "$X" | sed 's/\\.*//')"
+			#echo " --- Type: $CWHT$TYPE$COFF"
+			unset VID PID VEN DEV SUBSYS REV FUNC CC CV CD CLASS SC PROT
+			case $TYPE in
+				usb|hdaudio|pci|acpi)
+				for Y in $(echo "$X" | cut -d\\ -f2- | tr \& " " | sed s/ctlr_/ctlr/g)
+					do
+					Z1=$(echo "$Y" | sed s/_.*//)
+					Z2=$(echo "$Y" | sed s/.*_//)
+					case $Z1 in
+						vid) VID=":vid=$Z2" ;;
+						pid) PID=":pid=$Z2" ;;
+						ven) VEN=":ven=$Z2" ;;
+						dev) DEV=":dev=$Z2" ;;
+						subsys) SUBSYS=":subsys=$Z2" ;;
+						rev) REV=":rev=$Z2" ;;
+						func) FUNC=":func=$Z2" ;;
+						ctlrven) CV=":cv=$Z2" ;;
+						ctlrdev) CD=":cd=$Z2" ;;
+						class) CLASS=":class=$Z2" ;;
+						cc) CC=":cc=$Z2" ;;
+						subclass) SC=":sc=$Z2" ;;
+						prot) PROT=":prot=$Z2" ;;
+					esac
+				done
+				;;
+				*)
+				test $DBG -gt 0 && echo "${CYEL}Bad device type: $CCYA$TYPE$COFF"
+				unset TYPE
+				;;
+			esac
+			DEVICE="$TYPE$CLASS$SC$PROT$VID$PID$VEN$DEV$SUBSYS$CC$REV$FUNC$CV$CD:win=$2:dv=$3:inf=$4"
+			test ! -z "$CLASS$SC$PROT$VID$PID$VEN$DEV$SUBSYS$CC$REV$FUNC$CV$CD" && test ! -z "$TYPE" && echo "$DEVICE" >> $DBFILE2 2>/dev/null
+			test $DBG -gt 0 && test "$Q" = "0" && echo "$DEVICE"
+		done < "$1"
+
+		else
+		cat "$1" | format_device_entry "$2" "$3" "$4" >> $DBFILE2
+	fi
+}
+
 escape_regex () {
         for CHAR in \. \[ \] \^ \$
                 do RXS="$(echo "$RXS" | sed "s/\\${CHAR}/\\\\${CHAR}/g")"
@@ -163,7 +224,7 @@ clear_winver_flags () {
 
 set_winver_flags () {
 	test $DBG -gt 2 && echo "${CBLU}set_winver_flags:$COFF $1"
-	case $1 in
+	case "$1" in
 		ntia64*) IA64=1 ;;
 		ntamd64.6.3) W8164=1 ;;
 		ntamd64.6.2) W864=1; W8164=1 ;;
@@ -200,9 +261,9 @@ unset_winver_flags () {
 	test $DBG -gt 2 && echo "${CBLU}unset_winver_flags:$COFF $1"
 	case $1 in
 		ntia64*) IA64X=1 ;;
-		ntamd64.6.3) W8164=1 ;;
-		ntamd64.6.2) W864=1; W8164=1 ;;
-		ntamd64.6.1) W764=1; W864=1; W8164=1 ;;
+		ntamd64.6.3) W8164X=1 ;;
+		ntamd64.6.2) W864X=1; W8164X=1 ;;
+		ntamd64.6.1) W764X=1; W864X=1; W8164X=1 ;;
 		ntamd64.6.0) V64X=1; W764X=1; W864X=1; W8164X=1 ;;
 		ntamd64.6) V64X=1; W764X=1; W864X=1; W8164X=1 ;;
 		ntamd64.5.2) S2K364X=1; V64X=1; W764X=1; W864X=1; W8164X=1 ;;
@@ -227,7 +288,7 @@ unset_winver_flags () {
 		nt.5.1) XP32X=1; S2K3X=1; V32X=1; W732X=1; W832X=1; W8132X=1 ;;
 		nt.5) W2KX=1; XP32X=1; S2K3X=1; V32X=1; W732X=1; W832X=1; W8132X=1 ;;
 		nt) W2KX=1 ;;
-		*) W2KX=1 ;;
+		*) echo "${CYEL}WARNING:$COFF unrecognized version flag $CWHT$1$COFF" ;;
 	esac
 }
 
@@ -242,14 +303,15 @@ sanitize_inf_file () {
 	# Strip UTF-16, Windows newlines, normalize case, remove DeviceDesc parts
 	# Strip anything after a semicolon (comments) and blank lines
 	# We want to minimize the number of lines processed in the main loop.
-	tr -d \\0\\r < "$1" | grep -v '^;' | tr \\011 ' ' | grep -v '^$' | \
+#	tr -d \\0\\r < "$1" | grep -v '^;' | tr \\011 ' ' | grep -v '^$' | \
 #		grep -v '^\s$' | tr '[:upper:]' '[:lower:]' | sed 's/.*devicedesc//g;s/;.*//g' > "$2" \
-		tr '[:upper:]' '[:lower:]' | sed 's/.*devicedesc//g;s/;.*//g' > "$2"
+#		tr '[:upper:]' '[:lower:]' | sed 's/.*devicedesc//g;s/;.*//g' > "$2"
+	tr '[:upper:]' '[:lower:]' < "$1" | sed 's/.*devicedesc//g;s/;.*//g' > "$2"
 }
 
 clean_out_inf () {
 	# Remove all hashes and devices for an INF file in the database
-	grep -v "/$1$" $DBFILE | grep -v "^SHA1:$1:" > $TF2 && mv $TF2 $DBFILE
+	grep -v "/$1$" $DBFILE | grep -v '^SHA1:' | grep -v "^JH1:$1:" > $TF2 && mv $TF2 $DBFILE
 }
 
 # Execute this as: function_name file_to_read filename_to_validate
@@ -268,6 +330,7 @@ add_inf () {
 process_inf () {
 	export FORK=1
 	FILE="$@"
+	BLACKLIST="$(echo "$@" | sed 's/\.inf$/.dd_bl/;s/\.INF/.dd_bl/g')"
 	TFPI=$(mktemp)
 	TFPI2=$(mktemp)
 	DBFILE2="$TD/inf_$(basename $TFPI)"
@@ -281,9 +344,10 @@ process_inf () {
 		if read_inf_sec_short "$SEC" $TFPI $TFPI2
 			then
 			test $DBG -gt 1 && echo -n "${CGRN}INF for $CWHT$FILE$COFF => $CWHT$SEC$COFF: "
+			# Test for device entries in a section and set/unset flags as appropriate
 			if [ -z "$(cat "$TFPI2")" ]
 				then test $DBG -gt 1 && echo "${CYEL}no flags$COFF"
-				unset_winver_flags "$(echo "$SEC" | sed 's/.*\.nt/nt/')"
+				echo "$SEC" | grep -iq '\.nt[a-z0-9]*' && unset_winver_flags "$(echo "$SEC" | sed 's/.*\.nt/nt/')"
 				else test $DBG -gt 1 && echo "${CGRN}setting flags$COFF"
 				set_winver_flags "$(echo "$SEC" | sed 's/.*\.nt/nt/')"
 			fi
@@ -292,6 +356,32 @@ process_inf () {
 		fi
 		: > $TFPI2
 	done
+
+	# For each .inf look for a driver drop blacklist (.dd_bl) and process it
+	if [ -e "$BLACKLIST" ]
+		then
+		while read CHANGE
+			do
+			if [ "$CHANGE" = "-all" ]
+				then clear_winver_flags
+				else
+				NEW_FLAG="$(echo "$CHANGE" | sed 's/^[^a-zA-Z0-9]//')"
+				OP="$(echo "$CHANGE" | sed 's/^\(...\).*/\1/')"
+				case $OP in
+					"+nt")
+						set_winver_flags "$NEW_FLAG"
+						;;
+					"-nt")
+						unset_winver_flags "$NEW_FLAG"
+						;;
+					*)
+						echo "${CYEL}Warning:$COFF bad operation flag $CCYA$CHANGE$COFF in $BLACKLIST" >&2
+						;;
+				esac
+
+			fi
+		done < "$BLACKLIST"
+	fi
 
 	# Build compatibility flag string
 	process_winver_flags
@@ -307,49 +397,10 @@ process_inf () {
 		do read_inf_section "$TFPI" "$SEC" 2>/dev/null | sed 's/\\/\\\\/g' >> $TFPI2
 	done
 
-	while read X
-		do
-		#echo " --- X Raw: $CYEL$X$COFF"
-		X="$(echo "$X" | sed 's/.*,[^a-z*]*//;s/,.*//;s/acpi\\/acpi\\dev_/;s/^\*/acpi\\dev_/')"
-		#echo " --- X Cook: $CGRN$X$COFF"
-		TYPE="$(echo "$X" | sed 's/\\.*//')"
-		#echo " --- Type: $CWHT$TYPE$COFF"
-		unset VID PID VEN DEV SUBSYS REV FUNC CC CV CD CLASS SC PROT
-		case $TYPE in
-			usb|hdaudio|pci|acpi)
-			for Y in $(echo "$X" | cut -d\\ -f2- | tr \& " " | sed s/ctlr_/ctlr/g)
-				do
-				Z1=$(echo "$Y" | sed s/_.*//)
-				Z2=$(echo "$Y" | sed s/.*_//)
-				case $Z1 in
-					vid) VID=":vid=$Z2" ;;
-					pid) PID=":pid=$Z2" ;;
-					ven) VEN=":ven=$Z2" ;;
-					dev) DEV=":dev=$Z2" ;;
-					subsys) SUBSYS=":subsys=$Z2" ;;
-					rev) REV=":rev=$Z2" ;;
-					func) FUNC=":func=$Z2" ;;
-					ctlrven) CV=":cv=$Z2" ;;
-					ctlrdev) CD=":cd=$Z2" ;;
-					class) CLASS=":class=$Z2" ;;
-					cc) CC=":cc=$Z2" ;;
-					subclass) SC=":sc=$Z2" ;;
-					prot) PROT=":prot=$Z2" ;;
-				esac
-			done
-			;;
-			*)
-			test $DBG -gt 0 && echo "${CYEL}Bad device type: $CCYA$TYPE$COFF"
-			unset TYPE
-			;;
-		esac
-		DEVICE="$TYPE$CLASS$SC$PROT$VID$PID$VEN$DEV$SUBSYS$CC$REV$FUNC$CV$CD:win=$WF:dv=$DV:inf=$WD/$FILE"
-		test ! -z "$CLASS$SC$PROT$VID$PID$VEN$DEV$SUBSYS$CC$REV$FUNC$CV$CD" && test ! -z "$TYPE" && echo "$DEVICE" >> $DBFILE2 2>/dev/null
-		test $DBG -gt 0 && test "$Q" = "0" && echo "$DEVICE"
-	done < $TFPI2
+	process_device_entries "$TFPI2"  "$WF" "$DV" "$WD/$FILE"
 
-	# Write SHA1 hash for integrity checks and clean up
-	echo "SHA1:$FILE:$(sha1sum "$FILE" | cut -d\  -f1)" >> $DBFILE2
+	# Write jody_hash for integrity checks and clean up
+	echo "JH:$FILE:$(jodyhash "$FILE")" >> $DBFILE2
 	rm -f $TFPI $TFPI2
 }
 
@@ -359,7 +410,7 @@ IFS0="$IFS"
 IFS1=$(echo -en "\n\b")
 IFS="$IFS1"
 
-# Load SHA1 hashes from driver database
+# Load jody_hashes from driver database
 CONSISTENT=0
 if [ -e "$DBFILE" ]
 	then
@@ -383,9 +434,10 @@ echo "...done: $(wc -l < $TF3) files found."
 
 # If the database exists and is consistent, check for and handle changed files.
 if [[ -e "$DBFILE"  && "$CONSISTENT" = "1" ]]
-	then grep '^SHA1:[^:]' $DBFILE > $TF
+	then grep '^JH:[^:]' $DBFILE > $TF
 	for X in $(cut -d: -f2 < $TF)
-		do if [ ! -e "$X" ]
+		do
+		if [ ! -e "$X" ]
 			then clean_out_inf "$X"
 			test $DBG -gt 1 && echo -n "$CCYA$X$COFF "
 			test $DBG -le 1 && test "$Q" = "0" && echo -n "${CCYA}-$COFF"
@@ -395,7 +447,7 @@ if [[ -e "$DBFILE"  && "$CONSISTENT" = "1" ]]
 	# Read the list of INF files and decide what to do with them
 	while read X
 		do
-		HASH=$(grep -m 1 "^SHA1:$X:" $TF)
+		HASH=$(grep -m 1 "^JH:$X:" $TF)
 		if [ -z "$HASH" ]
 			then
 			XX=$(mktemp)
@@ -406,7 +458,7 @@ if [[ -e "$DBFILE"  && "$CONSISTENT" = "1" ]]
 			fi
 			rm -f "$XX"
 			else
-			HASH2="SHA1:$X:$(sha1sum "$X" | cut -d\  -f1)"
+			HASH2="JH:$X:$(jodyhash "$X")"
 			if [ ! "$HASH" = "$HASH2" ]
 				then
 				XX=$(mktemp)
@@ -449,7 +501,7 @@ while [ $FILENUM != $INFC ]
 	CUR_INF="${INF[FILENUM]}"
 	test $DBG -gt 0 && echo
 	(( FILENUM ++ ))
-	test "$Q" = "0" && echo "$FILENUM/${#INF[@]}:  $FILE"
+	test "$Q" = "0" && echo "$FILENUM/${#INF[@]}:  $CUR_INF"
 	test "$Q" = "1" && echo -en "Processed $FILENUM of ${#INF[@]}\r"
 	dispatch process_inf "$CUR_INF"
 done
