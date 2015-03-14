@@ -165,7 +165,7 @@ process_device_entries () {
 		done < "$1"
 
 		else
-		cat "$1" | format_device_entry "$2" "$3" "$4" >> $DBFILE2
+		cat "$1" | format_device_entry "$2" "$3" "$4" >> $DBFILE2 2>/dev/null
 	fi
 }
 
@@ -262,30 +262,30 @@ unset_winver_flags () {
 	case $1 in
 		ntia64*) IA64X=1 ;;
 		ntamd64.6.3) W8164X=1 ;;
-		ntamd64.6.2) W864X=1; W8164X=1 ;;
-		ntamd64.6.1) W764X=1; W864X=1; W8164X=1 ;;
-		ntamd64.6.0) V64X=1; W764X=1; W864X=1; W8164X=1 ;;
+		ntamd64.6.2) W864X=1 ;;
+		ntamd64.6.1) W764X=1 ;;
+		ntamd64.6.0) V64X=1 ;;
 		ntamd64.6) V64X=1; W764X=1; W864X=1; W8164X=1 ;;
-		ntamd64.5.2) S2K364X=1; V64X=1; W764X=1; W864X=1; W8164X=1 ;;
-		ntamd64.5.1) XP64X=1; S2K364X=1; V64X=1; W764X=1; W864X=1; W8164X=1 ;;
+		ntamd64.5.2) S2K364X=1 ;;
+		ntamd64.5.1) XP64X=1 ;;
 		ntamd64.5) XP64X=1; S2K364X=1; V64X=1; W764X=1; W864X=1; W8164X=1 ;;
 		ntamd64) XP64X=1; S2K364X=1; V64X=1; W764X=1; W864X=1; W8164X=1 ;;
 		ntx86.6.3) W8132X=1 ;;
-		ntx86.6.2) W832X=1; W8132X=1 ;;
-		ntx86.6.1) W732X=1; W832X=1; W8132X=1 ;;
-		ntx86.6.0) V32X=1; W732X=1; W832X=1; W8132X=1 ;;
+		ntx86.6.2) W832X=1 ;;
+		ntx86.6.1) W732X=1 ;;
+		ntx86.6.0) V32X=1 ;;
 		ntx86.6) V32X=1; W732X=1; W832X=1; W8132X=1 ;;
-		ntx86.5.2) S2K3X=1; V32X=1; W732X=1; W832X=1; W8132X=1 ;;
-		ntx86.5.1) XP32X=1; S2K3X=1; V32X=1; W732X=1; W832X=1; W8132X=1 ;;
+		ntx86.5.2) S2K3X=1 ;;
+		ntx86.5.1) XP32X=1 ;;
 		ntx86.5) XP32X=1; S2K3X=1; V32X=1; W732X=1; W832X=1; W8132X=1 ;;
 		ntx86) XP32X=1; S2K3X=1; V32X=1; W732X=1; W832X=1; W8132X=1 ;;
 		nt.6.3) W8132X=1 ;;
-		nt.6.2) W832X=1; W8132X=1 ;;
-		nt.6.1) W732X=1; W832X=1; W8132X=1 ;;
-		nt.6.0) V32X=1; W732X=1; W832X=1; W8132X=1 ;;
+		nt.6.2) W832X=1 ;;
+		nt.6.1) W732X=1 ;;
+		nt.6.0) V32X=1 ;;
 		nt.6) V32X=1; W732X=1; W832X=1; W8132X=1 ;;
-		nt.5.2) S2K3X=1; V32X=1; W732X=1; W832X=1; W8132X=1 ;;
-		nt.5.1) XP32X=1; S2K3X=1; V32X=1; W732X=1; W832X=1; W8132X=1 ;;
+		nt.5.2) S2K3X=1 ;;
+		nt.5.1) XP32X=1 ;;
 		nt.5) W2KX=1; XP32X=1; S2K3X=1; V32X=1; W732X=1; W832X=1; W8132X=1 ;;
 		nt) W2KX=1 ;;
 		*) echo "${CYEL}WARNING:$COFF unrecognized version flag $CWHT$1$COFF" ;;
@@ -330,7 +330,7 @@ add_inf () {
 process_inf () {
 	export FORK=1
 	FILE="$@"
-	BLACKLIST="$(echo "$@" | sed 's/\.inf$/.dd_bl/;s/\.INF/.dd_bl/g')"
+	BLACKLIST="$(echo "$@" | sed 's/\.inf$/.dd_bl/;s/\.INF$/.dd_bl/g')"
 	TFPI=$(mktemp)
 	TFPI2=$(mktemp)
 	DBFILE2="$TD/inf_$(basename $TFPI)"
@@ -360,6 +360,7 @@ process_inf () {
 	# For each .inf look for a driver drop blacklist (.dd_bl) and process it
 	if [ -e "$BLACKLIST" ]
 		then
+		echo "FOUND: $BLACKLIST"
 		while read CHANGE
 			do
 			if [ "$CHANGE" = "-all" ]
