@@ -102,6 +102,9 @@ if [[ "$TSS_CLIENT" = "1" && ! -z "$PCID" ]]
 			then NOTES="$(echo "$X" | sed s/._//) $NOTES"
 		fi
 	done
+	# Colorize work approval tag
+	test "$N_APPROVE" = "1" && NOTES="$BGGRN$CWHT Work Approved $COFF$BGBLK $NOTES"
+
 	test -z "$DIAGS" && DIAGS="(none) "
 	test -z "$NOTES" && NOTES="(none) "
 	echo "${CBLU}TSS:  ${CCYA}Diags: $CWHT$DIAGS$COFF ${CCYA}Notes: $CWHT$NOTES$COFF"

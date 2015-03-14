@@ -20,6 +20,10 @@ test -z "$TSS_COMMON" && . tss__common
 LOGFILE=/var/log/tss_client.log
 test "$V" = "" && export V=0
 
+# Scan/action/note variable names
+SAN_TYPES="A_HDD A_BURNIN A_CLEANER A_BACKUP A_VIRUS A_MBR A_CDROM \
+	N_OVERHEAT N_SPACE N_SLOWAV N_LOWRAM N_BADRAM N_BADHDD N_VIRUS N_APPROVE"
+
 
 ### Begin functions
 
@@ -95,7 +99,7 @@ merge_mac_and_macaddr () {
 # Read ACTIONS variable and set individual variable flags from its contents
 expand_actions () {
 	test "$TSS_CLIENT_DISABLE" = "1" && return 255
-	for X in A_HDD A_BURNIN A_CLEANER A_BACKUP A_VIRUS A_MBR A_CDROM N_OVERHEAT N_SPACE N_SLOWAV N_LOWRAM N_BADRAM N_BADHDD N_VIRUS
+	for X in $SAN_TYPES
 		do
 		test -z "${!X}" && export $X=0
 		echo "$ACTIONS" | grep -q "$X" && export $X=1
@@ -107,7 +111,7 @@ expand_actions () {
 compact_actions () {
 	test "$TSS_CLIENT_DISABLE" = "1" && return 255
 	unset ACTIONS
-	for X in A_HDD A_BURNIN A_CLEANER A_BACKUP A_VIRUS A_MBR A_CDROM N_OVERHEAT N_SPACE N_SLOWAV N_LOWRAM N_BADRAM N_BADHDD N_VIRUS
+	for X in $SAN_TYPES
 		do
 		test "${!X}" = "1" && export ACTIONS="$X $ACTIONS"
 	done
@@ -465,9 +469,7 @@ detect_current_pc () {
 save_tss_state () {
 	rm -f $TSS_STATE_FILE
 	for X in PCID WOID MAC CPU RAM HDD OS \
-		A_HDD A_BURNIN A_CLEANER A_BACKUP A_VIRUS A_MBR A_CDROM \
-			N_OVERHEAT N_SPACE N_SLOWAV N_LOWRAM \
-			N_BADRAM N_BADHDD N_VIRUS \
+			$SAN_TYPES \
 			TSS_SYSINFO ACTIONS \
 			NAME COMPANY PHONE1 PHONE2 PHONE3 MODEL \
 			TSS_CIFS_BASE TSS_CIFS_PW TSS_CIFS_UN TSS_CIFS_SHARE TSS_PORT TSS_SERVER
@@ -482,9 +484,7 @@ load_tss_state () {
 		then
 		grep -q '^disable$' $TSS_STATE_FILE && export TSS_CLIENT_DISABLE=1 && return 0
 		for X in PCID WOID MAC CPU RAM HDD OS \
-			A_HDD A_BURNIN A_CLEANER A_BACKUP A_VIRUS A_MBR A_CDROM \
-			N_OVERHEAT N_SPACE N_SLOWAV N_LOWRAM \
-			N_BADRAM N_BADHDD N_VIRUS \
+			$SAN_TYPES \
 			TSS_SYSINFO ACTIONS \
 			NAME COMPANY PHONE1 PHONE2 PHONE3 MODEL \
 			TSS_CIFS_BASE TSS_CIFS_PW TSS_CIFS_UN TSS_CIFS_SHARE TSS_PORT TSS_SERVER
@@ -511,9 +511,7 @@ load_tss_state () {
 # Wipe all TSS client variables and erase the TSS client persistent state
 clear_tss_state () {
 	for X in PCID WOID MAC CPU RAM HDD OS \
-		A_HDD A_BURNIN A_CLEANER A_BACKUP A_VIRUS A_MBR A_CDROM \
-		N_OVERHEAT N_SPACE N_SLOWAV N_LOWRAM \
-		N_BADRAM N_BADHDD N_VIRUS \
+		$SAN_TYPES \
 		TSS_SYSINFO ACTIONS TSS_CLIENT_DISABLE \
 		NAME COMPANY PHONE1 PHONE2 PHONE3 MODEL \
 		RESPONSE RCMD RP_ALL RP1 SVR_TEMP BCN \
