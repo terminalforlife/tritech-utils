@@ -1,7 +1,7 @@
 #!/bin/bash
 
 VER=0.5
-VERDATE="2015-03-11"
+VERDATE="2015-03-17"
 
 # Device database version created by this version of driver drop
 # Must be a three-digit number
@@ -295,7 +295,8 @@ unset_winver_flags () {
 process_winver_flags () {
 	for FLG in IA64 W2K XP32 S2K3 V32 W732 W832 W8132 \
 		XP64 S2K364 V64 W764 W864 W8164
-		do test "$(eval echo \$${FLG}X)" = "1" && eval set \$$FLG=0
+		do
+		test "$(eval echo \$${FLG}X)" = "1" && eval $FLG=0
 	done
 }
 
@@ -360,7 +361,6 @@ process_inf () {
 	# For each .inf look for a driver drop blacklist (.dd_bl) and process it
 	if [ -e "$BLACKLIST" ]
 		then
-		echo "FOUND: $BLACKLIST"
 		while read CHANGE
 			do
 			if [ "$CHANGE" = "-all" ]
@@ -448,8 +448,9 @@ if [[ -e "$DBFILE"  && "$CONSISTENT" = "1" ]]
 	# Read the list of INF files and decide what to do with them
 	while read X
 		do
+		BLACKLIST="$(echo "$X" | sed 's/\.inf$/.dd_bl/;s/\.INF$/.dd_bl/g')"
 		HASH=$(grep -m 1 "^JH:$X:" $TF)
-		if [ -z "$HASH" ]
+		if [[ -z "$HASH" || -e "$BLACKLIST" ]]
 			then
 			XX=$(mktemp)
 			sanitize_inf_file "$X" "$XX"
