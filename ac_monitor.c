@@ -71,34 +71,33 @@ int main(int argc, char **argv)
 	char buf[16];
 	int status = 0, newstat;
 
-	printf("TSS power monitor version %s (%s)\n", TRITECH_UTILS_VER, TRITECH_UTILS_DATE);
-	printf("Copyright (c) by Jody Bruchon\n");
+	printf("TSS power monitor %s (%s)\n", TRITECH_UTILS_VER, TRITECH_UTILS_DATE);
 	strncpy(path, power_path, PATH_MAX);
 
-	/* Find the AC adapter file*/
-	if((dir = opendir(power_path)) == NULL) {
+	/* Find the AC adapter file */
+	if ((dir = opendir(power_path)) == NULL) {
 		fprintf(stderr, "Error: cannot open dir: %s\n", power_path);
 		return EXIT_FAILURE;
 	}
 	errno = 0;
-	while((entry = readdir(dir)) != NULL) {
-		if(errno) {
+	while ((entry = readdir(dir)) != NULL) {
+		if (errno) {
 			fprintf(stderr, "Error: readdir() failed: %s\n", power_path);
 			return EXIT_FAILURE;
 		}
-		if(*(entry->d_name) != '.') {
+		if (*(entry->d_name) != '.') {
 			/* Construct the path strings */
 			strncat(path, entry->d_name, PATH_MAX);
 			strncat(path, "/", PATH_MAX);
 			/* "type" is used to determine if this is an AC adapter or not */
 			strncpy(type, path, PATH_MAX);
 			strncat(type, "type", PATH_MAX);
-			if((i = open(type, O_RDONLY)) != -1) {
-				if(read(i, buf, 15) == -1) {
+			if ((i = open(type, O_RDONLY)) != -1) {
+				if (read(i, buf, 15) == -1) {
 					fprintf(stderr, "Warning: error reading %s\n", type);
 					close(i);
 				} else {
-					if(strncmp(buf, "Mains", 15)) {
+					if (strncmp(buf, "Mains", 15)) {
 						/* "path" is used to check the status of the AC adapter */
 						strncat(path, "online", PATH_MAX);
 						closedir(dir);
@@ -136,9 +135,9 @@ found_ac_file:
 	if (pid < 0) return EXIT_FAILURE;
 	if (pid > 0) return EXIT_SUCCESS;
 	chdir("/");
-	for(i = sysconf(_SC_OPEN_MAX); i > 0; i--) close(i);
+	for (i = sysconf(_SC_OPEN_MAX); i > 0; i--) close(i);
 	/* Check status every second, beep if changed */
-	while(1) {
+	while (1) {
 		sleep(1);
 		/* Sleep on errors; they don't necessarily indicate a permanent error */
 		if((i = open(path, O_RDONLY)) == -1) continue;
