@@ -1,7 +1,7 @@
 #!/bin/bash
 
-VER="5.0.9"
-VERDATE="2015-02-10"
+VER="5.0.10"
+VERDATE="2015-03-26"
 
 # Tritech Service System Windows installation clean tool for Linux
 # Copyright (C) by Jody Bruchon <jody@c02ware.com>
@@ -460,6 +460,7 @@ NAME="$LOCAL/CurseClient/CurseClient.log"; DESC="CurseClient"; add_to_delete
 NAME="$LOCAL/dd_vcredist*.txt"; DESC="MSVC++ logs"; add_to_delete
 NAME="$LOCAL/DataMngr"; DESC="DataMngr garbage"; add_to_wipe
 NAME="$LOCAL/Diagnostics"; DESC="Windows Diagnostics"; add_to_wipe
+NAME="$LOCAL/DVDVideoSoftTB"; DESC="DVDVideoSoftTB"; add_to_wipe
 NAME="$LOCAL/ElevatedDiagnostics"; DESC="Windows Diagnostics"; add_to_wipe
 NAME="$LOCAL/EMBARQTOOLBAR"; DESC="Embarq Toolbar"; add_to_wipe
 NAME="$LOCAL/Facebook/Messenger/fbmessenger.cache"; DESC="FB Messenger cache"; add_to_wipe
@@ -547,6 +548,7 @@ NAME="$LOCAL/$MS/Windows/INetCookies"; DESC="Windows 8+ TIFs"; add_to_wipe
 NAME="$LOCAL/$MS/Windows/WindowsUpdate.log"; DESC="Windows Update log"; add_to_delete
 NAME="$LOCAL/$MS/$WINDEF/FileTracker"; DESC="Windows Defender"; add_to_wipe
 NAME="$LOCAL/Musicmatch/Jukebox/Cache"; DESC="Musicmatch Jukebox cache"; add_to_wipe
+NAME="$LOCAL/MyScrapNook*"; DESC="MyScrapNook"; add_to_wipe
 NAME="$LOCAL/MyWebSearch"; DESC="MyWebSearch"; add_to_wipe
 NAME="$LOCAL/NCH"; DESC="NCH spyware"; add_to_wipe
 NAME="$LOCAL/ooVoo_Video_Chat"; DESC="ooVoo Toolbar"; add_to_wipe
@@ -581,9 +583,7 @@ NAME="$LOCAL/ShopAtHome"; DESC="ShopAtHome"; add_to_wipe
 NAME="$LOCAL/ShoppingReport2"; DESC="ShoppingReport2"; add_to_wipe
 NAME="$LOCAL/simppulltoolbar"; DESC="Simppull Toolbar"; add_to_wipe
 NAME="$LOCAL/SiteRanker"; DESC="SiteRanker"; add_to_wipe
-NAME="$LOCAL/SlimWare Utilities Inc/DriverUpdate/Downloads"; DESC="DriverUpdate"; add_to_wipe
-NAME="$LOCAL/SlimWare Utilities Inc/DriverUpdate/Logs"; DESC="DriverUpdate"; add_to_wipe
-NAME="$LOCAL/SlimWare Utilities Inc/DriverUpdate/Updates"; DESC="DriverUpdate"; add_to_wipe
+NAME="$LOCAL/SlimWare Utilities Inc"; DESC="SlimWare Utilities"; add_to_wipe
 NAME="$LOCAL/$SPEEDBROWSER/*Cache*/"; DESC="Speed Browser"; add_to_wipe
 NAME="$LOCAL/$SPEEDBROWSER/*Cookies"; DESC="Speed Browser"; add_to_delete
 NAME="$LOCAL/$SPEEDBROWSER/Favicons"; DESC="Speed Browser"; add_to_delete
@@ -615,6 +615,7 @@ NAME="$LOCAL/TotalRecipeSearch_*"; DESC="TotalRecipeSearch toolbar"; add_to_wipe
 NAME="$LOCAL/Topix"; DESC="Tific"; add_to_wipe
 NAME="$LOCAL/Trusteer/Rapport/user/logs"; DESC="Trusteer Rapport"; add_to_wipe
 NAME="$LOCAL/Unity/WebPlayer/Cache"; DESC="Unity WebPlayer cache"; add_to_wipe
+NAME="$LOCAL/Vafmusic9"; DESC="Vafmusic9"; add_to_wipe
 NAME="$LOCAL/verizontb"; DESC="Verizon Toolbar"; add_to_wipe
 NAME="$LOCAL/VisualBee*"; DESC="VisualBee"; add_to_wipe
 NAME="$LOCAL/$VS/$WIN/*.tmp"; DESC="Windows temp files (VS)"; add_to_delete
@@ -624,6 +625,7 @@ NAME="$LOCAL/Vuze_Remote"; DESC="Vuze Remote spyware"; add_to_wipe
 NAME="$LOCAL/Wajam"; DESC="Wajam"; add_to_wipe
 NAME="$ROAM/$STARTMENU/Wajam"; DESC="Wajam"; add_to_wipe
 NAME="$LOCAL/$WDSMART/.txt"; DESC="WD SmartWare"; add_to_delete
+NAME="$LOCAL/WeatherAlerts"; DESC="WeatherAlerts"; add_to_wipe
 NAME="$LOCAL/WhiteSmoke_*"; DESC="WhiteSmoke Toolbar"; add_to_wipe
 NAME="$LOCAL/Windows Live/.cache"; DESC="Windows Live cache"; add_to_wipe
 NAME="$LOCAL/$WLPG"; DESC="WL Photo Gallery"; add_to_wipe
@@ -631,6 +633,7 @@ NAME="$LOCAL/$MS/WLSetup"; DESC="Windows Live setup"; add_to_wipe
 NAME="$LOCAL/$MS/Windows Live/Setup"; DESC="Windows Live setup"; add_to_wipe
 NAME="$LOCAL/Yahoo! Companion"; DESC="Yahoo Companion"; add_to_wipe
 NAME="$LOCAL/YuMp3"; DESC="YuMp3 Toolbar"; add_to_wipe
+NAME="$LOCAL/Zango"; DESC="Zango"; add_to_wipe
 NAME="$LOCAL/Zoom_Downloader"; DESC="Zoom Downloader"; add_to_wipe
 NAME="$LOCAL/Zynga"; DESC="Zynga"; add_to_wipe
 
@@ -719,6 +722,8 @@ NAME="$ROAM/BrowserProtect"; DESC="BrowserProtect"; add_to_wipe
 NAME="$ROAM/$STARTMENU/BrowserProtect"; DESC="BrowserProtect"; add_to_wipe
 NAME="$ROAM/ClickPotatoLiteSA"; DESC="ClickPotato"; add_to_wipe
 NAME="$ROAM/Complitly"; DESC="Complitly spyware"; add_to_wipe
+NAME="$ROAM/Conduit"; DESC="Conduit"; add_to_wipe
+NAME="$ROAM/DataMngr"; DESC="DataMngr"; add_to_wipe
 NAME="$ROAM/Digital Album Organizer/album/*_cache"; DESC="Digital Album Organizer"; add_to_wipe
 NAME="$ROAM/DriverCure"; DESC="DriverCure"; add_to_wipe
 NAME="$ROAM/Error*Fix/Logs"; DESC="ErrorFix"; add_to_wipe
@@ -754,6 +759,7 @@ NAME="$ROAM/$TBPROF/TestPilotErrorLog.log"; DESC="Mozilla applications"; add_to_
 NAME="$ROAM/FrostWire/image_cache"; DESC="FrostWire"; add_to_wipe
 NAME="$ROAM/FrostWire/azureus/logs"; DESC="FrostWire"; add_to_wipe
 NAME="$ROAM/FrostWire/azureus/tmp"; DESC="FrostWire"; add_to_wipe
+NAME="$ROAM/FunWebProducts"; DESC="FunWebProducts"; add_to_wipe
 NAME="$ROAM/GamesBar"; DESC="GamesBar"; add_to_wipe
 NAME="$ROAM/GARMIN/Events"; DESC="Garmin logs"; add_to_wipe
 NAME="$ROAM/GARMIN/Logs"; DESC="Garmin logs"; add_to_wipe
@@ -780,6 +786,7 @@ NAME="$ROAM/Intuit/Intuit Data Protect/QBIDPService.log"; DESC="Intuit"; add_to_
 NAME="$ROAM/Intuit/QuickBooks DB Server Manager/QBCFMonitorService.log"; DESC="Intuit"; add_to_delete
 NAME="$ROAM/Intuit/QuickBooks/qbsdklog.txt"; DESC="Intuit"; add_to_delete
 NAME="$ROAM/IObit"; DESC="IObit"; add_to_wipe
+NAME="$ROAM/iWin"; DESC="iWin"; add_to_wipe
 NAME="$ROAM/$JAVACACHE"; DESC="Java"; add_to_wipe
 NAME="$ROAM/$JSYSCACHE"; DESC="Java"; add_to_wipe
 NAME="$ROAM/Juniper Networks/Logging"; DESC="Juniper Networks logs"; add_to_wipe
@@ -835,9 +842,11 @@ NAME="$ROAM/$MS/$WINLTBF/*.tmp"; DESC="WinLive TB Feeds"; add_to_delete
 NAME="$ROAM/$MS/Works SE"; DESC="MS Works SE ad cache"; add_to_wipe
 NAME="$ROAM/$MS/Office/*.tmp"; DESC="MS Office temp files"; add_to_delete
 NAME="$ROAM/$MS/Word/\~*.tmp"; DESC="MS Office temp files"; add_to_delete
+NAME="$ROAM/MyScrapNook*"; DESC="MyScrapNook"; add_to_wipe
 NAME="$ROAM/MySpace/IM/SkypeCache"; DESC="MySpaceIM"; add_to_wipe
 NAME="$ROAM/MySpace/IM/Images"; DESC="MySpaceIM"; add_to_wipe
 NAME="$ROAM/MySpace/*/Logs"; DESC="MySpaceIM"; add_to_wipe
+NAME="$ROAM/MyWebSearch"; DESC="MyWebSearch"; add_to_wipe
 NAME="$ROAM/NCH Swift Sound/Talk/Logs"; DESC="NCH SS talk logs"; add_to_wipe
 NAME="$ROAM/Norton/FSDUI*.log"; DESC="Norton"; add_to_delete
 NAME="$ROAM/NortonInstaller"; DESC="Norton"; add_to_wipe
@@ -856,6 +865,7 @@ NAME="$ROAM/.purple/icons"; DESC="Pidgin messenger"; add_to_wipe
 NAME="$ROAM/$PHOTOEXP/Temp.dat"; DESC="Photo Explosion"; add_to_wipe
 NAME="$ROAM/PictureMover/Log"; DESC="PictureMover"; add_to_wipe
 NAME="$ROAM/PictureMover/imageS"; DESC="PictureMover"; add_to_wipe
+NAME="$ROAM/PowerChallenge"; DESC="PowerChallenge"; add_to_wipe
 NAME="$ROAM/PriceGong"; DESC="PriceGong"; add_to_wipe
 NAME="$ROAM/$STARTMENU/PriceGong"; DESC="PriceGong"; add_to_wipe
 NAME="$ROAM/Pure Networks/Log"; DESC="Pure Networks logs"; add_to_wipe
@@ -883,6 +893,7 @@ NAME="$ROAM/SecondLife/*/browser/_profile/cache"; DESC="SecondLife"; add_to_wipe
 NAME="$ROAM/SecondLife/browser_profile/*ache"; DESC="SecondLife"; add_to_wipe
 NAME="$ROAM/SecondLife/logs"; DESC="SecondLife"; add_to_wipe
 NAME="$ROAM/SHAPE Services/Mobiola WebCamera for iPhone/logs"; DESC="Mobiola logs"; add_to_wipe
+NAME="$ROAM/ShoppingReport"; DESC="ShoppingReport"; add_to_wipe
 NAME="$ROAM/Sierra Wireless/Logs"; DESC="Sierra Wireless"; add_to_wipe
 NAME="$ROAM/Skype/DbTemp"; DESC="Skype"; add_to_wipe
 NAME="$ROAM/Skype/temp-*"; DESC="Skype"; add_to_delete
@@ -906,7 +917,7 @@ NAME="$ROAM/TeamViewer/*_logfile.log"; DESC="TeamViewer logs"; add_to_wipe
 NAME="$ROAM/temp"; DESC="Temporary files (roaming)"; add_to_wipe
 NAME="$ROAM/Temp"; DESC="Temporary files (roaming)"; add_to_wipe
 NAME="$ROAM/$TMAVLOGS"; DESC="Trend Micro AV logs"; add_to_wipe
-NAME="$ROAM/Toolbar4/*/cache"; DESC="Toolbar4"; add_to_wipe
+NAME="$ROAM/Toolbar4"; DESC="Toolbar4"; add_to_wipe
 NAME="$ROAM/Trusteer/Rapport/logs"; DESC="Trusteer Rapport"; add_to_wipe
 NAME="$ROAM/Trusteer/Rapport/user/logs"; DESC="Trusteer Rapport"; add_to_wipe
 NAME="$ROAM/Uniblue"; DESC="Uniblue data"; add_to_wipe

@@ -267,10 +267,6 @@ while [ $DIC -lt $DI ]
 		N_BADHDD=1;
 	fi
 
-	# Produce a SMART information string
-	test $LCC -gt 0 && S="$S LCC=$LCC"
-	test $RSC -gt 0 && S="$S RSC=$RSC"
-	test $UNC -gt 0 && S="$S UNC=$UNC"
 	test -n "$S" && echo "$CWHT+-- SMART data:$S"
 	DIC=$((DIC + 1))
 done
