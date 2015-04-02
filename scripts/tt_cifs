@@ -139,7 +139,7 @@ if ! ping -c 1 -W 1 $SVR >/dev/null 2>/dev/null
 	while [ "$X" -gt "0" ]
 		do test "$V" -gt "0" && echo -n "${CWHT}${X}${COFF} "
 		if ! ping -c 1 -W 1 $SVR >/dev/null 2>/dev/null
-			then X=$(expr $X - 1)
+			then X=$((X - 1))
 			else Y=1
 		fi
 		test "$Y" -eq "1" && break
@@ -177,7 +177,6 @@ if mount -t cifs -o vers=3.0,user="$UN",pass="$PW"$CACHE //$SVRX /mnt/cifs 2>/de
 	then
 	test "$V" -gt "0" && echo "$CGRN$SVRX $CWHT=>$CGRN /mnt/cifs ${CWHT}(SMB 3.0)$LOOSE$COFF"
 	exit
-	else test "$V" -gt "0" && echo "${CRED}failed.$COFF"
 fi
 
 # Fall back to default CIFS mount command and options
