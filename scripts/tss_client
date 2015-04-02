@@ -31,6 +31,8 @@ get_date () {
 	DATE="$(date "+%Y-%m-%d %H:%M:%S")"
 }
 get_os_version () {
+	# Don't do this if imagedrop is happening
+	pgrep -f tt_imagedrop >/dev/null && return 0
 	PART=$(cat /proc/partitions | grep 'sd.[0-9]$' | sort -k3 -g | tail -n 1 | awk '{print $4}')
 	M=0
 	if ! mountpoint -q /mnt/$PART
