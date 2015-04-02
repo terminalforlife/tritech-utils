@@ -1,7 +1,7 @@
 #!/bin/bash
 
-VER=0.7.1
-VERDATE="2015-01-14"
+VER=0.7.2
+VERDATE="2015-04-01"
 
 . tss__common
 . tss_client
@@ -223,8 +223,7 @@ case $BR in
 b|B)
 test "$RSM" = "0" && if [ ! -d $BU ]
 	then
-	mkdir -p $BU \
-	|| (echo "mkdir $BU failed" && exit 1)
+	mkdir -p $BU || (echo "mkdir $BU failed" && exit 1)
 fi
 cd $MTPT
 
@@ -250,7 +249,7 @@ C=0
 while [ "$C" -lt "$IDX" ]
 	do
 	echo "$CWHT${FILES[$C]}:$COFF"
-	rsync -rtv --delete --exclude=desktop.ini \
+	rsync -rtv --exclude=desktop.ini --exclude=Desktop.ini \
 		"$MTPT/${FILES[$C]}" "$BU/" | \
 		tee -a $LOGFILE | line_rotate || \
 		echo -e "\n${CYEL}rsync encountered errors, check $BU$COFF"
@@ -269,18 +268,18 @@ echo -e "${CWHT}Backup complete! Log saved to $LOGFILE$COFF"
 ;;
 
 r|R)
-if [ -d "$MTPT/Backup" ]
+if [ ! -d "$MTPT/Backup" ]
 	then
 	mkdir "$MTPT/Backup" || \
 		(echo "${CRED}mkdir $BU failed$COFF" && exit 1)
 fi
-test -d $BU || \
+test ! -d $BU && \
 	(echo "${CRED}$BU does not exist$COFF" && exit 1)
 
 # Change backup destination if in rsync-native mode
 test "$RSM" = "1" && BU="${RSYNC_USER}@core::tritech/$BACKUPDIR/$WOID"
 
-rsync -rtv --delete "$BU/" "$MTPT/Backup/" | \
+rsync -rtv "$BU/" "$MTPT/Backup/" | \
 	tee -a $LOGFILE | line_rotate || \
 	echo -e "\n${CYEL}rsync encountered errors, check $BU$COFF"
 echo -e "${CWHT}Finished: $CGRN$BU$CWHT => $CPUR$MTPT/Backup$COFF"
