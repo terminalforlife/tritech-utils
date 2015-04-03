@@ -267,7 +267,7 @@ while [ $DIC -lt $DI ]
 		N_BADHDD=1;
 	fi
 
-	test -n "$S" && echo "$CWHT+-- SMART data:$S"
+	test -n "$S" && echo "${CWHT}SMART data ($CBLU$XD$CWHT): $S"
 	DIC=$((DIC + 1))
 done
 
