@@ -2,6 +2,8 @@
 
 . tss_client
 
+echo "Pushing system information."
 test "$TSS_CLIENT" = "1" && push_sysinfo
+echo "Pushing executed actions."
 test "$TSS_CLIENT" = "1" && push_actions
 

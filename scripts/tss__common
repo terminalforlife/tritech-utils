@@ -74,6 +74,25 @@ export XPALL="$XPDOCS/All Users"
 export V7ALL="$V7DOCS/Public"
 export TIF="Temporary Internet Files"
 
+tt__read_memory_size () {
+	# Read DMI memory size and decide if MB or GB is more appropriate.
+	# The calculations make MEMT reporting more friendly, i.e. 1280 MB -> "1.25GB"
+	if dmidecode -t memory 2>/dev/null | grep -v 'kB' | grep -v 'No Module' | grep -q '^\sSize: '
+		then
+		for X in $(dmidecode -t memory 2>/dev/null | grep -v 'kB' | grep -v 'No Module' | grep '^\sSize: ' | cut -d: -f2 | cut -d\  -f2)
+			do MEMT=$((MEMT + X))
+		done
+		else
+		MEMT=$(cat /proc/meminfo | grep 'MemTotal:' | awk '{print $2}')
+		MEMT=$(($MEMT + 11000))
+		MEMT=$(expr $MEMT / 1024)
+	fi
+	if [ $MEMT -lt 1024 ]
+		then RAM="${MEMT}MB"
+		else RAM="$(expr $MEMT / 1024).$(expr $MEMT % 1024 \* 100 / 1024)GB"
+	fi
+}
+
 do_windows_folder_detection () {
 	# Set variables that are used for folder detection
 	export WINDIR=$N

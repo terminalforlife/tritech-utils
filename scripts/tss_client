@@ -335,44 +335,7 @@ read_sysinfo () {
 	CPU="$(cat /proc/cpuinfo | grep "model name" | sed 's/[^:]*:[^A-Za-z]*//g;s/  */ /g' | head -n 1)"
 	CORES="$(cat /proc/cpuinfo | grep "model name" | wc -l)"
 
-##### This was always a hackish way to get memory sizing. Now we use the system's DMI data.
-#	VALID="256 384 512 768 1024 1280 1536 2048 3072 3574 4096 5120 6144 7168 8192 10240 12288 16384 20480 24576"
-#	MEMT=$(cat /proc/meminfo | grep MemTotal | awk '{print $2}')
-	# Attempt to normalize memory count to a known good value
-#	VX=131072
-#	for X in $(echo $VALID)
-#		do
-#		X=$(expr $X \* 1024)
-#		if [[ "$MEMT" -gt $VX && "$MEMT" -le $X ]]
-#			then MEMT=$(expr $X / 1024)
-#			break
-#			else VX=$X
-#		fi
-#	done
-#	# Ugly math to convert KiB to decimalized KB
-#	MEMG=$(expr $MEMT / 1024)
-#	MEML=$(expr $MEMT % 1024)
-#	MEML=$(expr $MEML \* 10)
-#	MEML=$(expr $MEML / 512)
-#	MEML=$(expr $MEML \* 5)
-##### End old memory calculation
-
-	# Read DMI memory size and decide if MB or GB is more appropriate.
-	# The calculations make MEMT reporting more friendly, i.e. 1280 MB -> "1.25GB"
-	if dmidecode -t memory 2>/dev/null | grep -q '^\sSize: '
-		then
-		for X in $(dmidecode -t memory 2>/dev/null | grep '^\sSize: ' | cut -d: -f2 | cut -d\  -f2)
-			do MEMT=$((MEMT + X))
-		done
-		else
-		MEMT=$(cat /proc/meminfo | grep 'MemTotal:' | awk '{print $2}')
-		MEMT=$(($MEMT + 11000))
-		MEMT=$(expr $MEMT / 1024)
-	fi
-	if [ $MEMT -lt 1024 ]
-		then RAM="${MEMT}MB"
-		else RAM="$(expr $MEMT / 1024).$(expr $MEMT % 1024 \* 100 / 1024)GB"
-	fi
+	tt__read_memory_size
 
 	# Calculate the stupid bogus marketing GB size of all hard drives
 	HDPARM=hdparm; test -x /sbin/hdparm && HDPARM=/sbin/hdparm
