@@ -173,11 +173,11 @@ if [ ! "$TESTLINE" = "" ]
 fi
 
 # Try a SMB3 mount if possible for better performance
-if mount -t cifs -o vers=3.0,user="$UN",pass="$PW"$CACHE //$SVRX /mnt/cifs 2>/dev/null >/dev/null
-	then
-	test "$V" -gt "0" && echo "$CGRN$SVRX $CWHT=>$CGRN /mnt/cifs ${CWHT}(SMB 3.0)$LOOSE$COFF"
-	exit
-fi
+#if mount -t cifs -o vers=3.0,user="$UN",pass="$PW"$CACHE //$SVRX /mnt/cifs 2>/dev/null >/dev/null
+#	then
+#	test "$V" -gt "0" && echo "$CGRN$SVRX $CWHT=>$CGRN /mnt/cifs ${CWHT}(SMB 3.0)$LOOSE$COFF"
+#	exit
+#fi
 
 # Fall back to default CIFS mount command and options
 # Added cache=loose due to default change causing breakage in kernels >3.6.11
