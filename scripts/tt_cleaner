@@ -1,7 +1,7 @@
 #!/bin/bash
 
-VER="5.0.10"
-VERDATE="2015-03-26"
+VER="5.1.0"
+VERDATE="2015-07-19"
 
 # Tritech Service System Windows installation clean tool for Linux
 # Copyright (C) by Jody Bruchon <jody@c02ware.com>
@@ -16,6 +16,7 @@ IFS1=$(echo -en "\n\b")
 IFS="$IFS1"
 CLEANED=0
 RW=0
+FB_ADD=0
 LASTTYPE="none"
 TMPFILE=$(mktemp)
 shopt -s nullglob
@@ -23,7 +24,7 @@ shopt -s nocaseglob
 
 control_c () {
 	rm -f "$TMPFILE"
-	test $MSG -gt 0 && echo -e "Aborted by user. Cleaned $CLEANED KB."
+	test $MSG -gt 0 && echo -e "\nAborted by user. Cleaned $CLEANED KB."
 	exit 1
 }
 
@@ -266,9 +267,14 @@ do_feedback () {
 		if [ ! "$LASTTYPE" = "$CLEAN_TYPE" ]
 			then
 			echo -en "\n"
-			printf "%-35s" "$CGRN$CLEAN_TYPE:"
+			FB_ADD=0
 		fi
-		test "$NOSIZE" = "0" && echo -n "$CWHT${ADD}K $COFF"
+		echo -en "\r"
+		printf "%-35s" "$CGRN$CLEAN_TYPE:"
+		if [ "$NOSIZE" = "0" ]
+			then FB_ADD=$((FB_ADD + ADD))
+			echo -n "$CWHT${FB_ADD}K $COFF"
+		fi
 		LASTTYPE="$CLEAN_TYPE"
 	fi
 }
@@ -470,10 +476,11 @@ NAME="$LOCAL/$FFPROF/urlclassifier3.sqlite"; DESC="Mozilla Firefox"; add_to_dele
 NAME="$LOCAL/$FFPROF/X*.mfl"; DESC="Mozilla Firefox"; add_to_delete
 NAME="$LOCAL/$FFPROF/minidumps"; DESC="Mozilla Firefox"; add_to_wipe
 NAME="$LOCAL/$FFPROF/thumbnails"; DESC="Mozilla Firefox"; add_to_wipe
+NAME="$LOCAL/FontCache*.dat"; DESC="User font cache"; add_to_delete
+NAME="$LOCAL/GDIPFONTCACHEV1.DAT"; DESC="User font cache"; add_to_delete
 NAME="$LOCAL/FunWebProducts"; DESC="FunWebProducts"; add_to_wipe
 NAME="$LOCAL/Funmoods"; DESC="Funmoods"; add_to_wipe
 NAME="$LOCAL/GamingWonderland"; DESC="GamingWonderland"; add_to_wipe
-NAME="$LOCAL/GDIPFONTCACHEV1.DAT"; DESC="User font cache"; add_to_delete
 NAME="$LOCAL/Geckofx/1.9/*/*Cache*"; DESC="Gecko runtime"; add_to_wipe
 NAME="$LOCAL/Google/Chrome Frame"; DESC="Google Chrome Frame"; add_to_wipe
 NAME="$LOCAL/Google/Google Desktop/*/*.cf1"; DESC="Google Desktop"; add_to_delete
@@ -514,6 +521,7 @@ NAME="$LOCAL/lptmp*"; DESC="LastPass"; add_to_wipe
 NAME="$LOCAL/LogiShrd/Vid"; DESC="Logitech Vid cache"; add_to_wipe
 NAME="$LOCAL/$MPARTCACHE"; DESC="WMP cache"; add_to_wipe
 NAME="$LOCAL/$MPTRANSC"; DESC="WMP cache"; add_to_wipe
+NAME="$LOCAL/$MS/BingBar"; DESC="Bing Bar"; add_to_wipe
 NAME="$LOCAL/$MS/CD Burning"; DESC="CD Burning folder"; add_to_wipe
 NAME="$LOCAL/$MS/CryptnetUrlCache"; DESC="MS crypto cert cache"; add_to_wipe
 NAME="$LOCAL/$MS/Feeds Cache"; DESC="MS feeds cache"; add_to_wipe
@@ -537,7 +545,7 @@ NAME="$LOCAL/$MS/Windows/WebCache"; DESC="Temporary Internet Files"; add_to_wipe
 NAME="$LOCAL/$MS/Windows/WER"; DESC="Windows Error Reporting"; add_to_wipe
 NAME="$LOCAL/$MS/Windows NT/NTBackup"; DESC="NTBackup data"; add_to_wipe
 NAME="$LOCAL/$MS/Windows Store/Cache Medium IL"; DESC="Windows Store"; add_to_wipe
-NAME="$LOCAL/Packages/WinStore_*/AC/INetCache"; DESC="Windows Store"; add_to_wipe
+NAME="$LOCAL/Packages/*/AC/INetCache"; DESC="Windows Metro App Caches"; add_to_wipe
 NAME="$LOCAL/Packages/WinStore_*/AC/$MS/Windows Store/Cache"; DESC="Windows Store"; add_to_wipe
 NAME="$LOCAL/Packages/WinStore_*/AC/$MS/Windows Store/Data/history.dat"; DESC="Windows Store"; add_to_delete
 NAME="$LOCAL/Packages/WinStore_*/AC/Temp"; DESC="Windows Store"; add_to_wipe
@@ -854,6 +862,8 @@ NAME="$ROAM/Norton/LocalDumps"; DESC="Norton"; add_to_delete
 NAME="$ROAM/Norton Utilities*/nu.log"; DESC="Norton"; add_to_delete
 NAME="$ROAM/Norton Utilities*/log"; DESC="Norton"; add_to_wipe
 NAME="$ROAM/OfficeGuardian/\~SACThumbnail"; DESC="OfficeGuardian"; add_to_wipe
+NAME="$ROAM/ooVoo Details/cache"; DESC="ooVoo"; add_to_wipe
+NAME="$ROAM/ooVoo Details/logs"; DESC="ooVoo"; add_to_wipe
 NAME="$ROAM/OpenCandy"; DESC="OpenCandy downloader"; add_to_wipe
 NAME="$ROAM/$PARETOAS/*/Logs"; DESC="ParetoLogic logs"; add_to_wipe
 NAME="$ROAM/PCDr"; DESC="PC-Doctor data"; add_to_wipe
