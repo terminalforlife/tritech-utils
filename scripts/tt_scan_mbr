@@ -7,8 +7,8 @@
 # 2 = MBR status not certain
 # 3 = Rootkit/virus infected MBR
 
-VER=0.4
-VERDATE=2013-12-13
+VER=0.4.1
+VERDATE=2015-04-16
 
 SIGSUBDIR=mbr/signatures
 SIGDIR="___INVALID___"
@@ -16,7 +16,7 @@ SIGDIR="___INVALID___"
 . tss__common
 test -z "$BASE" && BASE=.
 
-echo -e "\n${CWHT}Tritech Service System MBR scan tool $VER ($VERDATE)$COFF"
+test "$D" = "1" && echo -e "${CWHT}Tritech Service System MBR scan tool $VER ($VERDATE)$COFF"
 
 if [ ! -b "/dev/$1" ]
 	then echo "${CRED}$0:$COFF Specified device $CPUR'$1'$COFF does not exist"
@@ -31,19 +31,17 @@ if [ "$(tss_file_tool gpt /dev/$1)" = "yes" ]
 	exit
 fi
 
-echo -n "${CPUR}Locating MBR signatures...$COFF"
-
 for X in /mnt/* $BASE
 	do test -d "$X/$SIGSUBDIR" && SIGDIR="$X/$SIGSUBDIR"
 done
 test -d "$SIGSUBDIR" && SIGDIR="$(pwd)/$SIGSUBDIR"
 if [ ! -d "$SIGDIR" ]
-	then echo "${CRED}none found. Mount an MBR signature source first.$COFF"
+	then echo "${CRED}Mount an MBR signature source first.$COFF"
 	exit 1
 fi
-echo "${CGRN}using $CWHT$SIGDIR$COFF"
+test "$D" = "1" && echo "${CGRN}Signatures at $CWHT$SIGDIR$COFF"
 
-echo -n "${CPUR}Loading signatures."
+echo -n "${CPUR}Loading signatures..."
 
 # Load signatures into array
 SIGS=0
@@ -68,10 +66,10 @@ while [ "$X" -lt "$SIGS" ]
 	X=$(( X + 1 ))
 done
 
-test "$FOUND" == "1" && echo -e "\n   ${CGRN}Current MBR matches:  $CPUR$CURR\n$COFF"
+test "$FOUND" == "1" && echo "$CWHT$DISK ${CGRN}MBR matches: $CPUR$CURR$COFF"
 
 if [ "$FOUND" == "0" ]
-	then echo "${CRED}The MBR on this computer does not match any signatures."
+	then echo "$CWHT$DISK ${CRED}MBR does not match any signatures."
 	NEWSIG="${SIGDIR}/${NAME}.mbr"
 	X=0
 	while [ $X -lt 10 ]
