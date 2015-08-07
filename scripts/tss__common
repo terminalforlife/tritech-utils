@@ -1,7 +1,7 @@
 #!/bin/sh
 
-# VER=0.2.1
-# VERDATE=2015-02-03
+# VER=0.2.2
+# VERDATE=2015-08-06
 
 # Prevent loading if we are already loaded
 if [ -z "$TSS_COMMON" ]; then
@@ -178,7 +178,7 @@ tt__hdd_smart_status () {
 	if smartctl -V >/dev/null 2>/dev/null
 		then
 		unset S LCC RSC UNC
-		LCC=$(smartctl -A /dev/$1 | grep Load_Cycle_Count | sed 's/ ([^)]*)*//;s/.* //g;s/[^0-9].*//')
+		LCC=$(smartctl -A /dev/$1 | grep -m 1 Load_Cycle_Count | sed 's/ ([^)]*)*//;s/.* //g;s/[^0-9].*//')
 		if [ -n "$LCC" ]
 			then
 			test $LCC -lt 200000 && S="${CGRN}LCC=$LCC$COFF"
@@ -186,13 +186,13 @@ tt__hdd_smart_status () {
 			test $LCC -ge 300000 && S="${CRED}LCC=$LCC$COFF"
 			test $LCC -gt 800000 && unset S
 		fi
-		RSC=$(smartctl -A /dev/$1 | grep Reallocated_Sector_Ct | sed 's/ ([^)]*)$//;s/.* //g;s/[^0-9].*//')
+		RSC=$(smartctl -A /dev/$1 | grep -m 1 Reallocated_Sector_Ct | sed 's/ ([^)]*)$//;s/.* //g;s/[^0-9].*//')
 		if [ -n "$RSC" ]
 			then
 			test $RSC -gt 0 && test $RSC -lt 100 && S="$S  ${CYEL}RSC=$RSC$COFF"
 			test $RSC -ge 100 && test $RSC -lt 100000 && S="$S  ${CRED}RSC=$RSC$COFF"
 		fi
-		UNC=$(smartctl -A /dev/$1 | grep Reported_Uncorrect | sed 's/ ([^)])$//;s/.* //g;s/[^0-9].*//')
+		UNC=$(smartctl -A /dev/$1 | grep -m 1 Reported_Uncorrect | sed 's/ ([^)])$//;s/.* //g;s/[^0-9].*//')
 		test -n "$UNC" && test $UNC -gt 0 && test $UNC -lt 500000 && S="$S  ${CRED}UNC=$UNC$COFF"
 		test "$2" != "-q" && test -n "$S" && echo "$CWHT$1$COFF:  $CWHT+-- ${CCYA}SMART data: $S"
 	fi
