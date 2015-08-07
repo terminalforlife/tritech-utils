@@ -15,7 +15,7 @@ test -z "$PKG" && echo "Specify a package file to install." && exit 1
 test ! -f "$PKG" && echo "Invalid package file specified." && exit 1
 
 if [ -e "$PKGNAME" ]
-	then echo "Removing existing package: $(basename "$PKGNAME" | 'sed s/\.pkg\.tar\..*//')"
+	then echo "Removing existing package: $(basename "$PKGNAME" | sed 's/\.pkg\.tar\..*//')"
 	if ! tt_pkg_remove "$PKGBASE2"
 		then echo "Error removing package, aborting."
 		exit 1
