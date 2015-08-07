@@ -1,7 +1,7 @@
 #!/bin/bash
 
-VER=0.3.2
-VERDATE=2015-03-09
+VER=0.3.3
+VERDATE=2015-07-28
 
 BLACKLIST=" acpi:dev=pnp0103 acpi:dev=pnp0a03 acpi:dev=pnp0a08 acpi:dev=pnp0c0f"
 
@@ -62,16 +62,18 @@ get_host_winver_flags () {
 	INFDIR=__NONE__; for X in inf Inf INF; do test -d $WINDIR/$X && INFDIR=$WINDIR/$X; done
 	WINDBFILE=$INFDIR/devicedb.txt
 	WINVER=$(tt_winver)
-	W2K=.; XP32=.; V32=.; W732=.; W832=.
+	W2K=.; XP32=.; V32=.; W732=.; W832=.; W8132=.
 	IA64=.; S2K3=.; S2K364=.
-	XP64=.; V64=.; W764=.; W864=.
+	XP64=.; V64=.; W764=.; W864=.; W8164=.
 	case $WINVER in
 		ntia64*) IA64=1 ;;
+		ntamd64.6.3) W8164=1 ;;
 		ntamd64.6.2) W864=1 ;;
 		ntamd64.6.1) W764=1 ;;
 		ntamd64.6.0) V64=1 ;;
 		ntamd64.5.2) S2K364=1 ;;
 		ntamd64.5.1) XP64=1 ;;
+		ntx86.6.3) W8132=1 ;;
 		ntx86.6.2) W832=1 ;;
 		ntx86.6.1) W732=1 ;;
 		ntx86.6.0) V32=1 ;;
@@ -80,7 +82,7 @@ get_host_winver_flags () {
 		ntx86.5.0) W2K=1 ;;
 		*) echo "tt_winver failed!"; exit 1 ;;
 	esac
-	WIN=":win=$IA64$W2K$XP32$XP64$S2K3$S2K364$V32$V64$W732$W764$W832$W864"
+	WIN=":win=$IA64$W2K$XP32$XP64$S2K3$S2K364$V32$V64$W732$W764$W832$W864$W8132$W8164"
 }
 
 ### End functions
