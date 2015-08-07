@@ -1,7 +1,7 @@
 #!/bin/bash
 
-VER="5.1.0"
-VERDATE="2015-07-19"
+VER="5.1.2"
+VERDATE="2015-08-07"
 
 # Tritech Service System Windows installation clean tool for Linux
 # Copyright (C) by Jody Bruchon <jody@c02ware.com>
@@ -714,7 +714,7 @@ for X in \
 'AVG*/cache' 'AVG*/chjw' 'AVG*/Chjw' 'AVG*/Dumps' 'AVG*/log' \
 'AVG*/Log' 'avg*/log' 'avg*/Log' 'avg*/scanlogs' 'avg*/Temp' \
 'AVG*/Temp' 'AVG*/SetupBackup' 'AVG*/AWL/CrashDumps' MFAData \
-'AVG*/PC Tuneup/Logs' ;
+'AVG*/PC Tuneup/Logs' 'AVG*/Rescue';
 	do NAME="$ROAM/${X}"; DESC="AVG Antivirus"; add_to_wipe
 done
 NAME="$ROAM/$AVIRALOGS"; DESC="Avira AntiVir"; add_to_wipe
@@ -1042,8 +1042,8 @@ NAME="hiberfil.sys"; DESC="Hibernation file"; add_to_delete
 NAME="HIBERFIL.SYS"; DESC="Hibernation file"; add_to_delete
 NAME="SYSTEM.SAV/Logs"; DESC="Miscellaneous logs"; add_to_wipe
 NAME="System Volume Information/Chkdsk"; DESC="CHKDSK logs"; add_to_wipe
-NAME="System Volume Information/\{*\}"; DESC="System Restore points"; add_to_delete
-NAME="System Volume Information/_restore*/RP*"; DESC="System Restore points"; add_to_wipe
+#NAME="System Volume Information/\{*\}"; DESC="System Restore points"; add_to_delete
+#NAME="System Volume Information/_restore*/RP*"; DESC="System Restore points"; add_to_wipe
 NAME="sqm*.sqm"; DESC="Stray MSN Msgr files"; add_to_delete
 NAME="Temp"; DESC="Temporary files"; add_to_wipe
 NAME="temp"; DESC="Temporary files"; add_to_wipe
