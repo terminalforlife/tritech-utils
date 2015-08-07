@@ -18,7 +18,7 @@ for X in $WINDIR/$SYS32/PRODSPEC.INI $WINDIR/$SYS32/prodspec.ini $WINDIR/$SYS32/
 done
 test "$REGSW" = "__NONE__" && echo "Cannot find SOFTWARE hive." && exit 3
 
-if mount.winregfs -v 2>/dev/null
+if mount.winregfs -v >/dev/null 2>/dev/null
 	then
 	# Use winregfs to read registry data
 	TMP=$(mktemp -d || echo "/tmp/foo")
@@ -43,13 +43,15 @@ if [ -z "$CVER" ]
 	then
 	# Use chntpw's reged to read registry data (slower)
 	TMP=$(mktemp)
-	reged -x "$REGSW" SOFTWARE 'Microsoft\Windows NT\CurrentVersion' $TMP >/dev/null
-	sed -i 's/\\CMI-CreateHive{29EE1162-53C9-4474-A2B6-D90A7F6B0A7C}//g' $TMP
-	CVER="$(read_inf_section $TMP 'SOFTWARE\Microsoft\Windows NT\CurrentVersion' | grep -i '"CurrentVersion"=' | cut -d\" -f4)"
-	PNAME="$(read_inf_section $TMP 'SOFTWARE\Microsoft\Windows NT\CurrentVersion' | grep -i '"ProductName"=' | cut -d\" -f4)"
-	if [ $(echo "$CVER" | cut -d. -f1) -lt 6 ]
-		then EDITION="$(read_inf_section $PRODSPEC "Product Specification" | grep 'Product=' | cut -d' ' -f3- | tr -d \\n | tr -d \\r)"
-		else EDITION="$(read_inf_section $TMP 'SOFTWARE\Microsoft\Windows NT\CurrentVersion' | grep -i '"EditionID"=' | cut -d\" -f4)"
+	if reged -x "$REGSW" SOFTWARE 'Microsoft\Windows NT\CurrentVersion' $TMP >/dev/null 2>/dev/null
+		then
+		sed -i 's/\\CMI-CreateHive{29EE1162-53C9-4474-A2B6-D90A7F6B0A7C}//g' $TMP
+		CVER="$(read_inf_section $TMP 'SOFTWARE\Microsoft\Windows NT\CurrentVersion' | grep -i '"CurrentVersion"=' | cut -d\" -f4)"
+		PNAME="$(read_inf_section $TMP 'SOFTWARE\Microsoft\Windows NT\CurrentVersion' | grep -i '"ProductName"=' | cut -d\" -f4)"
+		if [ $(echo "$CVER" | cut -d. -f1) -lt 6 ]
+			then EDITION="$(read_inf_section $PRODSPEC "Product Specification" | grep 'Product=' | cut -d' ' -f3- | tr -d \\n | tr -d \\r)"
+			else EDITION="$(read_inf_section $TMP 'SOFTWARE\Microsoft\Windows NT\CurrentVersion' | grep -i '"EditionID"=' | cut -d\" -f4)"
+		fi
 	fi
 	rm -f $TMP
 fi
