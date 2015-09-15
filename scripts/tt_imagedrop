@@ -187,9 +187,9 @@ if ! $CATCOM "$IMGDIR/$IMG" | $DECOMP -dc > /dev/$DEV
 	clean_exit 8
 fi
 
-### FIXME: Code for XP mode, Vista+ mode, UEFI+GPT mode.
 # Create fdisk script to repartition the device
 # Win7 requires a boot partition and must be handled specially
+# WARNING: This code ALWAYS assumes the LAST PARTITION is the system partition!
 scan_partitions
 PART=$DEV$CNT
 SZFILE=/sys/block/$DEV/$PART/size

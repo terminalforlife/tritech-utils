@@ -1,10 +1,17 @@
 #!/bin/sh
 
-VER=0.3.2
-VERDATE=2014-08-15
+VER=0.4
+VERDATE=2015-08-10
 
 test -z "$TSS_COMMON" && . tss__common
 test -z "$TSS_COMMON" && echo "tss__common required but failed to load." && exit 1
+
+# Constant paths in the registry
+CMAJ_PATH="Microsoft/Windows NT/CurrentVersion/CurrentMajorVersionNumber.dw"
+CMIN_PATH="Microsoft/Windows NT/CurrentVersion/CurrentMinorVersionNumber.dw"
+CVER_PATH="Microsoft/Windows NT/CurrentVersion/CurrentVersion.sz"
+PNAME_PATH="Microsoft/Windows NT/CurrentVersion/ProductName.sz"
+EID_PATH="Microsoft/Windows NT/CurrentVersion/EditionID.sz"
 
 do_windows_folder_detection
 REGSW=__NONE__
@@ -28,11 +35,23 @@ if mount.winregfs -v >/dev/null 2>/dev/null
 		rmdir -f $TMP
 		exit 1
 	fi
-	CVER="$(cat "$TMP/Microsoft/Windows NT/CurrentVersion/CurrentVersion.sz")"
-	PNAME="$(cat "$TMP/Microsoft/Windows NT/CurrentVersion/ProductName.sz")"
+
+	# Windows 10 introduced a new set of version values
+	if [ -e "$TMP/$CMAJ_PATH" ]
+		then
+		CMAJ="$(cat "$TMP/$CMAJ_PATH" 2>/dev/null)"
+		CMAJ="$(printf "%d" 0x$CMAJ)"
+		CMIN="$(cat "$TMP/$CMIN_PATH" 2>/dev/null)"
+		CMIN="$(printf "%d" 0x$CMIN)"
+		CVER="${CMAJ}.${CMIN}"
+		else
+		CVER="$(cat "$TMP/$CVER_PATH")"
+	fi
+
+	PNAME="$(cat "$TMP/$PNAME_PATH")"
 	if [ $(echo "$CVER" | cut -d. -f1) -lt 6 ]
 		then EDITION="$(read_inf_section $PRODSPEC "Product Specification" | grep 'Product=' | cut -d' ' -f3- | tr -d \\n | tr -d \\r)"
-		else EDITION="$(cat "$TMP/Microsoft/Windows NT/CurrentVersion/EditionID.sz")"
+		else EDITION="$(cat "$TMP/$EID_PATH")"
 	fi
 	fusermount -u $TMP
 	rm -rf $TMP
@@ -45,8 +64,18 @@ if [ -z "$CVER" ]
 	TMP=$(mktemp)
 	if reged -x "$REGSW" SOFTWARE 'Microsoft\Windows NT\CurrentVersion' $TMP >/dev/null 2>/dev/null
 		then
-		sed -i 's/\\CMI-CreateHive{29EE1162-53C9-4474-A2B6-D90A7F6B0A7C}//g' $TMP
-		CVER="$(read_inf_section $TMP 'SOFTWARE\Microsoft\Windows NT\CurrentVersion' | grep -i '"CurrentVersion"=' | cut -d\" -f4)"
+		sed -i 's/\\CMI-CreateHive{[0-9A-F-]*}//g' $TMP
+		# Windows 10 introduced a new set of version values
+		CMAJ="$(read_inf_section $TMP 'SOFTWARE\Microsoft\Windows NT\CurrentVersion' 2>/dev/null | grep -i '"CurrentMajorVersionNumber"=dword:' | cut -d: -f2)"
+		if [ "$CMAJ" != "" ]
+			then
+			CMAJ="$(printf "%d" 0x$CMAJ)"
+			CMIN="$(read_inf_section $TMP 'SOFTWARE\Microsoft\Windows NT\CurrentVersion' | grep -i '"CurrentMinorVersionNumber"=dword:' | cut -d: -f2)"
+			CMIN="$(printf "%d" 0x$CMIN)"
+			CVER="${CMAJ}.${CMIN}"
+			else
+			CVER="$(read_inf_section $TMP 'SOFTWARE\Microsoft\Windows NT\CurrentVersion' | grep -i '"CurrentVersion"=' | cut -d\" -f4)"
+		fi
 		PNAME="$(read_inf_section $TMP 'SOFTWARE\Microsoft\Windows NT\CurrentVersion' | grep -i '"ProductName"=' | cut -d\" -f4)"
 		if [ $(echo "$CVER" | cut -d. -f1) -lt 6 ]
 			then EDITION="$(read_inf_section $PRODSPEC "Product Specification" | grep 'Product=' | cut -d' ' -f3- | tr -d \\n | tr -d \\r)"
