@@ -1,11 +1,18 @@
 #!/bin/bash
 
-VER=0.3.3
-VERDATE=2015-07-28
+VER=0.4
+VERDATE=2015-09-04
 
 BLACKLIST=" acpi:dev=pnp0103 acpi:dev=pnp0a03 acpi:dev=pnp0a08 acpi:dev=pnp0c0f"
 
 . tss__common
+
+RSYNC_USER=tritech
+export RSYNC_PASSWORD=""
+
+# Use rsync-native mode?
+RSM=1
+test ! "$BASE" = "/mnt/cifs" && RSM=0
 
 shopt -s nullglob
 
@@ -317,7 +324,14 @@ test ! -z "$PART" && if [ ! -z "$DIRS" ]
 	echo -e "\n${CWHT}Dropping:$COFF"
 	mkdir $MTPT/driver_drop 2>/dev/null
 	for X in $DIRS
-		do cp -a "$SOURCE/$X" "$MTPT/driver_drop/"
+		do
+		if [ "$RSM" = "1" ]
+			then
+			DRVF="${RSYNC_USER}@core::tritech/source/$X"
+			rsync -rt "$DRVF" "$MTPT/driver_drop/"
+		else
+			cp -a "$SOURCE/$X" "$MTPT/driver_drop/"
+		fi
 		echo "$CPUR$X$COFF"
 	done
 	else echo "${CRED}No drivers found! Path to DB: $CYEL$DRIVERS$COFF"
