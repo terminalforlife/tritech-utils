@@ -69,17 +69,19 @@ get_host_winver_flags () {
 	INFDIR=__NONE__; for X in inf Inf INF; do test -d $WINDIR/$X && INFDIR=$WINDIR/$X; done
 	WINDBFILE=$INFDIR/devicedb.txt
 	WINVER=$(tt_winver)
-	W2K=.; XP32=.; V32=.; W732=.; W832=.; W8132=.
+	W2K=.; XP32=.; V32=.; W732=.; W832=.; W8132=.; W1032=.
 	IA64=.; S2K3=.; S2K364=.
-	XP64=.; V64=.; W764=.; W864=.; W8164=.
+	XP64=.; V64=.; W764=.; W864=.; W8164=.; W1064=.
 	case $WINVER in
 		ntia64*) IA64=1 ;;
+		ntamd64.10.0) W1064=1 ;;
 		ntamd64.6.3) W8164=1 ;;
 		ntamd64.6.2) W864=1 ;;
 		ntamd64.6.1) W764=1 ;;
 		ntamd64.6.0) V64=1 ;;
 		ntamd64.5.2) S2K364=1 ;;
 		ntamd64.5.1) XP64=1 ;;
+		ntx86.10.0) W1032=1 ;;
 		ntx86.6.3) W8132=1 ;;
 		ntx86.6.2) W832=1 ;;
 		ntx86.6.1) W732=1 ;;
@@ -89,7 +91,7 @@ get_host_winver_flags () {
 		ntx86.5.0) W2K=1 ;;
 		*) echo "tt_winver failed!"; exit 1 ;;
 	esac
-	WIN=":win=$IA64$W2K$XP32$XP64$S2K3$S2K364$V32$V64$W732$W764$W832$W864$W8132$W8164"
+	WIN=":win=$IA64$W2K$XP32$XP64$S2K3$S2K364$V32$V64$W732$W764$W832$W864$W8132$W8164$W1032$W1064"
 }
 
 ### End functions

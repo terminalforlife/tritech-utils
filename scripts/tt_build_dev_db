@@ -5,7 +5,7 @@ VERDATE="2015-03-17"
 
 # Device database version created by this version of driver drop
 # Must be a three-digit number
-DBVER=003
+DBVER=004
 
 . tss__common
 
@@ -217,43 +217,51 @@ clear_winver_flags () {
 	IA64=0; W2K=0
 	XP32=0; S2K3=0; V32=0; W732=0; W832=0; W8132=0
 	XP64=0; S2K364=0; V64=0; W764=0; W864=0; W8164=0
+	W1032=0; W1064=0
 	IA64X=0; W2KX=0
 	XP32X=0; S2K3X=0; V32X=0; W732X=0; W832X=0; W8132X=0
 	XP64X=0; S2K364X=0; V64X=0; W764X=0; W864X=0; W8164X=0
+	W1032X=0; W1064X=0
 }
 
 set_winver_flags () {
 	test $DBG -gt 2 && echo "${CBLU}set_winver_flags:$COFF $1"
 	case "$1" in
 		ntia64*) IA64=1 ;;
-		ntamd64.6.3) W8164=1 ;;
-		ntamd64.6.2) W864=1; W8164=1 ;;
-		ntamd64.6.1) W764=1; W864=1; W8164=1 ;;
-		ntamd64.6.0) V64=1; W764=1; W864=1; W8164=1 ;;
-		ntamd64.6) V64=1; W764=1; W864=1; W8164=1 ;;
-		ntamd64.5.2) S2K364=1; V64=1; W764=1; W864=1; W8164=1 ;;
-		ntamd64.5.1) XP64=1; S2K364=1; V64=1; W764=1; W864=1; W8164=1 ;;
-		ntamd64.5) XP64=1; S2K364=1; V64=1; W764=1; W864=1; W8164=1 ;;
-		ntamd64) XP64=1; S2K364=1; V64=1; W764=1; W864=1; W8164=1 ;;
-		ntx86.6.3) W8132=1 ;;
-		ntx86.6.2) W832=1; W8132=1 ;;
-		ntx86.6.1) W732=1; W832=1; W8132=1 ;;
-		ntx86.6.0) V32=1; W732=1; W832=1; W8132=1 ;;
-		ntx86.6) V32=1; W732=1; W832=1; W8132=1 ;;
-		ntx86.5.2) S2K3=1; V32=1; W732=1; W832=1; W8132=1 ;;
-		ntx86.5.1) XP32=1; S2K3=1; V32=1; W732=1; W832=1; W8132=1 ;;
-		ntx86.5) XP32=1; S2K3=1; V32=1; W732=1; W832=1; W8132=1 ;;
-		ntx86) XP32=1; S2K3=1; V32=1; W732=1; W832=1; W8132=1 ;;
-		nt.6.3) W8132=1 ;;
-		nt.6.2) W832=1; W8132=1 ;;
-		nt.6.1) W732=1; W832=1; W8132=1 ;;
-		nt.6.0) V32=1; W732=1; W832=1; W8132=1 ;;
-		nt.6) V32=1; W732=1; W832=1; W8132=1 ;;
-		nt.5.2) S2K3=1; V32=1; W732=1; W832=1; W8132=1 ;;
-		nt.5.1) XP32=1; S2K3=1; V32=1; W732=1; W832=1; W8132=1 ;;
-		nt.5) XP32=1; S2K3=1; V32=1; W732=1; W832=1; W8132=1 ;;
-		nt) W2K=1; XP32=1; S2K3=1; V32=1; W732=1; W832=1; W8132=1 ;;
-		*) W2K=1; XP32=1; S2K3=1; V32=1; W732=1; W832=1; W8132=1 ;;
+		ntamd64.10.0) W1064=1 ;;
+		ntamd64.10) W1064=1 ;;
+		ntamd64.6.3) W8164=1; W1064=1 ;;
+		ntamd64.6.2) W864=1; W8164=1; W1064=1 ;;
+		ntamd64.6.1) W764=1; W864=1; W8164=1; W1064=1 ;;
+		ntamd64.6.0) V64=1; W764=1; W864=1; W8164=1; W1064=1 ;;
+		ntamd64.6) V64=1; W764=1; W864=1; W8164=1 W1064=1 ;;
+		ntamd64.5.2) S2K364=1; V64=1; W764=1; W864=1; W8164=1; W1064=1 ;;
+		ntamd64.5.1) XP64=1; S2K364=1; V64=1; W764=1; W864=1; W8164=1; W1064=1 ;;
+		ntamd64.5) XP64=1; S2K364=1; V64=1; W764=1; W864=1; W8164=1; W1064=1 ;;
+		ntamd64) XP64=1; S2K364=1; V64=1; W764=1; W864=1; W8164=1; W1064=1 ;;
+		ntx86.10.0) W1032=1 ;;
+		ntx86.10) W1032=1 ;;
+		ntx86.6.3) W8132=1; W1032=1 ;;
+		ntx86.6.2) W832=1; W8132=1; W1032=1 ;;
+		ntx86.6.1) W732=1; W832=1; W8132=1; W1032=1 ;;
+		ntx86.6.0) V32=1; W732=1; W832=1; W8132=1; W1032=1 ;;
+		ntx86.6) V32=1; W732=1; W832=1; W8132=1; W1032=1 ;;
+		ntx86.5.2) S2K3=1; V32=1; W732=1; W832=1; W8132=1; W1032=1 ;;
+		ntx86.5.1) XP32=1; S2K3=1; V32=1; W732=1; W832=1; W8132=1; W1032=1 ;;
+		ntx86.5) XP32=1; S2K3=1; V32=1; W732=1; W832=1; W8132=1; W1032=1 ;;
+		ntx86) XP32=1; S2K3=1; V32=1; W732=1; W832=1; W8132=1; W1032=1 ;;
+		nt.10.0) W1032=1 ;;
+		nt.10) W1032=1 ;;
+		nt.6.3) W8132=1; W1032=1 ;;
+		nt.6.2) W832=1; W8132=1; W1032=1 ;;
+		nt.6.1) W732=1; W832=1; W8132=1; W1032=1 ;;
+		nt.6.0) V32=1; W732=1; W832=1; W8132=1; W1032=1 ;;
+		nt.6) V32=1; W732=1; W832=1; W8132=1; W1032=1 ;;
+		nt.5.2) S2K3=1; V32=1; W732=1; W832=1; W8132=1; W1032=1 ;;
+		nt.5.1) XP32=1; S2K3=1; V32=1; W732=1; W832=1; W8132=1; W1032=1 ;;
+		nt.5) XP32=1; S2K3=1; V32=1; W732=1; W832=1; W8132=1; W1032=1 ;;
+		nt) W2K=1; XP32=1; S2K3=1; V32=1; W732=1; W832=1; W8132=1; W1032=1 ;;
+		*) W2K=1; XP32=1; S2K3=1; V32=1; W732=1; W832=1; W8132=1; W1032=1 ;;
 	esac
 }
 
@@ -261,6 +269,8 @@ unset_winver_flags () {
 	test $DBG -gt 2 && echo "${CBLU}unset_winver_flags:$COFF $1"
 	case $1 in
 		ntia64*) IA64X=1 ;;
+		ntamd64.10.0) W1064X=1 ;;
+		ntamd64.10) W1064X=1 ;;
 		ntamd64.6.3) W8164X=1 ;;
 		ntamd64.6.2) W864X=1 ;;
 		ntamd64.6.1) W764X=1 ;;
@@ -268,8 +278,10 @@ unset_winver_flags () {
 		ntamd64.6) V64X=1; W764X=1; W864X=1; W8164X=1 ;;
 		ntamd64.5.2) S2K364X=1 ;;
 		ntamd64.5.1) XP64X=1 ;;
-		ntamd64.5) XP64X=1; S2K364X=1; V64X=1; W764X=1; W864X=1; W8164X=1 ;;
-		ntamd64) XP64X=1; S2K364X=1; V64X=1; W764X=1; W864X=1; W8164X=1 ;;
+		ntamd64.5) XP64X=1; S2K364X=1 ;;
+		ntamd64) XP64X=1; S2K364X=1; V64X=1; W764X=1; W864X=1; W8164X=1; W1064X=1 ;;
+		ntx86.10.0) W1032X=1 ;;
+		ntx86.10) W1032X=1 ;;
 		ntx86.6.3) W8132X=1 ;;
 		ntx86.6.2) W832X=1 ;;
 		ntx86.6.1) W732X=1 ;;
@@ -277,8 +289,10 @@ unset_winver_flags () {
 		ntx86.6) V32X=1; W732X=1; W832X=1; W8132X=1 ;;
 		ntx86.5.2) S2K3X=1 ;;
 		ntx86.5.1) XP32X=1 ;;
-		ntx86.5) XP32X=1; S2K3X=1; V32X=1; W732X=1; W832X=1; W8132X=1 ;;
-		ntx86) XP32X=1; S2K3X=1; V32X=1; W732X=1; W832X=1; W8132X=1 ;;
+		ntx86.5) W2KX=1; XP32X=1; S2K3X=1 ;;
+		ntx86) W2KX=1; XP32X=1; S2K3X=1; V32X=1; W732X=1; W832X=1; W8132X=1; W1032X=1 ;;
+		nt.10.0) W1032X=1 ;;
+		nt.10) W1032X=1 ;;
 		nt.6.3) W8132X=1 ;;
 		nt.6.2) W832X=1 ;;
 		nt.6.1) W732X=1 ;;
@@ -286,7 +300,7 @@ unset_winver_flags () {
 		nt.6) V32X=1; W732X=1; W832X=1; W8132X=1 ;;
 		nt.5.2) S2K3X=1 ;;
 		nt.5.1) XP32X=1 ;;
-		nt.5) W2KX=1; XP32X=1; S2K3X=1; V32X=1; W732X=1; W832X=1; W8132X=1 ;;
+		nt.5) W2KX=1; XP32X=1; S2K3X=1; V32X=1; W732X=1; W832X=1; W8132X=1; W1032X=1 ;;
 		nt) W2KX=1 ;;
 		*) echo "${CYEL}WARNING:$COFF unrecognized version flag $CWHT$1$COFF" ;;
 	esac
@@ -294,7 +308,7 @@ unset_winver_flags () {
 
 process_winver_flags () {
 	for FLG in IA64 W2K XP32 S2K3 V32 W732 W832 W8132 \
-		XP64 S2K364 V64 W764 W864 W8164
+		XP64 S2K364 V64 W764 W864 W8164 W1032 W1064
 		do
 		test "$(eval echo \$${FLG}X)" = "1" && eval $FLG=0
 	done
@@ -386,12 +400,18 @@ process_inf () {
 
 	# Build compatibility flag string
 	process_winver_flags
-	WF="$IA64$W2K$XP32$XP64$S2K3$S2K364$V32$V64$W732$W764$W832$W864$W8132$W8164"
-	if [ "$WF" = "00000000000000" ]
+	WF="$IA64$W2K$XP32$XP64$S2K3$S2K364$V32$V64$W732$W764$W832$W864$W8132$W8164$W1032$W1064"
+	if [ "$WF" = "0000000000000000" ]
 		then test "$Q" = "0" && echo "${CYEL}Warning:$CWHT $FILE$COFF has no valid OS flags"
 		echo "OS flags bad for $FILE" >> $LOGFILE
 	fi
-	test $DBG -gt 0 && echo "IA64=$IA64 W2K=$W2K XP32=$XP32 XP64=$XP64 S2K3=$S2K3 S2K364=$S2K364 V32=$V32 V64=$V64 W732=$W732 W764=$W764 W832=$W832 W864=$W864"
+	if [ $DBG -gt 0 ]
+		then
+		echo -n "IA64=$IA64 W2K=$W2K XP32=$XP32 XP64=$XP64 "
+		echo -n "S2K3=$S2K3 S2K364=$S2K364 V32=$V32 V64=$V64 "
+		echo -n "W732=$W732 W764=$W764 W832=$W832 W864=$W864 "
+		echo    "W8132=$W8132 W8164=$W8164 W1032=$W1032 W1064=$W1064"
+	fi
 
 	# Pull out only relevant INF file sections to process, not entire files
 	for SEC in ${MFGNAME[@]}
