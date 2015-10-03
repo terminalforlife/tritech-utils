@@ -1,9 +1,9 @@
 #!/bin/bash
 
-VER=0.4
-VERDATE=2015-09-04
+VER=0.5
+VERDATE=2015-10-03
 
-BLACKLIST=" acpi:dev=pnp0103 acpi:dev=pnp0a03 acpi:dev=pnp0a08 acpi:dev=pnp0c0f"
+BLACKLIST=" acpi:dev=pnp0103 acpi:dev=pnp0a03 acpi:dev=pnp0a08 acpi:dev=pnp0c0f acpi:dev=abcd0001 acpi:dev=int3f0d"
 
 . tss__common
 
@@ -214,8 +214,9 @@ for X in $DEVS
 			SC="$(echo "$X" | sed 's/.*\(:sc=..\).*/\1/')"
 			PROT="$(echo "$X" | sed 's/.*\(:prot=..\).*/\1/')"
 			VID="$(echo "$X" | sed 's/.*\(:vid=....\).*/\1/')"
+			PID="$(echo "$X" | sed 's/.*\(:pid=....\).*/\1/')"
 			grep "$CLASS" "$DBFILE" | grep "^$TYPE" | grep "$WIN" | grep "$SC" | grep "$PROT" > $TF
-			test -z "$(cat $TF)" && grep "^$TYPE" "$DBFILE" | grep "$WIN" | grep "$VID" > $TF
+			test -z "$(cat $TF)" && grep "^$TYPE" "$DBFILE" | grep "$WIN" | grep "$VID" | grep "$PID" > $TF
 			;;
 		acpi)
 			REQ1="$(echo "$X" | sed 's/.*\(:dev=.*:\).*/\1/')"
@@ -323,7 +324,11 @@ fi
 
 test ! -z "$PART" && if [ ! -z "$DIRS" ]
 	then
-	echo -e "\n${CWHT}Dropping:$COFF"
+	echo -en "\n${CWHT}Dropping: $COFF"
+	if [ "$RSM" = "1" ]
+		then echo "${CGRN}[rsync mode]$COFF"
+		else echo "${CYEL}[cp mode]$COFF"
+	fi
 	mkdir $MTPT/driver_drop 2>/dev/null
 	for X in $DIRS
 		do
