@@ -20,6 +20,7 @@ Config.in
 #
 /foo
 /ac_monitor
+/format_device_entry
 /read_inf_section
 /suggest_decompressor
 /tss_file_tool
