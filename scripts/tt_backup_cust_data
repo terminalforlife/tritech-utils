@@ -249,7 +249,7 @@ C=0
 while [ "$C" -lt "$IDX" ]
 	do
 	echo "$CWHT${FILES[$C]}:$COFF"
-	rsync -rtv --exclude=desktop.ini --exclude=Desktop.ini \
+	rsync -rtvH --exclude=desktop.ini --exclude=Desktop.ini \
 		"$MTPT/${FILES[$C]}" "$BU/" | \
 		tee -a $LOGFILE | line_rotate || \
 		echo -e "\n${CYEL}rsync encountered errors, check $BU$COFF"
@@ -279,7 +279,7 @@ test ! -d $BU && \
 # Change backup destination if in rsync-native mode
 test "$RSM" = "1" && BU="${RSYNC_USER}@core::tritech/$BACKUPDIR/$WOID"
 
-rsync -rtv "$BU/" "$MTPT/Backup/" | \
+rsync -rtvH "$BU/" "$MTPT/Backup/" | \
 	tee -a $LOGFILE | line_rotate || \
 	echo -e "\n${CYEL}rsync encountered errors, check $BU$COFF"
 echo -e "${CWHT}Finished: $CGRN$BU$CWHT => $CPUR$MTPT/Backup$COFF"
