@@ -41,11 +41,8 @@ int main(int argc, char **argv)
 	}
 
 	if(!strcmp(argv[1], "ntfs")) {
-		if(!CHECK_IF_NTFS(buffer)) {
-			puts("yes");
-		} else {
-			puts("no");
-		}
+		if(!CHECK_IF_NTFS(buffer)) puts("yes");
+		else puts("no");
 	} else if(!strcmp(argv[1], "ntfsgeom")) {
 		if(argc != 4) goto usage;
 		/* Convert heads from command line and verify validity */
@@ -66,23 +63,14 @@ int main(int argc, char **argv)
 			printf("Geometry change for %s: %d heads\n", argv[2], heads);
 		}
 	} else if(!strncmp(argv[1], "gpt", 3)) {
-		if(buffer[450] == 0xEE) {
-			puts("yes");
-		} else {
-			puts("no");
-		}
+		if(buffer[450] == 0xEE) puts("yes");
+		else puts("no");
 	} else if(!strncmp(argv[1], "winexec", 7)) {
-		if(buffer[0] == 0x4D && buffer[1] == 0x5A) {
-			puts(argv[2]);
-		} else {
-			puts("not_winexec");
-		}
+		if(buffer[0] == 0x4D && buffer[1] == 0x5A) puts(argv[2]);
+		else puts("not_winexec");
 	} else if(!strncmp(argv[1], "registry", 8)) {
-		if(!strncmp((char *)buffer, "regf", 4)) {
-			puts("yes");
-		} else {
-			puts("no");
-		}
+		if(!strncmp((char *)buffer, "regf", 4)) puts("yes");
+		else puts("no");
 	} else {
 		printf("Unknown command %s\n",argv[1]);
 		fclose(fp);
