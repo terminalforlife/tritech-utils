@@ -13,9 +13,7 @@
 
 static inline int change_ntfs_geometry(FILE *fp, uint8_t *bp, uint8_t heads)
 {
-	bp += 26;
-	*bp = heads;
-	bp -= 26;
+	*(bp + 26) = heads;
 	fseek(fp, 0, SEEK_SET);
 	fwrite(bp, 512, 1, fp);
 	if(ferror(fp) != 0) return 1;
