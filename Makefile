@@ -1,6 +1,6 @@
 CC ?= gcc
 BUILD_CFLAGS = -std=gnu99 -D_FILE_OFFSET_BITS=64 -fstrict-aliasing
-BUILD_CFLAGS += -Wall -Wextra -pedantic -Wcast-align -Wstrict-aliasing=2
+BUILD_CFLAGS += -Wall -Wextra -pedantic -Wcast-align -Wstrict-aliasing -Wstrict-overflow
 CFLAGS = -O2 -pipe
 LDFLAGS = -Wl,--hash-style=gnu -s -static-libgcc
 

@@ -36,11 +36,11 @@ static struct devtypes id[] = {
 };
 
 
-int apply_label_value(char *label, char *value)
+static inline int apply_label_value(const char * const restrict label, const char * const restrict value)
 {
 	int i = 0;
 
-	while (*(id[i].label) != '\0' && *(id[i].label) != '\n' && *(id[i].label) != ' ') {
+	while (*(id[i].label) != '\0') {
 		if (strcmp(label, id[i].label) == 0) {
 			strcpy(id[i].data, id[i].prefix);
 			strcat(id[i].data, value);
@@ -55,7 +55,7 @@ int apply_label_value(char *label, char *value)
 }
 
 /* Get the label value at the specified point in the string */
-int get_label_value(char *devstring, char *value)
+static inline int get_label_value(const char * const restrict devstring, char * const restrict value)
 {
 	int i = 0;
 	char c;
@@ -226,6 +226,9 @@ int main(int argc, char **argv)
 				i++;
 			}
 			printf(":win=%s:dv=%s:inf=%s\n", argv[1], argv[2], argv[3]);
+		} else {
+			fprintf(stderr, "error: could not determine device type\n");
+			exit(EXIT_FAILURE);
 		}
 	}
 

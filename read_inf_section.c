@@ -78,7 +78,7 @@ static void utf16_to_utf8(char * const restrict buf)
 	return;
 }
 
-static inline int find_section_header(FILE *fp, char *line)
+static inline int find_section_header(FILE *fp, const char * const restrict line)
 {
 	char buffer[MAXLEN];
 	char *res;
@@ -96,7 +96,7 @@ static inline int find_section_header(FILE *fp, char *line)
 	}
 }
 
-static inline void strip_comments(char *buffer)
+static inline void strip_comments(char * const restrict buffer)
 {
 	int quote = 0;
 	int i = 0;
@@ -122,7 +122,7 @@ static inline void strip_comments(char *buffer)
 	return;
 }
 
-static inline int output_section(FILE *fp, char *line)
+static inline int output_section(FILE *fp, const char * const restrict line)
 {
 	char buffer[MAXLEN];
 	int buflen;
