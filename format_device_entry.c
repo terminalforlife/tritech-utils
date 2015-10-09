@@ -1,5 +1,5 @@
 /*
- * Read an INF file section and output to stdout
+ * Convert a series of strings into Tritech device database format
  */
 
 #include <stdio.h>
