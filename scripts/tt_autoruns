@@ -222,7 +222,7 @@ fi
 
 echo "${CWHT}Using $CGRN/mnt/$PART$CWHT as hard drive$COFF"
 
-EXIST="$(cat /proc/mounts | grep "/dev/$PART" | head -n 1 | awk '{ print $2 }')"
+EXIST="$(grep "/dev/$PART" /proc/mounts | head -n 1 | awk '{ print $2 }')"
 if [ "$EXIST" = "" ]
 	then
 	if ! mount /mnt/$PART

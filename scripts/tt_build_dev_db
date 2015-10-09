@@ -206,7 +206,7 @@ get_manufacturer_names () {
 	done < $TFPI2
 	read_inf_sec "version" $TFPI $TFPI2
 	# Extract date code from file
-	DV="$(cat $TFPI2 | tr -d ' ' | grep -m 1 "driverver" | sed 's/.*=//;s/,.*//')"
+	DV="$(tr -d ' ' < $TFPI2 | grep -m 1 "driverver" | sed 's/.*=//;s/,.*//')"
 	echo "$DV" | grep -q '^./../....' && DV="0$DV"
 	echo "$DV" | grep -q '^.././....' && DV="$(echo "$DV" | sed s#\(../\)\(./....\)#\10\2#)"
 	DV="$(echo "$DV" | sed 's#\(..\)/\(..\)/\(....\)#\3\1\2#')"; test -z "$DV" && DV="00000000"

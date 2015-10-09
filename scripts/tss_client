@@ -332,8 +332,8 @@ detect_tss_server () {
 # Gather information about the current system, setting the corresponding variables to suit
 read_sysinfo () {
 	test "$TSS_CLIENT_DISABLE" = "1" && return 255
-	CPU="$(cat /proc/cpuinfo | grep "model name" | sed 's/[^:]*:[^A-Za-z]*//g;s/  */ /g' | head -n 1)"
-	CORES="$(cat /proc/cpuinfo | grep "model name" | wc -l)"
+	CPU="$(grep "model name" /proc/cpuinfo | sed 's/[^:]*:[^A-Za-z]*//g;s/  */ /g' | head -n 1)"
+	CORES="$(grep "model name" /proc/cpuinfo | wc -l)"
 
 	tt__read_memory_size
 

@@ -67,7 +67,7 @@ update_maxtemp () {
 burnin () {
 	export FORK=1
 	BX="$(cat $1)"
-	CPUS="$(cat /proc/cpuinfo | grep processor | grep -v model | cut -d\  -f 2 | tail -1)"
+	CPUS="$(grep processor /proc/cpuinfo | grep -v model | cut -d\  -f 2 | tail -1)"
 	CPUS=$((CPUS + 1))
 	IDX=0
 	while [ $IDX -lt $CPUS ]
