@@ -45,17 +45,22 @@ static void utf16_to_utf8(char * const restrict buf)
 	int src = 0;
 	int dest = 0;
 	int strip_space = 1;
-	unsigned char *line = (unsigned char *)buf;
+	unsigned char * restrict line = (unsigned char *)buf;
 
 	/* Nuke the byte order marker (BOM) on the first line */
 	if (line[0] == 0xff && line[1] == 0xfe) src = 2;
 
 	/* Iterate through the array, copying nonzero bytes backwards */
 	while (src < (MAXLEN - 1)) {
+		unsigned char cc;
+
+		// Avoid dereferencing the array over and over (be careful!)
+		cc = line[src];
+
 		/* End the line on CR or LF */
-		if (line[src] == '\n' || line[src] == '\r') break;
+		if (cc == '\n' || cc == '\r') break;
 		/* Skip zero bytes */
-		if (line[src] == '\0') {
+		if (cc == '\0') {
 			/* Two nulls in a row ends the string */
 			if (line[src+1] == '\0') break;
 			src++;
@@ -63,13 +68,13 @@ static void utf16_to_utf8(char * const restrict buf)
 		}
 		/* Remove any leading whitespace characters */
 		if (strip_space) {
-			if (line[src] == ' ' || line[src] == '\t') {
+			if (cc == ' ' || cc == '\t') {
 				src++;
 				continue;
 			} else strip_space = 0;
 		}
 		/* Copy byte down */
-		line[dest] = line[src];
+		line[dest] = cc;
 		dest++; src++;
 	}
 	/* Null-terminate the final string */
@@ -84,12 +89,12 @@ static inline int find_section_header(FILE *fp, const char * const restrict line
 	char *res;
 
 	memset(buffer, 0, MAXLEN);
-	while(1) {
+	while (1) {
 		res = fgets(buffer, MAXLEN, fp);
 		if (!res) return 1;
 
 		utf16_to_utf8(buffer);
-		if (strncasecmp(line, buffer, strlen(line)) == 0) {
+		if (strncasecmp(line, buffer, MAXLEN) == 0) {
 			if (read_more) puts(buffer);
 			return 0;
 		}
@@ -125,24 +130,24 @@ static inline void strip_comments(char * const restrict buffer)
 static inline int output_section(FILE *fp, const char * const restrict line)
 {
 	char buffer[MAXLEN];
-	int buflen;
 
-	while(1) {
+	while (1) {
 		if (fgets(buffer, MAXLEN, fp)) {
 			utf16_to_utf8(buffer);
 			/* Strip lines with nothing but comments */
 			strip_comments(buffer);
+
 			/* Don't process empty lines */
 			if (buffer[0] == '\0') continue;
-			buflen = strlen(buffer);
-			if (buflen > 0 && buffer[0] == ' ') printf("--SPACE--\n");
+
+			if (buffer[0] == ' ') printf("--SPACE--\n");
 			if (buffer[0] == '[') {
 				if (read_more) {
 					/* Read all sections with the same title */
-					if (strncasecmp(line, buffer, strlen(line)) != 0) return 0;
+					if (strncasecmp(line, buffer, MAXLEN) != 0) return 0;
 				} else return 1;
 			}
-			if (buflen > 0) puts(buffer);
+			puts(buffer);
 		} else return 1;
 	}
 }

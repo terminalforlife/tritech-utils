@@ -11,7 +11,7 @@
 
 #define CHECK_IF_NTFS(a) strncmp((char *)(a + 3), "NTFS", 4)
 
-static inline int change_ntfs_geometry(FILE *fp, uint8_t *bp, uint8_t heads)
+static inline int change_ntfs_geometry(FILE *fp, uint8_t * const restrict bp, const uint8_t heads)
 {
 	*(bp + 26) = heads;
 	fseek(fp, 0, SEEK_SET);
@@ -20,7 +20,7 @@ static inline int change_ntfs_geometry(FILE *fp, uint8_t *bp, uint8_t heads)
 	else return 0;
 }
 
-int main(int argc, char **argv)
+int main(const int argc, const char **argv)
 {
 	FILE *fp;
 	uint8_t buffer[512];

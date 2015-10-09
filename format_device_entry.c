@@ -72,7 +72,7 @@ static inline int get_label_value(const char * const restrict devstring, char * 
 	return i;
 }
 
-int main(int argc, char **argv)
+int main(const int argc, const char **argv)
 {
 	FILE *fp = stdin;
 	char line[MAXLEN];
