@@ -1,9 +1,9 @@
-CC ?= gcc
+CC := gcc
 BUILD_CFLAGS = -std=gnu99 -D_FILE_OFFSET_BITS=64 -fstrict-aliasing
 BUILD_CFLAGS += -Wall -Wextra -pedantic -Wcast-align -Wstrict-aliasing -Wstrict-overflow
 CFLAGS = -O2 -pipe -g
-LDFLAGS = -Wl,--hash-style=gnu -s -static-libgcc
-#LDFLAGS = -static-libgcc
+#LDFLAGS = -Wl,--hash-style=gnu -s -static-libgcc
+LDFLAGS = -static-libgcc
 
 prefix=/usr
 exec_prefix=${prefix}
@@ -91,6 +91,7 @@ install: tritech-utils manual
 	install -D -o root -g root -m 0755 scripts/tt_pkg_remove $(DESTDIR)/$(bindir)/tt_pkg_remove
 	install -D -o root -g root -m 0755 scripts/tt_scan_mbr $(DESTDIR)/$(bindir)/tt_scan_mbr
 	install -D -o root -g root -m 0755 scripts/tt_show_free_mem $(DESTDIR)/$(bindir)/tt_show_free_mem
+	install -D -o root -g root -m 0755 scripts/tt_software_drop $(DESTDIR)/$(bindir)/tt_software_drop
 	install -D -o root -g root -m 0755 scripts/tt_sysinfo $(DESTDIR)/$(bindir)/tt_sysinfo
 	install -D -o root -g root -m 0755 scripts/tt_sysupdate $(DESTDIR)/$(bindir)/tt_sysupdate
 	install -D -o root -g root -m 0755 scripts/tt_takeimage $(DESTDIR)/$(bindir)/tt_takeimage

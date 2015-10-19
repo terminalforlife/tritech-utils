@@ -132,19 +132,23 @@ SRC="$BASE/source"
 unset SOURCES SRCDIR
 
 echo -e "\n${CWHT}Choose software packages to drop$COFF"
-echo -e   "${CWHT}--------------------------------$COFF\n"
+echo -e   "${CPUR}(Press 'x' to skip to next section)$COFF"
+echo -e   "${CWHT}-----------------------------------$COFF\n"
 
 while read -u 3 X
 	do
 	# Skip empty lines
-	echo "$X" | grep -q '^#' && echo "$X" | sed 's/^#/***/' && continue
+	echo "$X" | grep -q '^#' && echo "$X" | sed 's/^#/***/' && \
+		unset Y && continue
+	test "$Y" = "x" && continue
 	test -z "$X" && continue
 	echo "$X" | grep -q '=' || continue
 
 	NAME="$(echo "$X" | sed 's/=.*//')"
-	echo -n "${CWHT}Drop $CGRN$NAME$CWHT (y/n)? $COFF"
+	echo -n "${CWHT}Drop $CGRN$NAME$CWHT (y/n/x)? $COFF"
 	read -n 1 Y; echo
 	test "$Y" = "y" && SOURCES="$SOURCES:$X"
+	test "$Y" = "x" && echo "...skipping the rest of this section..."
 done 3< $SWDB
 
 echo -e "\n${CWHT}Dropping software$COFF\n"
