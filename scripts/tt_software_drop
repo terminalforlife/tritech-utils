@@ -1,0 +1,169 @@
+#!/bin/bash
+
+VER=0.1
+VERDATE="2015-10-19"
+
+. tss__common
+
+echo "${CWHT}Tritech software package drop tool $VER ($VERDATE)"
+test ! -x /usr/bin/rsync && echo "${CRED}rsync not found, aborting.$COFF" && exit 1
+
+. tss_client
+
+RSYNC_USER=tritech
+export RSYNC_PASSWORD=""
+
+# Use rsync-native mode?
+RSM=1
+test ! "$BASE" = "/mnt/cifs" && RSM=0
+
+IFS0="$IFS"
+IFS1=$(echo -en "\n\b")
+IFS="$IFS1"
+
+LRCNT=0
+INCREMENT=10
+
+# Destination directory name
+test -z "$TTSW" && TTSW="tritech_software"
+
+### Functions
+rotate_progress () {
+	# Provides a rotating progress indicator
+	(( ROTATE ++ ))
+	case $ROTATE in
+		0) C='|';;
+		1) C='/';;
+		2) C='-';;
+		3) C="\\";;
+		*) ROTATE=0; C='|' ;;
+	esac
+	echo -n "${C}"
+	test ! "$RBS" = "1" && echo -en "\b"
+}
+
+load_rotate () {
+	test "$LOADCNT" = "" && LOADCNT=0
+	echo -n "${CWHT}Syncing [${CBLU}"
+	RBS=1; rotate_progress; RBS=0
+	LOADCNT=$((LOADCNT + 1))
+	echo -en "${CWHT}] $CGRN$LOADCNT\r$COFF"
+}
+
+line_rotate () {
+	while read X
+		do
+		LRCNT=$((LRCNT + 1))
+		if [ $LRCNT -gt $INCREMENT ]
+			then LOADCNT=$(( LOADCNT + INCREMENT - 1))
+			load_rotate
+			LRCNT=0
+		fi
+	done
+}
+
+### End functions
+
+# Set up software source BASE directory pointer
+test "$BASE" = "/mnt/cifs" && tt_cifs
+SWDB="$BASE/source/swdrop_sources.txt"
+test ! -e "$SWDB" && echo "${CRED}Software drop DB $CWHT$SWDB$CRED not found, aborting.$COFF" && exit 1
+
+# Mount point setup
+if [ ! -z "$MTPT" ]
+	then
+	# Use the user-specified directory if we were given one
+	echo "${CYEL}Using user-specified directory $CBLU$MTPT$COFF"
+
+	else
+	# Prompt the user for a disk and partition
+	TMP=$(mktemp)
+	tt__disk_prompt $TMP
+	DEV="$(cat $TMP)"
+	rm $TMP
+
+	PART="$(cat /proc/partitions | awk '{ print $3" "$4 }' | \
+		grep $DEV\[1-9\] | sort -gr | \
+		awk '{ print $2 }' | tr \\n ' ')"
+	DEFAULT="$(echo $PART | tr ' ' \\n | head -n 1)"
+
+	test -z "$PART" && echo "$CWHT$DEV$CRED has no partitions, aborting.$COFF" && exit 1
+
+	echo "${CCYA}Available partitions: $CWHT$PART$COFF"
+	echo "${CWHT}$DEFAULT$CCYA is the largest partition.$COFF"
+	tt_fsinfo | grep "/dev/$DEV"
+	echo -n "${COFF}Which partition (enter for $CWHT$DEFAULT$COFF)? "
+	read X
+	PART="$DEFAULT"
+	test ! -z "$X" && PART="$X"
+	if [ ! -e /dev/$X ]
+		then echo "${CWHT}/dev/$X$CRED does not exist, aborting.$COFF"
+		exit 1
+	fi
+
+	echo "${CWHT}Using $CGRN/mnt/$PART$CWHT as hard drive$COFF"
+
+	EXIST="$(grep "/dev/$PART" /proc/mounts | head -n 1 | awk '{ print $2 }')"
+	if [ "$EXIST" = "" ]
+		then
+		if ! mount /mnt/$PART
+			then echo "${CRED}Cannot mount /mnt/$PART read-write; giving up.$COFF"
+			exit 1
+		fi
+		MTPT="/mnt/$PART"
+		EXIST=0
+		echo "${CWHT}Mounted /dev/$PART at $CBLU$MTPT$COFF"
+		else
+		MTPT="$EXIST"
+		EXIST=1
+		echo "${CWHT}Using existing mountpoint at $CBLU$MTPT$COFF"
+	fi
+fi
+
+cd $MTPT
+test ! -e "$MTPT/$TTSW" && mkdir "$MTPT/$TTSW"
+
+# Change backup destination if in rsync-native mode
+test "$RSM" = "1" && BASE="${RSYNC_USER}@core::tritech"
+
+SRC="$BASE/source"
+
+# Reset directories
+unset SOURCES SRCDIR
+
+echo -e "\n${CWHT}Choose software packages to drop$COFF"
+echo -e   "${CWHT}--------------------------------$COFF\n"
+
+while read -u 3 X
+	do
+	# Skip empty lines
+	echo "$X" | grep -q '^#' && echo "$X" | sed 's/^#/***/' && continue
+	test -z "$X" && continue
+	echo "$X" | grep -q '=' || continue
+
+	NAME="$(echo "$X" | sed 's/=.*//')"
+	echo -n "${CWHT}Drop $CGRN$NAME$CWHT (y/n)? $COFF"
+	read -n 1 Y; echo
+	test "$Y" = "y" && SOURCES="$SOURCES:$X"
+done 3< $SWDB
+
+echo -e "\n${CWHT}Dropping software$COFF\n"
+echo -e   "${CWHT}-----------------$COFF\n"
+
+echo "$SOURCES" | tr : \\n | while read X
+	do
+	NAME="$(echo "$X" | sed 's/=.*//')"
+	SRCSUB="$(echo $X | sed 's/.*=//')"
+	SRCDIR="$BASE/source/$SRCSUB"
+	if [[ -z "$X" || -z "$NAME" || -z "$SRCDIR" ]]
+		then continue
+	fi
+	echo "$NAME ($SRCSUB => $TTSW):"
+	rsync -rtH --info=progress2 "$SRCDIR" "$MTPT/$TTSW/"
+done
+
+echo -e "${CWHT}Finished!$COFF"
+
+# Unmount destination
+cd /
+test "$EXIST" = "0" && umount $MTPT && echo "${CWHT}Umounted $CYEL$MTPT$COFF"
