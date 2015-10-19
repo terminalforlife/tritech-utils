@@ -36,6 +36,21 @@ static struct devtypes id[] = {
 };
 
 
+/* Get string length and convert upper to lower case */
+static inline int strlen_to_lower(char *text)
+{
+	int i = 0;
+
+	while (*text != '\0') {
+		if (*text > 0x40 && *text < 0x5b) *text |= 0x20;
+		text++;
+		i++;
+	}
+
+	return i;
+}
+
+
 static inline int apply_label_value(const char * const restrict label, const char * const restrict value)
 {
 	int i = 0;
@@ -54,6 +69,7 @@ static inline int apply_label_value(const char * const restrict label, const cha
 	return -1;
 }
 
+
 /* Get the label value at the specified point in the string */
 static inline int get_label_value(const char * const restrict devstring, char * const restrict value)
 {
@@ -71,6 +87,7 @@ static inline int get_label_value(const char * const restrict devstring, char * 
 
 	return i;
 }
+
 
 int main(const int argc, const char **argv)
 {
@@ -108,7 +125,7 @@ int main(const int argc, const char **argv)
 		}
 		i = 0;
 
-		len = strlen(line);
+		len = strlen_to_lower(line);
 		if (line[len - 1] == '\n') {
 			len--;
 			line[len] = '\0';
