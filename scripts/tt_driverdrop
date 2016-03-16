@@ -1,7 +1,7 @@
 #!/bin/bash
 
-VER=0.5
-VERDATE=2015-10-03
+VER=0.5.1
+VERDATE=2016-03-16
 
 BLACKLIST=" acpi:dev=pnp0103 acpi:dev=pnp0a03 acpi:dev=pnp0a08 acpi:dev=pnp0c0f acpi:dev=abcd0001 acpi:dev=int3f0d"
 
@@ -13,6 +13,9 @@ export RSYNC_PASSWORD=""
 # Use rsync-native mode?
 RSM=1
 test ! "$BASE" = "/mnt/cifs" && RSM=0
+
+# Set file name for dumping device list
+test -z "$DUMPFILE" && DUMPFILE=driverdrop_device_dump.txt
 
 shopt -s nullglob
 
@@ -97,7 +100,7 @@ get_host_winver_flags () {
 ### End functions
 
 DBG=0; test "$1" = "-d" && DBG=1; test "$1" = "-dd" && DBG=2
-if [ $DBG -eq 0 ]
+if [[ $DBG -eq 0 && "$1" != "dump" ]]
 	then TMP=$(mktemp)
 	tt__disk_prompt $TMP
 	DEV="$(cat $TMP)"
@@ -122,9 +125,11 @@ if [ $DBG -eq 0 ]
 		MTPT="$EXIST"
 		echo "${CWHT}Using existing mountpoint at $CBLU$MTPT$COFF"
 	fi
-	else echo "$CYEL --- Debugging Mode ---$COFF"
-	test ! -d "$MTPT" && echo "Must set MTPT:  MTPT=/mnt/sda2 $0" && exit 1
-	EXIST="$MTPT"
+	else if [ "$1" != "dump" ]
+		then echo "$CYEL --- Debugging Mode ---$COFF"
+		test ! -d "$MTPT" && echo "Must set MTPT:  MTPT=/mnt/sda2 $0" && exit 1
+		EXIST="$MTPT"
+	fi
 fi
 
 cd $MTPT
@@ -191,9 +196,19 @@ test $DBG -gt 1 && echo "$DEVS" | tr ' ' \\n
 
 ### Match drivers to devices
 
-get_host_winver_flags
-BDDB="-q"; test $DBG -gt 0 && unset BDDB
-test -d "$MTPT/$INFDIR" && DRVROOT="$MTPT/$INFDIR" tt_build_dev_db $BDDB
+if [ "$1" = "dump" ]
+	then
+	echo "Dumping device list to $DUMPFILE"
+	for X in $DEVS
+		do echo "$X" >> $DUMPFILE
+	done
+	exit
+
+	else
+	get_host_winver_flags
+	BDDB="-q"; test $DBG -gt 0 && unset BDDB
+	test -d "$MTPT/$INFDIR" && DRVROOT="$MTPT/$INFDIR" tt_build_dev_db $BDDB
+fi
 
 for X in $DEVS
 	do TYPE=$(echo "$X" | cut -d: -f1)
