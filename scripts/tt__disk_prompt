@@ -1,7 +1,7 @@
 #!/bin/ash
 
-VER="0.3"
-VERDATE="2015-10-08"
+VER="0.3.1"
+VERDATE="2015-11-03"
 
 # Finds all possible hard drives on the system, provides info on each,
 # and prompts which one to use. Aborts if no drives exist or if the
@@ -45,7 +45,7 @@ KILL="$(echo /sys/block/md*/slaves/* | tr ' ' '\n' | grep -v '\*' | sed 's#.*/##
 # Scan sysfs to determine what disks are removable disks
 for X in $(cat $DISKS | awk '{ print $2 }' | tr '\n' " ")
 	do REM=$(cat /sys/block/$X/removable | tr -d '\n');
-	RAID=0; echo "$KILL" | grep "$X" && RAID=1
+	RAID=0; echo "$KILL" | grep -q "$X" && RAID=1
 	readlink /sys/block/$X | grep -q "/usb" && USB=1 || USB=0
 	cat $DISKS | sed s/"$X"/"$X $REM $USB $RAID"/g > $TMPFILE ; mv $TMPFILE $DISKS
 done
