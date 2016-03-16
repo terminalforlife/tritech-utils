@@ -1,7 +1,7 @@
 #!/bin/bash
 
-VER="1.16.3"
-VERDATE="2015-03-09"
+VER="1.16.4"
+VERDATE="2016-03-04"
 
 #echo "Tritech system info tool $VER, updated on $VERDATE"
 #echo "Copyright (c) by Jody Bruchon <jody@c02ware.com>"
@@ -94,7 +94,8 @@ if [[ "$TSS_CLIENT" = "1" && ! -z "$PCID" ]]
 		fi
 	done
 	# Colorize work approval tag
-	test "$N_APPROVE" = "1" && NOTES="$BGGRN$CWHT Work Approved $COFF$BGBLK $NOTES"
+	test "$N_APPROVE" = "1" && NOTES="$BGGRN$CWHT Approved $COFF$BGBLK $NOTES"
+	test -d "/mnt/cifs/customer_backups/$WOID" && NOTES="$BGYEL$CWHT Backup $COFF$BGBLK $NOTES"
 
 	test -z "$DIAGS" && DIAGS="(none) "
 	test -z "$NOTES" && NOTES="(none) "
