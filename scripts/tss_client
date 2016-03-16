@@ -5,8 +5,8 @@
 # Prevent loading twice
 if [ -z "$TSS_CLIENT" ]; then
 
-#VER=0.8.1
-#VERDATE=2015-03-10
+#VER=0.8.2
+#VERDATE=2016-01-20
 
 # Scripts can check this variable to ensure these functions are loaded
 TSS_CLIENT=1
@@ -389,7 +389,7 @@ detect_current_pc () {
 	test "$TSS_CLIENT_DISABLE" = "1" && return 255
 	# This check must ALWAYS happen BEFORE loading the TSS state!
 	test ! -z "$PCID" && test ! -z "$WOID" && test ! -z "$MAC" && return 0
-	test -e "$TSS_STATE_FILE" && load_tss_state
+	test -e "$TSS_STATE_FILE" && test "$TSS_STATE_LOADED" != "1" && load_tss_state
 	# Duplicate check required in case TSS state file contains disabled state
 	test "$TSS_CLIENT_DISABLE" = "1" && return 255
 	test -z "$TSS_SERVER" && detect_tss_server
@@ -445,6 +445,8 @@ save_tss_state () {
 
 # Load persistent TSS client state variables, if a state file exists
 load_tss_state () {
+	# Only allow this to be called once to avoid an endless loop
+	TSS_STATE_LOADED=1
 	if [ -e "$TSS_STATE_FILE" ]
 		then
 		grep -q '^disable$' $TSS_STATE_FILE && export TSS_CLIENT_DISABLE=1 && return 0
