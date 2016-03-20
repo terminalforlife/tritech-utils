@@ -87,7 +87,7 @@ burnin () {
 
 disktest () {
 	export FORK=1
-	START=$(date +%s)
+	#START=$(date +%s)
 	if nice -n 1 pv -pterabf -i 4 -N "$2" "$2" >/dev/null 2>"$1"
 		then echo "$2: PASS" > "$1"
 		eval $PASS_COMMAND
@@ -95,10 +95,10 @@ disktest () {
 		eval $FAIL_COMMAND
 		FAIL=1
 	fi
-	END=$(date +%s)
-	TIME=$((END - START))
-	SIZE=$(cat /sys/block/$(basename $2)/size)
-	test "$TSS_CLIENT" = "1" && test -z "$FAIL" && echo "$2:$SIZE:$TIME" >> $PCDATA/drive_test_times.txt
+	#END=$(date +%s)
+	#TIME=$((END - START))
+	#SIZE=$(cat /sys/block/$(basename $2)/size)
+	#test "$TSS_CLIENT" = "1" && test -z "$FAIL" && echo "$2:$SIZE:$TIME" >> $PCDATA/drive_test_times.txt
 	clean_exit
 }
 
