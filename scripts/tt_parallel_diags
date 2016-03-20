@@ -116,7 +116,7 @@ test ! "$PV" = "1" && echo "${CRED}Error:$CWHT pv$COFF required but not found." 
 echo "Tritech Service System parallelized diagnostics $VER ($VERDATE)"
 echo "Gathering system information..."
 push_sysinfo
-tt_collect_comp_data
+#tt_collect_comp_data
 
 echo "Initializing..."
 
