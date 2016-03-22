@@ -17,6 +17,9 @@ static char **global_argv;
 /* If UTF-16 detected, set this to 1 */
 static int read_more = 0;
 
+static char buffer[MAXLEN];
+
+
 static void usage(int value)
 {
 	fprintf(stderr, "Tritech INF/REG/INI file section reader %s (%s)\n",
@@ -26,11 +29,13 @@ static void usage(int value)
 	exit(value);
 }
 
+
 static void die(char *message, int error)
 {
 	fprintf(stderr, "Died with error %d: %s\n", error, message);
 	exit(error);
 }
+
 
 /* Convert UTF-16 to UTF-8, stripping leading white space
  * This uses a "dirty" technique where null bytes are removed but proper
@@ -83,23 +88,25 @@ static void utf16_to_utf8(char * const restrict buf)
 	return;
 }
 
+
 static inline int find_section_header(FILE *fp, const char * const restrict line)
 {
-	char buffer[MAXLEN];
 	char *res;
+	int linelength = strlen(line);
 
-	memset(buffer, 0, MAXLEN);
+	//fprintf(stderr, "find_section_header: %s\n", line);
 	while (1) {
 		res = fgets(buffer, MAXLEN, fp);
 		if (!res) return 1;
 
 		utf16_to_utf8(buffer);
-		if (strncasecmp(line, buffer, MAXLEN) == 0) {
+		if (strncasecmp(line, buffer, linelength) == 0) {
 			if (read_more) puts(buffer);
 			return 0;
 		}
 	}
 }
+
 
 static inline void strip_comments(char * const restrict buffer)
 {
@@ -127,10 +134,12 @@ static inline void strip_comments(char * const restrict buffer)
 	return;
 }
 
+
 static inline int output_section(FILE *fp, const char * const restrict line)
 {
-	char buffer[MAXLEN];
+	int linelength = strlen(line);
 
+	//fprintf(stderr, "output_section: %s\n", line);
 	while (1) {
 		if (fgets(buffer, MAXLEN, fp)) {
 			utf16_to_utf8(buffer);
@@ -144,21 +153,27 @@ static inline int output_section(FILE *fp, const char * const restrict line)
 			if (buffer[0] == '[') {
 				if (read_more) {
 					/* Read all sections with the same title */
-					if (strncasecmp(line, buffer, MAXLEN) != 0) return 0;
-				} else return 1;
+					if (strncasecmp(line, buffer, linelength) == 0) {
+						puts(buffer);
+						return 2;
+					}
+					else return 1;
+				} else return 0;
 			}
 			puts(buffer);
-		} else return 1;
+		} else return 0;
 	}
 }
+
 
 int main(int argc, char **argv)
 {
 	FILE *fp;
 	char *inf_file;
-	char line[MAXLEN];
+	static char line[MAXLEN];
 	char *origline;
 	int found_one = 0;
+	int i;
 
 	global_argv = argv;
 
@@ -203,9 +218,14 @@ int main(int argc, char **argv)
 			}
 		}
 		found_one = 1;
-		if (output_section(fp, line)) break;
-		if (!read_more) break;
+
+		/* If reading all sections, loop until done */
+		i = 2;
+		while (i == 2) i = output_section(fp, line);
+		if (i == 0) break;
+		//if (!read_more) break;
 	}
 
-	return EXIT_SUCCESS;
+	fclose(fp);
+	exit(EXIT_SUCCESS);
 }
