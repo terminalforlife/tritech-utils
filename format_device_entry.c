@@ -197,14 +197,16 @@ int main(const int argc, const char **argv)
 						//fprintf(stderr, "devstring: '%s'\n", devstring);
 
 						/* Get the device information label being processed */
-						if (strncmp(devstring, "ctrl_ven", 8) == 0) {
-							strcpy(label, "ctrlven");
+						if (strncmp(devstring, "ctlr_ven", 8) == 0) {
+							strcpy(label, "ctlrven");
 							i = 9;
 							labels_set = 1;
-						} else if (strncmp(devstring, "ctrl_dev", 8) == 0) {
-							strcpy(label, "ctrldev");
+							devstring += 9;
+						} else if (strncmp(devstring, "ctlr_dev", 8) == 0) {
+							strcpy(label, "ctlrdev");
 							i = 9;
 							labels_set = 1;
+							devstring += 9;
 						} else {
 							/* Copy device info label verbatim */
 							while (i < (SUBSIZE - 1) && *devstring != '_') {
