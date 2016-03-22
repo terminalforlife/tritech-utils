@@ -78,7 +78,7 @@ static inline int get_label_value(const char * const restrict devstring, char * 
 
 	while (i < (SUBSIZE - 1)) {
 		c = *(devstring + i);
-		if (c == '&' || c == '\t' || c == ' ' || c == '\\' || c == '\0') break;
+		if (c == '&' || c == '\t' || c == ' ' || c == '\\' || c == '\0' || c == ',') break;
 		value[i] = c;
 		i++;
 	}
@@ -107,6 +107,7 @@ int main(const int argc, const char **argv)
 
 	if (argc != 4) {
 		fprintf(stderr, "Usage: %s winver_flags driverver_datecode inf_file_path\n", argv[0]);
+		fprintf(stderr, "Supply extracted device section of INF file on stdin\n");
 		exit(EXIT_FAILURE);
 	}
 
