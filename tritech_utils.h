@@ -3,6 +3,10 @@
  * existence. For now, we only need this to contain version information.
  */
 
-#define TRITECH_UTILS_VER "1.11"
-#define TRITECH_UTILS_DATE "2016-03-16"
+#ifndef TRITECH_UTILS_H
+#define TRITECH_UTILS_H
 
+#define TRITECH_UTILS_VER "1.12"
+#define TRITECH_UTILS_DATE "2016-03-22"
+
+#endif /* TRITECH_UTILS_H */
