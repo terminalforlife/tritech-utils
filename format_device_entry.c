@@ -98,6 +98,7 @@ int main(const int argc, const char **argv)
 	char value[SUBSIZE];
 
 	char type[8] = "";
+	int labels_set;
 
 	int quote;
 	int comma;
@@ -120,6 +121,7 @@ int main(const int argc, const char **argv)
 
 		i = 0;
 		/* Reset existing label data */
+		labels_set = 0;
 		while (*(id[i].label) != '\0') {
 			*(id[i].data) = '\0';
 			i++;
@@ -164,6 +166,7 @@ int main(const int argc, const char **argv)
 						devstring += i;
 						lpos += i;
 						if (apply_label_value(label, value)) break;
+						labels_set = 1;
 						continue;
 					} else if (strncasecmp(devstring, "hdaudio\\", 8) == 0) {
 						strcpy(type, "hdaudio");
@@ -197,9 +200,11 @@ int main(const int argc, const char **argv)
 						if (strncmp(devstring, "ctrl_ven", 8) == 0) {
 							strcpy(label, "ctrlven");
 							i = 9;
+							labels_set = 1;
 						} else if (strncmp(devstring, "ctrl_dev", 8) == 0) {
 							strcpy(label, "ctrldev");
 							i = 9;
+							labels_set = 1;
 						} else {
 							/* Copy device info label verbatim */
 							while (i < (SUBSIZE - 1) && *devstring != '_') {
@@ -223,6 +228,7 @@ int main(const int argc, const char **argv)
 
 						/* Find the correct label and apply the value */
 						if (apply_label_value(label, value)) break;
+						labels_set = 1;
 						if (*devstring == '\0' || *devstring == ' ') break;
 						continue;
 					}
@@ -237,7 +243,7 @@ int main(const int argc, const char **argv)
 		i = 0;
 
 		/* Output final device entry (if the "type" field is filled) */
-		if (*type != '\0') {
+		if (*type != '\0' && labels_set != 0) {
 			printf("%s", type);
 			while (*(id[i].label) != '\0') {
 				printf("%s", id[i].data);
