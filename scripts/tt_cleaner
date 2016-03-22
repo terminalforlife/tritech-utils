@@ -1,7 +1,7 @@
 #!/bin/bash
 
-VER="5.1.2"
-VERDATE="2015-08-07"
+VER="5.1.3"
+VERDATE="2016-03-20"
 
 # Tritech Service System Windows installation clean tool for Linux
 # Copyright (C) by Jody Bruchon <jody@c02ware.com>
@@ -414,6 +414,8 @@ if ! [ "$v7" = "2" ]; then
 #	REWRITE2=( "${REWRITE2[@]}" "Documents and Settings/" )
 fi
 
+NAME="$LOCAL/AOL/*/toolbarCache"; DESC="AOL Caches"; add_to_wipe
+NAME="$LOCAL/AOL/*/browserCache"; DESC="AOL Caches"; add_to_wipe
 NAME="$LOCAL/ars.cache"; DESC="Miscellanous junk"; add_to_delete
 NAME="$LOCAL/census.cache"; DESC="Miscellanous junk"; add_to_delete
 NAME="$LOCAL/$APPLE/QuickTime/downloads"; DESC="QuickTime downloads"; add_to_wipe
