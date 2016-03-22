@@ -1,11 +1,11 @@
 #!/bin/bash
 
-VER=0.5
-VERDATE="2015-03-17"
+VER=0.5.1
+VERDATE="2015-03-21"
 
 # Device database version created by this version of driver drop
 # Must be a three-digit number
-DBVER=004
+DBVER=005
 
 . tss__common
 
@@ -415,7 +415,10 @@ process_inf () {
 
 	# Pull out only relevant INF file sections to process, not entire files
 	for SEC in ${MFGNAME[@]}
-		do read_inf_section "$TFPI" "$SEC" 2>/dev/null | sed 's/\\/\\\\/g' >> $TFPI2
+		do if [ "$FDE" != "1" ]
+			then read_inf_section "$TFPI" "$SEC" 2>/dev/null | sed 's/\\/\\\\/g' >> $TFPI2
+			else read_inf_section "$TFPI" "$SEC" 2>/dev/null >> $TFPI2
+		fi
 	done
 
 	process_device_entries "$TFPI2"  "$WF" "$DV" "$WD/$FILE"
