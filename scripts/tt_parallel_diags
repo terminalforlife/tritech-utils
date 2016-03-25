@@ -251,16 +251,13 @@ while [ $DIC -lt $DI ]
 	test -z "$UNC" && UNC=0
 
 	# Some drives return huge raw numbers that are not real
-	test $LCC -gt 1000000 && LCC=0
-	test $RSC -gt 1000000 && RSC=0
-	test $UNC -gt 1000000 && UNC=0
-
-	# Some drives return a bogus 65536 UNC count
-	test $UNC -eq 65536 && UNC=0
+	test $LCC -gt 100000 && LCC=0
+	test $RSC -gt 8000 && RSC=0
+	test $UNC -gt 16000 && UNC=0
 
 	# Decide if the drive might be bad based on SMART data
-	test $UNC -ne 65536 && test $UNC -gt 10 && SMART_BADHDD=1
-	test $LCC -gt 550000 && SMART_BADHDD=1
+	test $UNC -gt 10 && SMART_BADHDD=1
+	test $LCC -gt 600000 && SMART_BADHDD=1
 	test $RSC -gt 50 && SMART_BADHDD=1
 	if [ "$SMART_BADHDD" = "1" ]
 		then echo "$CWHT$XD$CRED SMART data shows failure is likely$COFF"
