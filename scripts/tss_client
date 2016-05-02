@@ -5,8 +5,8 @@
 # Prevent loading twice
 if [ -z "$TSS_CLIENT" ]; then
 
-#VER=0.8.2
-#VERDATE=2016-01-20
+#VER=0.8.3
+#VERDATE=2016-04-30
 
 # Scripts can check this variable to ensure these functions are loaded
 TSS_CLIENT=1
@@ -31,28 +31,35 @@ get_date () {
 	DATE="$(date "+%Y-%m-%d %H:%M:%S")"
 }
 get_os_version () {
-	# Don't do this if imagedrop is happening
+	# Don't do this if imagedrop/takeimage is happening
 	pgrep -f tt_imagedrop >/dev/null && return 0
-	PART=$(cat /proc/partitions | grep 'sd.[0-9]$' | sort -k3 -g | tail -n 1 | awk '{print $4}')
-	M=0
-	if ! mountpoint -q /mnt/$PART
-		then ntfs-3g -o ro /dev/$PART /mnt/$PART || return 1
-		M=1
-	fi
-	# Low disk space check
-	if [ $(df /mnt/$PART | tail -n 1 | awk '{print $5}' | tr -d '%') -ge 85 ]
-		then N_SPACE=1
-	fi
-	WD=$(pwd)
-	cd /mnt/$PART
-	OS2="$OS"
-	OS="$(tt_winver -a)"
-	# Handle problems with version detection
-	test "$OS" = "Cannot find SOFTWARE hive." && OS="$OS2"
-	test "$OS" = "nt...* " && OS="$OS2"
-	unset OS2
-	cd $WD
-	test "$M" = "1" && umount /mnt/$PART
+	pgrep -f tt_takeimage >/dev/null && return 0
+	ALLPARTS=$(cat /proc/partitions | grep 'sd.[0-9]$' | sort -k3 -gr | awk '{print $4}')
+	for PART in $ALLPARTS
+		do
+		M=0
+		if ! mountpoint -q /mnt/$PART
+			then ntfs-3g -o ro /dev/$PART /mnt/$PART || return 1
+			M=1
+		fi
+		WD=$(pwd)
+		cd /mnt/$PART
+		OS2="$OS"
+		OSF=0
+		OS="$(tt_winver -a)"
+		# Handle problems with version detection
+		test "$OS" = "Cannot find SOFTWARE hive." && OS="$OS2" && OSF=1
+		test "$OS" = "nt...* " && OS="$OS2" && OSF=1
+		unset OS2
+		cd $WD
+		test "$OSF" = "1" && OSF=0 && continue
+		# Low disk space check
+		if [ $(df /mnt/$PART | tail -n 1 | awk '{print $5}' | tr -d '%') -ge 85 ]
+			then N_SPACE=1
+		fi
+		test "$M" = "1" && umount /mnt/$PART
+		break
+	done
 }
 
 validate_mac () {
