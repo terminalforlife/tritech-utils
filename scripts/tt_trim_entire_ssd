@@ -1,0 +1,15 @@
+#!/bin/sh
+
+echo "Tritech's quick and dirty SSD TRIM utility"
+
+if [ ! -e "$1" ]
+	then
+	echo "Specify a full device, e.g. /dev/sda"
+fi
+
+X=0
+while hdparm --trim-sector-ranges $X:60000 --please-destroy-my-drive "$1" >/dev/null
+	do X=$((X + 60000))
+	echo -en "Trim $X\r"
+done
+echo "If you see one input/output error above, trimming is finished."
