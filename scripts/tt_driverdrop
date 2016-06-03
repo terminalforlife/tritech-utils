@@ -1,9 +1,9 @@
 #!/bin/bash
 
-VER=0.5.1
-VERDATE=2016-03-16
+VER=0.5.2
+VERDATE=2016-06-03
 
-BLACKLIST=" acpi:dev=pnp0103 acpi:dev=pnp0a03 acpi:dev=pnp0a08 acpi:dev=pnp0c0f acpi:dev=abcd0001 acpi:dev=int3f0d"
+BLACKLIST=" acpi:dev=pnp0103 acpi:dev=pnp0300 acpi:dev=pnp0301 acpi:dev=pnp0302 acpi:dev=pnp0303 acpi:dev=pnp0a03 acpi:dev=pnp0a08 acpi:dev=pnp0c0f acpi:dev=abcd0001 acpi:dev=int3f0d"
 
 . tss__common
 
