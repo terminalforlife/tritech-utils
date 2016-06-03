@@ -1,7 +1,7 @@
 #!/bin/bash
 
-VER="5.1.3"
-VERDATE="2016-03-20"
+VER="5.1.4"
+VERDATE="2016-05-11"
 
 # Tritech Service System Windows installation clean tool for Linux
 # Copyright (C) by Jody Bruchon <jody@c02ware.com>
@@ -521,6 +521,7 @@ NAME="$LOCAL/$JSYSCACHE"; DESC="Java"; add_to_wipe
 NAME="$LOCAL/Live_TV"; DESC="Live_TV spyware"; add_to_wipe
 NAME="$LOCAL/lptmp*"; DESC="LastPass"; add_to_wipe
 NAME="$LOCAL/LogiShrd/Vid"; DESC="Logitech Vid cache"; add_to_wipe
+NAME="$LOCAL/Mobogenie"; DESC="Mobogenie"; add_to_wipe
 NAME="$LOCAL/$MPARTCACHE"; DESC="WMP cache"; add_to_wipe
 NAME="$LOCAL/$MPTRANSC"; DESC="WMP cache"; add_to_wipe
 NAME="$LOCAL/$MS/BingBar"; DESC="Bing Bar"; add_to_wipe
@@ -943,6 +944,7 @@ NAME="$ROAM/uTorrent/ie"; DESC="uTorrent"; add_to_wipe
 NAME="$ROAM/utorrent/ie"; DESC="uTorrent"; add_to_wipe
 NAME="$ROAM/Vso/ConvertXtoDVD.log"; DESC="VSO ConvertXtoDVD"; add_to_delete
 NAME="$ROAM/Webroot/BugReports"; DESC="Webroot bug reports"; add_to_wipe
+NAME="$ROAM/WinClon/Logs"; DESC="WinClon logs"; add_to_wipe
 NAME="$ROAM/$WDSMART/*.txt"; DESC="WD SmartWare logs"; add_to_delete
 NAME="$ROAM/WindowsSearch/MiniDumps"; DESC="Windows Search minidumps"; add_to_wipe
 NAME="$ROAM/Windows Discount"; DESC="FindingDiscount"; add_to_wipe
