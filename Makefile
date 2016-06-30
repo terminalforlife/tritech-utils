@@ -55,6 +55,7 @@ install: tritech-utils manual
 	install -D -o root -g root -m 0755 scripts/tss_alsamixerinit $(DESTDIR)/$(bindir)/tss_alsamixerinit
 	install -D -o root -g root -m 0755 scripts/tss_bootstrap $(DESTDIR)/$(bindir)/tss_bootstrap
 	install -D -o root -g root -m 0755 scripts/tss_client $(DESTDIR)/$(bindir)/tss_client
+	install -D -o root -g root -m 0755 scripts/tss_client_direct $(DESTDIR)/$(bindir)/tss_client_direct
 	install -D -o root -g root -m 0755 scripts/tss_client_tool $(DESTDIR)/$(bindir)/tss_client_tool
 	install -D -o root -g root -m 0755 scripts/tss_dm_start $(DESTDIR)/$(bindir)/tss_dm_start
 	install -D -o root -g root -m 0755 scripts/tss_ip_to_mac $(DESTDIR)/$(bindir)/tss_ip_to_mac

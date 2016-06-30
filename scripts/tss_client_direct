@@ -1,0 +1,53 @@
+#!/bin/bash
+
+# This tool offers a low-level interface to TSS server commands
+
+# Run TSS client with automatic mode disabled
+#V=1
+TSSC_AUTO=0
+. tss_client
+
+VER=0.1
+VERDATE=2016-06-10
+
+help_command () {
+echo -e "\nCommand list:\n"
+echo "PING - Null command, server should reply with PONG"
+echo "PCID_EXISTS pcid - Check if the PCID exists on the server"
+echo "WOID_EXISTS woid - Check if the WOID exists on the server"
+echo "PCID_TO_WOID pcid - Retrieve newest WOID for a given PCID"
+echo "WOID_TO_PCID woid - Retrieve PCID for a given WOID"
+echo "PCID_TO_MACADDR pcid - Get known MAC addresses for a PCID"
+echo "MACADDR_TO_PCID mac - Get PCID corresponding to a MAC address"
+echo "STORE_MACADDR pcid mac [mac] ... - Add MAC address(es) to a PCID"
+echo "STORE_PC_SPECS pcid cpu:ram:hdd:os:prodkey - Store PC specs"
+echo "WRITE_ACTIONS woid action [action] ... - Store PC actions"
+echo "- Actions: A_HDD A_BURNIN A_CLEANER A_BACKUP A_VIRUS A_MBR A_CDROM"
+echo "           N_OVERHEAT N_SPACE N_SLOWAV N_LOWRAM N_BADRAM N_BADHDD"
+echo "           N_VIRUS N_APPROVE"
+echo "Info retrieval commands:"
+echo "GET_PC_SPECS READ_ACTIONS READ_CUSTNOTES"
+echo "READ_TECHNOTES READ_PROBDESC READ_CUSTINFO"
+echo "Type exit to leave this program."
+}
+
+echo "Direct raw TSS client interface $VER ($VERDATE)"
+detect_tss_server
+
+while true
+do
+##### Start command loop #####
+
+echo -en "\nEnter command to send to TSS server (or 'help'):\n> "
+read COMMAND
+
+test "$COMMAND" = "exit" && break
+test "$COMMAND" = "quit" && break
+test "$COMMAND" = "q" && break
+case "$COMMAND" in
+	"help") help_command; continue ;;
+	*) tss_command; echo -e "\nResponse:\n$CWHT$RESPONSE$COFF"; continue ;;
+esac
+
+##### End command loop #####
+done
