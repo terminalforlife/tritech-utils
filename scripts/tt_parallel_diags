@@ -2,11 +2,11 @@
 
 # Attempts to run parallel disk diags and burn-ins.
 
-VER=1.1.3
-VERDATE=2015-03-11
+VER=1.1.4
+VERDATE=2016-06-29
 
 export FORK=0
-export BURNSECS=600
+export BURNSECS=900
 shopt -s nullglob
 
 . tss__common
@@ -14,7 +14,7 @@ shopt -s nullglob
 
 PCDATA=/mnt/cifs/computer_data/$PCID
 unset THRM
-for X in /sys/bus/acpi/drivers/thermal/LNXTHERM:00/thermal_zone/temp /sys/devices/platform/coretemp.*/temp*_input /sys/bus/pci/drivers/k*temp/*:*/temp1_input /sys/class/thermal/thermal_zone0/temp /sys/bus/platform/devices/coretemp.0/hwmon/hwmon0/temp2_input /sys/bus/platform/devices/coretemp.0/hwmon/hwmon0/temp4_input
+for X in /sys/class/hwmon/hwmon0/temp1_input /sys/bus/acpi/drivers/thermal/LNXTHERM:00/thermal_zone/temp /sys/devices/platform/coretemp.*/temp*_input /sys/bus/pci/drivers/k*temp/*:*/temp1_input /sys/class/thermal/thermal_zone0/temp /sys/bus/platform/devices/coretemp.0/hwmon/hwmon0/temp2_input /sys/bus/platform/devices/coretemp.0/hwmon/hwmon0/temp4_input /sys/devices/platform/coretemp.0/hwmon/hwmon1/temp2_input
 	do test -e "$X" && THRM="$X"
 done
 SEP="${CPUR}||$COFF"
