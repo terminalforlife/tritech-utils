@@ -5,8 +5,13 @@
 # Prevent loading twice
 if [ -z "$TSS_CLIENT" ]; then
 
-#VER=0.8.3
-#VERDATE=2016-04-30
+#VER=0.8.4
+#VERDATE=2016-07-06
+
+# Without socat we can't do any TSS client stuff
+if ! socat -V >/dev/null 2>/dev/null
+	then echo "${CRED}WARNING:$CWHT socat$CRED not installed, TSS client will behave badly$COFF" >&2
+fi
 
 # Scripts can check this variable to ensure these functions are loaded
 TSS_CLIENT=1
@@ -15,6 +20,10 @@ TSS_CLIENT=1
 export TSS_STATE_FILE=/etc/tss_state
 
 test -z "$TSS_COMMON" && . tss__common
+
+# Load configuration file if present
+test -z "$TSSC_CONF" && TSSC_CONF=/etc/tss_client.conf
+test -e "$TSSC_CONF" && . "$TSSC_CONF"
 
 # FIXME: move LOGFILE to a configuration file.
 LOGFILE=/var/log/tss_client.log
@@ -236,16 +245,15 @@ tss_proc_response () {
 }
 
 # Find a TSS server on the network.
-# FIXME: this seems to still contain some bugs.
 detect_tss_server () {
-	test "$TSS_CLIENT_DISABLE" = "1" && return 255
+	test "$TSS_CLIENT_DISABLE" = "1" && test "$TSSC_FORCE" != "1" && return 255
 	BCN=1; SVR_TEMP=$(mktemp)
 	test "$TSS_PORT" = "" && export TSS_PORT=60607
 	SVR_TIMEOUT=3
-#	test "$V" = "" && V=2
+	test "$V" = "" && V=2
 	if [ "$BCN" = "1" ]
 		then
-		test $V -gt 0 && echo -n "${CPUR}Waiting for a beacon: $COFF" >&2
+		test $V -gt 1 && echo -n "${CPUR}Waiting for a beacon: $COFF" >&2
 		socat -u udp4-recvfrom:60606,reuseaddr - > $SVR_TEMP 2>>$LOGFILE &
 		CNT=0; TO=5
 		while [ $CNT -lt $TO ]
@@ -258,7 +266,7 @@ detect_tss_server () {
 	
 		if [ ! -s "$SVR_TEMP" ]
 			then
-			test $V -gt 0 && echo "${CRED}no beacons received.$COFF" >&2
+			test $V -gt 1 && echo "${CRED}no beacons received.$COFF" >&2
 		fi
 	fi
 	
@@ -271,7 +279,6 @@ detect_tss_server () {
 		RAW="$(cat $SVR_TEMP | head -n 1)"
 		SVRX="$(echo $RAW | sed 's/cifs://;s/:.*//g')"
 		SVR="$(echo "$SVRX" | sed 's/\/.*//')"
-		SVRX="$(echo "$SVRX" | sed 's.[^/]*/..')"
 		SVRSHARE="$(echo "$SVRX" | sed 's#/.*##')"
 		UN="$(echo $RAW | sed 's/cifs:[^:]*://;s/:.*//')"
 		PW="$(echo $RAW | sed 's/cifs:.*://')"
@@ -281,13 +288,14 @@ detect_tss_server () {
 	unset BCN
 	
 	# Fallback hard-coded server, and indicate what is being used
+	# This uses values from the config file
 	if [ -z "$SVR" ]
 		then
-		SVR="192.168.0.1"
-		SVRX="tritech"
-		SVRSHARE="tritech"
-		UN="tritech"
-		PW=""
+		SVR=$TSSC_HARD_SVR
+		SVRX=$TSSC_HARD_SVRX
+		SVRSHARE=$TSSC_HARD_SHARE
+		UN=$TSSC_HARD_USERNAME
+		PW=$TSSC_HARD_PASSWORD
 		test $V -gt 0 && echo "${CYEL}Hard-coded server $SVR$COFF" >&2
 		else
 		test $V -gt 0 && echo "${CGRN}Beacon-provided server $SVR$COFF" >&2
@@ -304,10 +312,10 @@ detect_tss_server () {
 	# Ping the server. If unreachable, try until we time out.
 	
 	if ! ping -c 1 -W 1 $SVR >/dev/null
-		then test $V -gt 0 && echo -n "${CYEL}Trying to reach $SVR: $COFF" >&2
+		then test $V -gt 1 && echo -n "${CYEL}Trying to reach $SVR: $COFF" >&2
 		X=$SVR_TIMEOUT
 		while [ $X -gt 0 ]
-			do test $V -gt 0 && echo -n "${CWHT}${X}${COFF} " >&2
+			do test $V -gt 1 && echo -n "${CWHT}${X}${COFF} " >&2
 			if ! ping -c 1 -W 1 $SVR >/dev/null
 				then X=$(expr $X - 1)
 				else break
@@ -333,7 +341,7 @@ detect_tss_server () {
 	TSS_CIFS_UN="$UN"
 	TSS_CIFS_PW="$PW"
 	unset X RAW SVR SVRX SVRSHARE UN PW
-	save_tss_state
+	test "$TSS_CLIENT_DISABLE" != "1" && save_tss_state
 }
 
 # Gather information about the current system, setting the corresponding variables to suit

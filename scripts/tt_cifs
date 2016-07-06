@@ -1,22 +1,25 @@
-#!/bin/ash
+#!/bin/bash
 
 # Mounts the Tritech CIFS source share to /mnt/cifs
 
-VER=1.1
-VERDATE="2015-02-17"
+VER=2.0
+VERDATE="2015-07-06"
 
 . tss__common
 
-V=2; BCN=1
+V=2
 test "$1" = "-c" && V=1
 test "$1" = "-q" && V=0
-test "$1" = "-B" && BCN=0
-test "$1" = "-s" && BCN=0
 
-# Cache mode must be loose for certain kernel versions
+# Load TSS client to get CIFS configuration details
+TSSC_AUTO=0; TSSC_FORCE=1
+. tss_client
+
+# Cache mode must be loose for certain 3.x kernel versions
 # At some point this was fixed (works fine with 3.18.5)
 unset CACHE LOOSE
-test $(uname -r | cut -d. -f2) -gt 4 && \
+test $(uname -r | cut -d. -f1) -eq 3 && \
+	test $(uname -r | cut -d. -f2) -gt 4 && \
 	test $(uname -r | cut -d. -f2) -lt 16 && \
 	CACHE=",cache=loose" && LOOSE="$CYEL (loose cache)$COFF"
 
@@ -29,12 +32,6 @@ if ! mount.cifs -V 2>/dev/null >/dev/null
 	exit 1
 fi
 
-# Check for socat (required for beacon capability)
-if ! socat -V 2>/dev/null >/dev/null
-	then BCN=0
-	test "$V" = "2" && echo "${CWHT}socat$CYEL not found; beacon capabilities disabled$COFF"
-fi
-
 if [[ "$1" = "-h" || "$1" = "--help" ]]
 	then
 	echo "Usage:"
@@ -42,78 +39,38 @@ if [[ "$1" = "-h" || "$1" = "--help" ]]
 	echo "   Print critical information, be less verbose"
 	echo "$0 -q"
 	echo "   Quiet mode, only returns exit status"
-	echo "$0 -B"
-	echo "   Disable beacon mode, uses a hard-coded server instead"
-	echo "$0 -s beacon_string"
-	echo "   Instead of waiting for a beacon, pretend that a beacon"
-	echo "   returned beacon_string in the following format:"
+	echo "$0 -s config_string"
+	echo "   Force a manual configuration in the following format:"
 	echo "   cifs:ip.addr.of.server/share:username:password"
-	echo "   Ex.: $0 -s \"cifs:10.10.0.4/tss:tssuser:Supers3creT\""
+	echo "   Ex.: $0 -s \"cifs:10.10.0.4/tss:tssuser:SuperSecret\""
 	exit 2
 fi
 
 # See if we are already mounted and don't waste any time if we are
-# This is the defualt now because the beacon wastes time when mounting is already done
+# This is the default because the beacon wastes time when already mounted
 mount | grep -q "on /mnt/cifs type" && echo "${CWHT}/mnt/cifs ${CYEL}already mounted$COFF" && exit
 
 TEMP=$(mktemp)
 rm -f $TEMP
 
-# socat will block until it receives a packet which will cause the command
-# to wait forever if none arrives. We background it and spin on the
-# temp file until it either contains data or a timeout passes.
-# Then we kill socat if it's running and process the file.
+# Beacon and server config functionality moved to TSS client
 
-if [ $BCN = 1 ]
-	then
-	test "$V" = "2" && \
-		echo -n "${CPUR}Waiting for a beacon: $COFF"
-
-	socat -u udp4-listen:60606,reuseaddr - > $TEMP &
-	CNT=0; TO=5
-	while [ $CNT -lt $TO ]
-		do sleep 1
-		test -s "$TEMP" && break
-		CNT=$(( CNT + 1 ))
-	done
-	kill $! 2>/dev/null
-
-	if [ ! -s "$TEMP" ]
-		then
-		test $V = 2 && echo "${CRED}no beacons received.$COFF"
-	fi
-fi
-
+# Handle manual configuration if one was passed
 if [ "$1" = "-s" ]
 	then
 	test "$2" = "" && echo "${CRED}-s option specified without a string$COFF" && exit 2
-	echo "$2" > $TEMP
-	BCN=1
-fi
-
-# Lots of ugly sed crap to split the beacon string
-# Beacon string format:
-# cifs:ip.addr.of.server/share_name:username:password
-
-if [ $BCN = 1 ]
-	then
-	RAW="$(cat $TEMP | head -n 1)"
+	RAW="$2"
 	SVRX="$(echo $RAW | sed s/cifs:// | sed s/:.*//g)"
 	SVR="$(echo "$SVRX" | sed 's/\/.*//')"
 	UN="$(echo $RAW | sed s/cifs:[^:]*:// | sed s/\:.*//)"
 	PW="$(echo $RAW | sed s/cifs:.*://)"
-	rm -f $TEMP
-fi
 
-# Fallback hard-coded server, and indicate what is being used
-if [ "$SVR" = "" ]
-	then SVR="192.168.0.1"
-	SVRX="192.168.0.1/tritech"
-	UN="tritech"
-	PW=""
-	test $V = 2 && echo "${CYEL}Hard-coded server $SVR$COFF"
 	else
-	test $V = 2 && echo "${CGRN}Beacon-provided server $SVR$COFF"
+	detect_tss_server
+	SVRX="$TSS_CIFS_BASE"
+	SVR="$TSS_SERVER"
+	UN="$TSS_CIFS_UN"
+	PW="$TSS_CIFS_PW"
 fi
 
 # Sanity check: can't proceed if there is no server value at all
