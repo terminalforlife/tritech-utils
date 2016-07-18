@@ -96,6 +96,7 @@ install: tritech-utils manual
 	install -D -o root -g root -m 0755 scripts/tt_sysinfo $(DESTDIR)/$(bindir)/tt_sysinfo
 	install -D -o root -g root -m 0755 scripts/tt_sysupdate $(DESTDIR)/$(bindir)/tt_sysupdate
 	install -D -o root -g root -m 0755 scripts/tt_takeimage $(DESTDIR)/$(bindir)/tt_takeimage
+	install -D -o root -g root -m 0755 scripts/tt_trim_entire_ssd $(DESTDIR)/$(bindir)/tt_trim_entire_ssd
 	install -D -o root -g root -m 0755 scripts/tt_winver $(DESTDIR)/$(bindir)/tt_winver
 	install -D -o root -g root -m 0755 scripts/tt_zero_image $(DESTDIR)/$(bindir)/tt_zero_image
 	mkdir -p $(DESTDIR)/$(datarootdir)/tritech-utils
