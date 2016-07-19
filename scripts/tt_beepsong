@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# This is a combination of scripts that used to be separate.
+# That's why it looks so strange!
+
 # Derived from a "beep song" script by binarypearl at
 # http://ubuntuforums.org/showpost.php?p=9007138&postcount=28
 # Licensed under GPLv2 or later
@@ -187,7 +190,7 @@ longspace='-D 64'
 
 entersandman () {
 # Metallica's "Enter Sandman" intro, beepsong style
-# An original script (C) Jody Bruchon <jody@c02ware.com>
+# An original script (C) Jody Bruchon <jody@jodybruchon.com>
 # Distributed under the GNU GPL v2 or later.
 
 beep \
@@ -699,7 +702,7 @@ beep \
 zelda () {
 # The Legend of Zelda theme song from the NES
 # Original song (C) Nintendo of America
-# This script (C) Jody Bruchon <jody@c02ware.com>
+# This script (C) Jody Bruchon <jody@jodybruchon.com>
 # Distributed under the GNU GPL v2 or later.
 
 beep \
@@ -818,6 +821,9 @@ $eighth $FN4 $super_small
 }
 
 if [ -z "$1" ]
-	then echo "No beepsong specified."; exit 1
+	then echo -e "\nNo beepsong specified. Available beepsongs may include:\n"
+	grep '[^]]() {' "$0" | sed 's/ (.*//'
+	echo
+	exit 1
 	else $1
 fi
