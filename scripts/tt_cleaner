@@ -4,7 +4,7 @@ VER="5.1.6"
 VERDATE="2016-07-18"
 
 # Tritech Service System Windows installation clean tool for Linux
-# Copyright (C) by Jody Bruchon <jody@c02ware.com>
+# Copyright (C) by Jody Bruchon <jody@jodybruchon.com>
 
 # Must be run from the root of the filesystem to clean.
 
@@ -43,7 +43,7 @@ if [[ "$1" = "-h" || "$1" = "--help" ]]
 	echo "$0 -d      debug mode: -n, plus shows what would be deleted"
 	echo "$0 -h      this help screen"
 	echo "$0 --help  this help screen with four wasted keystrokes"
-	echo -e "\nCopyright (C) Jody Bruchon <jody@c02ware.com>"
+	echo -e "\nCopyright (C) Jody Bruchon <jody@jodybruchon.com>"
 	exit 0
 fi
 

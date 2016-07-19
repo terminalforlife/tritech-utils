@@ -4,7 +4,7 @@ VER="1.16.4"
 VERDATE="2016-03-04"
 
 #echo "Tritech system info tool $VER, updated on $VERDATE"
-#echo "Copyright (c) by Jody Bruchon <jody@c02ware.com>"
+#echo "Copyright (c) by Jody Bruchon <jody@jodybruchon.com>"
 
 # Presents system information
 
