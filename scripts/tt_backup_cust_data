@@ -70,23 +70,26 @@ select_backup_data () {
 		do
 		ADD=1
 		for BL in \
-			WINDOWS Windows windows WINNT WinNT winnt WINXP WinXP winxp \
-			"System Volume Information" \
-			"Program Files" "Program Files (x86)" "MSOCache" \
-			RECYCLER Recycler recycler RECYCLED Recycled recycled \
-			"\$Recycle.Bin" "\$RECYCLE.BIN" "\$AVG\$" "\$Avg\$" \
-			"\$AVG" "\$avg\$" PerfLogs ProgramData Recovery NTLDR ntldr \
-			BOOTMGR bootmgr grldr GRLDR menu.lst boot.ini BOOT.INI \
-			"\$AVG8.VAULT\$" AUTOEXEC.BAT autoexec.bat CONFIG.SYS config.sys \
-			Boot arcldr.exe CMPNENTS i386 I386 VALUEADD Config.Msi \
-			Garmin INFCACHE.1 IO.SYS io.sys Intel IPH.PH NTDETECT.COM \
-			"My Download Files" "My Downloads" "My Games" OEM RHDSetup.log \
-			Screensavers.com StubInstaller.exe lexmark Lexmark install.exe \
-			setup.exe install.ini updatedatfix.log logfile napster.log \
-			ntuser.dat ntuser.dat.LOG nvida.log pagefile.sys rkill.log \
+			WINDOWS Windows windows WINNT WinNT winnt WINXP WinXP \
+			winxp "System Volume Information" "Program Files" \
+			"Program Files (x86)" "MSOCache" RECYCLER Recycler \
+			recycler RECYCLED Recycled recycled "\$Recycle.Bin" \
+			"\$RECYCLE.BIN" "\$AVG\$" "\$Avg\$" "\$AVG" "\$avg\$" \
+			PerfLogs ProgramData Recovery NTLDR ntldr BOOTMGR \
+			bootmgr BOOTNXT END Boot grldr GRLDR menu.lst \
+			boot.ini BOOT.INI "\$AVG8.VAULT\$" AUTOEXEC.BAT \
+			autoexec.bat CONFIG.SYS config.sys arcldr.exe \
+			CMPNENTS i386 I386 VALUEADD Config.Msi Garmin \
+			INFCACHE.1 IO.SYS io.sys Intel IPH.PH NTDETECT.COM \
+			"My Download Files" "My Downloads" "My Games" OEM \
+			RHDSetup.log Screensavers.com StubInstaller.exe \
+			lexmark Lexmark install.exe setup.exe install.ini \
+			updatedatfix.log logfile napster.log ntuser.dat \
+			ntuser.dat.LOG nvida.log pagefile.sys rkill.log \
 			scramble.log globdata.ini drvrtmp devicetable.log \
-			WORKSSETUP _NavCClt.log audio.log book bootsqm.dat dell.sdr \
-			WINDOWSCache VC_RED.MSI VC_RED.cab TB.log MSDOS.SYS
+			WORKSSETUP _NavCClt.log audio.log book bootsqm.dat \
+			dell.sdr WINDOWSCache VC_RED.MSI VC_RED.cab TB.log \
+			MSDOS.SYS
 			do test "$X" = "$BL" && ADD=0 && break
 		done
 		if [[ "$X" = "Documents and Settings" && -d Users ]]
