@@ -58,7 +58,7 @@ test -z "$DRVROOT" && DRVROOT=~tritech/source/drivers
 test -z "$DRVBASE" && DRVBASE=$(basename $DRVROOT)
 test -z "$DBFILE" && DBFILE="$DRVROOT/devicedb.txt"
 test ! -z "$DELDB" && echo "${CRED}Deleting database file $CPUR$DBFILE$COFF" && rm -f $DBFILE && exit
-test -z "$LOGFILE" && LOGFILE=/tmp/driverdrop_errors.txt
+test -z "$LOGFILE" && LOGFILE=/tmp/build_devdb_errors.txt
 
 cd "$DRVROOT"
 WD="$(pwd)"
@@ -207,8 +207,10 @@ get_manufacturer_names () {
 	read_inf_sec "version" $TFPI $TFPI2
 	# Extract date code from file
 	DV="$(tr -d ' ' < $TFPI2 | grep -m 1 "driverver" | sed 's/.*=//;s/,.*//')"
-	echo "$DV" | grep -q '^./../....' && DV="0$DV"
-	echo "$DV" | grep -q '^.././....' && DV="$(echo "$DV" | sed s#\(../\)\(./....\)#\10\2#)"
+#	echo "$DV" | grep -q '^./../....' && DV="0$DV"
+	[[ "$DV" =~ ^./../.... ]] && DV="0$DV"
+#	echo "$DV" | grep -q '^.././....' && DV="$(echo "$DV" | sed s#\(../\)\(./....\)#\10\2#)"
+	[[ "$DV" =~ ^.././.... ]] && DV="$(echo "$DV" | sed s#\(../\)\(./....\)#\10\2#)"
 	DV="$(echo "$DV" | sed 's#\(..\)/\(..\)/\(....\)#\3\1\2#')"; test -z "$DV" && DV="00000000"
 	test $DBG -gt 2 && echo "${CBLU}get_manufacturer_names:$CWHT ($MFG) ${MFGNAME[@]}"
 }
@@ -331,8 +333,14 @@ clean_out_inf () {
 
 # Execute this as: function_name file_to_read filename_to_validate
 check_inf_not_allowed () {
-	echo "$2" | grep -iq '/oemset..\.inf$' || echo "$2" | grep -iq '/autorun.inf$' || echo "$2" | grep -iq '/ntsetup.inf$' || \
-	read_inf_section "$1" version 2>/dev/null | grep -m 1 -iq 'signature.*"\$Windows 95\$"' 2>/dev/null
+#	shopt -s nocasematch
+	XXX=0; XXY=0
+#	echo "$2" | grep -iq '/oemset..\.inf$' || echo "$2" | grep -iq '/autorun.inf$' || echo "$2" | grep -iq '/ntsetup.inf$' || \
+	if [[ "$2" =~ /oemset..\.inf$ || "$2" =~ /autorun.inf$ || "$2" =~ /ntsetup.inf$ ]]
+		then return 0
+		else read_inf_section "$1" version 2>/dev/null | grep -m 1 -iq 'signature.*"\$Windows 95\$"' 2>/dev/null
+	fi
+#	shopt -u nocasematch
 }
 
 add_inf () {
@@ -362,9 +370,11 @@ process_inf () {
 			# Test for device entries in a section and set/unset flags as appropriate
 			if [ -z "$(cat "$TFPI2")" ]
 				then test $DBG -gt 1 && echo "${CYEL}no flags$COFF"
-				echo "$SEC" | grep -iq '\.nt[a-z0-9]*' && unset_winver_flags "$(echo "$SEC" | sed 's/.*\.nt/nt/')"
+#				echo "$SEC" | grep -iq '\.nt[a-z0-9]*' && unset_winver_flags "$(echo "$SEC" | sed 's/.*\.nt/nt/')"
+				[[ "$SEC" =~ \.nt[a-z0-9]* ]] && unset_winver_flags "${SEC/*.nt/nt}"
 				else test $DBG -gt 1 && echo "${CGRN}setting flags$COFF"
-				set_winver_flags "$(echo "$SEC" | sed 's/.*\.nt/nt/')"
+#				set_winver_flags "$(echo "$SEC" | sed 's/.*\.nt/nt/')"
+				set_winver_flags "${SEC/*.nt/nt}"
 			fi
 			else
 			echo "${CYEL}Warning:$COFF read_inf_sec_short failed for $CWHT$FILE$COFF => $CWHT$X$COFF" && ERR=1 && echo "read_inf_sec_short failed for $FILE => $X" >> $LOGFILE
