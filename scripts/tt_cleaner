@@ -307,8 +307,12 @@ do_rewrites () {
 				(( RWLOAD ++ ))
 				SED1="${REWRITE1[$RWCNT]}"
 				SED2="${REWRITE2[$RWCNT]}"
-				NAME="$(echo "${RWNAMES[$RWNCNT]}" | \
-				 sed "s.$SED1.$SED2.")"
+#				NAME="$(echo "${RWNAMES[$RWNCNT]}" | sed "s.$SED1.$SED2.")"
+				# New name processing (faster but uglier)
+				NAME="${RWNAMES[$RWNCNT]}"
+				SED1="${SED1/^/}"
+				NAME="${NAME/"$SED1"/"$SED2"}"
+				# End of new name processing
 				test ! "$NAME" == "${RWNAMES[$RWNCNT]}" && \
 				 RWNAMES=( "${RWNAMES[@]}" "$NAME" )
 				# RW=1 tells routines to not do rewrites again while running nested
