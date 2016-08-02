@@ -1,7 +1,7 @@
 #!/bin/bash
 
 VER="5.2"
-ERDATE="2016-08-02"
+VERDATE="2016-08-02"
 
 # Tritech Service System Windows installation clean tool for Linux
 # Copyright (C) by Jody Bruchon <jody@jodybruchon.com>
