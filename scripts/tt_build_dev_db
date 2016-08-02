@@ -326,7 +326,7 @@ sanitize_inf_file () {
 
 clean_out_inf () {
 	# Remove all hashes and devices for an INF file in the database
-	grep -v "/$1$" $DBFILE | grep -v '^SHA1:' | grep -v "^JH1:$1:" > $TF2 && mv $TF2 $DBFILE
+	grep -v "/$1$" $DBFILE | grep -v '^SHA1:' | grep -v "^JH1:$1:" > $TF2 && mv -f $TF2 $DBFILE
 }
 
 # Execute this as: function_name file_to_read filename_to_validate
