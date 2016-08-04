@@ -92,8 +92,8 @@ APPLEIC="Apple/Installer Cache"
 APPLEIC2="$APPLE/Installer Cache"
 APPLELOGS="$APPLE/Logs"
 APPLEMSB="$APPLE/MobileSync/Backup"
-APPLEIPSW="$APPLE/iTunes/iPod Software Updates"
-APPLEIPLG="$APPLE/iTunes/iPod Updater Logs"
+APPLEIPSW="$APPLE/iTunes/*Software Updates"
+APPLEIPLG="$APPLE/iTunes/*Updater Logs"
 APPLESN="$APPLE/SyncNotifier/SyncNotifier/Logs"
 ARO2011="Sammsoft/ARO/Version 2011"
 AVIRALOGS="Avira/AntiVir Desktop/LOGFILES"
@@ -449,6 +449,7 @@ CHROME="$LOCAL/Google/Chrome/User Data"; DESC="Google Chrome"
 NAME="$CHROME/*/*Cache*/"; add_to_wipe
 NAME="$CHROME/*/*Cookies"; add_to_delete
 NAME="$CHROME/*/Favicons"; add_to_delete
+NAME="$CHROME/*/File System"; add_to_delete
 NAME="$CHROME/*/*History*"; add_to_delete
 NAME="$CHROME/*/JumpListIcons*"; add_to_wipe
 NAME="$CHROME/*/Last Session"; add_to_delete
@@ -467,15 +468,20 @@ NAME="$CHROME/Safe Browsing*"; add_to_delete
 NAME="$LOCAL/Conduit"; DESC="Conduit software"; add_to_wipe
 NAME="$LOCAL/ConduitEngine"; DESC="Conduit software"; add_to_wipe
 NAME="$LOCAL/CouponAlert*"; DESC="CouponAlert"; add_to_wipe
-NAME="$LOCAL/Corel/Thumbs"; DESC="Corel thumbnails"; add_to_wipe
+NAME="$LOCAL/Corel*/Thumbs"; DESC="Corel thumbnails"; add_to_wipe
+NAME="$LOCAL/Corel PaintShop Pro/*/Thumbs"; DESC="Corel thumbnails"; add_to_wipe
 NAME="$LOCAL/Corel Photo Album"; DESC="Corel Photo Album"; add_to_wipe
 NAME="$LOCAL/CrashDumps"; DESC="App crash dumps"; add_to_wipe
 NAME="$LOCAL/CurseClient/CurseClient.log"; DESC="CurseClient"; add_to_delete
 NAME="$LOCAL/dd_vcredist*.txt"; DESC="MSVC++ logs"; add_to_delete
 NAME="$LOCAL/DataMngr"; DESC="DataMngr garbage"; add_to_wipe
 NAME="$LOCAL/Diagnostics"; DESC="Windows Diagnostics"; add_to_wipe
+NAME="$LOCAL/Dropbox/logs"; DESC="Dropbox"; add_to_wipe
+NAME="$LOCAL/Dropbox/Update"; DESC="Dropbox"; add_to_wipe
 NAME="$LOCAL/DVDVideoSoftTB"; DESC="DVDVideoSoftTB"; add_to_wipe
 NAME="$LOCAL/ElevatedDiagnostics"; DESC="Windows Diagnostics"; add_to_wipe
+NAME="$LOCAL/Evernote/Evernote/Logs"; DESC="Evernote"; add_to_wipe
+NAME="$LOCAL/Evernote/Evernote/AutoUpdate/*.exe"; DESC="Evernote"; add_to_delete
 NAME="$LOCAL/EMBARQTOOLBAR"; DESC="Embarq Toolbar"; add_to_wipe
 NAME="$LOCAL/Facebook/Messenger/fbmessenger.cache"; DESC="FB Messenger cache"; add_to_wipe
 NAME="$LOCAL/Flixster/WebData/Cache"; DESC="Flixster"; add_to_wipe
@@ -494,6 +500,7 @@ done
 
 NAME="$LOCAL/FontCache*.dat"; DESC="User font cache"; add_to_delete
 NAME="$LOCAL/GDIPFONTCACHEV1.DAT"; DESC="User font cache"; add_to_delete
+NAME="$LOCAL/Foxit PhantomPDF/msilog"; DESC="Foxit PhantomPDF"; add_to_wipe
 NAME="$LOCAL/FunWebProducts"; DESC="FunWebProducts"; add_to_wipe
 NAME="$LOCAL/Funmoods"; DESC="Funmoods"; add_to_wipe
 NAME="$LOCAL/GamingWonderland"; DESC="GamingWonderland"; add_to_wipe
@@ -527,7 +534,8 @@ NAME="$LOCAL/iMesh"; DESC="iMesh"; add_to_wipe
 NAME="$LOCAL/imeshmediabartb"; DESC="iMesh"; add_to_wipe
 NAME="$LOCAL/Inbox Toolbar"; DESC="Inbox Toolbar"; add_to_wipe
 NAME="$LOCAL/InboxAce_*"; DESC="InboxAce toolbar"; add_to_wipe
-NAME="$LOCAL/Intuit/QuickBooks*/Log"; DESC="QuickBooks logs"; add_to_wipe
+NAME="$LOCAL/Intuit/QuickBooks*/Log"; DESC="Intuit logs"; add_to_wipe
+NAME="$LOCAL/Intuit/Common/Authorization/*/Logs"; DESC="Intuit logs"; add_to_wipe
 NAME="$LOCAL/iWon*"; DESC="iWon software"; add_to_wipe
 NAME="$LOCAL/join.me/*.log"; DESC="LMI join.me logs"; add_to_delete
 NAME="$LOCAL/$JAVACACHE"; DESC="Java"; add_to_wipe
@@ -558,6 +566,7 @@ NAME="$LOCAL/$MS/Silverlight"; DESC="MS Silverlight"; add_to_wipe
 NAME="$LOCAL/$MS/Toolbar"; DESC="MS Toolbar"; add_to_wipe
 NAME="$LOCAL/$MS/Windows/Burn"; DESC="Windows CD/DVD burn cache"; add_to_wipe
 NAME="$LOCAL/$MS/Windows/Explorer/ThumbCacheToDelete"; DESC="Explorer thumbnails"; add_to_wipe
+NAME="$LOCAL/$MS/Windows/Explorer/iconcache*.db"; DESC="Explorer thumbnails"; add_to_delete
 NAME="$LOCAL/$MS/Windows/Explorer/thumbcache*.db"; DESC="Explorer thumbnails"; add_to_delete
 NAME="$LOCAL/$MS/Windows/History"; DESC="Temporary Internet Files"; add_to_wipe
 NAME="$LOCAL/$MS/Windows/$TIF"; DESC="Temporary Internet Files"; add_to_wipe
@@ -567,12 +576,19 @@ NAME="$LOCAL/$MS/Windows NT/NTBackup"; DESC="NTBackup data"; add_to_wipe
 NAME="$LOCAL/$MS/Windows Store/Cache Medium IL"; DESC="Windows Store"; add_to_wipe
 NAME="$LOCAL/Packages/WinStore_*/AC/$MS/Windows Store/Cache"; DESC="Windows Store"; add_to_wipe
 NAME="$LOCAL/Packages/WinStore_*/AC/$MS/Windows Store/Data/history.dat"; DESC="Windows Store"; add_to_delete
-NAME="$LOCAL/Packages/WinStore_*/AC/Temp"; DESC="Windows Store"; add_to_wipe
+NAME="$LOCAL/Packages/*/TempState"; DESC="Windows UWP App Caches"; add_to_wipe
+NAME="$LOCAL/Packages/*/AC/Temp"; DESC="Windows UWP App Caches"; add_to_wipe
+NAME="$LOCAL/Packages/*/AC/$MS/Windows/Internet Explorer"; DESC="Windows UWP App Caches"; add_to_wipe
+NAME="$LOCAL/Packages/*/AC/AppCache"; DESC="Windows UWP App Caches"; add_to_wipe
 NAME="$LOCAL/Packages/*/AC/INetCache"; DESC="Windows UWP App Caches"; add_to_wipe
+NAME="$LOCAL/Packages/*/AC/INetCookies"; DESC="Windows UWP App Caches"; add_to_wipe
+NAME="$LOCAL/Packages/*/AC/INetHistory"; DESC="Windows UWP App Caches"; add_to_wipe
+NAME="$LOCAL/$MS/Windows/AppCache"; DESC="Windows 8+ TIFs"; add_to_wipe
 NAME="$LOCAL/$MS/Windows/INetCache/Low/IE"; DESC="Windows 8+ TIFs"; add_to_wipe
 NAME="$LOCAL/$MS/Windows/INetCache/Low/*.tmp"; DESC="Windows 8+ TIFs"; add_to_delete
 NAME="$LOCAL/$MS/Windows/INetCache/IE"; DESC="Windows 8+ TIFs"; add_to_wipe
 NAME="$LOCAL/$MS/Windows/INetCookies"; DESC="Windows 8+ TIFs"; add_to_wipe
+NAME="$LOCAL/$MS/Windows/Notifications"; DESC="Windows Notifications"; add_to_delete
 NAME="$LOCAL/$MS/Windows/WindowsUpdate.log"; DESC="Windows Update log"; add_to_delete
 NAME="$LOCAL/$MS/$WINDEF/FileTracker"; DESC="Windows Defender"; add_to_wipe
 NAME="$LOCAL/Musicmatch/Jukebox/Cache"; DESC="Musicmatch Jukebox cache"; add_to_wipe
@@ -724,8 +740,8 @@ NAME="$ROAM/AVAST Software/Avast/log"; DESC="Avast Antivirus"; add_to_wipe
 NAME="$ROAM/AVAST Software/Avast/report"; DESC="Avast Antivirus"; add_to_wipe
 NAME="$ROAM/$APPLEIC"; DESC="Apple installer cache"; add_to_wipe
 NAME="$ROAM/$APPLEIC2"; DESC="Apple installer cache"; add_to_wipe
-NAME="$ROAM/$APPLEIPSW"; DESC="Apple iPod SW updates"; add_to_wipe
-NAME="$ROAM/$APPLEIPLG"; DESC="Apple iPod install logs"; add_to_wipe
+NAME="$ROAM/$APPLEIPSW"; DESC="Apple software updates"; add_to_wipe
+NAME="$ROAM/$APPLEIPLG"; DESC="Apple install logs"; add_to_wipe
 NAME="$ROAM/$APPLELOGS"; DESC="Apple app logs"; add_to_wipe
 NAME="$ROAM/$APPLEMSB"; DESC="Apple MobileSync backup"; add_to_wipe
 NAME="$ROAM/$ARO2011"; DESC="Sammsoft ARO"; add_to_wipe
@@ -742,11 +758,13 @@ done
 NAME="$ROAM/$AVIRALOGS"; DESC="Avira AntiVir"; add_to_wipe
 NAME="$ROAM/$AVIRAREPS"; DESC="Avira AntiVir"; add_to_wipe
 NAME="$ROAM/BabSolution"; DESC="Babylon toolbar"; add_to_wipe
+NAME="$ROAM/Basis Sync/logs"; DESC="Basis Sync logs"; add_to_wipe
 NAME="$ROAM/Babylon"; DESC="Babylon toolbar"; add_to_wipe
 NAME="$ROAM/bfgbartb"; DESC="Big Fish Games"; add_to_wipe
 NAME="$ROAM/BfgBar"; DESC="Big Fish Games"; add_to_wipe
 NAME="$ROAM/Big Fish Games"; DESC="Big Fish Games"; add_to_wipe
 NAME="$ROAM/BigFishGamesCache"; DESC="Big Fish Games"; add_to_wipe
+NAME="$ROAM/BirdieSync/Log"; DESC="BirdieSync"; add_to_wipe
 NAME="$ROAM/Brother/BrLog/*.log"; DESC="Brother logs"; add_to_delete
 NAME="$ROAM/BrowserProtect"; DESC="BrowserProtect"; add_to_wipe
 NAME="$ROAM/$STARTMENU/BrowserProtect"; DESC="BrowserProtect"; add_to_wipe
@@ -793,6 +811,7 @@ NAME="$MOZPROF/X*.mfl"; add_to_delete
 done
 NAME="$ROAM/Mozilla/logs"; DESC="Mozilla applications"; add_to_wipe
 
+NAME="$ROAM/Foxit Software/Addon/Install"; DESC="Foxit Addons"; add_to_wipe
 NAME="$ROAM/FrostWire/image_cache"; DESC="FrostWire"; add_to_wipe
 NAME="$ROAM/FrostWire/azureus/logs"; DESC="FrostWire"; add_to_wipe
 NAME="$ROAM/FrostWire/azureus/tmp"; DESC="FrostWire"; add_to_wipe
@@ -820,8 +839,10 @@ NAME="$ROAM/IMVU/PixmapCache"; DESC="IMVU"; add_to_wipe
 NAME="$ROAM/IMVU/IMVU*.log*"; DESC="IMVU"; add_to_delete
 NAME="$ROAM/Intuit/Entitlement Client/*/IntuitEntitlementLog.txt*"; DESC="Intuit"; add_to_delete
 NAME="$ROAM/Intuit/Intuit Data Protect/QBIDPService.log"; DESC="Intuit"; add_to_delete
+NAME="$ROAM/Intuit/Quicken/Log"; DESC="Intuit"; add_to_wipe
 NAME="$ROAM/Intuit/QuickBooks DB Server Manager/QBCFMonitorService.log"; DESC="Intuit"; add_to_delete
 NAME="$ROAM/Intuit/QuickBooks/qbsdklog.txt"; DESC="Intuit"; add_to_delete
+NAME="$ROAM/Intuit/TurboTax/*/ErrorLog"; DESC="Intuit"; add_to_wipe
 NAME="$ROAM/IObit"; DESC="IObit"; add_to_wipe
 NAME="$ROAM/iWin"; DESC="iWin"; add_to_wipe
 NAME="$ROAM/$JAVACACHE"; DESC="Java"; add_to_wipe
