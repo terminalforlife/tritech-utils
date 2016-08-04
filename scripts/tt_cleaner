@@ -1,7 +1,7 @@
 #!/bin/bash
 
-VER="5.2"
-VERDATE="2016-08-02"
+VER="5.2.1"
+VERDATE="2016-08-04"
 
 # Tritech Service System Windows installation clean tool for Linux
 # Copyright (C) by Jody Bruchon <jody@jodybruchon.com>
@@ -101,9 +101,6 @@ AVIRAREPS="Avira/AntiVir Desktop/REPORTS"
 CARBONITEUS="Carbonite Restored OLD User Settings"
 CHROME="Google/Chrome/User Data/*"
 CHROMEUD="Google/Chrome/User Data"
-FF="Mozilla/Firefox"
-FFPROF="$FF/Profiles/*"
-FFCRASH="$FF/Crash Reports"
 FLASH1="Macromedia/Flash Player"
 FLASH2="Adobe/Flash Player"
 ITAAC="iTunes/Album Artwork/Cache"
@@ -434,7 +431,7 @@ NAME="$LOCAL/Adobe/Acrobat/*/Cache"; DESC="Adobe Acrobat"; add_to_wipe
 NAME="$LOCAL/Adobe/Reader*/Setup Files"; DESC="Adobe Acrobat"; add_to_wipe
 NAME="$LOCAL/Adobe/Updater*"; DESC="Adobe Acrobat"; add_to_wipe
 NAME="$LOCAL/alotappbar"; DESC="ALOT Toolbar"; add_to_wipe
-NAME="$LOCAL/AMD/Fuel/ClientProxyLog*"; DESC="AMD Fuel"; add_to_wipe
+NAME="$LOCAL/AMD/Fuel/ClientProxyLog*"; DESC="AMD FUEL logs"; add_to_delete
 NAME="$LOCAL/AppGraffiti"; DESC="AppGraffiti"; add_to_wipe
 NAME="$LOCAL/AskToolbar"; DESC="Ask Toolbar"; add_to_wipe
 NAME="$LOCAL/AskSBar"; DESC="Ask Toolbar"; add_to_wipe
@@ -480,11 +477,19 @@ NAME="$LOCAL/ElevatedDiagnostics"; DESC="Windows Diagnostics"; add_to_wipe
 NAME="$LOCAL/EMBARQTOOLBAR"; DESC="Embarq Toolbar"; add_to_wipe
 NAME="$LOCAL/Facebook/Messenger/fbmessenger.cache"; DESC="FB Messenger cache"; add_to_wipe
 NAME="$LOCAL/Flixster/WebData/Cache"; DESC="Flixster"; add_to_wipe
-NAME="$LOCAL/$FFPROF/*Cache*"; DESC="Mozilla Firefox"; add_to_wipe
-NAME="$LOCAL/$FFPROF/urlclassifier3.sqlite"; DESC="Mozilla Firefox"; add_to_delete
-NAME="$LOCAL/$FFPROF/X*.mfl"; DESC="Mozilla Firefox"; add_to_delete
-NAME="$LOCAL/$FFPROF/minidumps"; DESC="Mozilla Firefox"; add_to_wipe
-NAME="$LOCAL/$FFPROF/thumbnails"; DESC="Mozilla Firefox"; add_to_wipe
+
+for MOZPROF in "Mozilla" "Mozilla Firefox" "Mozilla Thunderbird" \
+	"Moonchild Productions/Pale Moon"
+	do MOZPROF="$LOCAL/$MOZPROF/Profiles/*"
+	DESC="Mozilla applications"
+NAME="$MOZPROF/_CACHE_CLEAN_"; add_to_delete
+NAME="$MOZPROF/urlclassifier3.sqlite"; add_to_delete
+NAME="$MOZPROF/X*.mfl"; add_to_delete
+NAME="$MOZPROF/minidumps"; add_to_wipe
+NAME="$MOZPROF/thumbnails"; add_to_wipe
+NAME="$MOZPROF/*Cache*"; add_to_wipe
+done
+
 NAME="$LOCAL/FontCache*.dat"; DESC="User font cache"; add_to_delete
 NAME="$LOCAL/GDIPFONTCACHEV1.DAT"; DESC="User font cache"; add_to_delete
 NAME="$LOCAL/FunWebProducts"; DESC="FunWebProducts"; add_to_wipe
@@ -753,28 +758,29 @@ NAME="$ROAM/File Scout"; DESC="File Scout"; add_to_wipe
 NAME="$ROAM/$FLASH1"; DESC="Flash cache"; add_to_wipe
 NAME="$ROAM/$FLASH2"; DESC="Flash cache"; add_to_wipe
 
-# Mozilla Firefox/Thunderbird/etc.
-NAME="$ROAM/$FFCRASH"; DESC="Mozilla applications"; add_to_wipe
-NAME="$ROAM/$FFPROF/minidumps"; DESC="Mozilla applications"; add_to_wipe
-NAME="$ROAM/$FFPROF/ConduitEngine"; DESC="Mozilla applications"; add_to_delete
-NAME="$ROAM/$FFPROF/conduit"; DESC="Mozilla applications"; add_to_delete
-NAME="$ROAM/$FFPROF/cookies.sqlite"; DESC="Mozilla applications"; add_to_delete
-NAME="$ROAM/$FFPROF/downloads.sqlite"; DESC="Mozilla applications"; add_to_delete
-NAME="$ROAM/$FFPROF/extensions/*/*/conduit*"; DESC="Mozilla applications"; add_to_delete
-NAME="$ROAM/$FFPROF/extensions/*/*/Conduit*"; DESC="Mozilla applications"; add_to_delete
-NAME="$ROAM/$FFPROF/extensions/*/ffxtlbr@incredibar.com"; DESC="Mozilla applications"; add_to_delete
-NAME="$ROAM/$FFPROF/extensions/*/*/npConduitFirefoxPlugin.dll"; DESC="Mozilla applications"; add_to_delete
-NAME="$ROAM/$FFPROF/extensions/*/*/npPriceGong_FF.dll"; DESC="Mozilla applications"; add_to_delete
-NAME="$ROAM/$FFPROF/extensions/engine@conduit.com"; DESC="Mozilla applications"; add_to_delete
-NAME="$ROAM/$FFPROF/extensions/plugin@yontoo.com"; DESC="Mozilla applications"; add_to_delete
-NAME="$ROAM/$FFPROF/extensions/toolbar@ask.com"; DESC="Mozilla applications"; add_to_delete
-NAME="$ROAM/$FFPROF/Yahoo! Inc/ytoolbar"; DESC="Mozilla applications"; add_to_delete
+# Mozilla Firefox/Thunderbird, Pale Moon, etc.
+for MOZPROF in "Mozilla" "Mozilla Firefox" "Mozilla Thunderbird" \
+	"Moonchild Productions/Pale Moon"
+	do MOZPROF="$ROAM/$MOZPROF/Profiles/*"
+	DESC="Mozilla applications"
+NAME="$MOZPROF/TestPilotErrorLog.log"; add_to_delete
+NAME="$MOZPROF/Crash Reports"; add_to_wipe
+NAME="$MOZPROF/minidumps"; add_to_wipe
+NAME="$MOZPROF/ConduitEngine"; add_to_delete
+NAME="$MOZPROF/conduit"; add_to_delete
+NAME="$MOZPROF/cookies.sqlite"; add_to_delete
+NAME="$MOZPROF/downloads.sqlite"; add_to_delete
+NAME="$MOZPROF/extensions/*/*/conduit*"; add_to_delete
+NAME="$MOZPROF/extensions/*/*/Conduit*"; add_to_delete
+NAME="$MOZPROF/extensions/*/ffxtlbr@incredibar.com"; add_to_delete
+NAME="$MOZPROF/extensions/*/*/npConduitFirefoxPlugin.dll"; add_to_delete
+NAME="$MOZPROF/extensions/*/*/npPriceGong_FF.dll"; add_to_delete
+NAME="$MOZPROF/extensions/engine@conduit.com"; add_to_delete
+NAME="$MOZPROF/extensions/plugin@yontoo.com"; add_to_delete
+NAME="$MOZPROF/extensions/toolbar@ask.com"; add_to_delete
+NAME="$MOZPROF/Yahoo! Inc/ytoolbar"; add_to_delete
+done
 NAME="$ROAM/Mozilla/logs"; DESC="Mozilla applications"; add_to_wipe
-NAME="$ROAM/Mozilla/Profiles/*/*/Cache*"; DESC="Mozilla applications"; add_to_wipe
-NAME="$ROAM/$TBPROF/minidumps"; DESC="Mozilla applications"; add_to_wipe
-NAME="$ROAM/$TBPROF/cookies.sqlite"; DESC="Mozilla applications"; add_to_delete
-NAME="$ROAM/$TBPROF/downloads.sqlite"; DESC="Mozilla applications"; add_to_delete
-NAME="$ROAM/$TBPROF/TestPilotErrorLog.log"; DESC="Mozilla applications"; add_to_delete
 
 NAME="$ROAM/FrostWire/image_cache"; DESC="FrostWire"; add_to_wipe
 NAME="$ROAM/FrostWire/azureus/logs"; DESC="FrostWire"; add_to_wipe
@@ -936,7 +942,7 @@ NAME="$ROAM/Symantec/LiveUpdate/*Log*"; DESC="Symantec software"; add_to_delete
 NAME="$ROAM/Symantec/LiveUpdate/Downloads"; DESC="Symantec software"; add_to_wipe
 NAME="$ROAM/Syncios/log.txt"; DESC="Syncios log"; add_to_delete
 NAME="$ROAM/Systweak"; DESC="Systweak"; add_to_wipe
-NAME="$ROAM/TeamViewer/*_logfile.log"; DESC="TeamViewer logs"; add_to_wipe
+NAME="$ROAM/TeamViewer/*_logfile.log"; DESC="TeamViewer logs"; add_to_delete
 NAME="$ROAM/temp"; DESC="Temporary files (roaming)"; add_to_wipe
 NAME="$ROAM/Temp"; DESC="Temporary files (roaming)"; add_to_wipe
 NAME="$ROAM/$TMAVLOGS"; DESC="Trend Micro AV logs"; add_to_wipe
