@@ -99,8 +99,6 @@ ARO2011="Sammsoft/ARO/Version 2011"
 AVIRALOGS="Avira/AntiVir Desktop/LOGFILES"
 AVIRAREPS="Avira/AntiVir Desktop/REPORTS"
 CARBONITEUS="Carbonite Restored OLD User Settings"
-CHROME="Google/Chrome/User Data/*"
-CHROMEUD="Google/Chrome/User Data"
 FLASH1="Macromedia/Flash Player"
 FLASH2="Adobe/Flash Player"
 ITAAC="iTunes/Album Artwork/Cache"
@@ -447,21 +445,27 @@ NAME="$LOCAL/BrowseForChange"; DESC="BrowseForChange"; add_to_wipe
 NAME="$LOCAL/centurytoolbartb"; DESC="CenturyLink Toolbar"; add_to_wipe
 NAME="$LOCAL/Conduit"; DESC="Conduit"; add_to_wipe
 NAME="$LOCAL/Corel/Thumbs"; DESC="Corel Thumbs"; add_to_wipe
-NAME="$LOCAL/$CHROME/*Cache*/"; DESC="Google Chrome"; add_to_wipe
-NAME="$LOCAL/$CHROME/*Cookies"; DESC="Google Chrome"; add_to_delete
-NAME="$LOCAL/$CHROME/Favicons"; DESC="Google Chrome"; add_to_delete
-NAME="$LOCAL/$CHROME/*History*"; DESC="Google Chrome"; add_to_delete
-NAME="$LOCAL/$CHROME/JumpListIcons*"; DESC="Google Chrome"; add_to_wipe
-NAME="$LOCAL/$CHROME/Last Session"; DESC="Google Chrome"; add_to_delete
-NAME="$LOCAL/$CHROME/Last Tabs"; DESC="Google Chrome"; add_to_delete
-NAME="$LOCAL/$CHROME/Local Storage/http*"; DESC="Google Chrome"; add_to_delete
-NAME="$LOCAL/$CHROME/Media Cache"; DESC="Google Chrome"; add_to_wipe
-NAME="$LOCAL/$CHROME/Pepper Data/Shockwave Flash"; DESC="Google Chrome"; add_to_wipe
-NAME="$LOCAL/$CHROME/*Tabs"; DESC="Google Chrome"; add_to_delete
-NAME="$LOCAL/$CHROME/Transport Security"; DESC="Google Chrome"; add_to_delete
-NAME="$LOCAL/$CHROME/Thumbnails"; DESC="Google Chrome"; add_to_delete
-NAME="$LOCAL/$CHROME/Visited Links"; DESC="Google Chrome"; add_to_delete
-NAME="$LOCAL/$CHROMEUD/Safe Browsing*"; DESC="Google Chrome"; add_to_delete
+
+# Google Chrome definitions, now with less redundancy
+CHROME="$LOCAL/Google/Chrome/User Data"; DESC="Google Chrome"
+NAME="$CHROME/*/*Cache*/"; add_to_wipe
+NAME="$CHROME/*/*Cookies"; add_to_delete
+NAME="$CHROME/*/Favicons"; add_to_delete
+NAME="$CHROME/*/*History*"; add_to_delete
+NAME="$CHROME/*/JumpListIcons*"; add_to_wipe
+NAME="$CHROME/*/Last Session"; add_to_delete
+NAME="$CHROME/*/Last Tabs"; add_to_delete
+NAME="$CHROME/*/Local Storage/http*"; add_to_delete
+NAME="$CHROME/*/Media Cache"; add_to_wipe
+NAME="$CHROME/*/Pepper Data/Shockwave Flash"; add_to_wipe
+NAME="$CHROME/*/*Tabs"; add_to_delete
+NAME="$CHROME/*/Transport Security"; add_to_delete
+NAME="$CHROME/*/Thumbnails"; add_to_delete
+NAME="$CHROME/*/Visited Links"; add_to_delete
+NAME="$CHROME/*/*.tmp"; add_to_delete
+NAME="$CHROME/*.tmp"; add_to_delete
+NAME="$CHROME/Safe Browsing*"; add_to_delete
+
 NAME="$LOCAL/Conduit"; DESC="Conduit software"; add_to_wipe
 NAME="$LOCAL/ConduitEngine"; DESC="Conduit software"; add_to_wipe
 NAME="$LOCAL/CouponAlert*"; DESC="CouponAlert"; add_to_wipe
