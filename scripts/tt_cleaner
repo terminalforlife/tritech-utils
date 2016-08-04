@@ -763,7 +763,12 @@ NAME="$ROAM/$FLASH2"; DESC="Flash cache"; add_to_wipe
 # Mozilla Firefox/Thunderbird, Pale Moon, etc.
 for MOZPROF in "Mozilla" "Mozilla/Firefox" "Thunderbird" \
 	"Moonchild Productions/Pale Moon" "LimeWire/mozilla-profile"
-	do MOZPROF="$ROAM/$MOZPROF/Profiles/*"
+	do
+	# The LimeWire Mozilla profile doesn't have a Profiles subdirectory
+	if [ "$MOZPROF" = "LimeWire/mozilla-profile" ]
+		then MOZPROF="$ROAM/$MOZPROF"
+		else MOZPROF="$ROAM/$MOZPROF/Profiles/*"
+	fi
 	DESC="Mozilla applications"
 NAME="$MOZPROF/TestPilotErrorLog.log"; add_to_delete
 NAME="$MOZPROF/Crash Reports"; add_to_wipe
