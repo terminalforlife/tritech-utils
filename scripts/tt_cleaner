@@ -546,6 +546,7 @@ NAME="$LOCAL/$MS/$IE/DOMStore"; DESC="IE DOMStore"; add_to_wipe
 NAME="$LOCAL/$MS/$IE/Recovery"; DESC="IE session recovery"; add_to_wipe
 NAME="$LOCAL/$MS/Media Player/Cache*"; DESC="Windows Media Player"; add_to_wipe
 NAME="$LOCAL/$MS/Media Player/lastplayed.wpl"; DESC="Windows Media Player"; add_to_delete
+NAME="$LOCAL/$MS/OneDrive/setup/logs"; DESC="MS OneDrive setup logs"; add_to_wipe
 NAME="$LOCAL/$MS/OneNote/*/TemporaryOneNoteOfflineCache.onecache"; DESC="MS OneNote cache"; add_to_delete
 NAME="$LOCAL/$MS/OfficeStarter"; DESC="Microsoft Office"; add_to_wipe
 NAME="$LOCAL/$MS/OIS"; DESC="Microsoft OIS"; add_to_wipe
