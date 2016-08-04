@@ -105,7 +105,6 @@ ITAAC="iTunes/Album Artwork/Cache"
 JAVACACHE="Sun/Java/Deployment/cache"
 JSYSCACHE="Sun/Java/Deployment/SystemCache"
 LFCONNECT="Leapfrog/Leapfrog Connect/cache"
-LWMOZ="LimeWire/mozilla-profile"
 MBAMLOGS="Malwarebytes/Malwarebytes\' Anti-Malware/Logs"
 MBAMQUAR="Malwarebytes/Malwarebytes\' Anti-Malware/Quarantine"
 MOZCNTRL="MozillaControl/profiles/MozillaControl/*"
@@ -121,7 +120,6 @@ SAVCELOGS='Symantec/Symantec AntiVirus Corporate Edition/*/Logs'
 SPEEDBROWSER='speed browser/User Data/*'
 STARTMENU="Microsoft/Windows/Start Menu/Programs"
 SPYBOTSD="Spybot - Search & Destroy/Logs"
-TBPROF="Mozilla/Thunderbird/Profiles/*"
 TMAVLOGS="Trend Micro/pc-cillin/Log"
 V7HIST1="Microsoft/Windows/History/History.IE5"
 V7HIST2="Microsoft/Windows/History/Low/History.IE5"
@@ -482,11 +480,11 @@ NAME="$LOCAL/EMBARQTOOLBAR"; DESC="Embarq Toolbar"; add_to_wipe
 NAME="$LOCAL/Facebook/Messenger/fbmessenger.cache"; DESC="FB Messenger cache"; add_to_wipe
 NAME="$LOCAL/Flixster/WebData/Cache"; DESC="Flixster"; add_to_wipe
 
-for MOZPROF in "Mozilla" "Mozilla Firefox" "Mozilla Thunderbird" \
-	"Moonchild Productions/Pale Moon"
+for MOZPROF in "Mozilla" "Mozilla/Firefox" "Mozilla Thunderbird" \
+	"Moonchild Productions/Pale Moon" "LimeWire/mozilla-profile"
 	do MOZPROF="$LOCAL/$MOZPROF/Profiles/*"
 	DESC="Mozilla applications"
-NAME="$MOZPROF/_CACHE_CLEAN_"; add_to_delete
+NAME="$MOZPROF/_CACHE_*_"; add_to_delete
 NAME="$MOZPROF/urlclassifier3.sqlite"; add_to_delete
 NAME="$MOZPROF/X*.mfl"; add_to_delete
 NAME="$MOZPROF/minidumps"; add_to_wipe
@@ -632,7 +630,7 @@ NAME="$LOCAL/SquirrelTemp"; DESC="Discord SquirrelTemp"; add_to_wipe
 NAME="$LOCAL/SupportSoft"; DESC="SupportSoft"; add_to_wipe
 NAME="$LOCAL/Sweetpacks*"; DESC="Sweetpacks"; add_to_wipe
 NAME="$LOCAL/$SAVCELOGS"; DESC="Symantec AV logs"; add_to_wipe
-NAME="$LOCAL/$TBPROF/X*.mfl"; DESC="Thunderbird MFLs"; add_to_delete
+NAME="$LOCAL/SupportSoft/DellSupportCenter/family/data/*.tmp"; DESC="Dell Support Center"; add_to_delete
 NAME="$LOCAL/TelevisionFanatic"; DESC="TelevisionFanatic"; add_to_wipe
 NAME="$LOCAL/*.tmp"; DESC="Temporary files"; add_to_delete
 NAME="$LOCAL/temp"; DESC="Temporary files"; add_to_wipe
@@ -764,7 +762,7 @@ NAME="$ROAM/$FLASH2"; DESC="Flash cache"; add_to_wipe
 
 # Mozilla Firefox/Thunderbird, Pale Moon, etc.
 for MOZPROF in "Mozilla" "Mozilla Firefox" "Mozilla Thunderbird" \
-	"Moonchild Productions/Pale Moon"
+	"Moonchild Productions/Pale Moon" "LimeWire/mozilla-profile"
 	do MOZPROF="$ROAM/$MOZPROF/Profiles/*"
 	DESC="Mozilla applications"
 NAME="$MOZPROF/TestPilotErrorLog.log"; add_to_delete
@@ -783,6 +781,7 @@ NAME="$MOZPROF/extensions/engine@conduit.com"; add_to_delete
 NAME="$MOZPROF/extensions/plugin@yontoo.com"; add_to_delete
 NAME="$MOZPROF/extensions/toolbar@ask.com"; add_to_delete
 NAME="$MOZPROF/Yahoo! Inc/ytoolbar"; add_to_delete
+NAME="$MOZPROF/X*.mfl"; add_to_delete
 done
 NAME="$ROAM/Mozilla/logs"; DESC="Mozilla applications"; add_to_wipe
 
@@ -825,8 +824,6 @@ NAME="$ROAM/KeepMySettingsX"; DESC="KeepMySettingsX"; add_to_wipe
 NAME="$ROAM/Kodak/Temp"; DESC="Kodak temporary files"; add_to_wipe
 NAME="$ROAM/Lavasoft/Web Companion/Logs"; DESC="Lavasoft WC Logs"; add_to_wipe
 NAME="$ROAM/$LFCONNECT"; DESC="Leapfrog cache"; add_to_wipe
-NAME="$ROAM/$LWMOZ/X*.mfl"; DESC="LimeWire"; add_to_delete
-NAME="$ROAM/$LWMOZ/Cache"; DESC="LimeWire"; add_to_wipe
 NAME="$ROAM/*.log"; DESC="Miscellanous logs"; add_to_delete
 NAME="$ROAM/Logs"; DESC="Miscellanous logs"; add_to_wipe
 NAME="$ROAM/LogMeIn"; DESC="LogMeIn logs"; add_to_wipe
