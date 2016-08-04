@@ -480,7 +480,7 @@ NAME="$LOCAL/EMBARQTOOLBAR"; DESC="Embarq Toolbar"; add_to_wipe
 NAME="$LOCAL/Facebook/Messenger/fbmessenger.cache"; DESC="FB Messenger cache"; add_to_wipe
 NAME="$LOCAL/Flixster/WebData/Cache"; DESC="Flixster"; add_to_wipe
 
-for MOZPROF in "Mozilla" "Mozilla/Firefox" "Mozilla Thunderbird" \
+for MOZPROF in "Mozilla" "Mozilla/Firefox" "Thunderbird" \
 	"Moonchild Productions/Pale Moon" "LimeWire/mozilla-profile"
 	do MOZPROF="$LOCAL/$MOZPROF/Profiles/*"
 	DESC="Mozilla applications"
@@ -761,7 +761,7 @@ NAME="$ROAM/$FLASH1"; DESC="Flash cache"; add_to_wipe
 NAME="$ROAM/$FLASH2"; DESC="Flash cache"; add_to_wipe
 
 # Mozilla Firefox/Thunderbird, Pale Moon, etc.
-for MOZPROF in "Mozilla" "Mozilla Firefox" "Mozilla Thunderbird" \
+for MOZPROF in "Mozilla" "Mozilla/Firefox" "Thunderbird" \
 	"Moonchild Productions/Pale Moon" "LimeWire/mozilla-profile"
 	do MOZPROF="$ROAM/$MOZPROF/Profiles/*"
 	DESC="Mozilla applications"
