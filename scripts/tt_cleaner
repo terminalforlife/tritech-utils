@@ -106,7 +106,6 @@ PARETOAS="ParetoLogic Anti-Spyware"
 PHOTOEXP="Nova Development/Photo Explosion*/*"
 SAFARI="Apple Computer/Safari"
 SAVCELOGS='Symantec/Symantec AntiVirus Corporate Edition/*/Logs'
-SPEEDBROWSER='speed browser/User Data/*'
 STARTMENU="Microsoft/Windows/Start Menu/Programs"
 SPYBOTSD="Spybot - Search & Destroy/Logs"
 V7HIST1="Microsoft/Windows/History/History.IE5"
@@ -432,25 +431,28 @@ NAME="$LOCAL/Conduit"; DESC="Conduit"; add_to_wipe
 NAME="$LOCAL/Corel/Thumbs"; DESC="Corel Thumbs"; add_to_wipe
 
 # Google Chrome definitions, now with less redundancy
-CHROME="$LOCAL/Google/Chrome/User Data"; DESC="Google Chrome"
-NAME="$CHROME/*/*Cache*/"; add_to_wipe
-NAME="$CHROME/*/*Cookies"; add_to_delete
-NAME="$CHROME/*/Favicons"; add_to_delete
-NAME="$CHROME/*/File System"; add_to_delete
-NAME="$CHROME/*/*History*"; add_to_delete
-NAME="$CHROME/*/JumpListIcons*"; add_to_wipe
-NAME="$CHROME/*/Last Session"; add_to_delete
-NAME="$CHROME/*/Last Tabs"; add_to_delete
-NAME="$CHROME/*/Local Storage/http*"; add_to_delete
-NAME="$CHROME/*/Media Cache"; add_to_wipe
-NAME="$CHROME/*/Pepper Data/Shockwave Flash"; add_to_wipe
-NAME="$CHROME/*/*Tabs"; add_to_delete
-NAME="$CHROME/*/Transport Security"; add_to_delete
-NAME="$CHROME/*/Thumbnails"; add_to_delete
-NAME="$CHROME/*/Visited Links"; add_to_delete
-NAME="$CHROME/*/*.tmp"; add_to_delete
-NAME="$CHROME/*.tmp"; add_to_delete
-NAME="$CHROME/Safe Browsing*"; add_to_delete
+DESC="Google Chrome"
+for CHROME in "Google/Chrome/User Data" "speed browser/User Data"
+	do CHROME="$LOCAL/$CHROME"
+	NAME="$CHROME/*/*Cache*/"; add_to_wipe
+	NAME="$CHROME/*/*Cookies"; add_to_delete
+	NAME="$CHROME/*/Favicons"; add_to_delete
+	NAME="$CHROME/*/File System"; add_to_delete
+	NAME="$CHROME/*/*History*"; add_to_delete
+	NAME="$CHROME/*/JumpListIcons*"; add_to_wipe
+	NAME="$CHROME/*/Last Session"; add_to_delete
+	NAME="$CHROME/*/Last Tabs"; add_to_delete
+	NAME="$CHROME/*/Local Storage/http*"; add_to_delete
+	NAME="$CHROME/*/Media Cache"; add_to_wipe
+	NAME="$CHROME/*/Pepper Data/Shockwave Flash"; add_to_wipe
+	NAME="$CHROME/*/*Tabs"; add_to_delete
+	NAME="$CHROME/*/Transport Security"; add_to_delete
+	NAME="$CHROME/*/Thumbnails"; add_to_delete
+	NAME="$CHROME/*/Visited Links"; add_to_delete
+	NAME="$CHROME/*/*.tmp"; add_to_delete
+	NAME="$CHROME/*.tmp"; add_to_delete
+	NAME="$CHROME/Safe Browsing*"; add_to_delete
+done
 
 NAME="$LOCAL/Conduit"; DESC="Conduit software"; add_to_wipe
 NAME="$LOCAL/ConduitEngine"; DESC="Conduit software"; add_to_wipe
@@ -477,12 +479,12 @@ for MOZPROF in "Mozilla" "Mozilla/Firefox" "Thunderbird" \
 	"Moonchild Productions/Pale Moon" "LimeWire/mozilla-profile"
 	do MOZPROF="$LOCAL/$MOZPROF/Profiles/*"
 	DESC="Mozilla applications"
-NAME="$MOZPROF/_CACHE_*_"; add_to_delete
-NAME="$MOZPROF/urlclassifier3.sqlite"; add_to_delete
-NAME="$MOZPROF/X*.mfl"; add_to_delete
-NAME="$MOZPROF/minidumps"; add_to_wipe
-NAME="$MOZPROF/thumbnails"; add_to_wipe
-NAME="$MOZPROF/*Cache*"; add_to_wipe
+	NAME="$MOZPROF/_CACHE_*_"; add_to_delete
+	NAME="$MOZPROF/urlclassifier3.sqlite"; add_to_delete
+	NAME="$MOZPROF/X*.mfl"; add_to_delete
+	NAME="$MOZPROF/minidumps"; add_to_wipe
+	NAME="$MOZPROF/thumbnails"; add_to_wipe
+	NAME="$MOZPROF/*Cache*"; add_to_wipe
 done
 
 NAME="$LOCAL/FontCache*.dat"; DESC="User font cache"; add_to_delete
@@ -736,6 +738,7 @@ NAME="$ROAM/Sammsoft/ARO/Version 2011"; DESC="Sammsoft ARO"; add_to_wipe
 NAME="$ROAM/AskPartnerNetwork"; DESC="Ask Partner Network"; add_to_wipe
 NAME="$ROAM/Avery/Avery Wizard*/Samples"; DESC="Avery Wizard samples"; add_to_wipe
 NAME="$ROAM/avg*/*.log"; DESC="AVG Antivirus"; add_to_delete
+
 # AVG pollution
 for X in \
 'AVG*/cache' 'AVG*/chjw' 'AVG*/Chjw' 'AVG*/Dumps' 'AVG*/log' \
@@ -744,6 +747,7 @@ for X in \
 'AVG*/PC Tuneup/Logs' 'AVG*/Rescue';
 	do NAME="$ROAM/${X}"; DESC="AVG Antivirus"; add_to_wipe
 done
+
 NAME="$ROAM/Avira/AntiVir Desktop/LOGFILES"; DESC="Avira AntiVir"; add_to_wipe
 NAME="$ROAM/Avira/AntiVir Desktop/REPORTS"; DESC="Avira AntiVir"; add_to_wipe
 NAME="$ROAM/BabSolution"; DESC="Babylon toolbar"; add_to_wipe
@@ -780,23 +784,23 @@ for MOZPROF in "Mozilla" "Mozilla/Firefox" "Thunderbird" \
 		else MOZPROF="$ROAM/$MOZPROF/Profiles/*"
 	fi
 	DESC="Mozilla applications"
-NAME="$MOZPROF/TestPilotErrorLog.log"; add_to_delete
-NAME="$MOZPROF/Crash Reports"; add_to_wipe
-NAME="$MOZPROF/minidumps"; add_to_wipe
-NAME="$MOZPROF/ConduitEngine"; add_to_delete
-NAME="$MOZPROF/conduit"; add_to_delete
-NAME="$MOZPROF/cookies.sqlite"; add_to_delete
-NAME="$MOZPROF/downloads.sqlite"; add_to_delete
-NAME="$MOZPROF/extensions/*/*/conduit*"; add_to_delete
-NAME="$MOZPROF/extensions/*/*/Conduit*"; add_to_delete
-NAME="$MOZPROF/extensions/*/ffxtlbr@incredibar.com"; add_to_delete
-NAME="$MOZPROF/extensions/*/*/npConduitFirefoxPlugin.dll"; add_to_delete
-NAME="$MOZPROF/extensions/*/*/npPriceGong_FF.dll"; add_to_delete
-NAME="$MOZPROF/extensions/engine@conduit.com"; add_to_delete
-NAME="$MOZPROF/extensions/plugin@yontoo.com"; add_to_delete
-NAME="$MOZPROF/extensions/toolbar@ask.com"; add_to_delete
-NAME="$MOZPROF/Yahoo! Inc/ytoolbar"; add_to_delete
-NAME="$MOZPROF/X*.mfl"; add_to_delete
+	NAME="$MOZPROF/TestPilotErrorLog.log"; add_to_delete
+	NAME="$MOZPROF/Crash Reports"; add_to_wipe
+	NAME="$MOZPROF/minidumps"; add_to_wipe
+	NAME="$MOZPROF/ConduitEngine"; add_to_delete
+	NAME="$MOZPROF/conduit"; add_to_delete
+	NAME="$MOZPROF/cookies.sqlite"; add_to_delete
+	NAME="$MOZPROF/downloads.sqlite"; add_to_delete
+	NAME="$MOZPROF/extensions/*/*/conduit*"; add_to_delete
+	NAME="$MOZPROF/extensions/*/*/Conduit*"; add_to_delete
+	NAME="$MOZPROF/extensions/*/ffxtlbr@incredibar.com"; add_to_delete
+	NAME="$MOZPROF/extensions/*/*/npConduitFirefoxPlugin.dll"; add_to_delete
+	NAME="$MOZPROF/extensions/*/*/npPriceGong_FF.dll"; add_to_delete
+	NAME="$MOZPROF/extensions/engine@conduit.com"; add_to_delete
+	NAME="$MOZPROF/extensions/plugin@yontoo.com"; add_to_delete
+	NAME="$MOZPROF/extensions/toolbar@ask.com"; add_to_delete
+	NAME="$MOZPROF/Yahoo! Inc/ytoolbar"; add_to_delete
+	NAME="$MOZPROF/X*.mfl"; add_to_delete
 done
 NAME="$ROAM/Mozilla/logs"; DESC="Mozilla applications"; add_to_wipe
 
