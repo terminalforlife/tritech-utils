@@ -84,8 +84,6 @@ SCANP="$(echo "$P" | sed 's#\*#\[\^/\]\*#g')"
 
 ### Common variables and locations
 
-AAWLOGS="Lavasoft/Ad-Aware/Logs"
-AAWQ="Lavasoft/Ad-Aware/Quarantine"
 AOLDWNLD="AOL Downloads"
 APPLE="Apple Computer"
 APPLEIC="Apple/Installer Cache"
@@ -95,16 +93,9 @@ APPLEMSB="$APPLE/MobileSync/Backup"
 APPLEIPSW="$APPLE/iTunes/*Software Updates"
 APPLEIPLG="$APPLE/iTunes/*Updater Logs"
 APPLESN="$APPLE/SyncNotifier/SyncNotifier/Logs"
-ARO2011="Sammsoft/ARO/Version 2011"
-AVIRALOGS="Avira/AntiVir Desktop/LOGFILES"
-AVIRAREPS="Avira/AntiVir Desktop/REPORTS"
 CARBONITEUS="Carbonite Restored OLD User Settings"
-FLASH1="Macromedia/Flash Player"
-FLASH2="Adobe/Flash Player"
-ITAAC="iTunes/Album Artwork/Cache"
 JAVACACHE="Sun/Java/Deployment/cache"
 JSYSCACHE="Sun/Java/Deployment/SystemCache"
-LFCONNECT="Leapfrog/Leapfrog Connect/cache"
 MBAMLOGS="Malwarebytes/Malwarebytes\' Anti-Malware/Logs"
 MBAMQUAR="Malwarebytes/Malwarebytes\' Anti-Malware/Quarantine"
 MOZCNTRL="MozillaControl/profiles/MozillaControl/*"
@@ -114,19 +105,15 @@ MSSQLLOG="$MS SQL Server/*/Setup Bootstrap/LOG"
 PARETOAS="ParetoLogic Anti-Spyware"
 PHOTOEXP="Nova Development/Photo Explosion*/*"
 SAFARI="Apple Computer/Safari"
-SAS="SUPERAntiSpyware"
-SASLOGS="${SAS}.com/$SAS/AppLogs"
 SAVCELOGS='Symantec/Symantec AntiVirus Corporate Edition/*/Logs'
 SPEEDBROWSER='speed browser/User Data/*'
 STARTMENU="Microsoft/Windows/Start Menu/Programs"
 SPYBOTSD="Spybot - Search & Destroy/Logs"
-TMAVLOGS="Trend Micro/pc-cillin/Log"
 V7HIST1="Microsoft/Windows/History/History.IE5"
 V7HIST2="Microsoft/Windows/History/Low/History.IE5"
 V7SAMPLE="Public/*/Sample */"
 WDSMART="Western Digital/WD SmartWare"
 WINDEF="Windows Defender"
-WINLTBF="Windows Live/Toolbar/Feeds"
 WLPG="$MS/Windows Live Photo Gallery"
 YMSGR="Yahoo!/Messenger"
 
@@ -721,8 +708,8 @@ NAME="$PF/$YMSGR/Logs"; DESC="Yahoo Messenger"; add_to_wipe
 
 NAME="$ROAM/24x7 Help"; DESC="24x7 Help"; add_to_wipe
 NAME="$ROAM/$STARTMENU/24x7 Help"; DESC="24x7 Help"; add_to_wipe
-NAME="$ROAM/$AAWLOGS"; DESC="Ad-Aware"; add_to_wipe
-NAME="$ROAM/$AAWQ"; DESC="Ad-Aware"; add_to_wipe
+NAME="$ROAM/Lavasoft/Ad-Aware/Logs"; DESC="Ad-Aware"; add_to_wipe
+NAME="$ROAM/Lavasoft/Ad-Aware/Quarantine"; DESC="Ad-Aware"; add_to_wipe
 NAME="$ROAM/AdwareAlert/Log"; DESC="AdwareAlert"; add_to_wipe
 NAME="$ROAM/AdwareAlert/Quarantine"; DESC="AdwareAlert"; add_to_wipe
 NAME="$ROAM/Adobe/ARM"; DESC="Adobe ARM"; add_to_wipe
@@ -744,7 +731,9 @@ NAME="$ROAM/$APPLEIPSW"; DESC="Apple software updates"; add_to_wipe
 NAME="$ROAM/$APPLEIPLG"; DESC="Apple install logs"; add_to_wipe
 NAME="$ROAM/$APPLELOGS"; DESC="Apple app logs"; add_to_wipe
 NAME="$ROAM/$APPLEMSB"; DESC="Apple MobileSync backup"; add_to_wipe
-NAME="$ROAM/$ARO2011"; DESC="Sammsoft ARO"; add_to_wipe
+NAME="$ROAM/Sammsoft/ARO/Version 2011"; DESC="Sammsoft ARO"; add_to_wipe
+
+NAME="$ROAM/AskPartnerNetwork"; DESC="Ask Partner Network"; add_to_wipe
 NAME="$ROAM/Avery/Avery Wizard*/Samples"; DESC="Avery Wizard samples"; add_to_wipe
 NAME="$ROAM/avg*/*.log"; DESC="AVG Antivirus"; add_to_delete
 # AVG pollution
@@ -755,8 +744,8 @@ for X in \
 'AVG*/PC Tuneup/Logs' 'AVG*/Rescue';
 	do NAME="$ROAM/${X}"; DESC="AVG Antivirus"; add_to_wipe
 done
-NAME="$ROAM/$AVIRALOGS"; DESC="Avira AntiVir"; add_to_wipe
-NAME="$ROAM/$AVIRAREPS"; DESC="Avira AntiVir"; add_to_wipe
+NAME="$ROAM/Avira/AntiVir Desktop/LOGFILES"; DESC="Avira AntiVir"; add_to_wipe
+NAME="$ROAM/Avira/AntiVir Desktop/REPORTS"; DESC="Avira AntiVir"; add_to_wipe
 NAME="$ROAM/BabSolution"; DESC="Babylon toolbar"; add_to_wipe
 NAME="$ROAM/Basis Sync/logs"; DESC="Basis Sync logs"; add_to_wipe
 NAME="$ROAM/Babylon"; DESC="Babylon toolbar"; add_to_wipe
@@ -778,8 +767,8 @@ NAME="$ROAM/Error*Fix/Logs"; DESC="ErrorFix"; add_to_wipe
 NAME="$ROAM/F-Secure/logs"; DESC="F-Secure"; add_to_wipe
 NAME="$ROAM/FixCleaner"; DESC="FixCleaner"; add_to_wipe
 NAME="$ROAM/File Scout"; DESC="File Scout"; add_to_wipe
-NAME="$ROAM/$FLASH1"; DESC="Flash cache"; add_to_wipe
-NAME="$ROAM/$FLASH2"; DESC="Flash cache"; add_to_wipe
+NAME="$ROAM/Macromedia/Flash Player"; DESC="Flash cache"; add_to_wipe
+NAME="$ROAM/Adobe/Flash Player"; DESC="Flash cache"; add_to_wipe
 
 # Mozilla Firefox/Thunderbird, Pale Moon, etc.
 for MOZPROF in "Mozilla" "Mozilla/Firefox" "Thunderbird" \
@@ -852,7 +841,7 @@ NAME="$ROAM/Kaspersky Lab/KAV.*.*"; DESC="Kaspersky logs"; add_to_delete
 NAME="$ROAM/KeepMySettingsX"; DESC="KeepMySettingsX"; add_to_wipe
 NAME="$ROAM/Kodak/Temp"; DESC="Kodak temporary files"; add_to_wipe
 NAME="$ROAM/Lavasoft/Web Companion/Logs"; DESC="Lavasoft WC Logs"; add_to_wipe
-NAME="$ROAM/$LFCONNECT"; DESC="Leapfrog cache"; add_to_wipe
+NAME="$ROAM/Leapfrog/Leapfrog Connect/cache"; DESC="Leapfrog cache"; add_to_wipe
 NAME="$ROAM/*.log"; DESC="Miscellanous logs"; add_to_delete
 NAME="$ROAM/Logs"; DESC="Miscellanous logs"; add_to_wipe
 NAME="$ROAM/LogMeIn"; DESC="LogMeIn logs"; add_to_wipe
@@ -895,7 +884,7 @@ NAME="$ROAM/$MS/$WINDEF/Quarantine"; DESC="Windows Defender"; add_to_wipe
 NAME="$ROAM/$MS/$WINDEF/Scans"; DESC="Windows Defender"; add_to_wipe
 NAME="$ROAM/$MS/$WINDEF/Support"; DESC="Windows Defender"; add_to_wipe
 NAME="$ROAM/$MS/WLSetup"; DESC="Windows Live setup"; add_to_wipe
-NAME="$ROAM/$MS/$WINLTBF/*.tmp"; DESC="WinLive TB Feeds"; add_to_delete
+NAME="$ROAM/$MS/Windows Live/Toolbar/Feeds/*.tmp"; DESC="WinLive TB Feeds"; add_to_delete
 NAME="$ROAM/$MS/Works SE"; DESC="MS Works SE ad cache"; add_to_wipe
 NAME="$ROAM/$MS/Office/*.tmp"; DESC="MS Office temp files"; add_to_delete
 NAME="$ROAM/$MS/Word/\~*.tmp"; DESC="MS Office temp files"; add_to_delete
@@ -945,7 +934,7 @@ NAME="$ROAM/Real/RealPlayer/WatchFolders"; DESC="RealPlayer"; add_to_wipe
 NAME="$ROAM/Registry Mechanic"; DESC="Registry Mechanic"; add_to_wipe
 NAME="$ROAM/Roxio Log Files"; DESC="Roxio Log Files"; add_to_wipe
 NAME="$ROAM/$SAFARI/PubSub"; DESC="Safari PubSub data"; add_to_wipe
-NAME="$ROAM/$SASLOGS"; DESC="SUPERAntiSpyware logs"; add_to_wipe
+NAME="$ROAM/SUPERAntiSpyware.com/SUPERAntiSpyware/AppLogs"; DESC="SUPERAntiSpyware logs"; add_to_wipe
 NAME="$ROAM/ScanQuery"; DESC="ScanQuery"; add_to_wipe
 NAME="$ROAM/SearchDonkey"; DESC="SearchDonkey"; add_to_wipe
 NAME="$ROAM/SecondLife/*/browser/_profile/cache"; DESC="SecondLife"; add_to_wipe
@@ -975,7 +964,7 @@ NAME="$ROAM/Systweak"; DESC="Systweak"; add_to_wipe
 NAME="$ROAM/TeamViewer/*_logfile.log"; DESC="TeamViewer logs"; add_to_delete
 NAME="$ROAM/temp"; DESC="Temporary files (roaming)"; add_to_wipe
 NAME="$ROAM/Temp"; DESC="Temporary files (roaming)"; add_to_wipe
-NAME="$ROAM/$TMAVLOGS"; DESC="Trend Micro AV logs"; add_to_wipe
+NAME="$ROAM/Trend Micro/pc-cillin/Log"; DESC="Trend Micro AV logs"; add_to_wipe
 NAME="$ROAM/Toolbar4"; DESC="Toolbar4"; add_to_wipe
 NAME="$ROAM/Trusteer/Rapport/logs"; DESC="Trusteer Rapport"; add_to_wipe
 NAME="$ROAM/Trusteer/Rapport/user/logs"; DESC="Trusteer Rapport"; add_to_wipe
@@ -999,9 +988,9 @@ NAME="$ROAM/Yahoo!/Companion"; DESC="Yahoo Companion"; add_to_wipe
 NAME="$P/.thumbnails"; DESC="User thumbnails"; add_to_wipe
 NAME="$P/Cookies"; DESC="IE cookies"; add_to_wipe
 NAME="$P/CyberLink/CLFaceLogin"; DESC="CyberLink logs"; add_to_wipe
-NAME="$P/Music/$ITAAC"; DESC="iTunes AA cache"; add_to_wipe
+NAME="$P/Music/iTunes/Album Artwork/Cache"; DESC="iTunes caches"; add_to_wipe
+NAME="$P/My Documents/My Music/iTunes/Album Artwork/Cache"; DESC="iTunes caches"; add_to_wipe
 NAME="$P/Philips/iSite*"; DESC="Philips iSiteLogs"; add_to_wipe
-NAME="$P/My Documents/My Music/$ITAAC"; DESC="iTunes caches"; add_to_wipe
 NAME="$P/My Documents/My Pictures/iPod Photo Cache"; DESC="iTunes caches"; add_to_wipe
 NAME="$P/Pictures/iPod Photo Cache"; DESC="iTunes caches"; add_to_wipe
 NAME="$P/Recent"; DESC="Recent documents"; add_to_wipe
