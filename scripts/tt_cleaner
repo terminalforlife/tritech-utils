@@ -1,7 +1,7 @@
 #!/bin/bash
 
-VER="5.2.1"
-VERDATE="2016-08-04"
+VER="5.2.2"
+VERDATE="2016-08-12"
 
 # Tritech Service System Windows installation clean tool for Linux
 # Copyright (C) by Jody Bruchon <jody@jodybruchon.com>
@@ -84,7 +84,6 @@ SCANP="$(echo "$P" | sed 's#\*#\[\^/\]\*#g')"
 
 ### Common variables and locations
 
-AOLDWNLD="AOL Downloads"
 APPLE="Apple Computer"
 APPLEIC="Apple/Installer Cache"
 APPLEIC2="$APPLE/Installer Cache"
@@ -720,13 +719,11 @@ NAME="$ROAM/AOL/*/spool"; DESC="AOL"; add_to_wipe
 NAME="$ROAM/AOL/*/bart"; DESC="AOL"; add_to_wipe
 NAME="$ROAM/AOL/*/misc/temp"; DESC="AOL"; add_to_wipe
 NAME="$ROAM/AOL/TopSpeed/*/cache.db"; DESC="AOL"; add_to_delete
-NAME="$ROAM/$AOLDWNLD"; DESC="AOL"; add_to_wipe
-NAME="$ROAM/Alwil Software/Avast5/chest"; DESC="Avast Antivirus"; add_to_wipe
-NAME="$ROAM/Alwil Software/Avast5/log"; DESC="Avast Antivirus"; add_to_wipe
-NAME="$ROAM/Alwil Software/Avast5/report"; DESC="Avast Antivirus"; add_to_wipe
-NAME="$ROAM/AVAST Software/Avast/chest"; DESC="Avast Antivirus"; add_to_wipe
-NAME="$ROAM/AVAST Software/Avast/log"; DESC="Avast Antivirus"; add_to_wipe
-NAME="$ROAM/AVAST Software/Avast/report"; DESC="Avast Antivirus"; add_to_wipe
+NAME="$ROAM/AOL Downloads"; DESC="AOL"; add_to_wipe
+NAME="$ROAM/A* Software/Avast*/chest"; DESC="Avast Antivirus"; add_to_wipe
+NAME="$ROAM/A* Software/Avast*/log"; DESC="Avast Antivirus"; add_to_wipe
+NAME="$ROAM/A* Software/Avast*/report"; DESC="Avast Antivirus"; add_to_wipe
+NAME="$ROAM/A* Software/Persistent Data/Avast/Logs"; DESC="Avast Antivirus"; add_to_wipe
 NAME="$ROAM/$APPLEIC"; DESC="Apple installer cache"; add_to_wipe
 NAME="$ROAM/$APPLEIC2"; DESC="Apple installer cache"; add_to_wipe
 NAME="$ROAM/$APPLEIPSW"; DESC="Apple software updates"; add_to_wipe
@@ -736,6 +733,7 @@ NAME="$ROAM/$APPLEMSB"; DESC="Apple MobileSync backup"; add_to_wipe
 NAME="$ROAM/Sammsoft/ARO/Version 2011"; DESC="Sammsoft ARO"; add_to_wipe
 
 NAME="$ROAM/AskPartnerNetwork"; DESC="Ask Partner Network"; add_to_wipe
+NAME="$ROAM/Auslogics/*/Logs"; DESC="Auslogics"; add_to_wipe
 NAME="$ROAM/Avery/Avery Wizard*/Samples"; DESC="Avery Wizard samples"; add_to_wipe
 NAME="$ROAM/avg*/*.log"; DESC="AVG Antivirus"; add_to_delete
 
@@ -907,6 +905,7 @@ NAME="$ROAM/OfficeGuardian/\~SACThumbnail"; DESC="OfficeGuardian"; add_to_wipe
 NAME="$ROAM/ooVoo Details/cache"; DESC="ooVoo"; add_to_wipe
 NAME="$ROAM/ooVoo Details/logs"; DESC="ooVoo"; add_to_wipe
 NAME="$ROAM/OpenCandy"; DESC="OpenCandy downloader"; add_to_wipe
+NAME="$ROAM/Origin/Logs"; DESC="Origin"; add_to_wipe
 NAME="$ROAM/$PARETOAS/*/Logs"; DESC="ParetoLogic logs"; add_to_wipe
 NAME="$ROAM/PCDr"; DESC="PC-Doctor data"; add_to_wipe
 NAME="$ROAM/PCFixSpeed"; DESC="PC Fix Speed"; add_to_wipe
