@@ -466,6 +466,7 @@ NAME="$LOCAL/DataMngr"; DESC="DataMngr garbage"; add_to_wipe
 NAME="$LOCAL/Diagnostics"; DESC="Windows Diagnostics"; add_to_wipe
 NAME="$LOCAL/Dropbox/logs"; DESC="Dropbox"; add_to_wipe
 NAME="$LOCAL/Dropbox/Update"; DESC="Dropbox"; add_to_wipe
+NAME="$ROAM/Dropbox/Update"; DESC="Dropbox"; add_to_wipe
 NAME="$LOCAL/DVDVideoSoftTB"; DESC="DVDVideoSoftTB"; add_to_wipe
 NAME="$LOCAL/ElevatedDiagnostics"; DESC="Windows Diagnostics"; add_to_wipe
 NAME="$LOCAL/Evernote/Evernote/Logs"; DESC="Evernote"; add_to_wipe
@@ -759,6 +760,8 @@ NAME="$ROAM/BirdieSync/Log"; DESC="BirdieSync"; add_to_wipe
 NAME="$ROAM/Brother/BrLog/*.log"; DESC="Brother logs"; add_to_delete
 NAME="$ROAM/BrowserProtect"; DESC="BrowserProtect"; add_to_wipe
 NAME="$ROAM/$STARTMENU/BrowserProtect"; DESC="BrowserProtect"; add_to_wipe
+NAME="$ROAM/Canon/*/temp"; DESC="Canon"; add_to_wipe
+NAME="$ROAM/CitrixLogs"; DESC="Citrix Logs"; add_to_wipe
 NAME="$ROAM/ClickPotatoLiteSA"; DESC="ClickPotato"; add_to_wipe
 NAME="$ROAM/Complitly"; DESC="Complitly spyware"; add_to_wipe
 NAME="$ROAM/Conduit"; DESC="Conduit"; add_to_wipe
