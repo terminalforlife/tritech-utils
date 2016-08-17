@@ -67,6 +67,9 @@ test $DEBUG -gt 0 && unset CWHT CGRN CPUR CCYA CYEL CRED CBLU
 export V7=0
 export OSX=0
 export UPF=0
+export LOCAL=__NONE__
+export ROAM=__NONE__
+export LIBRARY=__NONE__
 OS="None"
 test -d "$XPDOCS" && OS="Windows 2000/XP" && export V7=1 && export UPF=1
 test -d "$V7DOCS" && OS="Windows Vista/7/8.x/10" && export V7=2 && export UPF=1
@@ -1179,11 +1182,10 @@ if [ $OSX -gt 0 ]; then
 
 # Mozilla Firefox/Thunderbird, Pale Moon, etc.
 DESC="Mozilla applications"
-for MOZPROF in "Mozilla" "Mozilla/Firefox" "Thunderbird" \
+for MOZPROFX in Mozilla Mozilla/Firefox Firefox Thunderbird \
 	"Moonchild Productions/Pale Moon"
 	do
-	# The LimeWire Mozilla profile doesn't have a Profiles subdirectory
-	MOZPROF="$LIBRARY/Caches*/$MOZPROF/Profiles/*"
+	MOZPROF="$LIBRARY/Application Support/$MOZPROFX/Profiles/*"
 	NAME="$MOZPROF/TestPilotErrorLog.log"; add_to_delete
 	NAME="$MOZPROF/Crash Reports"; add_to_wipe
 	NAME="$MOZPROF/minidumps"; add_to_wipe
@@ -1201,7 +1203,16 @@ for MOZPROF in "Mozilla" "Mozilla/Firefox" "Thunderbird" \
 	NAME="$MOZPROF/extensions/toolbar@ask.com"; add_to_delete
 	NAME="$MOZPROF/Yahoo! Inc/ytoolbar"; add_to_delete
 	NAME="$MOZPROF/X*.mfl"; add_to_delete
+
+	MOZPROF="$LIBRARY/Caches*/$MOZPROFX/Profiles/*"
+	NAME="$MOZPROF/_CACHE_*_"; add_to_delete
+	NAME="$MOZPROF/urlclassifier3.sqlite"; add_to_delete
+	NAME="$MOZPROF/X*.mfl"; add_to_delete
+	NAME="$MOZPROF/minidumps"; add_to_wipe
+	NAME="$MOZPROF/thumbnails"; add_to_wipe
+	NAME="$MOZPROF/*Cache*"; add_to_wipe
 done
+
 NAME="$LIBRARY/Containers/*/Data/Library/Logs"; DESC="Application Logs"; add_to_wipe
 NAME="$LIBRARY/Logs/*/"; DESC="Application Logs"; add_to_wipe
 NAME="$LIBRARY/Logs/*.*"; DESC="Application Logs"; add_to_delete
