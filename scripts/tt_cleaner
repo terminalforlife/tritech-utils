@@ -1,7 +1,7 @@
 #!/bin/bash
 
-VER="5.2.2"
-VERDATE="2016-08-12"
+VER="5.3"
+VERDATE="2016-08-17"
 
 # Tritech Service System Windows installation clean tool for Linux
 # Copyright (C) by Jody Bruchon <jody@jodybruchon.com>
@@ -33,7 +33,7 @@ trap control_c INT
 
 if [[ "$1" = "-h" || "$1" = "--help" ]]
 	then
-	echo -e "Tritech Service System Cleaner, a Windows cleaning tool for Linux.\n"
+	echo -e "Tritech Service System Cleaner, a junk cleaning tool for Linux\n"
 	echo "Program version $VER, last updated on $VERDATE"
 	echo "$0         normal mode, shows verbose scan progress and reports"
 	echo "$0 -x      fast normal mode, skips size counts of cleaned items"
@@ -63,20 +63,38 @@ test "$1" = "-d" && MSG=2 && NODEL=1 && DEBUG=1
 
 test $DEBUG -gt 0 && unset CWHT CGRN CPUR CCYA CYEL CRED CBLU 
 
-### Scan for 2000/XP or Vista/7 and set folders accordingly
-test -d "$XPDOCS" && OS="2000/XP" && export V7=1
-test -d "$V7DOCS" && OS="Vista/7" && export V7=2
+### Scan for 2000/XP or Vista/7 or Mac OS X and set folders accordingly
+export V7=0
+export OSX=0
+export UPF=0
+OS="None"
+test -d "$XPDOCS" && OS="Windows 2000/XP" && export V7=1 && export UPF=1
+test -d "$V7DOCS" && OS="Windows Vista/7/8.x/10" && export V7=2 && export UPF=1
+if [[ -d "System/Library" || "Users/Shared/Library" ]]
+	then OS="Mac OS X"
+	export OSX=1
+	export V7=0
+	test -d "Users/Shared/Library" && export UPF=1
+fi
 echo "$@" | grep -q -- "--xp" && export V7=1
 echo "$@" | grep -q -- "--v7" && export V7=2
+echo "$@" | grep -q -- "--osx" && export OSX=1
 if [ "$V7" = "2" ]
-        then
-                export P="$V7DOCS/*"
-                export LOCAL="$P/$V7LOCAL"
-                export ROAM="$P/$V7ROAM"
-        else
-                export P="$XPDOCS/*"
-                export LOCAL="$P/$XPLOCAL"
-                export ROAM="$P/$XPROAM"
+	then
+	export P="$V7DOCS/*"
+	export LOCAL="$P/$V7LOCAL"
+	export ROAM="$P/$V7ROAM"
+fi
+if [ "$V7" = "1" ]
+	then
+	export P="$XPDOCS/*"
+	export LOCAL="$P/$XPLOCAL"
+	export ROAM="$P/$XPROAM"
+fi
+if [ "$OSX" = "1" ]
+	then
+	export P="Users/*"
+	export LIBRARY="$P/Library"
 fi
 # Scan version of P for grep-friendliness
 SCANP="$(echo "$P" | sed 's#\*#\[\^/\]\*#g')"
@@ -120,8 +138,10 @@ YMSGR="Yahoo!/Messenger"
 test "$MSG" = "1" && echo -n "Cleaning: "
 if [ "$MSG" = "2" ]
 	then echo -e "${CWHT}Tritech Service System Cleaner, version $CGRN$VER$COFF ($CGRN$VERDATE$COFF)"
-	test "$WINDIR" = "__NONE__" && echo "${CYEL}NOTICE: ${CWHT}No Windows folder detected$COFF"
-	test "$V7" = "0" && echo "${CYEL}NOTICE: ${CWHT}No user profile root folder detected$COFF"
+	echo "${CWHT}OS detected: $OS$COFF"
+	test $V7 -gt 0 && test "$WINDIR" = "__NONE__" && \
+		echo "${CYEL}NOTICE: ${CWHT}No Windows folder detected$COFF"
+	test "$UPF" = "0" && echo "${CYEL}NOTICE: ${CWHT}No user profile root folder detected$COFF"
 fi
 
 ### Functions
@@ -385,7 +405,7 @@ if ls $(echo "$P/$CARBONITEUS") >/dev/null 2>/dev/null; then
 fi
 
 # Try to apply XP-style folders on V7, just in case...
-if ! [ "$v7" = "2" ]; then
+if ! [ "$V7" = "2" ]; then
 	REWRITE0=( "${REWRITE0[@]}" "$V7ROAM" )
 	REWRITE1=( "${REWRITE1[@]}" "$V7ROAM" )
 	REWRITE2=( "${REWRITE2[@]}" "$XPROAM" )
@@ -398,6 +418,18 @@ if ! [ "$v7" = "2" ]; then
 #	REWRITE2=( "${REWRITE2[@]}" "Documents and Settings/" )
 fi
 
+# Try to catch extra stuff on Mac OS X too
+if [ "$OSX" = "1" ]
+	then
+	REWRITE0=( "${REWRITE0[@]}" "Library" )
+	REWRITE1=( "${REWRITE1[@]}" "Library" )
+	REWRITE2=( "${REWRITE2[@]}" "Library/Caches" )
+fi
+
+
+########### Start Windows cleaning definitions ############
+
+if [ $V7 -gt 0 ]; then
 NAME="$LOCAL/AOL/*/toolbarCache"; DESC="AOL Caches"; add_to_wipe
 NAME="$LOCAL/AOL/*/browserCache"; DESC="AOL Caches"; add_to_wipe
 NAME="$LOCAL/ars.cache"; DESC="Miscellanous junk"; add_to_delete
@@ -1138,7 +1170,49 @@ done
 
 rmdir --ignore-fail-on-non-empty "$P/$ROAM/$STARTMENU/*/" "$PD/$STARTMENU/*/" 2>/dev/null
 
-### End cleaning definitions
+fi
+########### End Windows definitions #############
+
+########### Begin Mac OS X definitions #############
+
+if [ $OSX -gt 0 ]; then
+
+# Mozilla Firefox/Thunderbird, Pale Moon, etc.
+for MOZPROF in "Mozilla" "Mozilla/Firefox" "Thunderbird" \
+	"Moonchild Productions/Pale Moon" "LimeWire/mozilla-profile"
+	do
+	# The LimeWire Mozilla profile doesn't have a Profiles subdirectory
+	if [ "$MOZPROF" = "LimeWire/mozilla-profile" ]
+		then MOZPROF="$LIBRARY/Caches/$MOZPROF"
+		else MOZPROF="$LIBRARY/Caches/$MOZPROF/Profiles/*"
+	fi
+	DESC="Mozilla applications"
+	NAME="$MOZPROF/TestPilotErrorLog.log"; add_to_delete
+	NAME="$MOZPROF/Crash Reports"; add_to_wipe
+	NAME="$MOZPROF/minidumps"; add_to_wipe
+	NAME="$MOZPROF/ConduitEngine"; add_to_delete
+	NAME="$MOZPROF/conduit"; add_to_delete
+	NAME="$MOZPROF/cookies.sqlite"; add_to_delete
+	NAME="$MOZPROF/downloads.sqlite"; add_to_delete
+	NAME="$MOZPROF/extensions/*/*/conduit*"; add_to_delete
+	NAME="$MOZPROF/extensions/*/*/Conduit*"; add_to_delete
+	NAME="$MOZPROF/extensions/*/ffxtlbr@incredibar.com"; add_to_delete
+	NAME="$MOZPROF/extensions/*/*/npConduitFirefoxPlugin.dll"; add_to_delete
+	NAME="$MOZPROF/extensions/*/*/npPriceGong_FF.dll"; add_to_delete
+	NAME="$MOZPROF/extensions/engine@conduit.com"; add_to_delete
+	NAME="$MOZPROF/extensions/plugin@yontoo.com"; add_to_delete
+	NAME="$MOZPROF/extensions/toolbar@ask.com"; add_to_delete
+	NAME="$MOZPROF/Yahoo! Inc/ytoolbar"; add_to_delete
+	NAME="$MOZPROF/X*.mfl"; add_to_delete
+done
+NAME="$LIBRARY/Containers/*/Data/Library/Logs"; DESC="Application Logs"; add_to_wipe
+NAME="$LIBRARY/Logs/*/"; DESC="Application Logs"; add_to_wipe
+NAME="$LIBRARY/Logs/*.*"; DESC="Application Logs"; add_to_delete
+
+fi
+
+############# End Mac OS X definitions ##############
+
 
 rm -f $TMPFILE
 
