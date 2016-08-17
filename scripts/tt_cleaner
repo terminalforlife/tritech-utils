@@ -419,12 +419,12 @@ if ! [ "$V7" = "2" ]; then
 fi
 
 # Try to catch extra stuff on Mac OS X too
-if [ "$OSX" = "1" ]
-	then
-	REWRITE0=( "${REWRITE0[@]}" "Library" )
-	REWRITE1=( "${REWRITE1[@]}" "Library" )
-	REWRITE2=( "${REWRITE2[@]}" "Library/Caches" )
-fi
+#if [ "$OSX" = "1" ]
+#	then
+#	REWRITE0=( "${REWRITE0[@]}" "Library" )
+#	REWRITE1=( "${REWRITE1[@]}" "Library" )
+#	REWRITE2=( "${REWRITE2[@]}" "Library/Caches" )
+#fi
 
 
 ########### Start Windows cleaning definitions ############
@@ -1178,15 +1178,12 @@ fi
 if [ $OSX -gt 0 ]; then
 
 # Mozilla Firefox/Thunderbird, Pale Moon, etc.
+DESC="Mozilla applications"
 for MOZPROF in "Mozilla" "Mozilla/Firefox" "Thunderbird" \
-	"Moonchild Productions/Pale Moon" "LimeWire/mozilla-profile"
+	"Moonchild Productions/Pale Moon"
 	do
 	# The LimeWire Mozilla profile doesn't have a Profiles subdirectory
-	if [ "$MOZPROF" = "LimeWire/mozilla-profile" ]
-		then MOZPROF="$LIBRARY/Caches/$MOZPROF"
-		else MOZPROF="$LIBRARY/Caches/$MOZPROF/Profiles/*"
-	fi
-	DESC="Mozilla applications"
+	MOZPROF="$LIBRARY/Caches*/$MOZPROF/Profiles/*"
 	NAME="$MOZPROF/TestPilotErrorLog.log"; add_to_delete
 	NAME="$MOZPROF/Crash Reports"; add_to_wipe
 	NAME="$MOZPROF/minidumps"; add_to_wipe
