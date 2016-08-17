@@ -70,7 +70,7 @@ export UPF=0
 OS="None"
 test -d "$XPDOCS" && OS="Windows 2000/XP" && export V7=1 && export UPF=1
 test -d "$V7DOCS" && OS="Windows Vista/7/8.x/10" && export V7=2 && export UPF=1
-if [[ -d "System/Library" || "Users/Shared/Library" ]]
+if [[ -d "System/Library" || -d "Users/Shared/Library" ]]
 	then OS="Mac OS X"
 	export OSX=1
 	export V7=0
