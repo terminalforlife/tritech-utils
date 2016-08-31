@@ -2,31 +2,31 @@
 
 # Displays info on storage devices in the system
 
-VER=1.7.1
-VERDATE="2013-12-20"
+VER=1.8
+VERDATE="2016-08-29"
 
 . tss__common
 
 get_device_info () {
+	REM=9; USB=9; DEVSIZE=0
 	PTTYPE="MBR"
 	tss_file_tool gpt /dev/$1 | grep -q "yes" && PTTYPE="GPT"
 	PTTYPE="${CWHT}[$CBLU$PTTYPE${CWHT}]"
-	REM="$(tr -d '\n' < /sys/block/$1/removable)"
-	readlink "/sys/block/$1" | grep -q "/usb" && USB=1 || USB=0
-	case $REM$USB in
-		00) TYPE="Internal " ;;
-		01) TYPE="USB HDD  " ;;
-		10) TYPE="Removable" ;;
-		11) TYPE="USB disk " ;;
-		*)  TYPE="Type err?" ;;
-	esac
-	Z=$(cat /sys/block/$1/size)
-	if [[ "$Z" -gt 0 && -e /sys/block/$1/device/model ]]
+	# Check if removable and/or USB, or if the drive is an empty card reader
+	# Empty card readers and invalid disk devices have a 9 in the REM/USB type
+	test -e /sys/block/$1/removable && REM="$(tr -d '\n' < /sys/block/$1/removable)"
+	test -z "$REM" && REM=9
+	if [ -e "/sys/block/$1" ]
+		then readlink "/sys/block/$1" | grep -q "/usb" && USB=1 || USB=0
+		Z=$(cat /sys/block/$1/size)
+		DEVSIZE=$(expr $Z / 2 \* 1024 / 1000000000)
+		else USB=9; Z=0; DEVSIZE=0
+	fi
+	if [[ $Z -gt 0 && -e /sys/block/$1/device/model ]]
 		then MODEL=$(cat /sys/block/$1/device/model)
 		DSN=$(hdparm -I /dev/$1 2>/dev/null | grep 'Serial Number:' | sed 's/[^:]*[^a-zA-Z0-9]*//;s/ *$//g')
 		else MODEL="(No model)"
 	fi
-	DEVSIZE=$(expr $Z / 2 \* 1024 / 1000000000)
 	if [ "$DEVSIZE" -lt "9" ]
 		then DEVSIZE="$(expr $Z / 2 \* 1024 / 1000000) MB"
 		else if [ "$DEVSIZE" -gt 999 ]
@@ -34,6 +34,18 @@ get_device_info () {
 			else DEVSIZE="$DEVSIZE GB"
 		fi
 	fi
+	case $REM$USB in
+		00) TYPE="Internal " ;;
+		01) TYPE="USB HDD  " ;;
+		10) TYPE="Removable" ;;
+		11) TYPE="USB disk " ;;
+		09) TYPE="Uncertain" ;;
+		19) TYPE="Uncertain" ;;
+		90) TYPE="Empty Int" ;;
+		91) TYPE="Empty Ext" ;;
+		99) TYPE="Empty    " ;;
+		*)  TYPE="Type err?" ;;
+	esac
 	# Auto-space device size string length
 	LEN=$(echo "$DEVSIZE" | wc -c); LEN=$((8 - LEN))
 	while [ $LEN -gt 0 ]; do DEVSIZE=" $DEVSIZE"; LEN=$((LEN - 1)); done
@@ -108,14 +120,18 @@ DRIVES="$(echo /dev/sd? /dev/hd? | tr ' ' '\n' | grep -v '\?' | sort)"
 # Pulls partition info via fdisk and adds lines to PART
 # in the format:  /dev/devX=type.size_in_1k_blocks
 for DRIVE in $DRIVES
-	do if tss_file_tool gpt $DRIVE | grep -q "no"
+	do
+	DBN="$(basename $DRIVE)"
+	# Remove drives that have device nodes but the kernel says are bogus
+	test ! -e /sys/block/$DBN && DRIVES="$(echo "$DRIVES" | sed s#$DRIVE##)" && continue
+	if tss_file_tool gpt $DRIVE | grep -q "no"
 		then $FDISK -l $DRIVE 2>/dev/null | grep /dev | \
 			grep -v Disk | tr -d \* | tr -d + | \
 			awk '{ print $1"="$5"."$4 }' >> $PART
 		else $SGDISK -p $DRIVE 2>/dev/null | grep '^   ' | \
 			sed 's/  */ /g;s/^ //g' | while read LINE
 			do
-			HWSS1=$(cat /sys/block/$(basename $DRIVE)/queue/hw_sector_size)
+			HWSS1=$(cat /sys/block/$DBN/queue/hw_sector_size)
 			HWSS2=$(expr $HWSS1 / 1024)
 			PS=$(echo $LINE | cut -d" " -f2)
 			PE=$(echo $LINE | cut -d" " -f3)
