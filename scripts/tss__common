@@ -221,8 +221,8 @@ tt__hdd_smart_status () {
 		UCEC=$(smartctl -A /dev/$1 | grep -m 1 UDMA_CRC_Error_Count | sed 's/ ([^)])$//;s/.* //g;s/[^0-9].*//')
 		if [ -n "$UCEC" ]
 			then
-			test $UCEC -gt 0 && test $UCEC -lt 10 && S="$S ${CYEL}UCEC=$UCEC$COFF"
-			test $UCEC -ge 10 && test $UCEC -lt 10000 && S="$S ${CRED}UCEC=$UCEC$COFF"
+			test $UCEC -gt 0 && test $UCEC -lt 2000 && S="$S ${CYEL}UCEC=$UCEC$COFF"
+			test $UCEC -ge 2000 && test $UCEC -lt 10000 && S="$S ${CRED}UCEC=$UCEC$COFF"
 		fi
 		test "$2" != "-q" && test -n "$S" && echo "$CWHT$1$COFF:  $CWHT+-- ${CCYA}SMART data: $S"
 	fi

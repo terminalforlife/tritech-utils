@@ -268,7 +268,7 @@ while [ $DIC -lt $DI ]
 	test $REC -gt 50 && SMART_BADHDD=1
 	test $CPS -gt 50 && SMART_BADHDD=1
 	test $OUNC -gt 10 && SMART_BADHDD=1
-	test $UCEC -gt 100 && SMART_BADHDD=1
+	test $UCEC -gt 2000 && SMART_BADHDD=1
 	if [ "$SMART_BADHDD" = "1" ]
 		then echo "$CWHT$XD$CRED SMART data shows failure is likely$COFF"
 		N_BADHDD=1;
