@@ -602,6 +602,7 @@ NAME="$LOCAL/Packages/WinStore_*/AC/$MS/Windows Store/Cache"; DESC="Windows Stor
 NAME="$LOCAL/Packages/WinStore_*/AC/$MS/Windows Store/Data/history.dat"; DESC="Windows Store"; add_to_delete
 NAME="$LOCAL/Packages/*/TempState"; DESC="Windows UWP App Caches"; add_to_wipe
 NAME="$LOCAL/Packages/*/AC/Temp"; DESC="Windows UWP App Caches"; add_to_wipe
+NAME="$LOCAL/Packages/*/AC/#!001/*/Cache"; DESC="Windows UWP App Caches"; add_to_wipe
 NAME="$LOCAL/Packages/*/AC/$MS/Windows/Internet Explorer"; DESC="Windows UWP App Caches"; add_to_wipe
 NAME="$LOCAL/Packages/*/AC/AppCache"; DESC="Windows UWP App Caches"; add_to_wipe
 NAME="$LOCAL/Packages/*/AC/INetCache"; DESC="Windows UWP App Caches"; add_to_wipe
