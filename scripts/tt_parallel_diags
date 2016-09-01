@@ -264,7 +264,6 @@ while [ $DIC -lt $DI ]
 	test $UNC -gt 10 && SMART_BADHDD=1
 	test $LCC -gt 600000 && SMART_BADHDD=1
 	test $RSC -gt 50 && SMART_BADHDD=1
-	test $ECC -gt 100 && SMART_BADHDD=1
 	test $REC -gt 50 && SMART_BADHDD=1
 	test $CPS -gt 50 && SMART_BADHDD=1
 	test $OUNC -gt 10 && SMART_BADHDD=1

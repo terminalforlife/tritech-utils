@@ -203,8 +203,7 @@ tt__hdd_smart_status () {
 		ECC=$(smartctl -A /dev/$1 | grep -m 1 Hardware_ECC_Recovered | sed 's/ ([^)])$//;s/.* //g;s/[^0-9].*//')
 		if [ -n "$ECC" ]
 			then
-			test $ECC -gt 0 && test $ECC -lt 100 && S="$S ${CYEL}ECC=$ECC$COFF"
-			test $ECC -ge 100 && test $ECC -lt 500000 && S="$S ${CRED}ECC=$ECC$COFF"
+			test $ECC -gt 0 && S="$S ${CWHT}ECC=$ECC$COFF"
 		fi
 		CPS=$(smartctl -A /dev/$1 | grep -m 1 Current_Pending_Sector | sed 's/ ([^)])$//;s/.* //g;s/[^0-9].*//')
 		if [ -n "$CPS" ]
