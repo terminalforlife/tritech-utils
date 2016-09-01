@@ -1,7 +1,7 @@
 #!/bin/bash
 
-VER="5.3"
-VERDATE="2016-08-17"
+VER="5.4"
+VERDATE="2016-09-01"
 
 # Tritech Service System Windows installation clean tool for Linux
 # Copyright (C) by Jody Bruchon <jody@jodybruchon.com>
@@ -33,17 +33,18 @@ trap control_c INT
 
 if [[ "$1" = "-h" || "$1" = "--help" ]]
 	then
+	PN="$(basename $0)"
 	echo -e "Tritech Service System Cleaner, a junk cleaning tool for Linux\n"
 	echo "Program version $VER, last updated on $VERDATE"
-	echo "$0         normal mode, shows verbose scan progress and reports"
-	echo "$0 -x      fast normal mode, skips size counts of cleaned items"
-	echo "$0 -q      quiet mode, with progress dots and a summary"
-	echo "$0 -Q      fast quiet mode, with progress but no summary"
-	echo "$0 -s      silent mode, no output, returns an exit code"
-	echo "$0 -n      normal mode, but don't actually delete anything"
-	echo "$0 -d      debug mode: -n, plus shows what would be deleted"
-	echo "$0 -h      this help screen"
-	echo "$0 --help  this help screen with four wasted keystrokes"
+	echo "$PN         normal mode, shows verbose scan progress and reports"
+	echo "$PN -x      fast normal mode, skips size counts of cleaned items"
+	echo "$PN -q      quiet mode, with progress dots and a summary"
+	echo "$PN -Q      fast quiet mode, with progress but no summary"
+	echo "$PN -s      silent mode, no output, returns an exit code"
+	echo "$PN -n      normal mode, but don't actually delete anything"
+	echo "$PN -d      debug mode: -n, plus shows what would be deleted"
+	echo "$PN -h      this help screen"
+	echo "$PN --help  this help screen with four wasted keystrokes"
 	echo -e "\nCopyright (C) Jody Bruchon <jody@jodybruchon.com>"
 	exit 0
 fi
@@ -61,7 +62,7 @@ test "$1" = "-x" && MSG=2 && NOSIZE=1
 test "$1" = "-n" && MSG=2 && NODEL=1
 test "$1" = "-d" && MSG=2 && NODEL=1 && DEBUG=1
 
-test $DEBUG -gt 0 && unset CWHT CGRN CPUR CCYA CYEL CRED CBLU 
+test $DEBUG -gt 0 && unset CWHT CGRN CPUR CCYA CYEL CRED CBLU
 
 ### Scan for 2000/XP or Vista/7 or Mac OS X and set folders accordingly
 export V7=0
@@ -71,34 +72,50 @@ export LOCAL=__NONE__
 export ROAM=__NONE__
 export LIBRARY=__NONE__
 OS="None"
-test -d "$XPDOCS" && OS="Windows 2000/XP" && export V7=1 && export UPF=1
-test -d "$V7DOCS" && OS="Windows Vista/7/8.x/10" && export V7=2 && export UPF=1
-if [[ -d "System/Library" || -d "Users/Shared/Library" ]]
-	then OS="Mac OS X"
-	export OSX=1
-	export V7=0
-	test -d "Users/Shared/Library" && export UPF=1
-fi
-echo "$@" | grep -q -- "--xp" && export V7=1
-echo "$@" | grep -q -- "--v7" && export V7=2
-echo "$@" | grep -q -- "--osx" && export OSX=1
-if [ "$V7" = "2" ]
+
+# Allow forcing the OS selection and directories
+unset FORCED
+test -z "$FORCED" && echo "$@" | grep -q -- "--xp" && export V7=1 && FORCED=1
+test -z "$FORCED" && echo "$@" | grep -q -- "--v7" && export V7=2 && FORCED=1
+test -z "$FORCED" && echo "$@" | grep -q -- "--osx" && export OSX=1 && FORCED=1
+
+# Skip OS structure checks if forced
+if [ -z "$FORCED" ]
 	then
-	export P="$V7DOCS/*"
-	export LOCAL="$P/$V7LOCAL"
-	export ROAM="$P/$V7ROAM"
+	test -d "$XPDOCS" && export V7=1 && export UPF=1
+	if [ -d "$V7DOCS" ]
+		then export V7=2 && export UPF=1
+		# XPREDO is for if a non-symlink XPDOCS exists
+		test -e "$XPDOCS" && test ! -h "$XPDOCS" && XPREDO=1
+	fi
+	if [[ -d "System/Library" || -d "Users/Shared/Library" ]]
+		then export OSX=1 && export V7=0
+		test -d "Users/Shared/Library" && export UPF=1
+	fi
 fi
+
 if [ "$V7" = "1" ]
 	then
+	OS="Windows 2000/XP"
 	export P="$XPDOCS/*"
 	export LOCAL="$P/$XPLOCAL"
 	export ROAM="$P/$XPROAM"
 fi
+if [ "$V7" = "2" ]
+	then
+	OS="Windows Vista/7/8.x/10"
+	export P="$V7DOCS/*"
+	export LOCAL="$P/$V7LOCAL"
+	export ROAM="$P/$V7ROAM"
+fi
 if [ "$OSX" = "1" ]
 	then
+	OS="Mac OS X"
 	export P="Users/*"
 	export LIBRARY="$P/Library"
 fi
+test "$FORCED" = "1" && OS="$OS (forced)"
+
 # Scan version of P for grep-friendliness
 SCANP="$(echo "$P" | sed 's#\*#\[\^/\]\*#g')"
 ### End OS version scan
@@ -344,7 +361,7 @@ if [ "$V7" = "2" ]; then
 	REWRITE1=( "${REWRITE1[@]}" "AppData/Local/" )
 	REWRITE2=( "${REWRITE2[@]}" "AppData/LocalLow/" )
 fi
-	
+
 # Vista moved All Users roaming data to ProgramData
 if [ "$V7" = "2" ]; then
 	# ROAM contains an unescaped asterisk which throws off matching
@@ -353,7 +370,7 @@ if [ "$V7" = "2" ]; then
 	REWRITE1=( "${REWRITE1[@]}" "$ROAM2" )
 	REWRITE2=( "${REWRITE2[@]}" "$PD" )
 fi
- 
+
 # Apply user profile cleaning to SYSTEM profile too
 if ! [ "$SYS32" = "__NONE__" ]; then
 	REWRITE0=( "${REWRITE0[@]}" "$P" )
@@ -470,6 +487,7 @@ for CHROME in "Google/Chrome/User Data" "speed browser/User Data"
 	do CHROME="$LOCAL/$CHROME"
 	NAME="$CHROME/*/*Cache*/"; add_to_wipe
 	NAME="$CHROME/*/*Cookies"; add_to_delete
+	NAME="$CHROME/*/Extensions/Temp"; add_to_wipe
 	NAME="$CHROME/*/Favicons"; add_to_delete
 	NAME="$CHROME/*/File System"; add_to_delete
 	NAME="$CHROME/*/*History*"; add_to_delete
@@ -1155,7 +1173,7 @@ install.ini 'install.res.*.dll' vcredist.bmp;
 done
 
 # Load file list in a background process
-echo -e "\nLoading file list. Please wait."
+test $MSG -gt 1 && echo -e "\nLoading file list. Please wait."
 find . 2>/dev/null >$TMPFILE
 
 # Scan files
@@ -1236,13 +1254,20 @@ fi
 rm -f $TMPFILE
 
 test "$NOSIZE" = "1" && CLEANED="(fast mode)"
-test "$MSG" = "1" && echo "$CLEANED KB.${COFF}"
+test "$MSG" = "1" && echo " $CLEANED KB.${COFF}"
 test "$MSG" = "2" && echo -e "\n${CPUR}Completed! ${CGRN}Cleaned ${CWHT}$CLEANED KB.${COFF}\n"
+
+if [ "$XPREDO" = "1" ]
+	then
+	unset XPREDO
+	test $MSG -gt 1 && echo -e "===$CPUR Running in ${CWHT}XP mode$CPUR to catch everything$COFF ===\n"
+	$0 $@ --xp
+fi
 
 for X in Windows.old*/ "Restored from Carbonite" Backup* "My Backup*"
 	do if [ -d "$X" ]
 		then
-		echo "Running in subfolder $X"
+		test $MSG -gt 1 && echo "Running in subfolder $X"
 		CWD="$(pwd)"
 		cd "$X"
 		if echo "$0" | grep -q '^/'
