@@ -177,7 +177,7 @@ do_windows_folder_detection
 tt__hdd_smart_status () {
 	if smartctl -V >/dev/null 2>/dev/null
 		then
-		unset S LCC RSC UNC ECC REC CPS OUNC UCEC
+		unset S LCC RSC UNC REC CPS OUNC UCEC
 		LCC=$(smartctl -A /dev/$1 | grep -m 1 Load_Cycle_Count | sed 's/ ([^)]*)*//;s/.* //g;s/[^0-9].*//')
 		if [ -n "$LCC" ]
 			then
@@ -199,11 +199,6 @@ tt__hdd_smart_status () {
 			then
 			test $REC -gt 0 && test $REC -lt 10 && S="$S ${CYEL}REC=$REC$COFF"
 			test $REC -ge 10 && test $REC -lt 10000 && S="$S ${CRED}REC=$REC$COFF"
-		fi
-		ECC=$(smartctl -A /dev/$1 | grep -m 1 Hardware_ECC_Recovered | sed 's/ ([^)])$//;s/.* //g;s/[^0-9].*//')
-		if [ -n "$ECC" ]
-			then
-			test $ECC -gt 0 && S="$S ${CWHT}ECC=$ECC$COFF"
 		fi
 		CPS=$(smartctl -A /dev/$1 | grep -m 1 Current_Pending_Sector | sed 's/ ([^)])$//;s/.* //g;s/[^0-9].*//')
 		if [ -n "$CPS" ]

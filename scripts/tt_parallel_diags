@@ -249,7 +249,6 @@ while [ $DIC -lt $DI ]
 	test -z "$LCC" && LCC=0
 	test -z "$RSC" && RSC=0
 	test -z "$UNC" && UNC=0
-	test -z "$ECC" && ECC=0
 	test -z "$REC" && REC=0
 	test -z "$CPS" && CPS=0
 	test -z "$OUNC" && OUNC=0
