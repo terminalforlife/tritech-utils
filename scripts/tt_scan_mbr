@@ -7,11 +7,13 @@
 # 2 = MBR status not certain
 # 3 = Rootkit/virus infected MBR
 
-VER=0.4.1
-VERDATE=2015-04-16
+VER=0.4.2
+VERDATE=2016-09-03
 
 SIGSUBDIR=mbr/signatures
 SIGDIR="___INVALID___"
+
+HASHPROG=jodyhash
 
 . tss__common
 test -z "$BASE" && BASE=.
@@ -26,8 +28,8 @@ if [ ! -b "/dev/$1" ]
 fi
 
 # GPT disks should be ignored, but don't return an error if found
-if [ "$(tss_file_tool gpt /dev/$1)" = "yes" ]
-	then echo "${CYEL}Disk $CWHT$1$CYEL uses GPT. Not scanning MBR on it."
+if [[ "$2" != "-f" && "$(tss_file_tool gpt /dev/$1)" = "yes" ]]
+	then echo "${CYEL}Disk $CWHT$1$CYEL uses GPT. Not scanning MBR on it.$COFF"
 	exit
 fi
 
@@ -46,13 +48,13 @@ echo -n "${CPUR}Loading signatures..."
 # Load signatures into array
 SIGS=0
 for FILE in $(echo ${SIGDIR}/*.mbr)
-	do SIG[$SIGS]=$(dd if="$FILE" bs=437 count=1 2>/dev/null | md5sum | cut -d" " -f1)
+	do SIG[$SIGS]=$(dd if="$FILE" bs=437 count=1 2>/dev/null | $HASHPROG | cut -d" " -f1)
 	SIGNAME[$SIGS]="$FILE"
 	SIGS=$(( SIGS + 1 ))
 done
 
 # Pull current signature as well
-MBRSIG=$(dd if=/dev/$DISK bs=437 count=1 2>/dev/null | md5sum | cut -d" " -f1)
+MBRSIG=$(dd if=/dev/$DISK bs=437 count=1 2>/dev/null | $HASHPROG | cut -d" " -f1)
 
 test "$D" = "1" && echo "${CGRN}Loaded signatures:${COFF}"
 X=0; FOUND=0
@@ -69,7 +71,7 @@ done
 test "$FOUND" == "1" && echo "$CWHT$DISK ${CGRN}MBR matches: $CPUR$CURR$COFF"
 
 if [ "$FOUND" == "0" ]
-	then echo "$CWHT$DISK ${CRED}MBR does not match any signatures."
+	then echo "$CWHT$DISK ${CRED}MBR does not match any signatures.$COFF"
 	NEWSIG="${SIGDIR}/${NAME}.mbr"
 	X=0
 	while [ $X -lt 10 ]
@@ -85,9 +87,9 @@ if [ "$FOUND" == "0" ]
 		echo "${CGRN}Writing new signature to $CWHT$NEWSIG$COFF"
 		dd if=/dev/$DISK of="$NEWSIG" bs=437 count=1 2>/dev/null || echo "${CRED}Error writing MBR signature.$COFF"
 	fi
-	tt_beepsong entryofthegladiators
+	tt_beepsong entryofthegladiators &
 	X=0; while [ $X -lt 5 ]
-		do aplay /usr/share/sounds/tritech-utils/diags_complete.wav || break
+		do aplay /usr/share/sounds/tritech-utils/diags_complete.wav 2>/dev/null >/dev/null || break
 		X=$((X + 1))
 	done
 fi
