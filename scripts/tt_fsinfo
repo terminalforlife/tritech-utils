@@ -116,7 +116,7 @@ if [ -e /usr/sbin/sgdisk ]; then SGDISK=/usr/sbin/sgdisk; fi
 
 PART=$(mktemp)
 rm -f $PART
-DRIVES="$(echo /dev/sd? /dev/hd? | tr ' ' '\n' | grep -v '\?' | sort)"
+DRIVES="$(echo /dev/sd? /dev/hd? /dev/mmcblk? | tr ' ' '\n' | grep -v '\?' | sort)"
 # Pulls partition info via fdisk and adds lines to PART
 # in the format:  /dev/devX=type.size_in_1k_blocks
 for DRIVE in $DRIVES
@@ -142,6 +142,8 @@ for DRIVE in $DRIVES
 			fi
 			PN=$(echo $LINE | cut -d" " -f1)
 			PT=$(echo $LINE | cut -d" " -f6)
+			# Re-add the 'p' for MMC block devices
+			echo "$DRIVE" | grep -q mmcblk && PN="p$PN"
 			echo "$DRIVE$PN=$PT.$PSIZE" >> $PART
 		done
 	fi
@@ -169,7 +171,7 @@ test ! -e $PART && echo "${CRED}No disks found. Aborting.$COFF" && exit 1
 for DRV in $DRIVES
 	do NPT=1; NPD=0; X=$(echo "$DRV" | sed s./dev/..) 
 	# If no partition 1-4 exists, don't display partitions
-	for C in 1 2 3 4
+	for C in 1 2 3 4 p1 p2 p3 p4
 		do test -e "/sys/block/$X/$X$C" && NPT=0
 	done
 	test "$NP" = "1" && NPT=1
@@ -187,7 +189,7 @@ for DRV in $DRIVES
 		else ZERO="$ZERO $X"
 	fi
 
-	if [ $NPT = 0 ]
+	if [ $NPT -eq 0 ]
 		then for X in $(cat "$PART" | grep "$DRV" | tr \\n " ")
 			do
 			unset PARTATTR

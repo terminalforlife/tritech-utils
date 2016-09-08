@@ -32,8 +32,8 @@ cat /proc/partitions | tail -n +3 | \
 	awk '{ print $3" "$4" " }' | grep '[sh]d[a-z] ' | sort -g > $DISKS
 cat /proc/partitions | tail -n +3 | \
 	awk '{ print $3" "$4" " }' | grep 'mmcblk[0-9]* ' | sort -g >> $DISKS
-if cat $DISKS | grep -qv '[sh]d[a-z] '
-	then if cat $DISKS | grep -qv 'mmcblk[0-9]* '
+if ! cat $DISKS | grep -q '[sh]d[a-z] '
+	then if ! cat $DISKS | grep -q 'mmcblk[0-9]* '
 		then echo "No sd, hd, or mmcblk disk devices were found." ;
 		exit 3
 	fi

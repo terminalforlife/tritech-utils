@@ -28,7 +28,7 @@ test "$MEMT" -lt 1024 && echo "${CPUR}RAM:  $CWHT$MEMT$COFF MB"
 test "$MEMT" -gt 1023 && echo "${CPUR}RAM:  $CWHT${MEMG}.${MEML}$COFF GB"
 
 # Calculate the stupid bogus marketing GB size of all hard drives
-for X in /sys/block/sd*
+for X in /sys/block/sd* /sys/block/hd* /sys/block/mmcblk?
 	do if [[ -e "$X/device" && "$(cat $X/size 2>/dev/null)" -gt 0 && "$(cat $X/removable 2>/dev/null)" -eq 0 ]]
 		then
 		Y=$(basename $X)
@@ -38,9 +38,12 @@ for X in /sys/block/sd*
 		SIZETB2="$SIZETB.$(expr $(expr $SIZE - $SIZETB \* 1000) / 100)"
 		DN=$(hdparm -I /dev/$Y 2>/dev/null | grep 'Model Number:' | sed 's/[^:]*[^a-zA-Z0-9]*//;s/ *$//g')
 		DSN=$(hdparm -I /dev/$Y 2>/dev/null | grep 'Serial Number:' | sed 's/[^:]*[^a-zA-Z0-9]*//;s/ *$//g')
-		test "$DN" = "" && DN="unknown"
-		test "$DSN" = "" && DSN="unknown"
-		if [ "$SIZETB" -eq 0 ]
+		test -z "$DN" && test -e "$X/device/name" && DN="$(cat $X/device/name)"
+		test -z "$DSN" && test -e "$X/device/serial" && DSN="$(cat $X/device/serial)"
+		test -z "$DN" && DN="unknown"
+		test -z "$DSN" && DSN="unknown"
+		echo "$X" | grep -q "mmcblk" && DN="$DN MMC SSD"
+		if [ $SIZETB -eq 0 ]
 			then echo "$CWHT$Y$COFF:  $CPUR$SIZE$COFF GB  (Model $DN, Serial $DSN)"
 			else echo "$CWHT$Y$COFF:  $CPUR$SIZETB2$COFF TB    (Model $DN, Serial $DSN)"
 		fi
