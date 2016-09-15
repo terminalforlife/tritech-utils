@@ -26,7 +26,7 @@ progress_indicate () {
 			*) echo -n "${CRED}...what?$COFF " ;;
 		esac
 	fi
-	if [[ $DBG -le 1 && "$Q" = "0" ]]
+	if [[ $DBG -le 1 ]]
 		then
 		case $1 in
 #			-) echo -n "${CCYA}-$COFF" ;;
@@ -41,8 +41,8 @@ progress_indicate () {
 		if [ $PI_DC -ge $PI_DELAY ]
 			then PI_DC=0
 			echo -n  "${CWHT}[ ${CGRN}$PI_ADD to add  "
-			echo -n  "${CCYA}$PI_REM to re-index  "
-			echo -en "${CBLU}$PI_UNC already good$CWHT ]$COFF\r"
+			echo -n  "${CCYA}$PI_REM to redo  "
+			echo -en "${CBLU}$PI_UNC unchanged$CWHT ]$COFF\r"
 		fi
 	fi
 }
