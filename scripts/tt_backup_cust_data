@@ -141,7 +141,7 @@ scan_for_quickbooks_data () {
 ### End functions
 
 TMP=$(mktemp)
-tt__disk_prompt $TMP
+tt__disk_prompt $TMP || exit 1
 DEV="$(cat $TMP)"
 rm $TMP
 
