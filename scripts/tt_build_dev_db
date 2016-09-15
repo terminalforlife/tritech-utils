@@ -9,6 +9,44 @@ DBVER=005
 
 . tss__common
 
+# Usage: progress_indicate type name
+# Types are:
+# - Removed
+# + Added
+# = Unchanged
+PI_DELAY=19
+PI_REM=0; PI_ADD=0; PI_UNC=0; PI_DC=0
+progress_indicate () {
+	if [ $DBG -gt 1 ]
+		then
+		case $1 in
+			-) echo -n "$CCYA$2$COFF " ;;
+			+) echo -n "$CGRN$2$COFF " ;;
+			=) echo -n "$CBLU$2$COFF " ;;
+			*) echo -n "${CRED}...what?$COFF " ;;
+		esac
+	fi
+	if [[ $DBG -le 1 && "$Q" = "0" ]]
+		then
+		case $1 in
+#			-) echo -n "${CCYA}-$COFF" ;;
+#			+) echo -n "${CGRN}+$COFF" ;;
+#			=) echo -n "${CBLU}=$COFF" ;;
+			+) PI_ADD=$((PI_ADD + 1)) ;;
+			-) PI_REM=$((PI_REM + 1)) ;;
+			=) PI_UNC=$((PI_UNC + 1)) ;;
+			*) echo -e "\n${CRED}?$COFF\n" ;;
+		esac
+		PI_DC=$((PI_DC + 1))
+		if [ $PI_DC -ge $PI_DELAY ]
+			then PI_DC=0
+			echo -n  "${CWHT}[ ${CGRN}$PI_ADD to add  "
+			echo -n  "${CCYA}$PI_REM to re-index  "
+			echo -en "${CBLU}$PI_UNC already good$CWHT ]$COFF\r"
+		fi
+	fi
+}
+
 echo "Tritech driver device database builder $VER ($VERDATE)"
 DBG=0
 ERR=0
@@ -346,8 +384,7 @@ check_inf_not_allowed () {
 add_inf () {
 	INF[$INFC]="$1"
 	(( INFC ++ ))
-	test $DBG -gt 1 && echo -n "$CGRN$1$COFF "
-	test $DBG -le 1 && test "$Q" = "0" && echo -n "${CGRN}|$COFF"
+	progress_indicate + "$1"
 }
 
 process_inf () {
@@ -473,8 +510,7 @@ if [[ -e "$DBFILE"  && "$CONSISTENT" = "1" ]]
 		do
 		if [ ! -e "$X" ]
 			then clean_out_inf "$X"
-			test $DBG -gt 1 && echo -n "$CCYA$X$COFF "
-			test $DBG -le 1 && test "$Q" = "0" && echo -n "${CCYA}-$COFF"
+			progress_indicate - "$X"
 		fi
 	done
 
@@ -504,8 +540,7 @@ if [[ -e "$DBFILE"  && "$CONSISTENT" = "1" ]]
 				fi
 				rm -f "$XX"
 				else
-				test $DBG -gt 1 && echo -n "$CBLU$X$COFF "
-				test $DBG -le 1 && test "$Q" = "0" && echo -n "${CBLU}|$COFF"
+				progress_indicate "=" "$X"
 			fi
 		fi
 	done < $TF3
