@@ -166,6 +166,8 @@ fi
 
 echo "${CWHT}Using $CGRN/mnt/$PART$CWHT as hard drive$COFF"
 
+# If UM is 1 at the end of the script, umount MTPT
+UM=0
 EXIST="$(grep "/dev/$PART" /proc/mounts | head -n 1 | awk '{ print $2 }')"
 if [ "$EXIST" = "" ]
 	then
@@ -178,6 +180,7 @@ if [ "$EXIST" = "" ]
 		fi
 	fi
 	MTPT="/mnt/$PART"
+	U=1
 	echo "${CWHT}Mounted /dev/$PART at $CBLU$MTPT$COFF"
 	else
 	MTPT="$EXIST"
@@ -295,3 +298,6 @@ echo -e "\n${CWHT}Log saved to $LOGFILE$COFF"
 
 esac
 
+test "$U" = "1" && echo "${CGRN}Unmounting $CWHT$MTPT$COFF"
+sync
+umount "$MTPT"
