@@ -5,8 +5,8 @@
 # Prevent loading twice
 if [ -z "$TSS_CLIENT" ]; then
 
-#VER=0.8.4
-#VERDATE=2016-07-06
+#VER=0.8.5
+#VERDATE=2016-09-22
 
 # Without socat we can't do any TSS client stuff
 if ! socat -V >/dev/null 2>/dev/null
@@ -43,7 +43,7 @@ get_os_version () {
 	# Don't do this if imagedrop/takeimage is happening
 	pgrep -f tt_imagedrop >/dev/null && return 0
 	pgrep -f tt_takeimage >/dev/null && return 0
-	ALLPARTS=$(cat /proc/partitions | grep -e 'sd.[0-9]$' -e 'mmcblk[0-9]p[0-9]$' -e 'hd.[0-9]$' | sort -k3 -gr | awk '{print $4}')
+	ALLPARTS=$(cat /proc/partitions | grep -e 'sd.[0-9]$' -e 'mmcblk[0-9]p[0-9]$' -e 'nvme[0-9]n[0-9]$' -e 'hd.[0-9]$' | sort -k3 -gr | awk '{print $4}')
 	for PART in $ALLPARTS
 		do
 		M=0
@@ -356,20 +356,24 @@ read_sysinfo () {
 	HDPARM=hdparm; test -x /sbin/hdparm && HDPARM=/sbin/hdparm
 	unset HDD
 	test $UID -ne 0 && echo "${CRED}read_sysinfo:$COFF root access required for hdparm; HDD info will be incorrect!"
-	for X in /sys/block/sd* /sys/block/hd* /sys/block/mmcblk?
+	for X in /sys/block/sd* /sys/block/hd* /sys/block/mmcblk? /sys/block/nvme?n?
 		do if [[ -e "$X/device" && "$(cat $X/size)" -gt 0 && "$(cat $X/removable)" -eq 0 ]]
 			then
 			Y=$(basename $X)
 			SIZE=$(cat "$X/size")
 			SIZE=$(expr $SIZE \* 512 / 1000000000)
 			SIZETB=$(expr $SIZE / 1000)
-			DMN="$($HDPARM -I /dev/$Y 2>/dev/null | grep 'Model Number:' | sed 's/[^:]*[^a-zA-Z0-9]*//;s/ *$//g')"
-			DSN="$($HDPARM -I /dev/$Y 2>/dev/null | grep 'Serial Number:' | sed 's/[^:]*[^a-zA-Z0-9]*//;s/ *$//g')"
+			DMN="$($HDPARM -I /dev/$Y 2>/dev/null | grep 'Model Number:' | sed 's/[^:]*[^a-zA-Z0-9]*//')"
+			DSN="$($HDPARM -I /dev/$Y 2>/dev/null | grep 'Serial Number:' | sed 's/[^:]*[^a-zA-Z0-9]*//')"
+			test -z "$DMN" && test -e "$X/device/model" && DMN="$(cat "$X/device/model")"
 			test -z "$DMN" && test -e "$X/device/name" && DMN="$(cat "$X/device/name")"
 			test -z "$DSN" && test -e "$X/device/serial" && DSN="$(cat "$X/device/serial")"
 			test -z "$DMN" && DMN="unknown"
 			test -z "$DSN" && DSN="unknown"
-			echo "$X" | grep -q mmcblk && DMN="$DMN MMC SSD"
+			DMN="$(echo "$DMN" | sed 's/\s*$//g')"
+			DSN="$(echo "$DSN" | sed 's/\s*$//g')"
+			echo "$X" | grep -q mmcblk && DMN="$DMN eMMC SSD"
+			echo "$X" | grep -q nvme && DMN="$DMN NVMe SSD"
 			if [ "$SIZETB" -eq 0 ]
 				then HDD="$HDD${SIZE}GB ($DMN/$DSN), "
 				else HDD="$HDD${SIZETB}TB ($DMN/$DSN), "

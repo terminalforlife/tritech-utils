@@ -1,7 +1,7 @@
 #!/bin/ash
 
-VER="0.3.1"
-VERDATE="2015-11-03"
+VER="1.0"
+VERDATE="2016-09-22"
 
 # Finds all possible hard drives on the system, provides info on each,
 # and prompts which one to use. Aborts if no drives exist or if the
@@ -28,19 +28,17 @@ fi
 
 # Check to ensure there are possible hard drives at all
 # Additionally, determine if we use hdX or sdX drive designations
-cat /proc/partitions | tail -n +3 | \
-	awk '{ print $3" "$4" " }' | grep '[sh]d[a-z] ' | sort -g > $DISKS
-cat /proc/partitions | tail -n +3 | \
-	awk '{ print $3" "$4" " }' | grep 'mmcblk[0-9]* ' | sort -g >> $DISKS
-if ! cat $DISKS | grep -q '[sh]d[a-z] '
-	then if ! cat $DISKS | grep -q 'mmcblk[0-9]* '
-		then echo "No sd, hd, or mmcblk disk devices were found." ;
-		exit 3
-	fi
+tail -n +3 /proc/partitions | \
+	awk '{ print $3" "$4" " }' | grep -e '[sh]d[a-z] ' -e 'mmcblk[0-9][0-9]* ' -e 'nvme[0-9]n[0-9][0-9]* ' | sort -g > $DISKS
+if ! cat $DISKS | grep -q -e '[sh]d[a-z] ' -e 'mmcblk[0-9][0-9]*' -e 'nvme[0-9]n[0-9][0-9]*'
+	then echo "No sd, hd, nvme, or mmcblk disk devices were found." ;
+	exit 3
 fi
 
 # Load RAID slave devices for RAID device exclusion
-KILL="$(echo /sys/block/md*/slaves/* | tr ' ' '\n' | grep -v '\*' | sed 's#.*/##g;s/\([hs]d[a-z]\)[0-9]*.*/\1/;s/\(mmcblk[0-9]*\).*/\1/' | sort -g | uniq | tr '\n' ' ')"
+KILL="$(echo /sys/block/md*/slaves/* | tr ' ' '\n' | grep -v '\*' | \
+	sed 's#.*/##g;s/\([hs]d[a-z]\)[0-9]*.*/\1/;s/\(mmcblk[0-9][0-9]*\).*/\1/;s/\(nvme[0-9]*n[0-9][0-9]*\).*/\1/' \
+	| sort -g | uniq | tr '\n' ' ')"
 
 # Scan sysfs to determine what disks are removable disks
 for X in $(cat $DISKS | awk '{ print $2 }' | tr '\n' " ")
