@@ -143,7 +143,7 @@ for DRIVE in $DRIVES
 			PN=$(echo $LINE | cut -d" " -f1)
 			PT=$(echo $LINE | cut -d" " -f6)
 			# Re-add the 'p' for MMC block devices
-			echo "$DRIVE" | grep -q -e ^mmcblk -e ^nvme && PN="p$PN"
+			echo "$DRIVE" | grep -q -e mmcblk -e nvme && PN="p$PN"
 			echo "$DRIVE$PN=$PT.$PSIZE" >> $PART
 		done
 	fi
