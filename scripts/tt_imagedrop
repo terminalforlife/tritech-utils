@@ -1,7 +1,7 @@
 #!/bin/bash
 
-VER="2.1"
-VERDATE="2015-01-27"
+VER="2.1.1"
+VERDATE="2016-09-20"
 
 shopt -s nullglob
 . tss__common
@@ -239,6 +239,19 @@ if [ "$XP" = "1" ]
 	if [ ! "$NTFSMOUNT" = "0" ]
 		then umount -l /mnt/$PART || echo "Unmounting /mnt/$PART failed!"
 	fi
+fi
+
+# Drop Windows 8+ ACPI license key if it exists
+if [ -e /sys/firmware/acpi/tables/MSDM ]
+	then echo "Microsoft MSDM ACPI table found. Making a Windows key text file."
+	test -d /mnt/$PART || mkdir /mnt/$PART
+	if ! $NTFSMOUNT /dev/$PART /mnt/$PART
+		then echo "Mounting $PART as NTFS failed. Aborting."
+		eval $FAIL_COMMAND &
+		clean_exit 12
+	fi
+	strings /sys/firmware/acpi/tables/MSDM | tail -n 1 > /mnt/$PART/windows_key_acpi.txt
+	umount -l /mnt/$PART
 fi
 
 sync
