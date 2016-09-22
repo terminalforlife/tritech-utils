@@ -192,6 +192,7 @@ fi
 # WARNING: This code ALWAYS assumes the LAST PARTITION is the system partition!
 scan_partitions
 PART=$DEV$CNT
+echo "$DEV" | grep -q -e nvme -e mmcblk && PART="${DEV}p$CNT"
 SZFILE=/sys/block/$DEV/$PART/size
 OLDSIZE=$(cat $SZFILE)
 maximize_last_partition
