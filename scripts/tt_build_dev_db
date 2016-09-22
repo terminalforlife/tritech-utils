@@ -560,7 +560,8 @@ IFS="$IFS0"
 if [ "$INFC" = "0" ]
 	then test "$Q" = "0" && echo -e "\nNo INF files to process."
 	exit
-	else test "$Q" = "0" && echo -e "\nDone."
+	else echo
+	test "$Q" = "0" && echo "Done."
 fi
 
 export MFGNAME DBFILE
