@@ -453,7 +453,7 @@ detect_current_pc () {
 
 # Store all TSS client variables into a state file for persistence across invocations
 save_tss_state () {
-	rm -f $TSS_STATE_FILE
+	rm -f $TSS_STATE_FILE 2>/dev/null
 	for X in PCID WOID MAC CPU RAM HDD OS \
 			$SAN_TYPES \
 			TSS_SYSINFO ACTIONS \
