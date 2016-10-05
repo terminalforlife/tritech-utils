@@ -2,8 +2,8 @@
 
 # Attempts to run parallel disk diags and burn-ins.
 
-VER=1.1.4
-VERDATE=2016-06-29
+VER=1.1.5
+VERDATE=2016-10-05
 
 export FORK=0
 export BURNSECS=900
@@ -266,7 +266,7 @@ while [ $DIC -lt $DI ]
 	test $REC -gt 50 && SMART_BADHDD=1
 	test $CPS -gt 50 && SMART_BADHDD=1
 	test $OUNC -gt 10 && SMART_BADHDD=1
-	test $UCEC -gt 2000 && SMART_BADHDD=1
+	test $UCEC -gt 2000 && test $UCEC -lt 500000 SMART_BADHDD=1
 	if [ "$SMART_BADHDD" = "1" ]
 		then echo "$CWHT$XD$CRED SMART data shows failure is likely$COFF"
 		N_BADHDD=1;
