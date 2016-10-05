@@ -11,6 +11,23 @@ TSS_COMMON=1
 
 N=__NONE__
 
+### Sources for CPU temperature, from worst to best
+
+export THERMAL_SOURCES="
+	/sys/class/hwmon/hwmon0/device/temp2_input
+	/sys/class/hwmon/hwmon0/temp1_input
+	/sys/class/hwmon/hwmon1/temp1_input
+	/sys/bus/acpi/drivers/thermal/LNXTHERM:00/thermal_zone/temp
+	/sys/devices/platform/coretemp.*/temp*_input
+	/sys/bus/pci/drivers/k*temp/*:*/temp1_input
+	/sys/class/thermal/thermal_zone0/temp
+	/sys/bus/platform/devices/coretemp.0/hwmon/hwmon0/temp2_input
+	/sys/bus/platform/devices/coretemp.0/hwmon/hwmon0/temp4_input
+	/sys/devices/platform/coretemp.0/hwmon/hwmon1/temp2_input
+"
+
+### End thermal sources
+
 ### tt__alert_setup
 
 # See if the requirements for beepsong usage are met
@@ -25,7 +42,6 @@ export FAIL_COMMAND='tt_beepsong taps'
 # ANSI color codes
 
 export COFF="$(echo -e '\e[00m')"    # Disable all attributes
-
 export CBLINK="$(echo -e '\e[05m')"  # Annoying Blink
 
 # Foreground colors

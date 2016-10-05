@@ -8,8 +8,14 @@ VERDATE=2016-06-29
 shopt -s nullglob
 
 . tss__common
-THRM="/sys/class/hwmon/hwmon0/temp1_input /sys/class/hwmon/hwmon1/temp1_input /sys/bus/acpi/drivers/thermal/LNXTHERM:00/thermal_zone/temp /sys/devices/platform/coretemp.*/temp*_input /sys/bus/pci/drivers/k*temp/*:*/temp1_input /sys/class/thermal/thermal_zone0/temp /sys/bus/platform/devices/coretemp.0/hwmon/hwmon0/temp2_input /sys/bus/platform/devices/coretemp.0/hwmon/hwmon0/temp4_input /sys/devices/platform/coretemp.0/hwmon/hwmon1/temp2_input"
-for X in $THRM; do test -e $X && THRM=$X; done
+unset THRM
+for X in $THERMAL_SOURCES
+	do
+	if [ -e "$X" ]
+		then THRM="$X"
+		test "$1" = "-v" && echo "using $X" >&2
+	fi
+done
 
 # These thresholds may need to change in the future
 TEMP_YELLOW=68
