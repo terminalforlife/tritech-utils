@@ -43,7 +43,7 @@ test ! -e "$DBFILE" && echo "$CPUR$DBFILE$CRED is missing. Giving up.$COFF" && e
 ! grep -q "^CONSISTENT" "$DBFILE" && echo "$CPUR$DBFILE$CRED is inconsistent. Giving up.$COFF" && exit 1
 
 # Cache the database locally if it's on the network
-if grep -q "^/mnt/cifs" "$DBFILE"
+if echo "$DBFILE" | grep -q "^/mnt/cifs"
 	then DBF2=$(mktemp)
 	cat "$DBFILE" > $DBF2
 	DBFILE="$DBF2"
