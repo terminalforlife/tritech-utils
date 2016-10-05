@@ -1,4 +1,6 @@
 /*
+ * Windows INF/INI file format section reader
+ * Copyright (C) by Jody Bruchon <jody@jodybruchon.com>
  * Read an INF file section and output to stdout
  */
 

@@ -1,8 +1,6 @@
 /*
  * ac_monitor: Watch AC adapter and beep if disconnected
- *
- * By Jody Bruchon <jody@jodybruchon.com> 2014-04-23
- *
+ * Copyright (C) by Jody Bruchon <jody@jodybruchon.com>
  */
 
 #include <fcntl.h>

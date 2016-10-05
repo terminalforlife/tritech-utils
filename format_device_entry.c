@@ -1,5 +1,8 @@
 /*
- * Convert a series of strings into Tritech device database format
+ * Driver drop database string helper
+ * Copyright (C) by Jody Bruchon <jody@jodybruchon.com>
+ * Converts a series of strings into Tritech device database format
+ * This is a speedup utility for tt_build_dev_db
  */
 
 #include <stdio.h>

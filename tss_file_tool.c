@@ -1,5 +1,9 @@
 /*
- * TSS "is it GPT/NTFS" checking tool
+ * Tritech Service System miscellaneous file tool
+ * Copyright (C) by Jody Bruchon <jody@jodybruchon.com>
+ * This tool handles simple file/device operations that are
+ * too clumsy to handle in shell scripts without making the
+ * author look really silly ;-)
  */
 
 #include <stdio.h>
@@ -80,7 +84,7 @@ int main(const int argc, const char **argv)
 	return EXIT_SUCCESS;
 
 usage:
-	fprintf(stderr, "tss_check Version %s (%s)\n", TRITECH_UTILS_VER, TRITECH_UTILS_DATE);
+	fprintf(stderr, "Tritech Service System miscellaneous file tool %s (%s)\n", TRITECH_UTILS_VER, TRITECH_UTILS_DATE);
 	fprintf(stderr, "Usage: %s command dev/device|/path/to/file [hex-head-count]\n\n", argv[0]);
 	fprintf(stderr, "Commands:\n");
 	fprintf(stderr, "gpt     \tChecks for GPT partitioning.\n");

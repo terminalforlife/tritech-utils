@@ -1,4 +1,8 @@
-/* TSS UDP beacon utility */
+/*
+ * TSS UDP beacon utility
+ * Copyright (C) by Jody Bruchon <jody@jodybruchon.com>
+ * Broadcasts a "beacon" string by UDP at regular intervals
+ */
 
 #include <stdio.h>
 #include <stdlib.h>

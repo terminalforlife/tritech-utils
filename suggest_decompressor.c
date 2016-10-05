@@ -1,4 +1,6 @@
 /*
+ * Decompressor suggestion tool
+ * Copyright (C) by Jody Bruchon <jody@jodybruchon.com>
  * Returns the stream decompressor for an archive based on its extension
  */
 
