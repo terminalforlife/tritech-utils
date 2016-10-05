@@ -69,13 +69,13 @@ expand_fsid () {
 		 b)   FS="FAT32       " ;;
 		 c)   FS="FAT32       " ;;
 		 e)   FS="FAT16       " ;;
-		 f)   FS="DOS Extended" ;;
-		27)   FS="Acer Rec    " ;;
+		 f)   FS="Extended    " ;;
+		27)   FS="Recovery    " ;;
 		81)   FS="Minix       " ;;
 		82)   FS="Linux swap  " ;;
 		83)   FS="Linux       " ;;
-		86)   FS="Win RAID    " ;;
-		87)   FS="Win RAID    " ;;
+		86)   FS="Windows RAID" ;;
+		87)   FS="Windows RAID" ;;
 		8e)   FS="Linux LVM   " ;;
 		de)   FS="Dell Diags  " ;;
 		ee)   FS="EFI GPT     " ;;
