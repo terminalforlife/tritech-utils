@@ -1,3 +1,67 @@
 This is the Tritech Service System utilities package.
 
-For information, email jody@jodybruchon.com
+These programs and scripts are what make the Tritech Service System far more
+than just another minimal Linux environment. Most of the software is composed
+of shell scripts, though some of the tools are partially or completely written
+in C for performance or because a shell script isn't as practical; the simple
+things done by the tss_file_tool program are a good example, because while a
+shell script can slice up a sector on disk with 'dd' and match against a
+pattern, it's a thousand times less messy to read into a C file buffer and
+match it in memory.
+
+These programs were written for my own personal use and needs, so you will
+find many quirks if you try to throw them into use without the infrastructure
+that I use them within. In particular, there is the concept of a TSS server
+embedded throughout the scripts, though over the years I have worked on making
+the system usable without a core server to support it. It is possible with
+many scripts to pass environment variables which modify their behavior. For
+example, tt_imagedrop looks for images in /mnt/cifs/source/hd_images by
+default and IMGDIR overrides this: IMGDIR=/mnt/sdc2/diskimg tt_imagedropp
+
+If you're interested in setting up a disk or CIFS server in such a way that it
+can act as a TSS server, here's the expected layout of a TSS server root share
+or portable TSS disk (with override variables in "QUOTES"):
+
+/   (root of disk or share, "$BASE")
+|
++-- customer_backups/
+| Backup location for any customer data, used by tt_backup_cust_data
+|
++-- mbr/
+|   | MBR signature collection
+|   |
+|   +-- signatures/
+|     MBR signature files for tt_scan_mbr
+|
++-- source/  "$SOURCE"
+|   | programs, disk images, stuff that won't change much (can be read-only)
+|   |
+|   +-- hal/  "$HALPATH"
+|   | HALs for Windows XP images, optional
+|   |
+|   +-- hd_images/  "$IMGDIR"
+|   | flat disk images for tt_imagedrop
+|   |
+|   +-- drivers/
+|   |   | Windows driver collection, laid out for driver drop
+|   |   |
+|   |   +-- devicedb.txt
+|   |   | Driver database text file, built by tt_build_dev_db
+|   |   |
+|   |   +-- [category_directory]/
+|   |       | Windows driver categories (video, network, system, etc.)
+|   |       |
+|   |       +-- [driver_directory]/
+|   |         An individual driver directory that can be copied by driver drop
+|   |
+|   +-- swdrop_sources.txt
+|     A list of tt_software_drop categories, names, and locations
+|
++-- packages/
+  Tritech Service System software packages (if root of disk/share; optional)
+
+
+TODO: Document everything!
+
+
+For more information, email jody@jodybruchon.com
