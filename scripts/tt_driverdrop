@@ -1,7 +1,7 @@
 #!/bin/bash
 
-VER=0.7
-VERDATE=2016-10-05
+VER=0.8
+VERDATE=2016-10-06
 
 BLACKLIST=" acpi:dev=pnp0103 acpi:dev=pnp0300 acpi:dev=pnp0301 acpi:dev=pnp0302 acpi:dev=pnp0303 acpi:dev=pnp0a03 acpi:dev=pnp0a08 acpi:dev=pnp0c0f acpi:dev=abcd0001 acpi:dev=int3f0d"
 
@@ -25,7 +25,7 @@ unset CLEAN
 clean_exit () {
 	test -z "$EXIST" && test ! -z "$MTPT" && umount $MTPT
 	test -z "$CLEAN" && echo -e "\n${CWHT}Interrupted, cleaning up.$COFF"
-	rm -f $TF $TF2 $DBF2; exit $1
+	rm -f $TF $TF2 $DBF2 $DBF_ACPI $DBF_PCI $DBF_HDAUDIO $DBF_USB; exit $1
 }
 trap clean_exit INT ABRT TERM HUP
 
@@ -204,10 +204,17 @@ if [ "$1" = "dump" ]
 	test -d "$MTPT/$INFDIR" && DRVROOT="$MTPT/$INFDIR" tt_build_dev_db $BDDB
 fi
 
-# Make a temporary version of the DB with incompatible entries stripped
-DBF2=$(mktemp)
+# Make temporary versions of the DB with incompatible entries stripped
+echo -n "${CWHT}Reading device database...$COFF"
+DBF2=$(mktemp); DBF_ACPI=$(mktemp); DBF_PCI=$(mktemp)
+DBF_HDAUDIO=$(mktemp); DBF_USB=$(mktemp)
 grep -e "$WIN" "$DBFILE" > $DBF2
 DBFILE="$DBF2"
+grep -e '^acpi:' "$DBF2" > $DBF_ACPI
+grep -e '^pci:' "$DBF2" > $DBF_PCI
+grep -e '^hdaudio:' "$DBF2" > $DBF_HDAUDIO
+grep -e '^usb:' "$DBF2" > $DBF_USB
+echo "${CGRN}done$COFF"
 
 for X in $DEVS
 	do TYPE=$(echo "$X" | cut -d: -f1)
@@ -216,12 +223,13 @@ for X in $DEVS
 	TAGS=$(echo "$X" | cut -d: -f2- | tr ':' ' ')
 	case $TYPE in
 		pci|hdaudio)
+			DBF3="$DBF_HDAUDIO"; test "$TYPE" = "pci" && DBF3="$DBF_PCI"
 			VEN="$(echo "$X" | sed 's/.*\(:ven=....:\).*/\1/')"
 			DEV="$(echo "$X" | sed 's/.*\(:dev=....:\).*/\1/')"
 			SUBSYS="$(echo "$X" | sed 's/.*\(:subsys=........\).*/\1/')"
 			TAGS="$(echo "$TAGS" | sed 's/ven=....//;s/dev=....//')"
-			grep "$SUBSYS" "$DBFILE" | grep "$VEN" | grep "$DEV" | grep "^$TYPE" > $TF
-			test -z "$(cat $TF)" && grep "$DEV" "$DBFILE" | grep "$VEN" | grep "^$TYPE" > $TF
+			grep "$SUBSYS" "$DBF3" | grep "$VEN" | grep "$DEV" > $TF
+			test -z "$(cat $TF)" && grep "$DEV" "$DBF3" | grep "$VEN" > $TF
 			;;
 		usb)
 			CLASS="$(echo "$X" | sed 's/.*\(:class=..\).*/\1/')"
@@ -229,12 +237,12 @@ for X in $DEVS
 			PROT="$(echo "$X" | sed 's/.*\(:prot=..\).*/\1/')"
 			VID="$(echo "$X" | sed 's/.*\(:vid=....\).*/\1/')"
 			PID="$(echo "$X" | sed 's/.*\(:pid=....\).*/\1/')"
-			grep "$CLASS" "$DBFILE" | grep "^$TYPE" | grep "$SC" | grep "$PROT" > $TF
-			test -z "$(cat $TF)" && grep "^$TYPE" "$DBFILE" | grep "$VID" | grep "$PID" > $TF
+			grep "$CLASS" "$DBF_USB" | grep "$SC" | grep "$PROT" > $TF
+			test -z "$(cat $TF)" && grep "$VID" "$DBF_USB" | grep "$PID" > $TF
 			;;
 		acpi)
 			REQ1="$(echo "$X" | sed 's/.*\(:dev=.*:\).*/\1/')"
-			grep "^$TYPE" "$DBFILE" | grep "$REQ1" > $TF
+			grep "$REQ1" "$DBF_ACPI" > $TF
 			;;
 
 	esac
