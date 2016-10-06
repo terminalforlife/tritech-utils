@@ -14,6 +14,7 @@ DBVER=005
 # - Removed
 # + Added
 # = Unchanged
+# % Update display only
 PI_DELAY=19
 PI_REM=0; PI_ADD=0; PI_UNC=0; PI_DC=0
 progress_indicate () {
@@ -23,6 +24,7 @@ progress_indicate () {
 			-) echo -n "$CCYA$2$COFF " ;;
 			+) echo -n "$CGRN$2$COFF " ;;
 			=) echo -n "$CBLU$2$COFF " ;;
+			%) PI_DC=$PI_DELAY ;;
 			*) echo -n "${CRED}...what?$COFF " ;;
 		esac
 	fi
@@ -35,6 +37,7 @@ progress_indicate () {
 			+) PI_ADD=$((PI_ADD + 1)) ;;
 			-) PI_REM=$((PI_REM + 1)) ;;
 			=) PI_UNC=$((PI_UNC + 1)) ;;
+			%) PI_DC=$PI_DELAY ;;
 			*) echo -e "\n${CRED}?$COFF\n" ;;
 		esac
 		PI_DC=$((PI_DC + 1))
@@ -555,6 +558,8 @@ if [[ -e "$DBFILE"  && "$CONSISTENT" = "1" ]]
 		rm -f "$XX"
 	done < $TF3
 fi
+progress_indicate % ''
+echo
 IFS="$IFS0"
 
 if [ "$INFC" = "0" ]
