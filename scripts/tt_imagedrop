@@ -1,7 +1,7 @@
 #!/bin/bash
 
-VER="2.2"
-VERDATE="2016-10-02"
+VER="2.2.1"
+VERDATE="2016-10-06"
 
 shopt -s nullglob
 . tss__common
@@ -172,10 +172,10 @@ if [ $UEFI -eq 0 ]
 fi
 
 # Do a rough capacity sanity check
-DESTSIZE=$(stat -c %s "$IMG")
+DESTSIZE=$(stat -c %s "$IMGDIR/$IMG")
 DESTSIZE=$((DESTSIZE * 24))
 DESTSIZE=$((DESTSIZE / 10))
-DEVBYTES=$(BLOCKS / 512)
+DEVBYTES=$((BLOCKS * 512))
 if [ $DESTSIZE -ge $DEVBYTES ]
 	then echo "${CYEL}===== WARNING =====$COFF"
 	echo "${CWHT}$DEV$CYEL may not be large enough for this image$COFF"
