@@ -2,8 +2,8 @@
 
 # Attempts to run parallel disk diags and burn-ins.
 
-VER=1.1.5
-VERDATE=2016-10-05
+VER=1.1.6
+VERDATE=2016-10-13
 
 export FORK=0
 export BURNSECS=900
@@ -126,7 +126,7 @@ BTEMP=$(mktemp)
 # Set burnin time in seconds
 echo $BURNSECS > $BTEMP
 
-for X in /dev/sd? /dev/hd?
+for X in /dev/sd? /dev/hd? /dev/mmcblk? /dev/nvme?n?
 	do
 	# Only diagnose non-USB, non-removable drives
 	XD=$(echo $X | sed s./dev/..)
@@ -279,9 +279,10 @@ done
 A_HDD=1
 
 # Scan MBRs on all connected drives
-for X in /dev/sd? /dev/hd?
+for X in /dev/sd? /dev/hd? /dev/mmcblk? /dev/nvme?n?
 	do
-	tt_scan_mbr $(basename $X) && R=$?
+	tt_scan_mbr $(basename $X)
+	R=$?
 	case $R in
 		3) A_MBR=1; A_VIRUS=1 ;;
 		2) A_MBR=1 ;;
