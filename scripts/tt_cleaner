@@ -672,20 +672,6 @@ NAME="$LOCAL/ShoppingReport2"; DESC="ShoppingReport2"; add_to_wipe
 NAME="$LOCAL/simppulltoolbar"; DESC="Simppull Toolbar"; add_to_wipe
 NAME="$LOCAL/SiteRanker"; DESC="SiteRanker"; add_to_wipe
 NAME="$LOCAL/SlimWare Utilities Inc"; DESC="SlimWare Utilities"; add_to_wipe
-NAME="$LOCAL/$SPEEDBROWSER/*Cache*/"; DESC="Speed Browser"; add_to_wipe
-NAME="$LOCAL/$SPEEDBROWSER/*Cookies"; DESC="Speed Browser"; add_to_delete
-NAME="$LOCAL/$SPEEDBROWSER/Favicons"; DESC="Speed Browser"; add_to_delete
-NAME="$LOCAL/$SPEEDBROWSER/*History*"; DESC="Speed Browser"; add_to_delete
-NAME="$LOCAL/$SPEEDBROWSER/JumpListIcons*"; DESC="Speed Browser"; add_to_wipe
-NAME="$LOCAL/$SPEEDBROWSER/Last Session"; DESC="Speed Browser"; add_to_delete
-NAME="$LOCAL/$SPEEDBROWSER/Last Tabs"; DESC="Speed Browser"; add_to_delete
-NAME="$LOCAL/$SPEEDBROWSER/Local Storage/http*"; DESC="Speed Browser"; add_to_delete
-NAME="$LOCAL/$SPEEDBROWSER/Media Cache"; DESC="Speed Browser"; add_to_wipe
-NAME="$LOCAL/$SPEEDBROWSER/Pepper Data/Shockwave Flash"; DESC="Speed Browser"; add_to_wipe
-NAME="$LOCAL/$SPEEDBROWSER/*Tabs"; DESC="Speed Browser"; add_to_delete
-NAME="$LOCAL/$SPEEDBROWSER/Transport Security"; DESC="Speed Browser"; add_to_delete
-NAME="$LOCAL/$SPEEDBROWSER/Thumbnails"; DESC="Speed Browser"; add_to_delete
-NAME="$LOCAL/$SPEEDBROWSER/Visited Links"; DESC="Speed Browser"; add_to_delete
 NAME="$LOCAL/Spotify/Browser"; DESC="Spotify"; add_to_wipe
 NAME="$LOCAL/Spotify/Data"; DESC="Spotify"; add_to_wipe
 NAME="$LOCAL/Spotify/Storage"; DESC="Spotify"; add_to_wipe
