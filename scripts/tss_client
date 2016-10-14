@@ -5,8 +5,8 @@
 # Prevent loading twice
 if [ -z "$TSS_CLIENT" ]; then
 
-#VER=0.8.5
-#VERDATE=2016-09-22
+TSS_CLIENT_VER=0.8.6
+TSS_CLIENT_VERDATE=2016-10-13
 
 # Without socat we can't do any TSS client stuff
 if ! socat -V >/dev/null 2>/dev/null
@@ -447,7 +447,7 @@ detect_current_pc () {
 	pull_actions
 	read_custinfo
 	test -z "$OS" && push_sysinfo
-	test "$OS" = "__NONE__" && push_sysinfo
+	echo "$OS" | grep -q NONE && push_sysinfo
 	save_tss_state
 }
 
