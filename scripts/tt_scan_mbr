@@ -27,12 +27,6 @@ if [ ! -b "/dev/$1" ]
 	else DISK="$1"
 fi
 
-# GPT disks should be ignored, but don't return an error if found
-if [[ "$2" != "-f" && "$(tss_file_tool gpt /dev/$1)" = "yes" ]]
-	then echo "${CYEL}Disk $CWHT$1$CYEL uses GPT. Not scanning MBR on it.$COFF"
-	exit
-fi
-
 for X in /mnt/* $BASE
 	do test -d "$X/$SIGSUBDIR" && SIGDIR="$X/$SIGSUBDIR"
 done
