@@ -148,6 +148,9 @@ if [ ! -e $IMGDIR/$IMG ]
 	clean_exit 6
 fi
 
+# Get device size in 512-byte blocks
+BLOCKS=$(cat /sys/block/$DEV/size)
+
 # Get head count to do geometry recalculations
 if [ $UEFI -eq 0 ]
 	then echo -n "Enter the geometric head count from 1 to 255 for $DEV (255): "
@@ -166,7 +169,6 @@ if [ $UEFI -eq 0 ]
 		*) echo "You did not enter a valid number. Aborting."
 		clean_exit 7 ;;
 	esac
-	BLOCKS=$(cat /sys/block/$DEV/size)
 	CYLS=$(expr $BLOCKS / $HEADS / 63)
 	echo "$DEV: ${HEADS}/${XHEADS} heads, $CYLS cylinders, 63 sectors."
 fi
@@ -178,7 +180,7 @@ DESTSIZE=$((DESTSIZE / 10))
 DEVBYTES=$((BLOCKS * 512))
 if [ $DESTSIZE -ge $DEVBYTES ]
 	then echo "${CYEL}===== WARNING =====$COFF"
-	echo "${CWHT}$DEV$CYEL may not be large enough for this image$COFF"
+	echo "${CWHT}$DEV$CYEL may not be large enough for this image ($DESTSIZE > $DEVBYTES)$COFF"
 	echo -n "${CYEL}Are you sure that you want to continue (y/N)? $COFF"
 	read -n 1 X
 	if [[ $X != "n" && $X != "N" ]]
