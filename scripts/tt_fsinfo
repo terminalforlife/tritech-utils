@@ -2,8 +2,8 @@
 
 # Displays info on storage devices in the system
 
-VER=1.9
-VERDATE="2016-09-22"
+VER=1.10
+VERDATE="2016-10-14"
 
 . tss__common
 
@@ -115,7 +115,6 @@ if [ -e /sbin/sgdisk ]; then SGDISK=/sbin/sgdisk; fi
 if [ -e /usr/sbin/sgdisk ]; then SGDISK=/usr/sbin/sgdisk; fi
 
 PART=$(mktemp)
-rm -f $PART
 DRIVES="$(echo /dev/sd? /dev/hd? /dev/mmcblk? /dev/nvme?n? | tr ' ' '\n' | grep -v '\?' | sort)"
 # Pulls partition info via fdisk and adds lines to PART
 # in the format:  /dev/devX=type.size_in_1k_blocks
@@ -165,8 +164,6 @@ if [ $(echo $ROOTMT | sed 's/:.*//') -gt 0 ]
 fi
 
 DRV="none"
-
-test ! -e $PART && echo "${CRED}No disks found. Aborting.$COFF" && exit 1
 
 for DRV in $DRIVES
 	do NPT=1; NPD=0; X=$(echo "$DRV" | sed s./dev/..) 
