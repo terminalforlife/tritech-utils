@@ -30,6 +30,18 @@ if [ "$(./tss_file_tool ntfs test/gpt)" = "no" ]
 	else echo "broken" && ERR=1
 fi
 
+echo -n "tss_file_tool HFS+ yes:     "
+if [ "$(./tss_file_tool hfsplus test/hfsplus)" = "yes" ]
+	then echo "OK"
+	else echo "broken" && ERR=1
+fi
+
+echo -n "tss_file_tool HFS+ no:      "
+if [ "$(./tss_file_tool hfsplus test/gpt)" = "no" ]
+	then echo "OK"
+	else echo "broken" && ERR=1
+fi
+
 echo -n "tss_file_tool winexec yes:  "
 if [ "$(./tss_file_tool winexec test/winexec)" = "test/winexec" ]
 	then echo "OK"

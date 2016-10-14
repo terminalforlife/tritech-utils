@@ -13,68 +13,72 @@
 
 #include "tritech_utils.h"
 
-#define CHECK_IF_NTFS(a) strncmp((char *)(a + 3), "NTFS", 4)
+#define CHECK_IF_NTFS(a) !strncmp((char *)(a + 3), "NTFS", 4)
+#define CHECK_IF_HFSPLUS(a) !strncmp((char *)(a + 1032), "HFSJ", 4)
 
 static inline int change_ntfs_geometry(FILE *fp, uint8_t * const restrict bp, const uint8_t heads)
 {
 	*(bp + 26) = heads;
 	fseek(fp, 0, SEEK_SET);
 	fwrite(bp, 512, 1, fp);
-	if(ferror(fp) != 0) return 1;
+	if (ferror(fp) != 0) return 1;
 	else return 0;
 }
 
 int main(const int argc, const char **argv)
 {
 	FILE *fp;
-	uint8_t buffer[512];
+	uint8_t buffer[4096];
 	uint8_t heads;
 
-	if(argc < 3 || argc > 4) goto usage;
+	if (argc < 3 || argc > 4) goto usage;
 	
 	fp = fopen(argv[2], "r+");
-	if(!fp) {
+	if (!fp) {
 		printf("Can't open %s\n",argv[2]);
 		return EXIT_FAILURE;
 	}
 
-	fread(buffer, 512, 1, fp);
-	if(ferror(fp) != 0) {
-		printf("Error reading first sector of %s\n",argv[1]);
+	fread(buffer, 4096, 1, fp);
+	if (ferror(fp) != 0) {
+		printf("Error reading first 4096 bytes of %s\n",argv[1]);
 		return EXIT_FAILURE;
 	}
 
-	if(!strcmp(argv[1], "ntfs")) {
-		if(!CHECK_IF_NTFS(buffer)) puts("yes");
-		else puts("no");
-	} else if(!strcmp(argv[1], "ntfsgeom")) {
-		if(argc != 4) goto usage;
+	if (!strcmp(argv[1], "ntfs")) {
+		if (CHECK_IF_NTFS(buffer)) printf("yes\n");
+		else printf("no\n");
+	} else if (!strcmp(argv[1], "ntfsgeom")) {
+		if (argc != 4) goto usage;
 		/* Convert heads from command line and verify validity */
-		if(strlen(argv[3]) != 2) goto usage;
+		if (strlen(argv[3]) != 2) goto usage;
 		heads = strtol(argv[3],NULL,16);
-		if(!heads) {
+		if (!heads) {
 			printf("Invalid head count specified: %s\n",argv[3]);
 			return EXIT_FAILURE;
 		}
-		if(CHECK_IF_NTFS(buffer)) {
+		if (!CHECK_IF_NTFS(buffer)) {
 			printf("%s is not an NTFS filesystem.\n", argv[2]);
 			return EXIT_FAILURE;
 		}
-		if(change_ntfs_geometry(fp, buffer, heads)) {
+		if (change_ntfs_geometry(fp, buffer, heads)) {
 			printf("Error writing to %s\n",argv[2]);
 			return EXIT_FAILURE;
 		} else {
 			printf("Geometry change for %s: %d heads\n", argv[2], heads);
 		}
-	} else if(!strncmp(argv[1], "gpt", 3)) {
-		if(buffer[450] == 0xEE) puts("yes");
-		else puts("no");
-	} else if(!strncmp(argv[1], "winexec", 7)) {
-		if(buffer[0] == 0x4D && buffer[1] == 0x5A) puts(argv[2]);
-		else puts("not_winexec");
-	} else if(!strncmp(argv[1], "registry", 8)) {
-		if(!strncmp((char *)buffer, "regf", 4)) puts("yes");
-		else puts("no");
+	} else if (!strcmp(argv[1], "gpt")) {
+		if (buffer[450] == 0xEE) printf("yes\n");
+		else printf("no\n");
+	} else if (!strcmp(argv[1], "winexec")) {
+		if (buffer[0] == 0x4D && buffer[1] == 0x5A) printf("%s\n", argv[2]);
+		else printf("not_winexec\n");
+	} else if (!strcmp(argv[1], "registry")) {
+		if (!strncmp((char *)buffer, "regf", 4)) printf("yes\n");
+		else printf("no\n");
+	} else if (!strcmp(argv[1], "hfsplus")) {
+		if (CHECK_IF_HFSPLUS(buffer)) printf("yes\n");
+		else printf("no\n");
 	} else {
 		printf("Unknown command %s\n",argv[1]);
 		fclose(fp);
