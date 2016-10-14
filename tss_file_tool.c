@@ -35,13 +35,13 @@ int main(const int argc, const char **argv)
 	
 	fp = fopen(argv[2], "r+");
 	if (!fp) {
-		printf("Can't open %s\n",argv[2]);
+		fprintf(stderr, "Can't open %s\n",argv[2]);
 		return EXIT_FAILURE;
 	}
 
 	fread(buffer, 4096, 1, fp);
 	if (ferror(fp) != 0) {
-		printf("Error reading first 4096 bytes of %s\n",argv[1]);
+		fprintf(stderr, "Error reading first 4096 bytes of %s\n",argv[1]);
 		return EXIT_FAILURE;
 	}
 
@@ -52,17 +52,17 @@ int main(const int argc, const char **argv)
 		if (argc != 4) goto usage;
 		/* Convert heads from command line and verify validity */
 		if (strlen(argv[3]) != 2) goto usage;
-		heads = strtol(argv[3],NULL,16);
+		heads = strtol(argv[3], NULL, 16);
 		if (!heads) {
-			printf("Invalid head count specified: %s\n",argv[3]);
+			fprintf(stderr, "Invalid head count specified: %s\n", argv[3]);
 			return EXIT_FAILURE;
 		}
 		if (!CHECK_IF_NTFS(buffer)) {
-			printf("%s is not an NTFS filesystem.\n", argv[2]);
+			fprintf(stderr, "%s is not an NTFS filesystem.\n", argv[2]);
 			return EXIT_FAILURE;
 		}
 		if (change_ntfs_geometry(fp, buffer, heads)) {
-			printf("Error writing to %s\n",argv[2]);
+			fprintf(stderr, "Error writing to %s\n", argv[2]);
 			return EXIT_FAILURE;
 		} else {
 			printf("Geometry change for %s: %d heads\n", argv[2], heads);
@@ -79,8 +79,14 @@ int main(const int argc, const char **argv)
 	} else if (!strcmp(argv[1], "hfsplus")) {
 		if (CHECK_IF_HFSPLUS(buffer)) printf("yes\n");
 		else printf("no\n");
+	} else if (!strcmp(argv[1], "hfsplus_info")) {
+		if (!CHECK_IF_HFSPLUS(buffer)) {
+			fprintf(stderr, "%s is not an HFS+ filesystem\n", argv[2]);
+			exit(EXIT_FAILURE);
+		}
+		printf("not written\n");
 	} else {
-		printf("Unknown command %s\n",argv[1]);
+		printf("Unknown command %s\n", argv[1]);
 		fclose(fp);
 		return EXIT_FAILURE;
 	}
