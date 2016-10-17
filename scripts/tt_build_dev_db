@@ -268,7 +268,7 @@ clear_winver_flags () {
 }
 
 set_winver_flags () {
-	test $DBG -gt 2 && echo "${CBLU}set_winver_flags:$COFF $1"
+	test $DBG -gt 2 && echo "${CBLU}set_winver_flags:$COFF '$1'"
 	case "$1" in
 		ntia64*) IA64=1 ;;
 		ntamd64.10.0) W1064=1 ;;
@@ -309,8 +309,8 @@ set_winver_flags () {
 }
 
 unset_winver_flags () {
-	test $DBG -gt 2 && echo "${CBLU}unset_winver_flags:$COFF $1"
-	case $1 in
+	test $DBG -gt 2 && echo "${CBLU}unset_winver_flags:$COFF '$1'"
+	case "$1" in
 		ntia64*) IA64X=1 ;;
 		ntamd64.10.0) W1064X=1 ;;
 		ntamd64.10) W1064X=1 ;;
@@ -430,7 +430,7 @@ process_inf () {
 			if [ "$CHANGE" = "-all" ]
 				then clear_winver_flags
 				else
-				NEW_FLAG="$(echo "$CHANGE" | sed 's/^[^a-zA-Z0-9]//')"
+				NEW_FLAG="$(echo "$CHANGE" | tr -d '\0\r' | sed 's/^[^a-zA-Z0-9]//')"
 				OP="$(echo "$CHANGE" | sed 's/^\(...\).*/\1/')"
 				case $OP in
 					"+nt")

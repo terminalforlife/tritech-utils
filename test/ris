@@ -2,5 +2,6 @@
 foo=bar
 [Section2]
 baz=quux
+quuz=meh
 [SECTION3]
 pfft.pfft=meow_meow  ;ERROR
