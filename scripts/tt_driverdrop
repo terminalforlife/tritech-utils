@@ -1,7 +1,7 @@
 #!/bin/bash
 
-VER=0.8
-VERDATE=2016-10-06
+VER=0.8.1
+VERDATE=2016-10-14
 
 BLACKLIST=" acpi:dev=pnp0103 acpi:dev=pnp0300 acpi:dev=pnp0301 acpi:dev=pnp0302 acpi:dev=pnp0303 acpi:dev=pnp0a03 acpi:dev=pnp0a08 acpi:dev=pnp0c0f acpi:dev=abcd0001 acpi:dev=int3f0d"
 
@@ -23,6 +23,7 @@ echo "${CWHT}Tritech Driver Drop version $VER ($VERDATE)"
 
 unset CLEAN
 clean_exit () {
+	cd /
 	test -z "$EXIST" && test ! -z "$MTPT" && umount $MTPT
 	test -z "$CLEAN" && echo -e "\n${CWHT}Interrupted, cleaning up.$COFF"
 	rm -f $TF $TF2 $DBF2 $DBF_ACPI $DBF_PCI $DBF_HDAUDIO $DBF_USB; exit $1
