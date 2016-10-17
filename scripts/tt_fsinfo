@@ -90,6 +90,7 @@ expand_fsid () {
 		ab00) FS="Apple boot  " ;;
 		af00) FS="Apple HFS(+)" ;;
 		af01) FS="Apple RAID  " ;;
+		af01) FS="Core Storage" ;;
 		ef00) FS="EFI system  " ;;
 		ef01) FS="MBR part    " ;;
 		ef02) FS="BIOS boot   " ;;
