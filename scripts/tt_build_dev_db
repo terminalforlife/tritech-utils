@@ -345,7 +345,7 @@ unset_winver_flags () {
 		nt.5.1) XP32X=1 ;;
 		nt.5) W2KX=1; XP32X=1; S2K3X=1; V32X=1; W732X=1; W832X=1; W8132X=1; W1032X=1 ;;
 		nt) W2KX=1 ;;
-		*) echo "${CYEL}WARNING:$COFF unrecognized version flag $CWHT$1$COFF" ;;
+		*) echo "${CYEL}WARNING:$COFF unrecognized version flag '$CWHT$1$COFF'" ;;
 	esac
 }
 
