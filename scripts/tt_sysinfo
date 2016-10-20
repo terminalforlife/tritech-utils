@@ -60,6 +60,9 @@ done
 VGA="$(lspci -mm | grep "VGA compatible" | cut -d\" -f6 | sed 's/^ *//' | head -n 1)"
 test $V -gt 0 && echo "${CPUR}VGA:  $VGA$COFF"
 unset BIOS
+for X in "Manufacturer:" "Product Name:"
+	do BIOS="$BIOS $(dmidecode -t 1 2>/dev/null | grep -m 1 "$X" | cut -d: -f2)"
+done
 for X in "Vendor:" "Version:" "Release Date:"
 	do BIOS="$BIOS $(dmidecode -t bios 2>/dev/null | grep -m 1 "$X" | cut -d: -f2)"
 done
