@@ -517,6 +517,7 @@ NAME="$LOCAL/CurseClient/CurseClient.log"; DESC="CurseClient"; add_to_delete
 NAME="$LOCAL/dd_vcredist*.txt"; DESC="MSVC++ logs"; add_to_delete
 NAME="$LOCAL/DataMngr"; DESC="DataMngr garbage"; add_to_wipe
 NAME="$LOCAL/Diagnostics"; DESC="Windows Diagnostics"; add_to_wipe
+NAME="$LOCAL/DictionaryBoss*"; DESC="DictionaryBoss"; add_to_wipe
 NAME="$LOCAL/Dropbox/logs"; DESC="Dropbox"; add_to_wipe
 NAME="$LOCAL/Dropbox/Update"; DESC="Dropbox"; add_to_wipe
 NAME="$ROAM/Dropbox/Update"; DESC="Dropbox"; add_to_wipe
@@ -570,8 +571,10 @@ NAME="$LOCAL/join.me/*.log"; DESC="LMI join.me logs"; add_to_delete
 NAME="$LOCAL/$JAVACACHE"; DESC="Java"; add_to_wipe
 NAME="$LOCAL/$JSYSCACHE"; DESC="Java"; add_to_wipe
 NAME="$LOCAL/Live_TV"; DESC="Live_TV spyware"; add_to_wipe
+NAME="$LOCAL/LogMeIn Rescue Applet"; DESC="LogMeIn Rescue"; add_to_wipe
 NAME="$LOCAL/lptmp*"; DESC="LastPass"; add_to_wipe
 NAME="$LOCAL/LogiShrd/Vid"; DESC="Logitech Vid cache"; add_to_wipe
+NAME="$LOCAL/MapsGalaxy*"; DESC="MapsGalaxy Toolbar"; add_to_wipe
 NAME="$LOCAL/Mobogenie"; DESC="Mobogenie"; add_to_wipe
 
 for MOZPROF in "Mozilla" "Mozilla/Firefox" "Thunderbird" \
@@ -636,6 +639,7 @@ NAME="$LOCAL/$MS/Windows/WindowsUpdate.log"; DESC="Windows Update log"; add_to_d
 NAME="$LOCAL/$MS/$WINDEF/FileTracker"; DESC="Windows Defender"; add_to_wipe
 NAME="$LOCAL/Musicmatch/Jukebox/Cache"; DESC="Musicmatch Jukebox cache"; add_to_wipe
 NAME="$LOCAL/MyScrapNook*"; DESC="MyScrapNook"; add_to_wipe
+NAME="$LOCAL/MyFunCards*"; DESC="MyFunCards"; add_to_wipe
 NAME="$LOCAL/MyWebSearch"; DESC="MyWebSearch"; add_to_wipe
 NAME="$LOCAL/NCH"; DESC="NCH spyware"; add_to_wipe
 NAME="$LOCAL/Nero/MobileSync.Thumbnails"; DESC="Nero MobileSync"; add_to_wipe
@@ -796,9 +800,10 @@ done
 
 NAME="$ROAM/Avira/AntiVir Desktop/LOGFILES"; DESC="Avira AntiVir"; add_to_wipe
 NAME="$ROAM/Avira/AntiVir Desktop/REPORTS"; DESC="Avira AntiVir"; add_to_wipe
-NAME="$ROAM/BabSolution"; DESC="Babylon toolbar"; add_to_wipe
+NAME="$ROAM/BabSolution"; DESC="Babylon Toolbar"; add_to_wipe
+NAME="$ROAM/Babylon"; DESC="Babylon Toolbar"; add_to_wipe
+NAME="$ROAM/BabylonToolbar"; DESC="Babylon Toolbar"; add_to_wipe
 NAME="$ROAM/Basis Sync/logs"; DESC="Basis Sync logs"; add_to_wipe
-NAME="$ROAM/Babylon"; DESC="Babylon toolbar"; add_to_wipe
 NAME="$ROAM/bfgbartb"; DESC="Big Fish Games"; add_to_wipe
 NAME="$ROAM/BfgBar"; DESC="Big Fish Games"; add_to_wipe
 NAME="$ROAM/Big Fish Games"; DESC="Big Fish Games"; add_to_wipe
