@@ -1,7 +1,7 @@
 #!/bin/bash
 
-VER="5.4.1"
-VERDATE="2016-10-18"
+VER="5.5"
+VERDATE="2016-10-22"
 
 # Tritech Service System Windows installation clean tool for Linux
 # Copyright (C) by Jody Bruchon <jody@jodybruchon.com>
@@ -325,11 +325,13 @@ do_rewrites () {
 				(( RWLOAD ++ ))
 				SED1="${REWRITE1[$RWCNT]}"
 				SED2="${REWRITE2[$RWCNT]}"
-#				NAME="$(echo "${RWNAMES[$RWNCNT]}" | sed "s.$SED1.$SED2.")"
+#				NAMEX="$(echo "${RWNAMES[$RWNCNT]}" | sed "s.$SED1.$SED2.")"
 				# New name processing (faster but uglier)
-				NAME="${RWNAMES[$RWNCNT]}"
+				NAME_ORIG="${RWNAMES[$RWNCNT]}"
 				SED1="${SED1/^/}"
-				NAME="${NAME/"$SED1"/"$SED2"}"
+				SED1="${SED1//\\/}"
+				NAME="${NAME_ORIG/"$SED1"/"$SED2"}"
+#				test "$NAMEX" != "$NAME" && echo -e "\nRW mismatch:\nOld  $NAMEX\nNew  $NAME\nOrig $NAME_ORIG\nSED1 $SED1\nSED2 $SED2"
 				# End of new name processing
 				test ! "$NAME" == "${RWNAMES[$RWNCNT]}" && \
 				 RWNAMES=( "${RWNAMES[@]}" "$NAME" )
@@ -374,14 +376,14 @@ fi
 # Apply user profile cleaning to SYSTEM profile too
 if ! [ "$SYS32" = "__NONE__" ]; then
 	REWRITE0=( "${REWRITE0[@]}" "$P" )
-	REWRITE1=( "${REWRITE1[@]}" "$P/\*" )
+	REWRITE1=( "${REWRITE1[@]}" "$P" )
 	REWRITE2=( "${REWRITE2[@]}" "$WINDIR/$SYS32/$CONFIG/$SYSPROF" )
 fi
 
 # Windows Vista/7 use ServiceProfiles folders for service profiles
 if [ -e "$WINDIR/ServiceProfiles" ]; then
 	REWRITE0=( "${REWRITE0[@]}" "^$P" )
-	REWRITE1=( "${REWRITE1[@]}" "^$P/\*" )
+	REWRITE1=( "${REWRITE1[@]}" "^$P" )
 	REWRITE2=( "${REWRITE2[@]}" "$WINDIR/ServiceProfiles/*" )
 fi
 
@@ -719,6 +721,8 @@ NAME="$LOCAL/Zynga"; DESC="Zynga"; add_to_wipe
 
 
 NAME="$PF/24x7Help"; DESC="24x7 Help"; add_to_wipe
+NAME="$PF/A* Software/Avast*/DATA/log"; DESC="Avast Antivirus"; add_to_wipe
+NAME="$PF/A* Software/Avast*/Setup/*.log"; DESC="Avast Antivirus"; add_to_delete
 NAME="$PF/ATI/CIM/Reports/Report.xml.*.xml"; DESC="ATI CIM reports"; add_to_delete
 NAME="$PF/Babylon"; DESC="Babylon toolbar"; add_to_wipe
 NAME="$PF/Common Files/Windows Live/.cache"; DESC="WL cache"; add_to_wipe
@@ -1135,6 +1139,9 @@ NAME="AI_RecycleBin"; DESC="Advanced Installer files"; add_to_wipe
 NAME="\$AVG*"; DESC="AVG virus vault"; add_to_wipe
 NAME="found.[0-9][0-9][0-9]"; DESC="CHKDSK fragments"; add_to_wipe
 NAME="ffastun*.ff*"; DESC="Find Fast"; add_to_delete
+NAME="hp/*.log"; DESC="HP Install Logs"; add_to_delete
+NAME="hp/*/*.log"; DESC="HP Install Logs"; add_to_delete
+NAME="hp/bin/logs"; DESC="HP Install Logs"; add_to_wipe
 NAME="swapfile.sys"; DESC="Paging file"; add_to_delete
 NAME="SWAPFILE.SYS"; DESC="Paging file"; add_to_delete
 NAME="pagefile.sys"; DESC="Paging file"; add_to_delete
