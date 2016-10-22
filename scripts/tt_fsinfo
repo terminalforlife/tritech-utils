@@ -2,15 +2,15 @@
 
 # Displays info on storage devices in the system
 
-VER=1.10
-VERDATE="2016-10-14"
+VER=1.10.1
+VERDATE="2016-10-22"
 
 . tss__common
 
 get_device_info () {
 	REM=9; USB=9; DEVSIZE=0
 	PTTYPE="MBR"
-	tss_file_tool gpt /dev/$1 | grep -q "yes" && PTTYPE="GPT"
+	tss_file_tool gpt /dev/$1 2>/dev/null | grep -q "yes" && PTTYPE="GPT"
 	PTTYPE="${CWHT}[$CBLU$PTTYPE${CWHT}]"
 	# Check if removable and/or USB, or if the drive is an empty card reader
 	# Empty card readers and invalid disk devices have a 9 in the REM/USB type
@@ -124,7 +124,7 @@ for DRIVE in $DRIVES
 	DBN="$(basename $DRIVE)"
 	# Remove drives that have device nodes but the kernel says are bogus
 	test ! -e /sys/block/$DBN && DRIVES="$(echo "$DRIVES" | sed s#$DRIVE##)" && continue
-	if tss_file_tool gpt $DRIVE | grep -q "no"
+	if tss_file_tool gpt $DRIVE 2>/dev/null | grep -q "no"
 		then $FDISK -l $DRIVE 2>/dev/null | grep /dev | \
 			grep -v Disk | tr -d \* | tr -d + | \
 			awk '{ print $1"="$5"."$4 }' >> $PART
@@ -167,7 +167,9 @@ fi
 DRV="none"
 
 for DRV in $DRIVES
-	do NPT=1; NPD=0; X=$(echo "$DRV" | sed s./dev/..) 
+	do NPT=1; NPD=0; X=$(echo "$DRV" | sed s./dev/..)
+	# Ignore devices that have zero size (usually empty drives)
+	test "$(cat /sys/block/$X/size)" = "0" && continue
 	# If no partition 1-4 exists, don't display partitions
 	for C in 1 2 3 4 p1 p2 p3 p4
 		do test -e "/sys/block/$X/$X$C" && NPT=0
