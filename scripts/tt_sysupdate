@@ -1,7 +1,7 @@
 #!/bin/bash
 
-VER=1.4.1
-VERDATE="2014-01-19"
+VER=1.5
+VERDATE="2016-10-21"
 
 . tss__common
 
@@ -9,7 +9,8 @@ VERDATE="2014-01-19"
 
 unpack_package () {
 	FLIST="/packages/installed/$(basename "$1" | sed 's/\.pkg\.tar\.[a-z]*$//')"
-	dispatch tar -C / -xvpf "$1" > $FLIST 2>/dev/null
+	DECOMP="$(suggest_decompressor "$1")"
+	dispatch $DECOMP -dc "$1" | tar -C / -xvp > $FLIST 2>/dev/null
 }
 
 dispatch () {
