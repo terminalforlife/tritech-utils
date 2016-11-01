@@ -275,33 +275,33 @@ set_winver_flags () {
 		ntamd64.10) W1064=1 ;;
 		ntamd64.6.3) W8164=1; W1064=1 ;;
 		ntamd64.6.2) W864=1; W8164=1; W1064=1 ;;
-		ntamd64.6.1) W764=1; W864=1; W8164=1; W1064=1 ;;
-		ntamd64.6.0) V64=1; W764=1; W864=1; W8164=1; W1064=1 ;;
+		ntamd64.6.1*) W764=1; W864=1; W8164=1; W1064=1 ;;
+		ntamd64.6.0*) V64=1; W764=1; W864=1; W8164=1; W1064=1 ;;
 		ntamd64.6) V64=1; W764=1; W864=1; W8164=1 W1064=1 ;;
-		ntamd64.5.2) S2K364=1; V64=1; W764=1; W864=1; W8164=1; W1064=1 ;;
-		ntamd64.5.1) XP64=1; S2K364=1; V64=1; W764=1; W864=1; W8164=1; W1064=1 ;;
+		ntamd64.5.2*) S2K364=1; V64=1; W764=1; W864=1; W8164=1; W1064=1 ;;
+		ntamd64.5.1*) XP64=1; S2K364=1; V64=1; W764=1; W864=1; W8164=1; W1064=1 ;;
 		ntamd64.5) XP64=1; S2K364=1; V64=1; W764=1; W864=1; W8164=1; W1064=1 ;;
 		ntamd64) XP64=1; S2K364=1; V64=1; W764=1; W864=1; W8164=1; W1064=1 ;;
 		ntx86.10.0) W1032=1 ;;
 		ntx86.10) W1032=1 ;;
 		ntx86.6.3) W8132=1; W1032=1 ;;
 		ntx86.6.2) W832=1; W8132=1; W1032=1 ;;
-		ntx86.6.1) W732=1; W832=1; W8132=1; W1032=1 ;;
-		ntx86.6.0) V32=1; W732=1; W832=1; W8132=1; W1032=1 ;;
+		ntx86.6.1*) W732=1; W832=1; W8132=1; W1032=1 ;;
+		ntx86.6.0*) V32=1; W732=1; W832=1; W8132=1; W1032=1 ;;
 		ntx86.6) V32=1; W732=1; W832=1; W8132=1; W1032=1 ;;
-		ntx86.5.2) S2K3=1; V32=1; W732=1; W832=1; W8132=1; W1032=1 ;;
-		ntx86.5.1) XP32=1; S2K3=1; V32=1; W732=1; W832=1; W8132=1; W1032=1 ;;
+		ntx86.5.2*) S2K3=1; V32=1; W732=1; W832=1; W8132=1; W1032=1 ;;
+		ntx86.5.1*) XP32=1; S2K3=1; V32=1; W732=1; W832=1; W8132=1; W1032=1 ;;
 		ntx86.5) XP32=1; S2K3=1; V32=1; W732=1; W832=1; W8132=1; W1032=1 ;;
 		ntx86) XP32=1; S2K3=1; V32=1; W732=1; W832=1; W8132=1; W1032=1 ;;
 		nt.10.0) W1032=1 ;;
 		nt.10) W1032=1 ;;
 		nt.6.3) W8132=1; W1032=1 ;;
 		nt.6.2) W832=1; W8132=1; W1032=1 ;;
-		nt.6.1) W732=1; W832=1; W8132=1; W1032=1 ;;
-		nt.6.0) V32=1; W732=1; W832=1; W8132=1; W1032=1 ;;
+		nt.6.1*) W732=1; W832=1; W8132=1; W1032=1 ;;
+		nt.6.0*) V32=1; W732=1; W832=1; W8132=1; W1032=1 ;;
 		nt.6) V32=1; W732=1; W832=1; W8132=1; W1032=1 ;;
-		nt.5.2) S2K3=1; V32=1; W732=1; W832=1; W8132=1; W1032=1 ;;
-		nt.5.1) XP32=1; S2K3=1; V32=1; W732=1; W832=1; W8132=1; W1032=1 ;;
+		nt.5.2*) S2K3=1; V32=1; W732=1; W832=1; W8132=1; W1032=1 ;;
+		nt.5.1*) XP32=1; S2K3=1; V32=1; W732=1; W832=1; W8132=1; W1032=1 ;;
 		nt.5) XP32=1; S2K3=1; V32=1; W732=1; W832=1; W8132=1; W1032=1 ;;
 		nt) W2K=1; XP32=1; S2K3=1; V32=1; W732=1; W832=1; W8132=1; W1032=1 ;;
 		*) W2K=1; XP32=1; S2K3=1; V32=1; W732=1; W832=1; W8132=1; W1032=1 ;;
@@ -409,9 +409,13 @@ process_inf () {
 			test $DBG -gt 1 && echo -n "${CGRN}INF for $CWHT$FILE$COFF => $CWHT$SEC$COFF: "
 			# Test for device entries in a section and set/unset flags as appropriate
 			if [ -z "$(cat "$TFPI2")" ]
-				then test $DBG -gt 1 && echo "${CYEL}no flags$COFF"
+			then test $DBG -gt 1 && echo "${CYEL}clearing flags$COFF"
 #				echo "$SEC" | grep -iq '\.nt[a-z0-9]*' && unset_winver_flags "$(echo "$SEC" | sed 's/.*\.nt/nt/')"
-				[[ "$SEC" =~ \.nt[a-z0-9]* ]] && unset_winver_flags "${SEC/*.nt/nt}"
+				if [[ "$SEC" =~ \.nt[a-z0-9]* ]]
+					then unset_winver_flags "${SEC/*.nt/nt}"
+					else clear_winver_flags
+				fi
+
 				else test $DBG -gt 1 && echo "${CGRN}setting flags$COFF"
 #				set_winver_flags "$(echo "$SEC" | sed 's/.*\.nt/nt/')"
 				set_winver_flags "${SEC/*.nt/nt}"
