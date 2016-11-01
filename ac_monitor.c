@@ -60,14 +60,14 @@ static inline int do_beep(void)
 
 int main(void)
 {
-	pid_t pid;
-	int i;
+	static pid_t pid;
+	static int i;
 	DIR *dir;
-	struct dirent *entry;
-	char path[PATH_MAX];
-	char type[PATH_MAX];
-	char buf[16];
-	int status = 0, newstat;
+	static struct dirent *entry;
+	static char path[PATH_MAX];
+	static char type[PATH_MAX];
+	static char buf[16];
+	static int status = 0, newstat;
 
 	printf("TSS power monitor %s (%s)\n", TRITECH_UTILS_VER, TRITECH_UTILS_DATE);
 	strncpy(path, power_path, PATH_MAX);
@@ -81,7 +81,7 @@ int main(void)
 	while ((entry = readdir(dir)) != NULL) {
 		if (errno) {
 			fprintf(stderr, "Error: readdir() failed: %s\n", power_path);
-			return EXIT_FAILURE;
+			exit(EXIT_FAILURE);
 		}
 		if (*(entry->d_name) != '.') {
 			/* Construct the path strings */
@@ -106,21 +106,17 @@ int main(void)
 				fprintf(stderr, "Warning: error opening %s\n", type);
 				close(i);
 			}
-
 		}
 	}
 	closedir(dir);
 	fprintf(stderr, "No AC adapters were found in this system.\n");
-	return EXIT_FAILURE;
+	exit(EXIT_FAILURE);
 
 found_ac_file:
 	/* Get initial adapter state */
-	if((i = open(path, O_RDONLY)) == -1) {
-		fprintf(stderr, "Error: cannot open status file: %s\n", path);
-		return EXIT_FAILURE;
-	}
-	if (read(i, buf, 15) == -1) return 1;
-	if (*buf != '0' && *buf != '1') return 1;
+	if((i = open(path, O_RDONLY)) == -1) goto error_open_status;
+	if (read(i, buf, 15) == -1) goto error_open_status;
+	if (*buf != '0' && *buf != '1') goto error_open_status;
 	status = (*buf == '0');
 	close(i);
 
@@ -130,8 +126,8 @@ found_ac_file:
 
 	/* Daemonize */
 	pid = fork();
-	if (pid < 0) return EXIT_FAILURE;
-	if (pid > 0) return EXIT_SUCCESS;
+	if (pid < 0) exit(EXIT_FAILURE);
+	if (pid > 0) exit(EXIT_SUCCESS);
 	chdir("/");
 	for (i = sysconf(_SC_OPEN_MAX); i > 0; i--) close(i);
 	/* Check status every second, beep if changed */
@@ -154,5 +150,9 @@ found_ac_file:
 			do_beep();
 		}
 	}
-	return EXIT_SUCCESS;
+	exit(EXIT_SUCCESS);
+
+error_open_status:
+	fprintf(stderr, "Error: cannot open status file: %s\n", path);
+	return EXIT_FAILURE;
 }
