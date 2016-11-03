@@ -2,8 +2,8 @@
 
 # Displays info on storage devices in the system
 
-VER=1.10.1
-VERDATE="2016-10-22"
+VER=1.10.2
+VERDATE="2016-11-03"
 
 . tss__common
 
@@ -117,6 +117,11 @@ if [ -e /usr/sbin/sgdisk ]; then SGDISK=/usr/sbin/sgdisk; fi
 
 PART=$(mktemp)
 DRIVES="$(echo /dev/sd? /dev/hd? /dev/mmcblk? /dev/nvme?n? | tr ' ' '\n' | grep -v '\?' | sort)"
+
+if [ -z "$DRIVES" ]
+	then echo -e "\n${CYEL}No drives were detected on this computer!  ${CWHT}:-($COFF\n"
+	exit 1
+fi
 # Pulls partition info via fdisk and adds lines to PART
 # in the format:  /dev/devX=type.size_in_1k_blocks
 for DRIVE in $DRIVES
