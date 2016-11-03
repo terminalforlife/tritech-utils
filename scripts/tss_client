@@ -5,8 +5,8 @@
 # Prevent loading twice
 if [ -z "$TSS_CLIENT" ]; then
 
-TSS_CLIENT_VER=0.8.6
-TSS_CLIENT_VERDATE=2016-10-13
+TSS_CLIENT_VER=0.8.7
+TSS_CLIENT_VERDATE=2016-11-03
 
 # Without socat we can't do any TSS client stuff
 if ! socat -V >/dev/null 2>/dev/null
@@ -381,7 +381,7 @@ read_sysinfo () {
 		fi
 	done
 	HDD="$(echo "$HDD" | sed 's/, $//')"
-	test $(echo "$HDD" | wc -c) -lt 8 && echo "${CRED}read_sysinfo:$COFF drive info too short: '$HDD'" && unset HDD
+	test $(echo "$HDD" | wc -c) -lt 8 && test $V -gt 0 && echo "${CRED}read_sysinfo:$COFF drive info too short: '$HDD'" && unset HDD
 	get_os_version
 	MSDM=/sys/firmware/acpi/tables/MSDM
 	test -e $MSDM && PRODKEY="$(strings $MSDM | tail -n 1)"
