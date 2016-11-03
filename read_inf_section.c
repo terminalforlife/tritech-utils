@@ -32,7 +32,7 @@ static void usage(int value)
 }
 
 
-static void die(char *message, int error)
+static void die(const char * const restrict message, int error)
 {
 	fprintf(stderr, "Died with error %d: %s\n", error, message);
 	exit(error);
@@ -139,7 +139,7 @@ static inline void strip_comments(char * const restrict buffer)
 
 static inline int output_section(FILE *fp, const char * const restrict line)
 {
-	int linelength = strlen(line);
+	const int linelength = strlen(line);
 
 	//fprintf(stderr, "output_section: %s\n", line);
 	while (1) {

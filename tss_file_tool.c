@@ -97,11 +97,12 @@ usage:
 	fprintf(stderr, "Tritech Service System miscellaneous file tool %s (%s)\n", TRITECH_UTILS_VER, TRITECH_UTILS_DATE);
 	fprintf(stderr, "Usage: %s command dev/device|/path/to/file [hex-head-count]\n\n", argv[0]);
 	fprintf(stderr, "Commands:\n");
-	fprintf(stderr, "gpt     \tChecks for GPT partitioning.\n");
-	fprintf(stderr, "ntfs    \tChecks for an NTFS filesystem signature.\n");
-	fprintf(stderr, "winexec \tChecks for a DOS/Windows EXE signature.\n");
-	fprintf(stderr, "ntfsgeom\tChange NTFS partition head count. Requires two-digit hex-head-count.\n");
-	fprintf(stderr, "registry\tChecks if the file is a Windows registry hive.\n");
+	fprintf(stderr, "gpt         Checks for GPT partitioning.\n");
+	fprintf(stderr, "ntfs        Checks for an NTFS filesystem signature.\n");
+	fprintf(stderr, "winexec     Checks for a DOS/Windows EXE signature.\n");
+	fprintf(stderr, "ntfsgeom    Change NTFS partition head count. Requires two-digit hex head count.\n");
+	fprintf(stderr, "registry    Checks if the file is a Windows registry hive.\n");
+	fprintf(stderr, "\n");
 	return EXIT_FAILURE;
 }
 
