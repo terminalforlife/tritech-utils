@@ -132,7 +132,7 @@ int main(const int argc, const char **argv)
 		i = 0;
 
 		len = strlen_to_lower(line);
-		if (line[len - 1] == '\n') {
+		if (len > 0 && line[len - 1] == '\n') {
 			len--;
 			line[len] = '\0';
 		}
