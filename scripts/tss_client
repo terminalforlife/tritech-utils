@@ -5,8 +5,8 @@
 # Prevent loading twice
 if [ -z "$TSS_CLIENT" ]; then
 
-TSS_CLIENT_VER=0.8.7
-TSS_CLIENT_VERDATE=2016-11-03
+TSS_CLIENT_VER=0.8.8
+TSS_CLIENT_VERDATE=2016-11-04
 
 # Without socat we can't do any TSS client stuff
 if ! socat -V >/dev/null 2>/dev/null
@@ -467,6 +467,7 @@ save_tss_state () {
 # Load persistent TSS client state variables, if a state file exists
 load_tss_state () {
 	# Only allow this to be called once to avoid an endless loop
+	test "$TSS_STATE_LOADED" = "1" && return
 	TSS_STATE_LOADED=1
 	if [ -e "$TSS_STATE_FILE" ]
 		then
@@ -490,6 +491,8 @@ load_tss_state () {
 		read_probdesc
 		read_custnotes
 		read_technotes
+		# If OS is a known bad value, detect it again
+		[[ -z "$OS" || "$OS" = "__NONE__" ]] && get_os_version
 
 		else
 		detect_current_pc
