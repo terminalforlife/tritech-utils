@@ -1,7 +1,7 @@
 #!/bin/bash
 
-VER="2.2.1"
-VERDATE="2016-10-06"
+VER="2.2.2"
+VERDATE="2016-11-07"
 
 shopt -s nullglob
 . tss__common
@@ -121,7 +121,8 @@ if [ ! -e /sys/block/$DEV ]
 fi
 
 check_mounts
-test -d /sys/firmware/efi && echo "${CGRN}This system seems to be in ${CWHT}EFI$CGRN mode.$COFF"
+EFIMODE=0
+test -d /sys/firmware/efi && EFIMODE=1 && echo "${CGRN}This system seems to be in ${CWHT}EFI$CGRN mode.$COFF"
 # Select an image to drop
 echo "${CGRN}Choose an image to drop:${COFF}"
 
@@ -142,6 +143,9 @@ XP=0; UEFI=0
 
 echo "$IMG" | grep -q "^xp" && XP=1
 echo "$IMG" | grep -q -- "-uefi" && UEFI=1
+
+[[ $UEFI = 1 && $EFIMODE = 0 ]] && echo "${CYEL}NOTICE:$CWHT This computer was booted in MBR mode but a UEFI image was chosen.$COFF"
+[[ $UEFI = 0 && $EFIMODE = 1 ]] && echo "${CYEL}NOTICE:$CWHT This computer was booted in EFI mode but an MBR image was chosen.$COFF"
 
 if [ ! -e $IMGDIR/$IMG ]
 	then echo "${CRED}ERROR: $CCYA$IMGDIR/$IMG$CRED not found. Aborting.$COFF"
