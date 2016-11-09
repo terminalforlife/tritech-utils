@@ -2,8 +2,8 @@
 
 # Attempts to run parallel disk diags and burn-ins.
 
-VER=1.1.6
-VERDATE=2016-10-13
+VER=1.1.7
+VERDATE=2016-11-09
 
 export FORK=0
 export BURNSECS=900
@@ -27,6 +27,7 @@ TEMP_RED=78
 TEMP_BOGUS=110
 N_OVERHEAT=0
 
+# Called to clean up temporary files and kill background processes
 clean_exit () {
 	kill $(jobs -p) 2>/dev/null >/dev/null
 	test $FORK -eq 0 && sleep 1
@@ -50,13 +51,14 @@ clean_exit () {
 
 trap clean_exit INT TERM QUIT USR1
 
+# Play sounds for temperature threshold warning
 temp_warn () {
 	test -e $WARNSOUND && aplay $WARNSOUND 2>/dev/null >/dev/null &
 	test -e $WARNSOUND && aplay $WARNSOUND 2>/dev/null >/dev/null &
 	tt_beepsong fxchirp 2>/dev/null >/dev/null
 }
 
-
+# Keep track of the highest polled CPU temperature
 update_maxtemp () {
 	if [[ $CPUTEMP -gt 2 && $CPUTEMP -lt $TEMP_BOGUS ]]
 		then test $CPUTEMP -gt $MAXTEMP && MAXTEMP=$CPUTEMP
@@ -64,6 +66,7 @@ update_maxtemp () {
 	fi
 }
 
+# Burn-in background task
 burnin () {
 	export FORK=1
 	BX="$(cat $1)"
@@ -85,6 +88,7 @@ burnin () {
 	clean_exit
 }
 
+# Disk read test background task
 disktest () {
 	export FORK=1
 	#START=$(date +%s)
@@ -102,6 +106,7 @@ disktest () {
 	clean_exit
 }
 
+# Capture the last 'pv' output line of a background task
 pv_tail () {
 	tr \\r \\n < "$1" | tail -n 1
 }
@@ -126,6 +131,7 @@ BTEMP=$(mktemp)
 # Set burnin time in seconds
 echo $BURNSECS > $BTEMP
 
+# Find names for and read-test all internal disks
 for X in /dev/sd? /dev/hd? /dev/mmcblk? /dev/nvme?n?
 	do
 	# Only diagnose non-USB, non-removable drives
@@ -139,8 +145,11 @@ for X in /dev/sd? /dev/hd? /dev/mmcblk? /dev/nvme?n?
 		DI=$((DI + 1))
 	fi
 done
+
+# Fork CPU burn-in to the background
 "$0" burnin $BTEMP &
-BSTATCACHE=600
+
+BSTATCACHE=$BURNSECS
 DIC=0; DDONE=0; BDONE=0
 while [ $DIC -lt $DI ]
 	do
@@ -151,10 +160,16 @@ done
 
 sleep 2
 
+# Main diagnostics loop
 while true
 	do
 	clear
+	echo "  $BGBLU                                                                            $BGBLK  $COFF"
+	echo "  $BGBLU              $BGBLK${CWHT}  Tritech Service System parallel diagnostics  $BGBLU               $BGBLK  $COFF"
+	echo -e "  $BGBLU                                                                            $BGBLK  $COFF\n"
+	# End loop when burn-in and disk tests finish
 	[[ $DDONE = 1 && $BDONE = 1 ]] && break
+	# Capture latest burn-in status and set PASS state if needed
 	if [ $BDONE = 0 ]
 		then BSTAT="$(cat "$BTEMP")"
 		if [ "$BSTAT" = "" ]
@@ -163,12 +178,13 @@ while true
 		fi
 		if [ "$BSTAT" = "PASS" ]
 			then BDONE=1
-			echo -n "Burn-in: PASS"
+			echo -n " Burn-in: PASS"
 			A_BURNIN=1
-			else echo -n "Burn-in: ${BSTAT}sec"
+			else echo -n " Burn-in: ${BSTAT}sec"
 		fi
 		else echo -n "Burn-in: PASS"
 	fi
+	# Update CPU temperature display and maximum temperature seen
 	if [ -e "$THRM" ]
 		then CPUTEMP="$(expr $(cat $THRM) / 1000)"
 		echo -n " $SEP Temp $CGRN"
@@ -179,6 +195,7 @@ while true
 		echo -n "$CPUTEMP${CWHT} C$COFF"
 	fi
 	CNT=1
+	# Display fan status; this turned out to not work well so it's disabled
 #	for X in /sys/devices/virtual/thermal/cooling_device*
 #		do if [ "$(cat $X/type)" = "Fan" ]
 #			then
