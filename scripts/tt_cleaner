@@ -566,6 +566,8 @@ NAME="$LOCAL/iMesh"; DESC="iMesh"; add_to_wipe
 NAME="$LOCAL/imeshmediabartb"; DESC="iMesh"; add_to_wipe
 NAME="$LOCAL/Inbox Toolbar"; DESC="Inbox Toolbar"; add_to_wipe
 NAME="$LOCAL/InboxAce_*"; DESC="InboxAce toolbar"; add_to_wipe
+NAME="$LOCAL/Installer/Installcr_*"; DESC="Installer Adware"; add_to_wipe
+NAME="$LOCAL/Installer/Installiwebar_*"; DESC="Installer Adware"; add_to_wipe
 NAME="$LOCAL/Intuit/QuickBooks*/Log"; DESC="Intuit logs"; add_to_wipe
 NAME="$LOCAL/Intuit/Common/Authorization/*/Logs"; DESC="Intuit logs"; add_to_wipe
 NAME="$LOCAL/iWon*"; DESC="iWon software"; add_to_wipe
@@ -725,6 +727,7 @@ NAME="$PF/A* Software/Avast*/DATA/log"; DESC="Avast Antivirus"; add_to_wipe
 NAME="$PF/A* Software/Avast*/Setup/*.log"; DESC="Avast Antivirus"; add_to_delete
 NAME="$PF/ATI/CIM/Reports/Report.xml.*.xml"; DESC="ATI CIM reports"; add_to_delete
 NAME="$PF/Babylon"; DESC="Babylon toolbar"; add_to_wipe
+NAME="$PF/Common Files/System/SysMenu*.dll"; DESC="SysMenu adware"; add_to_delete
 NAME="$PF/Common Files/Windows Live/.cache"; DESC="WL cache"; add_to_wipe
 NAME="$PF/Citrix/GoToMyPC/*.log"; DESC="GoToMyPC logs"; add_to_delete
 NAME="$PF/DriverRestore"; DESC="DriverRestore"; add_to_delete
