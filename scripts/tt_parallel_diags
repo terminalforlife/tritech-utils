@@ -38,13 +38,15 @@ clean_exit () {
 		test "$TSS_CLIENT" = "1" && test "$TSS_CLIENT_DISABLE" != "1" && while true
 			do
 			push_actions && break
-			echo "Could not push diagnostic results; a network cable is unplugged or wifi got disconnected."
-			echo "Press 'x' to abort. Check the network connection and press any other key to retry."
+			echo "Could not push diagnostic results. Check your cables and network connection."
+			echo "Press 'x' to abort or any other key to retry."
 			read -n 1 -s X
-			test "$X" = "x" && echo "Aborting diagnostic result pushing. Use 'tss_push_all' to try again later." && break
+			test "$X" = "x" && echo "Aborting diagnostic result push. Use 'tss_push_all' to try again later." && break
 		done
 		tt_sysinfo
 	fi
+	tt_beepsong fxzap
+	tt_beepsong fxzap
 	test -e $DONESOUND && aplay $DONESOUND 2>/dev/null >/dev/null &
 	exit
 }
