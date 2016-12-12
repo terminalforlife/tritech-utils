@@ -87,6 +87,7 @@ install: tritech-utils manual
 	install -D -o root -g root -m 0755 scripts/tt_imagedrop $(DESTDIR)/$(bindir)/tt_imagedrop
 	install -D -o root -g root -m 0755 scripts/tt_instance_finder $(DESTDIR)/$(bindir)/tt_instance_finder
 	install -D -o root -g root -m 0755 scripts/tt_mpkg $(DESTDIR)/$(bindir)/tt_mpkg
+	install -D -o root -g root -m 0755 scripts/tt_ntfs_mount_fix $(DESTDIR)/$(bindir)/tt_ntfs_mount_fix
 	install -D -o root -g root -m 0755 scripts/tt_parallel_diags $(DESTDIR)/$(bindir)/tt_parallel_diags
 	install -D -o root -g root -m 0755 scripts/tt_pkg_install $(DESTDIR)/$(bindir)/tt_pkg_install
 	install -D -o root -g root -m 0755 scripts/tt_pkg_remove $(DESTDIR)/$(bindir)/tt_pkg_remove

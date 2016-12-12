@@ -1,0 +1,31 @@
+#!/bin/sh
+
+VER=0.1
+VERDATE="2016-11-30"
+
+echo -e "Tritech NTFS mount problem repair tool $VER ($VERDATE)\n"
+
+DEV="$1"
+if [ -z "$DEV" ]
+	then
+	tt_fsinfo
+	echo -n "Type the partition device name you want to fix: "
+	read DEV
+fi
+echo "$DEV" | grep -q '^/mnt/' && DEV="$(echo "$DEV" | sed s#/mnt/##)"
+echo "$DEV" | grep -q '^/dev/' && DEV="$(echo "$DEV" | sed s#/dev/##)"
+test ! -e "/dev/$DEV" && echo "error: device /dev/$DEV does not exit" && exit 1
+test ! -e "/mnt/$DEV" && echo "error: mount point /mnt/$DEV does not exit" && exit 1
+
+mountpoint -q "/mnt/$DEV" && umount -l "/mnt/$DEV" && echo "Unmounted /mnt/$DEV"
+
+echo "Attempting to fix NTFS mount issues for /dev/$DEV => /mnt/$DEV"
+
+ntfsfix "/dev/$DEV"
+ntfs-3g -o remove_hiberfile "/dev/$DEV" "/mnt/$DEV"
+if ! mountpoint -q "/mnt/$DEV"
+	then echo "Attempt to fix issues FAILED."
+	exit 1
+fi
+echo -e "\nIgnore any errors seen above.\n"
+echo -e "Fix successful! /dev/$DEV should now be mounted at /mnt/$DEV\n"
