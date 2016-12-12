@@ -1,7 +1,7 @@
 #!/bin/bash
 
-VER="5.5.1"
-VERDATE="2016-11-09"
+VER="5.5.2"
+VERDATE="2016-12-12"
 
 # Tritech Service System Windows installation clean tool for Linux
 # Copyright (C) by Jody Bruchon <jody@jodybruchon.com>
@@ -466,6 +466,7 @@ NAME="$LOCAL/Adobe/Acrobat/*/Cache"; DESC="Adobe Acrobat"; add_to_wipe
 NAME="$LOCAL/Adobe/Reader*/Setup Files"; DESC="Adobe Acrobat"; add_to_wipe
 NAME="$LOCAL/Adobe/Updater*"; DESC="Adobe Acrobat"; add_to_wipe
 NAME="$LOCAL/alotappbar"; DESC="ALOT Toolbar"; add_to_wipe
+NAME="$LOCAL/Amazon */Data/*Cache"; DESC="Amazon Caches"; add_to_wipe
 NAME="$LOCAL/AMD/Fuel/ClientProxyLog*"; DESC="AMD FUEL logs"; add_to_delete
 NAME="$LOCAL/AppGraffiti"; DESC="AppGraffiti"; add_to_wipe
 NAME="$LOCAL/AskToolbar"; DESC="Ask Toolbar"; add_to_wipe
@@ -779,6 +780,7 @@ NAME="$ROAM/AOL/*/bart"; DESC="AOL"; add_to_wipe
 NAME="$ROAM/AOL/*/misc/temp"; DESC="AOL"; add_to_wipe
 NAME="$ROAM/AOL/TopSpeed/*/cache.db"; DESC="AOL"; add_to_delete
 NAME="$ROAM/AOL Downloads"; DESC="AOL"; add_to_wipe
+NAME="$ROAM/A* Software/Avast*/Cache"; DESC="Avast Antivirus"; add_to_wipe
 NAME="$ROAM/A* Software/Avast*/chest"; DESC="Avast Antivirus"; add_to_wipe
 NAME="$ROAM/A* Software/Avast*/log"; DESC="Avast Antivirus"; add_to_wipe
 NAME="$ROAM/A* Software/Avast*/report"; DESC="Avast Antivirus"; add_to_wipe
