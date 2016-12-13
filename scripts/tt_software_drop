@@ -1,7 +1,7 @@
 #!/bin/bash
 
-VER=0.1.1
-VERDATE="2016-06-03"
+VER=0.1.2
+VERDATE="2016-12-13"
 
 . tss__common
 
@@ -80,6 +80,7 @@ if [ ! -z "$MTPT" ]
 	TMP=$(mktemp)
 	tt__disk_prompt $TMP
 	DEV="$(cat $TMP)"
+	test ! -e "/dev/$DEV" && echo "No valid device selected, aborting." && exit 1
 	rm $TMP
 
 	PART="$(cat /proc/partitions | awk '{ print $3" "$4 }' | \
