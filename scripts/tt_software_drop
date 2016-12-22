@@ -1,7 +1,7 @@
 #!/bin/bash
 
 VER=0.1.2
-VERDATE="2016-12-13"
+VERDATE="2016-12-21"
 
 . tss__common
 
@@ -80,7 +80,6 @@ if [ ! -z "$MTPT" ]
 	TMP=$(mktemp)
 	tt__disk_prompt $TMP
 	DEV="$(cat $TMP)"
-	test ! -e "/dev/$DEV" && echo "No valid device selected, aborting." && exit 1
 	rm $TMP
 
 	PART="$(cat /proc/partitions | awk '{ print $3" "$4 }' | \
@@ -163,7 +162,7 @@ echo "$SOURCES" | tr : \\n | while read X
 	if [[ -z "$X" || -z "$NAME" || -z "$SRCDIR" ]]
 		then continue
 	fi
-	echo "$NAME ($SRCSUB => $TTSW):"
+	echo -e "$NAME\n   ($SRCSUB => $TTSW):"
 	rsync -rtH --info=progress2 "$SRCDIR" "$MTPT/$TTSW/"
 done
 
