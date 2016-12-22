@@ -1,7 +1,7 @@
 #!/bin/bash
 
-VER="2.2.2"
-VERDATE="2016-11-07"
+VER="2.2.3"
+VERDATE="2016-12-22"
 
 shopt -s nullglob
 . tss__common
@@ -152,8 +152,40 @@ if [ ! -e $IMGDIR/$IMG ]
 	clean_exit 6
 fi
 
-# Get device size in 512-byte blocks
+# Do a bitness sanity check
+ARCH=$(uname -m)
+BITNESS=0; IMG_BIT=0
+echo "$ARCH" | grep -q 'i[3456]86' && BITNESS=32
+echo "$ARCH" | grep -q 'x86_64' && BITNESS=64
+echo "$IMG" | grep -q '_32' && IMG_BIT=32
+echo "$IMG" | grep -q '_64' && IMG_BIT=64
+if [[ $BITNESS -ne 0 && $IMG_BIT -ne 0 && $BITNESS -ne $IMG_BIT ]]
+	then echo "${CYEL}===== WARNING =====$COFF"
+	echo "${CYEL}The image is $CWHT${IMG_BIT}-bit$CYEL but you booted TSS in $CWHT${BITNESS}-bit$CYEL mode$COFF"
+	echo -n "${CYEL}Are you sure that you want to continue (y/N)? $COFF"
+	read -n 1 X
+	if [[ $X != "n" && $X != "N" ]]
+		then echo "${CRED}Aborting due to image bitness mismatch.$COFF"
+		exit 1
+	fi
+fi
+
+# Do a rough capacity sanity check
 BLOCKS=$(cat /sys/block/$DEV/size)
+DESTSIZE=$(stat -c %s "$IMGDIR/$IMG")
+DESTSIZE=$((DESTSIZE * 24))
+DESTSIZE=$((DESTSIZE / 10))
+DEVBYTES=$((BLOCKS * 512))
+if [ $DESTSIZE -ge $DEVBYTES ]
+	then echo "${CYEL}===== WARNING =====$COFF"
+	echo "${CWHT}$DEV$CYEL may not be large enough for this image ($DESTSIZE > $DEVBYTES)$COFF"
+	echo -n "${CYEL}Are you sure that you want to continue (y/N)? $COFF"
+	read -n 1 X
+	if [[ $X != "n" && $X != "N" ]]
+		then echo "${CRED}Aborting due to insufficient device capacity.$COFF"
+		exit 1
+	fi
+fi
 
 # Get head count to do geometry recalculations
 if [ $UEFI -eq 0 ]
@@ -175,22 +207,6 @@ if [ $UEFI -eq 0 ]
 	esac
 	CYLS=$(expr $BLOCKS / $HEADS / 63)
 	echo "$DEV: ${HEADS}/${XHEADS} heads, $CYLS cylinders, 63 sectors."
-fi
-
-# Do a rough capacity sanity check
-DESTSIZE=$(stat -c %s "$IMGDIR/$IMG")
-DESTSIZE=$((DESTSIZE * 24))
-DESTSIZE=$((DESTSIZE / 10))
-DEVBYTES=$((BLOCKS * 512))
-if [ $DESTSIZE -ge $DEVBYTES ]
-	then echo "${CYEL}===== WARNING =====$COFF"
-	echo "${CWHT}$DEV$CYEL may not be large enough for this image ($DESTSIZE > $DEVBYTES)$COFF"
-	echo -n "${CYEL}Are you sure that you want to continue (y/N)? $COFF"
-	read -n 1 X
-	if [[ $X != "n" && $X != "N" ]]
-		then echo "${CRED}Aborting due to insufficient device capacity.$COFF"
-		exit 1
-	fi
 fi
 
 check_mounts
