@@ -1,7 +1,7 @@
 #!/bin/sh
 
-VER=0.4
-VERDATE=2015-08-10
+VER=0.4.1
+VERDATE=2017-02-07
 
 test -z "$TSS_COMMON" && . tss__common
 test -z "$TSS_COMMON" && echo "tss__common required but failed to load." && exit 1
@@ -32,7 +32,7 @@ if mount.winregfs -v >/dev/null 2>/dev/null
 	if ! mount.winregfs -o ro "$REGSW" $TMP 2>/dev/null
 		then echo "error: cannot mount $REGSW"
 		fusermount -u $TMP 2>/dev/null
-		rmdir -f $TMP
+		rmdir --ignore-fail-on-non-empty $TMP
 		exit 1
 	fi
 
