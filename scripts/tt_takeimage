@@ -31,7 +31,7 @@ for X in ${DEV}?
 	test "$DEVX" = "$(basename $DEV)" && echo -n "!! "
 	echo -n "$CWHT$DEVX$COFF "
 	cd /mnt
-	mount $DEVX && cd $DEVX && tt_zero_image 2>&1 >/dev/null && cd /mnt && umount $DEVX
+	mount $DEVX 2>/dev/null >/dev/null && cd $DEVX && tt_zero_image 2>&1 >/dev/null && cd /mnt && umount $DEVX
 done 
 
 echo -en "\n\nImage file name? "
