@@ -5,8 +5,8 @@
 # Prevent loading twice
 if [ -z "$TSS_CLIENT" ]; then
 
-TSS_CLIENT_VER=0.8.8
-TSS_CLIENT_VERDATE=2016-11-04
+TSS_CLIENT_VER=0.8.9
+TSS_CLIENT_VERDATE=2017-02-16
 
 # Without socat we can't do any TSS client stuff
 if ! socat -V >/dev/null 2>/dev/null
@@ -55,8 +55,9 @@ get_os_version () {
 		cd /mnt/$PART
 		OS2="$OS"
 		OSF=0
-		OS="$(tt_winver -a)"
+		OS="$(tt_winver -a || echo "_FAIL_")"
 		# Handle problems with version detection
+		echo "$OS" | grep -q "_FAIL_" && OS="$OS2" && OSF=1
 		test "$OS" = "Cannot find SOFTWARE hive." && OS="$OS2" && OSF=1
 		test "$OS" = "nt...* " && OS="$OS2" && OSF=1
 		unset OS2
