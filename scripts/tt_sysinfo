@@ -85,7 +85,7 @@ for X in /sys/class/net/eth* /sys/class/net/en*
 	fi
 done
 if [ -z "$NET" ]
-	then echo "${CYEL}NET:     No ethernet adapter detected.$COFF"
+	then echo "${CYEL}NET:     No active wired ethernet connection detected.$COFF"
 	else echo "${CGRN}NET:   $NET$COFF"
 fi
 

@@ -201,9 +201,9 @@ tt__hdd_smart_status () {
 		LCC=$(grep -m 1 Load_Cycle_Count $SMART_TEMP | sed 's/ ([^)]*)*//;s/.* //g;s/[^0-9].*//')
 		if [ -n "$LCC" ]
 			then
-			test $LCC -lt 200000 && S="${CGRN}LCC=$LCC$COFF"
-			test $LCC -ge 200000 && S="${CYEL}LCC=$LCC$COFF"
-			test $LCC -ge 300000 && S="${CRED}LCC=$LCC$COFF"
+			test $LCC -lt 200000 && S=" ${CGRN}LCC=$LCC$COFF"
+			test $LCC -ge 200000 && S=" ${CYEL}LCC=$LCC$COFF"
+			test $LCC -ge 300000 && S=" ${CRED}LCC=$LCC$COFF"
 			test $LCC -gt 900000 && unset S
 		fi
 		RSC=$(grep -m 1 Reallocated_Sector_Ct $SMART_TEMP | sed 's/ ([^)]*)$//;s/.* //g;s/[^0-9].*//')
@@ -238,7 +238,7 @@ tt__hdd_smart_status () {
 			test $UCEC -gt 0 && test $UCEC -lt 2000 && S="$S ${CYEL}UCEC=$UCEC$COFF"
 			test $UCEC -ge 2000 && test $UCEC -lt 10000 && S="$S ${CRED}UCEC=$UCEC$COFF"
 		fi
-		test "$2" != "-q" && test -n "$S" && echo "$CWHT$1$COFF:  $CWHT+-- ${CCYA}SMART data: $S"
+		test "$2" != "-q" && test -n "$S" && echo "$CWHT$1$COFF:     $CWHT+-- ${CCYA}SMART:$S"
 		rm -f $SMART_TEMP
 	fi
 }

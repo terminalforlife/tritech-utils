@@ -2,8 +2,8 @@
 
 # Displays info on storage devices in the system
 
-VER=1.10.2
-VERDATE="2016-11-03"
+VER=1.10.3
+VERDATE="2017-03-02"
 
 . tss__common
 
@@ -207,7 +207,7 @@ for DRV in $DRIVES
 		fi
 		echo
 		tt__hdd_smart_status $X -q
-		test -n "$S" && echo "$CWHT==== ${CYEL}SMART data  $S"
+		test -n "$S" && echo "$CWHT==== ${CYEL}SMART: $S"
 		else ZERO="$ZERO $X"
 	fi
 
