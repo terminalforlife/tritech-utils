@@ -63,20 +63,29 @@ get_device_info () {
 expand_fsid () {
 	case $1 in
 		#--------MBR types--------
+		 0)   FS="Empty       " ;;
+		 1)   FS="FAT12       " ;;
 		 4)   FS="FAT16       " ;;
+		 5)   FS="Extended    " ;;
 		 6)   FS="FAT16       " ;;
 		 7)   FS="NTFS        " ;;
 		 b)   FS="FAT32       " ;;
 		 c)   FS="FAT32       " ;;
 		 e)   FS="FAT16       " ;;
 		 f)   FS="Extended    " ;;
+		12)   FS="Compaq Diags" ;;
 		27)   FS="Recovery    " ;;
+		80)   FS="Minix (Old) " ;;
 		81)   FS="Minix       " ;;
 		82)   FS="Linux swap  " ;;
 		83)   FS="Linux       " ;;
+		85)   FS="Linux ext'd " ;;
 		86)   FS="Windows RAID" ;;
 		87)   FS="Windows RAID" ;;
 		8e)   FS="Linux LVM   " ;;
+		a5)   FS="FreeBSD     " ;;
+		a6)   FS="OpenBSD     " ;;
+		a9)   FS="NetBSD      " ;;
 		de)   FS="Dell Diags  " ;;
 		ee)   FS="EFI GPT     " ;;
 		ef)   FS="EFT FAT     " ;;
@@ -84,13 +93,21 @@ expand_fsid () {
 		#--------GPT types--------
 		0700) FS="Windows data" ;;
 		0c01) FS="MS reserved " ;;
+		2700) FS="Windows RE  " ;;
+		4200) FS="Windows LDMd" ;;
+		4201) FS="Windows LDMm" ;;
+		7f00) FS="ChromeOS krn" ;;
+		7f01) FS="ChromeOS rt " ;;
+		7f02) FS="ChromeOS res" ;;
 		8200) FS="Linux swap  " ;;
 		8300) FS="Linux FS    " ;;
+		8301) FS="Linux resv'd" ;;
+		8400) FS="Intel RST   " ;;
 		8e00) FS="Linux LVM   " ;;
 		ab00) FS="Apple boot  " ;;
 		af00) FS="Apple HFS(+)" ;;
 		af01) FS="Apple RAID  " ;;
-		af01) FS="Core Storage" ;;
+		af05) FS="Apl CoreStor" ;;
 		ef00) FS="EFI system  " ;;
 		ef01) FS="MBR part    " ;;
 		ef02) FS="BIOS boot   " ;;
