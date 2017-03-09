@@ -1,7 +1,7 @@
 #!/bin/bash
 
-VER=0.4
-VERDATE=2016-09-29
+VER=0.4.1
+VERDATE=2017-03-01
 
 # When started, collect information about current interface states
 # Attempt to locate a configuration file
@@ -180,10 +180,15 @@ setup_internet_connection () {
 			unset IF_INET_IP IF_INET
 		fi
 	fi
-	if [ $(echo $IFACE_WIRED | wc -w) -gt 1 ]
-		then echo -en "Multiple wired interfaces. Set up LACP bonding (y/n)? "
+	LACP_CNT=0
+	for X in $IFACE_WIRED
+		do grep -q 1 /sys/class/net/$X/carrier && LACP_CNT=$((LACP_CNT + 1))
+	done
+	if [ $LACP_CNT -gt 1 ]
+		then echo -en "Multiple active wired interfaces. Set up LACP bonding (y/n)? "
 		read -n 1 BOND; echo
 		test "$BOND" = "y" && select_bond_interfaces && setup_lacp && unset IF_INET_IP
+		else echo "Skipping LACP (not enough wired interfaces active)"
 	fi
 	if [ -z "$IF_INET_IP" ]
 		then
