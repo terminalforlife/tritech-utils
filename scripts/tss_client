@@ -415,7 +415,7 @@ detect_current_pc () {
 	# Duplicate check required in case TSS state file contains disabled state
 	test "$TSS_CLIENT_DISABLE" = "1" && return 255
 	test -z "$TSS_SERVER" && detect_tss_server
-	MAC="$(shopt -u nullglob; cat /sys/class/net/{eth*,wlan*}/address 2>/dev/null | tr \\n ' ')"
+	MAC="$(shopt -u nullglob; shopt -u nocaseglob; cat /sys/class/net/{eth*,wlan*}/address 2>/dev/null | tr \\n ' ')"
 	COMMAND="MACADDR_TO_PCID $MAC" tss_command
 	test ! -z "$PCID" && COMMAND="PCID_TO_WOID $PCID" tss_command
 	tss_proc_response
@@ -423,8 +423,9 @@ detect_current_pc () {
 	tss_proc_response
 
 	if [[ -z "$PCID" && -z "$WOID" ]]
-		then echo "${CYEL}detect_current_pc:$COFF PC not detected. Enter a PCID or WOID, or 'd' to disable the TSS client."
-		echo -n "Prefix WOID with a lowercase $CBLU'w'$COFF as in $CBLU'w7654'$COFF. ID? "
+		then echo "${CYEL}detect_current_pc:$COFF PC not detected."
+		echo "Enter a PC ID or work order ID, or 'd' to disable the TSS client."
+		echo -n "Prefix a WOID with $CBLU'w'$COFF as in $CBLU'w7654'$COFF. Enter ID: "
 		read X
 		TSS_CLIENT_DISABLE=0
 		test "$X" = "d" && export TSS_CLIENT_DISABLE=1 && echo "disable" > $TSS_STATE_FILE && return 255
