@@ -32,7 +32,7 @@ int confd = -1;
 void handle_signal(int signum)
 {
 	if (signum == SIGINT) {
-		if(confd >= 0) {
+		if (confd >= 0) {
 			ioctl(confd, KIOCSOUND, 0);
 			close(confd);
 		}
@@ -42,34 +42,45 @@ void handle_signal(int signum)
 
 static inline int do_beep(void)
 {
-	const struct timespec len = {0, 500000000};
-	const int freq = 3000;
+	const struct timespec len = {0, 100000000};
+	const int freq1 = CLOCK_TICK_RATE / 1500;
+	const int freq2 = CLOCK_TICK_RATE / 3000;
+	const int freq3 = CLOCK_TICK_RATE / 6000;
 
-	if((confd = open("/dev/console", O_WRONLY)) == -1) {
+	if ((confd = open("/dev/console", O_WRONLY)) == -1) {
 		fprintf(stderr, "Error: could not open /dev/console\n");
 		return 1;
 	}
 	
-	/* Beep */
-	ioctl(confd, KIOCSOUND, CLOCK_TICK_RATE / freq);
+	/* Beep sequence */
+	ioctl(confd, KIOCSOUND, CLOCK_TICK_RATE / freq1);
+	nanosleep(&len, NULL);
+	ioctl(confd, KIOCSOUND, CLOCK_TICK_RATE / freq2);
+	nanosleep(&len, NULL);
+	ioctl(confd, KIOCSOUND, CLOCK_TICK_RATE / freq3);
 	nanosleep(&len, NULL);
 	ioctl(confd, KIOCSOUND, 0);
 	close(confd);
 	return 0;
 }
 
-int main(void)
+int main(int argc, char **argv)
 {
 	static pid_t pid;
 	static int i;
 	DIR *dir;
 	static struct dirent *entry;
-	static char path[PATH_MAX];
-	static char type[PATH_MAX];
+	static char path[PATH_MAX], type[PATH_MAX];
 	static char buf[16];
 	static int status = 0, newstat;
 
 	printf("TSS power monitor %s (%s)\n", TRITECH_UTILS_VER, TRITECH_UTILS_DATE);
+
+	if (argc >= 2 && strcmp(argv[1], "test") == 0) {
+		do_beep();
+		exit(EXIT_SUCCESS);
+	}
+
 	strncpy(path, power_path, PATH_MAX);
 
 	/* Find the AC adapter file */
@@ -114,15 +125,14 @@ int main(void)
 
 found_ac_file:
 	/* Get initial adapter state */
-	if((i = open(path, O_RDONLY)) == -1) goto error_open_status;
+	if ((i = open(path, O_RDONLY)) == -1) goto error_open_status;
 	if (read(i, buf, 15) == -1) goto error_open_status;
 	if (*buf != '0' && *buf != '1') goto error_open_status;
 	status = (*buf == '0');
 	close(i);
 
-	printf("    AC adapter is currently ");
-	if (status) printf("unplugged.\n");
-	else printf("plugged in.\n");
+	printf("    AC adapter is currently %s",
+		status ? "unplugged.\n" : "plugged in.\n");
 
 	/* Daemonize */
 	pid = fork();
@@ -130,11 +140,11 @@ found_ac_file:
 	if (pid > 0) exit(EXIT_SUCCESS);
 	chdir("/");
 	for (i = sysconf(_SC_OPEN_MAX); i > 0; i--) close(i);
-	/* Check status every second, beep if changed */
+	/* Check status every two seconds, beep if changed */
 	while (1) {
-		sleep(1);
+		sleep(2);
 		/* Sleep on errors; they don't necessarily indicate a permanent error */
-		if((i = open(path, O_RDONLY)) == -1) continue;
+		if ((i = open(path, O_RDONLY)) == -1) continue;
 		if (read(i, buf, 15) == -1) {
 			close(i);
 			continue;
