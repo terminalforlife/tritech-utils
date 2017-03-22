@@ -1,13 +1,14 @@
 #!/bin/bash
 
-VER=0.1.2
-VERDATE="2016-12-21"
+VER=0.1.3
+VERDATE="2017-03-13"
 
 . tss__common
 
 echo "${CWHT}Tritech software package drop tool $VER ($VERDATE)"
 test ! -x /usr/bin/rsync && echo "${CRED}rsync not found, aborting.$COFF" && exit 1
 
+TSSC_AUTO=0; TSSC_FORCE=1
 . tss_client
 
 RSYNC_USER=tritech
@@ -78,7 +79,7 @@ if [ ! -z "$MTPT" ]
 	else
 	# Prompt the user for a disk and partition
 	TMP=$(mktemp)
-	tt__disk_prompt $TMP
+	tt__disk_prompt $TMP || exit 1
 	DEV="$(cat $TMP)"
 	rm $TMP
 
