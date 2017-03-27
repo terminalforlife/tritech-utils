@@ -34,36 +34,45 @@ control_c () {
 
 trap control_c INT
 
-if [[ "$1" = "-h" || "$1" = "--help" ]]
-	then
-	PN="$(basename $0)"
-	echo -e "Tritech Service System Cleaner, a junk cleaning tool for Linux\n"
-	echo "Program version $VER, last updated on $VERDATE"
-	echo "$PN         normal mode, shows verbose scan progress and reports"
-	echo "$PN -x      fast normal mode, skips size counts of cleaned items"
-	echo "$PN -q      quiet mode, with progress dots and a summary"
-	echo "$PN -Q      fast quiet mode, with progress but no summary"
-	echo "$PN -s      silent mode, no output, returns an exit code"
-	echo "$PN -n      normal mode, but don't actually delete anything"
-	echo "$PN -d      debug mode: -n, plus shows what would be deleted"
-	echo "$PN -h      this help screen"
-	echo "$PN --help  this help screen with four wasted keystrokes"
-	echo -e "\nCopyright (C) Jody Bruchon <jody@jodybruchon.com>"
-	exit 0
-fi
-
-### Set parameters for different command switches
-# MSG: 0=none, 1=quiet, 2=full
-# NODEL: 0=delete, 1=no delete
-# NOSIZE: 0=get size of cleaned items, 1=skip calculation (faster)
+# Initialize some settings
 NODEL=0; MSG=2; DEBUG=0; NOSIZE=0
-test "$1" = "-s" && MSG=0 && NOSIZE=1
-test "$1" = "-q" && MSG=1
-test "$1" = "-Q" && MSG=1 && NOSIZE=1
+unset FORCED NOREPORT
 
-test "$1" = "-x" && MSG=2 && NOSIZE=1
-test "$1" = "-n" && MSG=2 && NODEL=1
-test "$1" = "-d" && MSG=2 && NODEL=1 && DEBUG=1
+# Parse command line parameters
+for X in $@
+	do if [[ "$X" = "-h" || "$X" = "--help" ]]
+		then
+		PN="$(basename $0)"
+		echo -e "Tritech Service System Cleaner, a junk cleaning tool for Linux\n"
+		echo "Program version $VER, last updated on $VERDATE"
+		echo "$PN         normal mode, shows verbose scan progress and reports"
+		echo "$PN -x      fast normal mode, skips size counts of cleaned items"
+		echo "$PN -q      quiet mode, with progress dots and a summary"
+		echo "$PN -Q      fast quiet mode, with progress but no summary"
+		echo "$PN -s      silent mode, no output, returns an exit code"
+		echo "$PN -n      normal mode, but don't actually delete anything"
+		echo "$PN -d      debug mode: -n, plus shows what would be deleted"
+		echo "$PN -h      this help screen"
+		echo "$PN --help  this help screen with four wasted keystrokes"
+		echo -e "\nCopyright (C) Jody Bruchon <jody@jodybruchon.com>"
+		exit 0
+	fi
+	# Change parameters for different command switches
+	# MSG: 0=none, 1=quiet, 2=full
+	# NODEL: 0=delete, 1=no delete
+	# NOSIZE: 0=get size of cleaned items, 1=skip calculation (faster)
+	test "$X" = "-s" && MSG=0 && NOSIZE=1
+	test "$X" = "-q" && MSG=1
+	test "$X" = "-Q" && MSG=1 && NOSIZE=1
+	test "$X" = "-x" && MSG=2 && NOSIZE=1
+	test "$X" = "-n" && MSG=2 && NODEL=1
+	test "$X" = "-d" && MSG=2 && NODEL=1 && DEBUG=1
+	# Allow forcing the OS selection and directories
+	test "$X" = "--xp" && export V7=1 && FORCED=1
+	test "$X" = "--v7" && export V7=2 && FORCED=1
+	test "$X" = "--osx" && export OSX=1 && FORCED=1
+	test "$X" = "--no-report" && NOREPORT=1
+done
 
 test $DEBUG -gt 0 && unset CWHT CGRN CPUR CCYA CYEL CRED CBLU
 
@@ -74,13 +83,7 @@ export UPF=0
 export LOCAL=__NONE__
 export ROAM=__NONE__
 export LIBRARY=__NONE__
-OS="None"
-
-# Allow forcing the OS selection and directories
-unset FORCED
-test -z "$FORCED" && echo "$@" | grep -q -- "--xp" && export V7=1 && FORCED=1
-test -z "$FORCED" && echo "$@" | grep -q -- "--v7" && export V7=2 && FORCED=1
-test -z "$FORCED" && echo "$@" | grep -q -- "--osx" && export OSX=1 && FORCED=1
+OSYS="None"
 
 # Skip OS structure checks if forced
 if [ -z "$FORCED" ]
@@ -99,25 +102,25 @@ fi
 
 if [ "$V7" = "1" ]
 	then
-	OS="Windows 2000/XP"
+	OSYS="Windows 2000/XP"
 	export P="$XPDOCS/*"
 	export LOCAL="$P/$XPLOCAL"
 	export ROAM="$P/$XPROAM"
 fi
 if [ "$V7" = "2" ]
 	then
-	OS="Windows Vista/7/8.x/10"
+	OSYS="Windows Vista/7/8.x/10"
 	export P="$V7DOCS/*"
 	export LOCAL="$P/$V7LOCAL"
 	export ROAM="$P/$V7ROAM"
 fi
 if [ "$OSX" = "1" ]
 	then
-	OS="Mac OS X"
+	OSYS="Mac OS X"
 	export P="Users/*"
 	export LIBRARY="$P/Library"
 fi
-test "$FORCED" = "1" && OS="$OS (forced)"
+test "$FORCED" = "1" && OSYS="$OSYS (forced)"
 
 # Scan version of P for grep-friendliness
 SCANP="$(echo "$P" | sed 's#\*#\[\^/\]\*#g')"
@@ -161,7 +164,7 @@ YMSGR="Yahoo!/Messenger"
 test "$MSG" = "1" && echo -n "Cleaning: "
 if [ "$MSG" = "2" ]
 	then echo -e "${CWHT}Tritech Service System Cleaner, version $CGRN$VER$COFF ($CGRN$VERDATE$COFF)"
-	echo "${CWHT}OS detected: $OS$COFF"
+	echo "${CWHT}OS detected: $OSYS$COFF"
 	test $V7 -gt 0 && test "$WINDIR" = "__NONE__" && \
 		echo "${CYEL}NOTICE: ${CWHT}No Windows folder detected$COFF"
 	test "$UPF" = "0" && echo "${CYEL}NOTICE: ${CWHT}No user profile root folder detected$COFF"
@@ -1278,7 +1281,7 @@ if [ "$XPREDO" = "1" ]
 	then
 	unset XPREDO
 	test $MSG -gt 1 && echo -e "===$CPUR Running in ${CWHT}XP mode$CPUR to catch everything$COFF ===\n"
-	$0 $@ --xp
+	$0 $@ --xp --no-report
 fi
 
 for X in Windows.old*/ "Restored from Carbonite" Backup* "My Backup*"
@@ -1288,7 +1291,7 @@ for X in Windows.old*/ "Restored from Carbonite" Backup* "My Backup*"
 		CWD="$(pwd)"
 		cd "$X"
 		if echo "$0" | grep -q '^/'
-			then $0 $@
+			then $0 $@ --no-report
 			else "$CWD/$0" $@
 		fi
 		cd "$CWD"
@@ -1298,7 +1301,8 @@ done
 
 # Push cleaning action to TSS if possible
 A_CLEANER=1
-test "$TSS_CLIENT" = "1" && test "$TSS_CLIENT_DISABLE" != "1" && while true
+test "$TSS_CLIENT" = "1" && test "$TSS_CLIENT_DISABLE" != "1" && \
+	test "$NOREPORT" != "1" && while true
 	do
 	if push_actions
 		then test $MSG -gt 0 && echo "Cleaning reported to TSS successfully."
