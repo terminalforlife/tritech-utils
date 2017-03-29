@@ -1,0 +1,29 @@
+#!/bin/sh
+
+# Put a genuine ticket in place
+GTF="ProgramData/Microsoft/Windows/ClipSVC/GenuineTicket"
+GT=/mnt/cifs/GenuineTicket.xml
+
+# Exit if image tools are running
+pgrep -f tt_imagedrop >/dev/null && echo "Aborting: imagedrop" && exit 1
+pgrep -f tt_takeimage >/dev/null && echo "Aborting: takeimage" && exit 1
+
+T=$(mktemp)
+
+tt__disk_prompt $T
+
+for X in /mnt/$(cat $T)[0-9]*
+	do M=0
+	echo "Trying $X"
+	if cat /proc/mounts | grep $X | grep -q ro
+		then umount $X 2>/dev/null
+	fi
+	if ! mountpoint -q $X
+		then mount $X 2>/dev/null || tt_ntfs_mount_fix $X 2>/dev/null
+		mountpoint -q $X && M=1
+	fi
+	test -d "$X/$GTF" && cp "$GT" "$X/$GTF" && echo -e "GenuineTicket installed:\n$X/$GTF"
+	test $M -eq 1 && umount $X
+done
+
+rm -f $T
