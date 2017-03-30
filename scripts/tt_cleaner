@@ -590,7 +590,8 @@ NAME="$LOCAL/MapsGalaxy*"; DESC="MapsGalaxy Toolbar"; add_to_wipe
 NAME="$LOCAL/Mobogenie"; DESC="Mobogenie"; add_to_wipe
 
 for MOZPROF in "Mozilla" "Mozilla/Firefox" "Thunderbird" \
-	"Moonchild Productions/Pale Moon" "LimeWire/mozilla-profile"
+	"Moonchild Productions/Pale Moon" "LimeWire/mozilla-profile" \
+	"Fast Browser/*" "Fast Web Browser/*"
 	do MOZPROF="$LOCAL/$MOZPROF/Profiles/*"
 	DESC="Mozilla applications"
 	NAME="$MOZPROF/_CACHE_*_"; add_to_delete
@@ -636,7 +637,7 @@ NAME="$LOCAL/Packages/WinStore_*/AC/$MS/Windows Store/Data/history.dat"; DESC="W
 NAME="$LOCAL/Packages/*/TempState"; DESC="Windows UWP App Caches"; add_to_wipe
 NAME="$LOCAL/Packages/*/AC/Temp"; DESC="Windows UWP App Caches"; add_to_wipe
 NAME="$LOCAL/Packages/*/LocalState/Cache"; DESC="Windows UWP App Caches"; add_to_wipe
-NAME="$LOCAL/Packages/*/AC/#!001/*/Cache"; DESC="Windows UWP App Caches"; add_to_wipe
+NAME="$LOCAL/Packages/*/AC/#!*/*/Cache"; DESC="Windows UWP App Caches"; add_to_wipe
 NAME="$LOCAL/Packages/*/AC/$MS/Windows/Internet Explorer"; DESC="Windows UWP App Caches"; add_to_wipe
 NAME="$LOCAL/Packages/*/AC/AppCache"; DESC="Windows UWP App Caches"; add_to_wipe
 NAME="$LOCAL/Packages/*/AC/INetCache"; DESC="Windows UWP App Caches"; add_to_wipe
