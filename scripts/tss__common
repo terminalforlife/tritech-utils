@@ -193,12 +193,21 @@ do_windows_folder_detection () {
 do_windows_folder_detection
 
 tt__hdd_smart_status () {
+	SMART_SED='s/ ([^)]*)$//;s/([^)]*)$//;s/.* //g;s/[^0-9].*//'
 	if smartctl -V >/dev/null 2>/dev/null
 		then
 		unset S LCC RSC UNC REC CPS OUNC UCEC
 		SMART_TEMP=$(mktemp)
+		# Fetch SMART stats into variables
 		smartctl -A /dev/$1 > $SMART_TEMP
-		LCC=$(grep -m 1 Load_Cycle_Count $SMART_TEMP | sed 's/ ([^)]*)*//;s/.* //g;s/[^0-9].*//')
+		LCC=$(grep -m 1 Load_Cycle_Count $SMART_TEMP | sed "$SMART_SED")
+		RSC=$(grep -m 1 Reallocated_Sector_Ct $SMART_TEMP | sed "$SMART_SED")
+		UNC=$(grep -m 1 Reported_Uncorrect $SMART_TEMP | sed "$SMART_SED")
+		REC=$(grep -m 1 Reallocated_Event_Count $SMART_TEMP | sed "$SMART_SED")
+		CPS=$(grep -m 1 Current_Pending_Sector $SMART_TEMP | sed "$SMART_SED")
+		OUNC=$(grep -m 1 Offline_Uncorrectable $SMART_TEMP | sed "$SMART_SED")
+		UCEC=$(grep -m 1 UDMA_CRC_Error_Count $SMART_TEMP | sed "$SMART_SED")
+		# Add color indicators to stats
 		if [ -n "$LCC" ]
 			then
 			test $LCC -lt 200000 && S=" ${CGRN}LCC=$LCC$COFF"
@@ -206,38 +215,33 @@ tt__hdd_smart_status () {
 			test $LCC -ge 300000 && S=" ${CRED}LCC=$LCC$COFF"
 			test $LCC -gt 900000 && unset S
 		fi
-		RSC=$(grep -m 1 Reallocated_Sector_Ct $SMART_TEMP | sed 's/ ([^)]*)$//;s/.* //g;s/[^0-9].*//')
 		if [ -n "$RSC" ]
 			then
 			test $RSC -gt 0 && test $RSC -lt 100 && S="$S ${CYEL}RSC=$RSC$COFF"
 			test $RSC -ge 100 && test $RSC -lt 100000 && S="$S ${CRED}RSC=$RSC$COFF"
 		fi
-		UNC=$(grep -m 1 Reported_Uncorrect $SMART_TEMP | sed 's/ ([^)])$//;s/.* //g;s/[^0-9].*//')
 		test -n "$UNC" && test $UNC -gt 0 && test $UNC -ne 65536 && test $UNC -lt 500000 && S="$S  ${CRED}UNC=$UNC$COFF"
-		REC=$(grep -m 1 Reallocated_Event_Count $SMART_TEMP | sed 's/ ([^)])$//;s/.* //g;s/[^0-9].*//')
 		if [ -n "$REC" ]
 			then
 			test $REC -gt 0 && test $REC -lt 10 && S="$S ${CYEL}REC=$REC$COFF"
 			test $REC -ge 10 && test $REC -lt 10000 && S="$S ${CRED}REC=$REC$COFF"
 		fi
-		CPS=$(grep -m 1 Current_Pending_Sector $SMART_TEMP | sed 's/ ([^)])$//;s/.* //g;s/[^0-9].*//')
 		if [ -n "$CPS" ]
 			then
 			test $CPS -gt 0 && test $CPS -lt 10 && S="$S ${CYEL}CPS=$CPS$COFF"
 			test $CPS -ge 10 && test $CPS -lt 10000 && S="$S ${CRED}CPS=$CPS$COFF"
 		fi
-		OUNC=$(grep -m 1 Offline_Uncorrectable $SMART_TEMP | sed 's/ ([^)])$//;s/.* //g;s/[^0-9].*//')
 		if [ -n "$OUNC" ]
 			then
 			test $OUNC -gt 0 && test $OUNC -lt 10 && S="$S ${CYEL}OUNC=$OUNC$COFF"
 			test $OUNC -ge 10 && test $OUNC -lt 10000 && S="$S ${CRED}OUNC=$OUNC$COFF"
 		fi
-		UCEC=$(grep -m 1 UDMA_CRC_Error_Count $SMART_TEMP | sed 's/ ([^)])$//;s/.* //g;s/[^0-9].*//')
 		if [ -n "$UCEC" ]
 			then
 			test $UCEC -gt 0 && test $UCEC -lt 2000 && S="$S ${CYEL}UCEC=$UCEC$COFF"
 			test $UCEC -ge 2000 && test $UCEC -lt 10000 && S="$S ${CRED}UCEC=$UCEC$COFF"
 		fi
+		# Display final stats
 		test "$2" != "-q" && test -n "$S" && echo "$CWHT$1$COFF:     $CWHT+-- ${CCYA}SMART:$S"
 		rm -f $SMART_TEMP
 	fi
