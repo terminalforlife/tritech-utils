@@ -506,6 +506,7 @@ for CHROME in "Google/Chrome/User Data" "speed browser/User Data"
 	NAME="$CHROME/*/Last Tabs"; add_to_delete
 	NAME="$CHROME/*/Local Storage/http*"; add_to_delete
 	NAME="$CHROME/*/Media Cache"; add_to_wipe
+	NAME="$CHROME/*/old_*"; add_to_wipe
 	NAME="$CHROME/*/Pepper Data/Shockwave Flash"; add_to_wipe
 	NAME="$CHROME/*/*Tabs"; add_to_delete
 	NAME="$CHROME/*/Transport Security"; add_to_delete
