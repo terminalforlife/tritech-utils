@@ -815,12 +815,14 @@ NAME="$ROAM/Avery/Avery Wizard*/Samples"; DESC="Avery Wizard samples"; add_to_wi
 NAME="$ROAM/avg*/*.log"; DESC="AVG Antivirus"; add_to_delete
 
 # AVG pollution
+	DESC="AVG Antivirus"
 for X in \
 'AVG*/cache' 'AVG*/chjw' 'AVG*/Chjw' 'AVG*/Dumps' 'AVG*/log' \
 'AVG*/Log' 'avg*/log' 'avg*/Log' 'avg*/scanlogs' 'avg*/Temp' \
 'AVG*/Temp' 'AVG*/SetupBackup' 'AVG*/AWL/CrashDumps' MFAData \
-'AVG*/PC Tuneup/Logs' 'AVG*/Rescue';
-	do NAME="$ROAM/${X}"; DESC="AVG Antivirus"; add_to_wipe
+'AVG*/PC Tuneup/Logs' 'AVG*/Rescue' 'Avg/log';
+	do NAME="$ROAM/${X}"; add_to_wipe
+	NAME="$LOCAL/${X}"; add_to_wipe
 done
 
 NAME="$ROAM/Avira/AntiVir Desktop/LOGFILES"; DESC="Avira AntiVir"; add_to_wipe
