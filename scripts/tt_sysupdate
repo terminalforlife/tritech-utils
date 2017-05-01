@@ -10,7 +10,7 @@ VERDATE="2017-04-30"
 do_help () {
 	echo -e "\nUsage: $(basename "$0") [-a] [-d] [-f] [-l] [-v]\n"
 	echo "    -a   Don't wait for an abort keystroke"
-	echo "    -d   Debugging mode (implies -v)"
+	echo "    -d   Debugging mode (no installing done, implies -v)"
 	echo "    -f   Force install packages even if same version is installed"
 	echo "    -l   Local only; do not run tt_cifs before updating"
 	echo "    -v   Verbose operation"
@@ -19,16 +19,18 @@ do_help () {
 }
 
 unpack_package () {
-	FLIST="/packages/installed/$(basename "$1" | sed 's/\.pkg\.tar\.[a-z]*$//')"
+	FNAME="$1"
+	FLIST="/packages/installed/${FNAME//*\//}"
+	FLIST="${FLIST/%.pkg.tar.[a-z]*/}"
 	test -e "$FLIST" && test $FORCE -eq 0 && return 2
-	DECOMP="$(suggest_decompressor "$1")"
+	DECOMP="$(suggest_decompressor "$FNAME")"
 	# Do not unpack existing packages unless -f is passed
-	dispatch $DECOMP -dc "$1" | tar -C / -xvp > $FLIST 2>/dev/null
+	dispatch $DECOMP -dc "$FNAME" | tar -C / -xvp > $FLIST 2>/dev/null
 }
 
 dispatch () {
 	test -z "$SUB" && SUB=0
-	test -z "$MAXSUB" && MAXSUB=$(grep ^processor /proc/cpuinfo | tail -n 1 | sed 's/.*:\s*//') && ((MAXSUB ++))
+	test -z "$MAXSUB" && MAXSUB=$(grep ^processor /proc/cpuinfo | tail -n 1 | sed 's/.*:\s*//') && MAXSUB=$((MAXSUB + 1))
 	if [ $MAXSUB -gt 1 ]
 		then
 		while [ $SUB -ge $MAXSUB ]
@@ -203,13 +205,13 @@ fi
 for X in ${UPDPATH}/*.pkglist
 		do X=$(basename "$X" | sed s/.pkglist//g)
 		test "$V" = "1" && echo "Adding $CYEL$X$COFF"
-		cnf[I]="$X"; (( I ++ )); GOOD=1
+		cnf[I]="$X"; I=$((I + 1)); GOOD=1
 done
 if [ "$I" -gt "1" ]
 	then echo -e "Multiple configurations available, please select one.\n"
 	while [ $J -lt $I ]
 		do echo "$CWHT$J:$COFF ${cnf[$J]}"
-		(( J ++ ))
+		J=$((J + 1))
 	done
 	echo -en "\nEnter choice (10s timer, default 0, \"n\" to cancel): "
 	X=0; read -t 10 X || echo
@@ -234,12 +236,14 @@ UP="$UPDPATH/${cnf[$USE]}"
 echo -n "Unpacking packages: "
 
 cd "$UPDPATH"
+
 for X in $(cat ${UP}.pkglist)
-	do Y=none
+	do Y="none"
 	# Handle multiple package types available if required
 	for ARCHPKG in all/${X}_*.pkg.tar.{lzo,gz,bz2,xz,lzma} $ARCH/${X}_*.pkg.tar.{lzo,gz,bz2,xz,lzma}
 		do W="__NONE__"
-		test -e "$ALLPKG" && W="$ALLPKG" || test -e "$ARCHPKG" && W="$ARCHPKG"
+		test -e "$ARCHPKG" && W="$ARCHPKG"
+		test "$W" = "__NONE__" && test -e "$ALLPKG" && W="$ALLPKG"
 		if [ -e "$W" ]
 			then Y="$W"
 			test "$V" = "1" && echo -n "$CBLU$Y$COFF "
@@ -247,17 +251,11 @@ for X in $(cat ${UP}.pkglist)
 		fi
 	done
 	if [ "$Y" = "none" ]
-		then echo -n " $CRED$X$COFF"
+		then echo -n " $CRED$X$COFF "
 		else
 		test "$DBG" = "0" && unpack_package "$Y"
 		test $? = 2 && echo -n "$CYEL" || echo -n "$CGRN"
 		echo -n ".$COFF"
-#    if sha1sum -c "$Y.sha1sum" >/dev/null 2>/dev/null
-#      then
-#      test "$DBG" = "0" && tar -C / -xvpf "$Y" > /packages/installed/$X 2>/dev/null
-#      echo "$CGRN$P$COFF: Processing package $CBLU$Y$COFF"
-#      else echo "$CRED$P$COFF: bad hash, not unpacking: $CRED$Y$COFF"
-#    fi
 	fi
 done
 
