@@ -15,7 +15,7 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 
-#include "tritech_utils.h"
+#include "version.h"
 
 int main(int argc, char **argv)
 {

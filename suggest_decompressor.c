@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "tritech_utils.h"
+#include "version.h"
 
 
 /* Extension-to-decompressor table */

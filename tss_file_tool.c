@@ -11,7 +11,7 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "tritech_utils.h"
+#include "version.h"
 
 #define CHECK_IF_NTFS(a) !strncmp((char *)(a + 3), "NTFS", 4)
 #define CHECK_IF_HFSPLUS(a) !strncmp((char *)(a + 1032), "HFSJ", 4)

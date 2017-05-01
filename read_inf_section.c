@@ -11,7 +11,7 @@
 #include <errno.h>
 #include <limits.h>
 
-#include "tritech_utils.h"
+#include "version.h"
 
 #define MAXLEN 1024
 

@@ -17,7 +17,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <linux/kd.h>
-#include "tritech_utils.h"
+#include "version.h"
 
 #ifndef CLOCK_TICK_RATE
 #define CLOCK_TICK_RATE 1193180

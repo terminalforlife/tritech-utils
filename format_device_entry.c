@@ -10,7 +10,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "tritech_utils.h"
+#include "version.h"
 
 #define MAXLEN 1024
 #define SUBSIZE 32
