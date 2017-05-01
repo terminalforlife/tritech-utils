@@ -1,15 +1,28 @@
 #!/bin/bash
 
-VER=1.5
-VERDATE="2016-10-21"
+VER=1.6
+VERDATE="2017-04-30"
 
 . tss__common
 
 # Updates the system core/packages from the best source possible.
 
+do_help () {
+	echo -e "\nUsage: $(basename "$0") [-a] [-d] [-f] [-l] [-v]\n"
+	echo "    -a   Don't wait for an abort keystroke"
+	echo "    -d   Debugging mode (implies -v)"
+	echo "    -f   Force install packages even if same version is installed"
+	echo "    -l   Local only; do not run tt_cifs before updating"
+	echo "    -v   Verbose operation"
+	echo
+	exit
+}
+
 unpack_package () {
 	FLIST="/packages/installed/$(basename "$1" | sed 's/\.pkg\.tar\.[a-z]*$//')"
+	test -e "$FLIST" && test $FORCE -eq 0 && return 2
 	DECOMP="$(suggest_decompressor "$1")"
+	# Do not unpack existing packages unless -f is passed
 	dispatch $DECOMP -dc "$1" | tar -C / -xvp > $FLIST 2>/dev/null
 }
 
@@ -62,10 +75,17 @@ test "$ARCH" = "i586" && ARCH="i386"
 test "$ARCH" = "i486" && ARCH="i386"
 
 # Set flags for verbose, debug, etc.
-V=0; DBG=0; ABRT=1
-test "$1" = "-v" && V=1
-test "$1" = "-d" && V=1 && DBG=1
-test "$1" = "-a" && ABRT=0
+V=0; DBG=0; ABRT=1; FORCE=0; LOCAL=0
+for X in $@
+	do case "$X" in
+		"-a") ABRT=0 ;;
+		"-d") DBG=1; V=1 ;;
+		"-l") LOCAL=1 ;;
+		"-f") FORCE=1 ;;
+		"-v") V=1 ;;
+		   *) do_help ;;
+	esac
+done
 
 echo "${CWHT}Tritech Service System updater $CGRN$VER $CCYA($VERDATE)$COFF"
 
@@ -74,6 +94,8 @@ if [ "$BASH" = "" ]
 	echo "$CRED$P$COFF must be run under GNU bash (/bin/bash)."
 	exit 1
 fi
+
+echo "$@" | grep -q -e '-h' -e '--help' && do_help
 
 # Allow an interactive user abort unless otherwise specified
 if [ "$ABRT" = "1" ]
@@ -97,7 +119,7 @@ if tt_cifs -c
 fi
 }
 
-test ! "$1" = "-l" && try_using_cifs
+test $LOCAL -eq 0 && try_using_cifs
 
 # We rely on fstab being set up properly as of version 0.4
 
@@ -227,8 +249,9 @@ for X in $(cat ${UP}.pkglist)
 	if [ "$Y" = "none" ]
 		then echo -n " $CRED$X$COFF"
 		else
-		echo -n "${CGRN}.$COFF"
 		test "$DBG" = "0" && unpack_package "$Y"
+		test $? = 2 && echo -n "$CYEL" || echo -n "$CGRN"
+		echo -n ".$COFF"
 #    if sha1sum -c "$Y.sha1sum" >/dev/null 2>/dev/null
 #      then
 #      test "$DBG" = "0" && tar -C / -xvpf "$Y" > /packages/installed/$X 2>/dev/null
