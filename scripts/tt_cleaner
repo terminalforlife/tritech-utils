@@ -1,7 +1,7 @@
 #!/bin/bash
 
-VER="5.7.2"
-VERDATE="2017-04-18"
+VER="5.7.3"
+VERDATE="2017-05-03"
 
 # Tritech Service System Windows installation clean tool for Linux
 # Copyright (C) by Jody Bruchon <jody@jodybruchon.com>
@@ -142,8 +142,6 @@ JSYSCACHE="Sun/Java/Deployment/SystemCache"
 MBAMLOGS="Malwarebytes/Malwarebytes\' Anti-Malware/Logs"
 MBAMQUAR="Malwarebytes/Malwarebytes\' Anti-Malware/Quarantine"
 MOZCNTRL="MozillaControl/profiles/MozillaControl/*"
-MPARTCACHE="$MS/Media Player/Art Cache"
-MPTRANSC="$MS/Media Player/Transcoded Files Cache"
 MSSQLLOG="$MS SQL Server/*/Setup Bootstrap/LOG"
 PARETOAS="ParetoLogic Anti-Spyware"
 PHOTOEXP="Nova Development/Photo Explosion*/*"
@@ -488,6 +486,7 @@ NAME="$LOCAL/adaware"; DESC="Blekko Toolbar"; add_to_wipe
 NAME="$LOCAL/blekkotb*"; DESC="Blekko Toolbar"; add_to_wipe
 NAME="$LOCAL/BrowseForChange"; DESC="BrowseForChange"; add_to_wipe
 NAME="$LOCAL/centurytoolbartb"; DESC="CenturyLink Toolbar"; add_to_wipe
+NAME="$LOCAL/Citrix/GoToMeeting/*/*.log"; DESC="Citrix GoToMeeting"; add_to_delete
 NAME="$LOCAL/Conduit"; DESC="Conduit"; add_to_wipe
 NAME="$LOCAL/Corel/Thumbs"; DESC="Corel Thumbs"; add_to_wipe
 
@@ -519,6 +518,7 @@ done
 
 NAME="$LOCAL/Conduit"; DESC="Conduit software"; add_to_wipe
 NAME="$LOCAL/ConduitEngine"; DESC="Conduit software"; add_to_wipe
+NAME="$LOCAL/ConnectedDevicesPlatform/CDPTraces.log"; DESC="CDP traces"; add_to_delete
 NAME="$LOCAL/CouponAlert*"; DESC="CouponAlert"; add_to_wipe
 NAME="$LOCAL/Corel*/Thumbs"; DESC="Corel thumbnails"; add_to_wipe
 NAME="$LOCAL/Corel PaintShop Pro/*/Thumbs"; DESC="Corel thumbnails"; add_to_wipe
@@ -603,10 +603,11 @@ for MOZPROF in "Mozilla" "Mozilla/Firefox" "Thunderbird" \
 	NAME="$MOZPROF/*Cache*"; add_to_wipe
 done
 
-NAME="$LOCAL/$MPARTCACHE"; DESC="WMP cache"; add_to_wipe
-NAME="$LOCAL/$MPTRANSC"; DESC="WMP cache"; add_to_wipe
+NAME="$LOCAL/$MS/Media Player/Art Cache"; DESC="MS media cache"; add_to_wipe
+NAME="$LOCAL/$MS/*/Transcoded Files Cache"; DESC="MS media cache"; add_to_wipe
 NAME="$LOCAL/$MS/BingBar"; DESC="Bing Bar"; add_to_wipe
 NAME="$LOCAL/$MS/CD Burning"; DESC="CD Burning folder"; add_to_wipe
+NAME="$LOCAL/$MS/CLR_*/UsageLogs"; DESC="MS CLR usage logs"; add_to_wipe
 NAME="$LOCAL/$MS/CryptnetUrlCache"; DESC="MS crypto cert cache"; add_to_wipe
 NAME="$LOCAL/$MS/Feeds Cache"; DESC="MS feeds cache"; add_to_wipe
 NAME="$LOCAL/$MS/$IE/DOMStore"; DESC="IE DOMStore"; add_to_wipe
@@ -617,6 +618,7 @@ NAME="$LOCAL/$MS/OneDrive/logs"; DESC="MS SkyDrive/OneDrive"; add_to_wipe
 NAME="$LOCAL/$MS/OneDrive/setup/logs"; DESC="MS SkyDrive/OneDrive"; add_to_wipe
 NAME="$LOCAL/$MS/SkyDrive/setup/logs"; DESC="MS SkyDrive/OneDrive"; add_to_wipe
 NAME="$LOCAL/$MS/Windows/SkyDrive/logs"; DESC="MS SkyDrive/OneDrive"; add_to_wipe
+NAME="$LOCAL/$MS/Windows/PhotoImport/*.log"; DESC="MS Photo Import"; add_to_delete
 NAME="$LOCAL/$MS/OneNote/*/TemporaryOneNoteOfflineCache.onecache"; DESC="MS OneNote cache"; add_to_delete
 NAME="$LOCAL/$MS/OfficeStarter"; DESC="Microsoft Office"; add_to_wipe
 NAME="$LOCAL/$MS/OIS"; DESC="Microsoft OIS"; add_to_wipe
@@ -655,6 +657,7 @@ NAME="$LOCAL/$MS/Windows/AppCache"; DESC="Windows 8+ TIFs"; add_to_wipe
 NAME="$LOCAL/$MS/Windows/INetCache/Low/IE"; DESC="Windows 8+ TIFs"; add_to_wipe
 NAME="$LOCAL/$MS/Windows/INetCache/Low/*.tmp"; DESC="Windows 8+ TIFs"; add_to_delete
 NAME="$LOCAL/$MS/Windows/INetCache/IE"; DESC="Windows 8+ TIFs"; add_to_wipe
+NAME="$LOCAL/$MS/Windows/INetCache/Content.*"; DESC="Windows 8+ TIFs"; add_to_wipe
 NAME="$LOCAL/$MS/Windows/INetCookies"; DESC="Windows 8+ TIFs"; add_to_wipe
 NAME="$LOCAL/$MS/Windows/Notifications"; DESC="Windows Notifications"; add_to_delete
 NAME="$LOCAL/$MS/Windows/WindowsUpdate.log"; DESC="Windows Update log"; add_to_delete
@@ -901,6 +904,7 @@ NAME="$ROAM/KeepMySettingsX"; DESC="KeepMySettingsX"; add_to_wipe
 NAME="$ROAM/Kodak/Temp"; DESC="Kodak temporary files"; add_to_wipe
 NAME="$ROAM/Lavasoft/Web Companion/Logs"; DESC="Lavasoft WC Logs"; add_to_wipe
 NAME="$ROAM/Leapfrog/Leapfrog Connect/cache"; DESC="Leapfrog cache"; add_to_wipe
+NAME="$ROAM/Lenovo/LSC/Local Store/log"; DESC="Lenovo LSC logs"; add_to_wipe
 NAME="$ROAM/*.log"; DESC="Miscellanous logs"; add_to_delete
 NAME="$ROAM/Logs"; DESC="Miscellanous logs"; add_to_wipe
 NAME="$ROAM/LogMeIn"; DESC="LogMeIn logs"; add_to_wipe
@@ -994,6 +998,7 @@ NAME="$ROAM/OfficeGuardian/\~SACThumbnail"; DESC="OfficeGuardian"; add_to_wipe
 NAME="$ROAM/ooVoo Details/cache"; DESC="ooVoo"; add_to_wipe
 NAME="$ROAM/ooVoo Details/logs"; DESC="ooVoo"; add_to_wipe
 NAME="$ROAM/OpenCandy"; DESC="OpenCandy downloader"; add_to_wipe
+NAME="$ROAM/*Office*/*/user/*.tmp"; DESC="Open/LibreOffice"; add_to_delete
 NAME="$ROAM/Origin/Logs"; DESC="Origin"; add_to_wipe
 NAME="$ROAM/$PARETOAS/*/Logs"; DESC="ParetoLogic logs"; add_to_wipe
 NAME="$ROAM/PCAcceleratePro"; DESC="PCAcceleratePro"; add_to_wipe
