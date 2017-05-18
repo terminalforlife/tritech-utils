@@ -1,7 +1,7 @@
 #!/bin/sh
 
-TSS_COMMON_VER=0.2.5
-TSS_COMMON_VERDATE=2017-03-02
+TSS_COMMON_VER=0.2.6
+TSS_COMMON_VERDATE=2017-05-17
 
 # Prevent loading if we are already loaded
 if [ -z "$TSS_COMMON" ]; then
@@ -118,7 +118,7 @@ do_windows_folder_detection () {
 	export SYS32=$N
 	export SYS64=$N
 	export CONFIG=$N
-	export OS=$N
+	export OS_CLASS=$N
 	export V7=0
 	export HALDLL=$N
 	export KERNEL=$N
@@ -160,8 +160,8 @@ do_windows_folder_detection () {
 		do test -e $WINDIR/$SYS32/$X && export KERNEL=$X; done
 
 	# Scan for 2000/XP or Vista/7
-	test -d "$XPDOCS" && OS="2000/XP" && export V7=1
-	test -d "$V7DOCS" && OS="Vista/7" && export V7=2
+	test -d "$XPDOCS" && OS_CLASS="2000/XP" && export V7=1
+	test -d "$V7DOCS" && OS_CLASS="Vista/7" && export V7=2
 
 	# Handle different OS folder choices
 	if [ "$V7" = "2" ]
