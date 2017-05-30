@@ -1,7 +1,7 @@
 #!/bin/bash
 
-VER=0.5.1
-VERDATE="2015-03-21"
+VER=0.5.2
+VERDATE="2017-05-30"
 
 # Device database version created by this version of driver drop
 # Must be a three-digit number
@@ -145,7 +145,7 @@ dispatch () {
 						do
 						DEL2=$((DEL + 1))
 						SUBPID[$DEL]="${SUBPID[$DEL2]}"
-						DEL=$DEL2 
+						DEL=$DEL2
 					done
 					unset SUBPID[$SUB]
 					SUB=$((SUB - 1))

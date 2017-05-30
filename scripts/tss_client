@@ -5,8 +5,8 @@
 # Prevent loading twice
 if [ -z "$TSS_CLIENT" ]; then
 
-TSS_CLIENT_VER=0.8.9
-TSS_CLIENT_VERDATE=2017-02-16
+TSS_CLIENT_VER=0.8.10
+TSS_CLIENT_VERDATE=2017-05-30
 
 # Without socat we can't do any TSS client stuff
 if ! socat -V >/dev/null 2>/dev/null
@@ -152,7 +152,7 @@ tss_command () {
 	while [ $TSSC_RETRY -gt 0 ]
 		do if ! RESPONSE="$(echo "$COMMAND" | socat - tcp-connect:$TSS_SERVER:$TSS_PORT 2>>$LOGFILE)"
 			then
-			echo "${CRED}tss_command:$COFF Command failed: echo \"$COMMAND\" | socat - tcp-connect:$TSS_SERVER:$TSS_PORT" >&2 
+			echo "${CRED}tss_command:$COFF Command failed: echo \"$COMMAND\" | socat - tcp-connect:$TSS_SERVER:$TSS_PORT" >&2
 			sleep 1
 			TSSC_ERR=1
 			else
@@ -264,17 +264,17 @@ detect_tss_server () {
 		done
 		unset CNT TO
 		kill $! 2>/dev/null
-	
+
 		if [ ! -s "$SVR_TEMP" ]
 			then
 			test $V -gt 1 && echo "${CRED}no beacons received.$COFF" >&2
 		fi
 	fi
-	
+
 	# Lots of ugly sed crap to split the beacon string
 	# Beacon string format:
 	# cifs:ip.addr.of.server/path_to_base:username:password
-	
+
 	if [ "$BCN" = "1" ]
 		then
 		RAW="$(cat $SVR_TEMP | head -n 1)"
@@ -287,21 +287,23 @@ detect_tss_server () {
 	fi
 
 	unset BCN
-	
+
 	# Fallback hard-coded server, and indicate what is being used
 	# This uses values from the config file
 	if [ -z "$SVR" ]
 		then
-		SVR=$TSSC_HARD_SVR
-		SVRX=$TSSC_HARD_SVRX
-		SVRSHARE=$TSSC_HARD_SHARE
-		UN=$TSSC_HARD_USERNAME
-		PW=$TSSC_HARD_PASSWORD
+		SVR="$TSSC_HARD_SVR"
+		SVRX="$TSSC_HARD_SVRX"
+		SVRSHARE="$TSSC_HARD_SHARE"
+		UN="$TSSC_HARD_USERNAME"
+		PW="$TSSC_HARD_PASSWORD"
+		HARDCODED=1
 		test $V -gt 0 && echo "${CYEL}Hard-coded server $SVR$COFF" >&2
 		else
+		HARDCODED=0
 		test $V -gt 0 && echo "${CGRN}Beacon-provided server $SVR$COFF" >&2
 	fi
-	
+
 	# Sanity check: can't proceed if there is no server value at all
 	if [[ -z "$SVRX" || -z "$UN" ]]
 		then
@@ -309,39 +311,44 @@ detect_tss_server () {
 		unset X RAW SVR SVRX SVRSHARE UN PW
 		return 1
 	fi
-	
-	# Ping the server. If unreachable, try until we time out.
-	
-	if ! ping -c 1 -W 1 $SVR >/dev/null
-		then test $V -gt 1 && echo -n "${CYEL}Trying to reach $SVR: $COFF" >&2
-		X=$SVR_TIMEOUT
-		while [ $X -gt 0 ]
-			do test $V -gt 1 && echo -n "${CWHT}${X}${COFF} " >&2
-			if ! ping -c 1 -W 1 $SVR >/dev/null
-				then X=$(expr $X - 1)
-				else break
-			fi
-			if [ $X -eq 0 ]
-				then
-				echo "${CRED}failed.${COFF}" >&2
-				unset X RAW SVR SVRX SVRSHARE UN PW
-				return 1
-			fi
-		done
-	fi
-	
-	if ! ping -c 1 -W 1 $SVR >/dev/null
+
+# Ping the server. If unreachable, try until we time out
+# Do not ping if we're falling back on a hard-coded server
+
+	if [ "$HARDCODED" != "1" ]
 		then
-		test $V -gt 0 && echo "${CRED}All pings to server $SVR timed out.${COFF}" >&2
-		unset X RAW SVR SVRX SVRSHARE UN PW
-		return 1
+		if ! ping -c 1 -W 1 $SVR >/dev/null
+			then test $V -gt 1 && echo -n "${CYEL}Trying to reach $SVR: $COFF" >&2
+			X=$SVR_TIMEOUT
+			while [ $X -gt 0 ]
+					do test $V -gt 1 && echo -n "${CWHT}${X}${COFF} " >&2
+				if ! ping -c 1 -W 1 $SVR >/dev/null 2>/dev/null
+					then X=$(expr $X - 1)
+					else break
+				fi
+				if [ $X -eq 0 ]
+					then
+					echo "${CRED}failed.${COFF}" >&2
+					unset X RAW SVR SVRX SVRSHARE UN PW
+					return 1
+				fi
+			done
+		fi
+
+		if ! ping -c 1 -W 1 $SVR >/dev/null 2>/dev/null
+			then
+			test $V -gt 0 && echo "${CRED}All pings to server $SVR timed out.${COFF}" >&2
+			unset X RAW SVR SVRX SVRSHARE UN PW
+			return 1
+		fi
 	fi
 	TSS_SERVER="$SVR"
 	TSS_CIFS_BASE="$SVRX"
 	TSS_CIFS_SHARE="$SVRSHARE"
 	TSS_CIFS_UN="$UN"
 	TSS_CIFS_PW="$PW"
-	unset X RAW SVR SVRX SVRSHARE UN PW
+	TSS_CIFS_HC="$HARDCODED"
+	unset X RAW SVR SVRX SVRSHARE UN PW HARDCODED
 	test "$TSS_CLIENT_DISABLE" != "1" && save_tss_state
 }
 
@@ -460,7 +467,7 @@ save_tss_state () {
 			$SAN_TYPES \
 			TSS_SYSINFO ACTIONS \
 			NAME COMPANY PHONE1 PHONE2 PHONE3 MODEL \
-			TSS_CIFS_BASE TSS_CIFS_PW TSS_CIFS_UN TSS_CIFS_SHARE TSS_PORT TSS_SERVER
+			TSS_CIFS_BASE TSS_CIFS_HC TSS_CIFS_PW TSS_CIFS_UN TSS_CIFS_SHARE TSS_PORT TSS_SERVER
 		do echo "$X=${!X}" >> $TSS_STATE_FILE
 	done
 	test "$TSS_CLIENT_DISABLE" = "1" && echo "disable" > $TSS_STATE_FILE
@@ -478,7 +485,7 @@ load_tss_state () {
 			$SAN_TYPES \
 			TSS_SYSINFO ACTIONS \
 			NAME COMPANY PHONE1 PHONE2 PHONE3 MODEL \
-			TSS_CIFS_BASE TSS_CIFS_PW TSS_CIFS_UN TSS_CIFS_SHARE TSS_PORT TSS_SERVER
+			TSS_CIFS_BASE TSS_CIFS_PW TSS_CIFS_HC TSS_CIFS_UN TSS_CIFS_SHARE TSS_PORT TSS_SERVER
 			do TSS_TEMP_STATE="$(grep "^$X=" "$TSS_STATE_FILE" | sed 's/[^=]*=//')"
 			test ! "$TSS_TEMP_STATE" = "" && \
 				export $X="$TSS_TEMP_STATE"
