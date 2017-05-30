@@ -51,7 +51,7 @@ case "$1" in
 		echo "Making: $PKGFILE => ${NAME}.squashfs"
 		make_squashfs_pkg
 	fi
-	
+
 	if [ -e "$PKGROOT/${NAME}.squashfs" ]
 		then
 		echo "Installing: $NAME"
@@ -61,11 +61,11 @@ case "$1" in
 		install_squashfs_pkg
 		exit
 	fi
-	
+
 	echo "You specified an invalid file or package name."
 	exit
 	;;
-	
+
 	-u)
 	if [ ! -d "$PKGROOT/$NAME" ]
 		then
@@ -87,7 +87,7 @@ case "$1" in
 	umount -d "$PKGROOT/$NAME/"
 	rmdir "$PKGROOT/$NAME"
 	;;
-	
+
 	*)
 	echo "TSS mpkg utility"
 	echo "$0 -i /path/to/pkgfile_1.2.3.pkg.tar.xz"

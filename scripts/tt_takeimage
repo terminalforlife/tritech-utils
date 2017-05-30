@@ -32,7 +32,7 @@ for X in ${DEV}?
 	echo -n "$CWHT$DEVX$COFF "
 	cd /mnt
 	mount $DEVX 2>/dev/null >/dev/null && cd $DEVX && tt_zero_image 2>&1 >/dev/null && cd /mnt && umount $DEVX
-done 
+done
 
 echo -en "\n\nImage file name? "
 read IMGNAME

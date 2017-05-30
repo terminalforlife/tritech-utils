@@ -323,7 +323,7 @@ for X in $NODRV
 		for TAG in $TAGS
 			do echo "$LINE" | grep -q "$TAG" && R=1
 		done
-		
+
 		if [ "$R" = "1" ]
 			then
 			NODRV="$(echo "$NODRV" | tr ' ' \\n | grep -v "$X" | tr \\n ' ' | sed 's/  / /g')"

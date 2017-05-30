@@ -3,7 +3,7 @@
 # Version 0.2
 
 # Set up mixers
-if [ -e /usr/bin/amixer ]; then 
+if [ -e /usr/bin/amixer ]; then
 amixer sset 'Master',0 90% unmute 2>/dev/null >/dev/null
 amixer sset 'Master Mono',0 90% unmute 2>/dev/null >/dev/null
 amixer sset 'Master Front',0 90% unmute 2>/dev/null >/dev/null

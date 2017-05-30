@@ -45,7 +45,7 @@ dispatch () {
 						do
 						DEL2=$((DEL + 1))
 						SUBPID[$DEL]="${SUBPID[$DEL2]}"
-						DEL=$DEL2 
+						DEL=$DEL2
 					done
 					unset SUBPID[$SUB]
 					SUB=$((SUB - 1))
@@ -195,7 +195,7 @@ if [ -e $UPDPATH/$P ]
 			then
 			$NEW "$@"
 			exit
-			
+
 			else
 			echo "Self-update failed, continuing as normal."
 		fi

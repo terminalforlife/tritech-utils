@@ -460,7 +460,7 @@ beep \
  $sixteenth $CN6 $super_small -n \
  $eighth $BN5 $super_small -n \
  $eighth $AN5 $super_small  -n \
- $eighth $GN5 $super_small 
+ $eighth $GN5 $super_small
 
 }
 

@@ -236,11 +236,11 @@ while true
 			DIC=$((DIC + 1))
 		done
 		test $DFINISH = $DIC && DDONE=1
-		
+
 		else
 		DIC=0
 		while [ $DIC -lt $DI ]
-			do 
+			do
 			echo "$(pv_tail "${DTEMP[DIC]}")"
 			DIC=$((DIC + 1))
 		done

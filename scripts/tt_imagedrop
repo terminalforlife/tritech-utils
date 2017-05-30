@@ -221,7 +221,7 @@ echo "$IMG" | grep -q '.lzma$' && DECOMP=$XZ
 echo "$IMG" | grep -q '.xz$' && DECOMP=$XZ
 test -z "$DECOMP" && echo "Image decompressor for $IMG not available. Aborting." && exit 1
 if ! $CATCOM "$IMGDIR/$IMG" | $DECOMP -dc > /dev/$DEV
-	then echo "Decompressing $IMGDIR/$IMG to $DEV failed. Aborting." 
+	then echo "Decompressing $IMGDIR/$IMG to $DEV failed. Aborting."
 	eval $FAIL_COMMAND &
 	clean_exit 8
 fi
