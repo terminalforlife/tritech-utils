@@ -260,7 +260,7 @@ clear_winver_flags () {
 	IA64=0; W2K=0
 	XP32=0; S2K3=0; V32=0; W732=0; W832=0; W8132=0
 	XP64=0; S2K364=0; V64=0; W764=0; W864=0; W8164=0
-	W1032=0; W1064=0
+	W1032=0; W1064=0; W32_ALL=0
 	IA64X=0; W2KX=0
 	XP32X=0; S2K3X=0; V32X=0; W732X=0; W832X=0; W8132X=0
 	XP64X=0; S2K364X=0; V64X=0; W764X=0; W864X=0; W8164X=0
@@ -304,7 +304,8 @@ set_winver_flags () {
 		nt.5.1*) XP32=1; S2K3=1; V32=1; W732=1; W832=1; W8132=1; W1032=1 ;;
 		nt.5) XP32=1; S2K3=1; V32=1; W732=1; W832=1; W8132=1; W1032=1 ;;
 		nt) W2K=1; XP32=1; S2K3=1; V32=1; W732=1; W832=1; W8132=1; W1032=1 ;;
-		*) W2K=1; XP32=1; S2K3=1; V32=1; W732=1; W832=1; W8132=1; W1032=1 ;;
+		*) W2K=1; XP32=1; S2K3=1; V32=1; W732=1; W832=1; W8132=1; W1032=1; W32_ALL=1 ;;
+		# If manufacturer is set with no flags, override all 32-bit X flags
 	esac
 }
 
@@ -347,6 +348,9 @@ unset_winver_flags () {
 		nt) W2KX=1 ;;
 		*) echo "${CYEL}WARNING:$COFF unrecognized version flag '$CWHT$1$COFF'" ;;
 	esac
+	if [ "$W32_ALL" = "1" ]
+		then W2KX=0; XP32X=0; S2K3X=0; V32X=0; W732X=0; W832X=0; W8132X=0; W1032X=0
+	fi
 }
 
 process_winver_flags () {
@@ -464,7 +468,7 @@ process_inf () {
 		echo -n "IA64=$IA64 W2K=$W2K XP32=$XP32 XP64=$XP64 "
 		echo -n "S2K3=$S2K3 S2K364=$S2K364 V32=$V32 V64=$V64 "
 		echo -n "W732=$W732 W764=$W764 W832=$W832 W864=$W864 "
-		echo    "W8132=$W8132 W8164=$W8164 W1032=$W1032 W1064=$W1064"
+		echo    "W8132=$W8132 W8164=$W8164 W1032=$W1032 W1064=$W1064 W32_ALL=$W32_ALL"
 	fi
 
 	# Pull out only relevant INF file sections to process, not entire files
