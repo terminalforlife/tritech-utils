@@ -13,7 +13,7 @@ datarootdir=${prefix}/share
 datadir=${datarootdir}
 sysconfdir=${prefix}/etc
 
-ver=$(shell grep TRITECH_UTILS_VER tritech_utils.h | sed 's/.* "\([^"]*\)"/\1/')
+ver=$(shell grep TRITECH_UTILS_VER version.h | sed 's/.* "\([^"]*\)"/\1/')
 libc_arch=$(shell test -e /lib/libc.so.0 && echo -n "uclibc-")
 arch=$(shell echo -n "$(libc_arch)"; uname -m | sed 's/_/-/g;s/i[34567]86/i386/')
 
