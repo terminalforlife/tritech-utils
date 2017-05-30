@@ -32,7 +32,7 @@ int main(const int argc, const char **argv)
 	uint8_t heads;
 
 	if (argc < 3 || argc > 4) goto usage;
-	
+
 	fp = fopen(argv[2], "r+");
 	if (!fp) {
 		fprintf(stderr, "Can't open %s\n",argv[2]);

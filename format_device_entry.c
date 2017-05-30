@@ -144,7 +144,7 @@ int main(const int argc, const char **argv)
 				if (!quote) quote = 1;
 				else quote = 0;
 			}
-	
+
 			/* Find the comma, then skip spaces until the device entry is reached */
 			if (!quote) {
 				if (line[lpos] == ',') {

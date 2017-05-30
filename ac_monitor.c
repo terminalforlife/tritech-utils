@@ -51,7 +51,7 @@ static inline int do_beep(void)
 		fprintf(stderr, "Error: could not open /dev/console\n");
 		return 1;
 	}
-	
+
 	/* Beep sequence */
 	ioctl(confd, KIOCSOUND, CLOCK_TICK_RATE / freq1);
 	nanosleep(&len, NULL);

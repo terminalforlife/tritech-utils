@@ -12,23 +12,23 @@ is a quick analysis and simple operation "Swiss Army knife."
 .SH COMMANDS
 .PP
 .I gpt
-checks for GUID Partition Table partitioning as used by EFI/UEFI. Returns 
+checks for GUID Partition Table partitioning as used by EFI/UEFI. Returns
 "yes" if GPT is present or "no" if GPT is not detected.
 .PP
 .I ntfs
 looks for an NTFS filesystem signature. Returns "yes" if one is found.
 .PP
 .I winexec
-checks for the presence of the "MZ" signature indicating a DOS or Windows 
-MZ or PE executable file. If found, the file path given to the program 
-is returned (useful for shell scripting). If no signature is found, the 
+checks for the presence of the "MZ" signature indicating a DOS or Windows
+MZ or PE executable file. If found, the file path given to the program
+is returned (useful for shell scripting). If no signature is found, the
 output will be "not_winexec" instead.
 .PP
 .I ntfsgeom
 modifies the logical head count number in an NTFS filesystem boot sector.
-Many versions of Windows require the \fIheads\fP field in an NTFS boot 
+Many versions of Windows require the \fIheads\fP field in an NTFS boot
 sector to match the value reported by the BIOS, or Windows will not boot.
-This utility simplifies changing the value, which normally requires a 
+This utility simplifies changing the value, which normally requires a
 hex editor or very ugly shell scripting kludges.
 .PP
 .I registry
@@ -43,8 +43,8 @@ or \fI10\fP. Only used with the \fIntfsgeom\fP command.
 .SH CAVEATS
 In addition to this geometry correction, Windows also requires that the
 geometry values in the partition table match the BIOS values. This utility
-does not correct partition table entries. You will need to use \fIfdisk\fP in 
-expert mode with hand-calculated values for the disk's cylinders/heads/sectors 
+does not correct partition table entries. You will need to use \fIfdisk\fP in
+expert mode with hand-calculated values for the disk's cylinders/heads/sectors
 values and then recreate the partition entries, a task which is beyond the
 scope of this documentation.
 .PP
