@@ -492,7 +492,7 @@ NAME="$LOCAL/Corel/Thumbs"; DESC="Corel Thumbs"; add_to_wipe
 
 # Google Chrome definitions, now with less redundancy
 DESC="Google Chrome"
-for CHROME in "Google/Chrome/User Data" "speed browser/User Data"
+for CHROME in "Google/Chrome/User Data" "speed browser/User Data" "Sony Corporation/Some/Chromium"
 	do CHROME="$LOCAL/$CHROME"
 	NAME="$CHROME/*/*Cache*/"; add_to_wipe
 	NAME="$CHROME/*/*Cookies"; add_to_delete
