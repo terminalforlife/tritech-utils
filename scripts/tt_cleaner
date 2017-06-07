@@ -1126,6 +1126,7 @@ if [ ! "$WINDIR" = "__NONE__" ]
 	NAME="$WINDIR/*.tmp"; DESC="Windows temp files"; add_to_delete
 	NAME="$WINDIR/$SYS32/*.tmp"; DESC="Windows temp files"; add_to_delete
 	NAME="$WINDIR/$SYS32/temppf.sys"; DESC="Windows temp files"; add_to_delete
+	NAME="$WINDIR/LiveKernelReports/*.dmp"; DESC="Windows memory dumps"; add_to_delete
 	NAME="$WINDIR/LiveKernelReports/WATCHDOG"; DESC="Windows memory dumps"; add_to_wipe
 	NAME="$WINDIR/Minidump"; DESC="Windows memory dumps"; add_to_wipe
 	NAME="$WINDIR/MiniDump"; DESC="Windows memory dumps"; add_to_wipe
