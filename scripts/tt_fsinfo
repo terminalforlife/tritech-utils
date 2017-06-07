@@ -2,8 +2,8 @@
 
 # Displays info on storage devices in the system
 
-VER=1.10.3
-VERDATE="2017-03-02"
+VER=1.10.4
+VERDATE="2017-06-02"
 
 . tss__common
 
@@ -117,10 +117,10 @@ expand_fsid () {
 }
 
 # If "nopart" is passed, only display devices.
-NP=0
-if [ "$1" = "nopart" ]
-	then NP=1
-fi
+NP=0; test "$1" = "nopart" && NP=1
+
+# Allow display without SMART data
+NOSMART=0; test "$1" = "nosmart" && NOSMART=1
 
 if [ "$NP" = "0" ]
 	then echo -n "${CWHT}Tritech filesystem info tool, version "
@@ -206,8 +206,11 @@ for DRV in $DRIVES
 			then echo -n " (no partitions)"; NPD=1
 		fi
 		echo
-		tt__hdd_smart_status $X -q
-		test -n "$S" && echo "$CWHT==== ${CYEL}SMART: $S"
+		if [ "$NOSMART" != "1" ]
+			then
+			tt__hdd_smart_status $X -q
+			test -n "$S" && echo "$CWHT==== ${CYEL}SMART: $S"
+		fi
 		else ZERO="$ZERO $X"
 	fi
 
@@ -248,5 +251,5 @@ if [ ! -z "$ZERO" ]
 	then echo -e "\n${CCYA}Empty devices: $CYEL$ZERO$COFF"
 fi
 
-echo -e "$COFF"
+echo -en "$COFF"
 rm -f $PART
