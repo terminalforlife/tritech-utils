@@ -272,9 +272,11 @@ while [ $DIC -lt $DI ]
 	test -z "$CPS" && CPS=0
 	test -z "$OUNC" && OUNC=0
 	test -z "$UCEC" && UCEC=0
+	test -z "$PFC" && PFC=0
+	test -z "$EFC" && EFC=0
 
 	# Some drives return huge raw numbers that are not real
-	test $LCC -gt 100000 && LCC=0
+	test $LCC -gt 1000000 && LCC=0
 	test $RSC -gt 8000 && RSC=0
 	test $UNC -gt 16000 && UNC=0
 
@@ -286,6 +288,8 @@ while [ $DIC -lt $DI ]
 	test $CPS -gt 50 && SMART_BADHDD=1
 	test $OUNC -gt 10 && SMART_BADHDD=1
 	test $UCEC -gt 2000 && test $UCEC -lt 500000 SMART_BADHDD=1
+	test $PFC -gt 50 && SMART_BADHDD=1
+	test $EFC -gt 50 && SMART_BADHDD=1
 	if [ "$SMART_BADHDD" = "1" ]
 		then echo "$CWHT$XD$CRED SMART data shows failure is likely$COFF"
 		N_BADHDD=1;

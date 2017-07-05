@@ -227,6 +227,8 @@ tt__hdd_smart_status () {
 		CPS=$(grep -m 1 Current_Pending_Sector $SMART_TEMP | sed "$SMART_SED")
 		OUNC=$(grep -m 1 Offline_Uncorrectable $SMART_TEMP | sed "$SMART_SED")
 		UCEC=$(grep -m 1 UDMA_CRC_Error_Count $SMART_TEMP | sed "$SMART_SED")
+		PFC=$(grep -m 1 ^171 $SMART_TEMP | sed "$SMART_SED")
+		EFC=$(grep -m 1 ^172 $SMART_TEMP | sed "$SMART_SED")
 		# Add color indicators to stats
 		if [ -n "$LCC" ]
 			then
@@ -260,6 +262,16 @@ tt__hdd_smart_status () {
 			then
 			test $UCEC -gt 0 && test $UCEC -lt 2000 && S="$S ${CYEL}UCEC=$UCEC$COFF"
 			test $UCEC -ge 2000 && test $UCEC -lt 10000 && S="$S ${CRED}UCEC=$UCEC$COFF"
+		fi
+		if [ -n "$PFC" ]
+			then
+			test $PFC -gt 0 && test $PFC -lt 10 && S="$S ${CYEL}PFC=$PFC$COFF"
+			test $PFC -ge 10 && test $PFC -lt 10000 && S="$S ${CRED}PFC=$PFC$COFF"
+		fi
+		if [ -n "$EFC" ]
+			then
+			test $EFC -gt 0 && test $EFC -lt 10 && S="$S ${CYEL}EFC=$EFC$COFF"
+			test $EFC -ge 10 && test $EFC -lt 10000 && S="$S ${CRED}EFC=$EFC$COFF"
 		fi
 		# Display final stats
 		test "$2" != "-q" && test -n "$S" && echo "$CWHT$1$COFF:     $CWHT+-- ${CCYA}SMART:$S"
