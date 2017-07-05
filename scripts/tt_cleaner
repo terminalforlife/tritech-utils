@@ -57,6 +57,7 @@ for X in $@
 		echo -e "\nCopyright (C) Jody Bruchon <jody@jodybruchon.com>"
 		exit 0
 	fi
+	test "$X" = "-v" && echo "Tritech Service System Cleaner $VER ($VERDATE)" && exit
 	# Change parameters for different command switches
 	# MSG: 0=none, 1=quiet, 2=full
 	# NODEL: 0=delete, 1=no delete
