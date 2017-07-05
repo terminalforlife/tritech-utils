@@ -119,7 +119,7 @@ control_c () {
 		exit 1
 	fi
 	echo -e "\nInterrupted, cleaning up."
-	wait $(jobs -p)
+	wait $!
 	/bin/kill $! 2>/dev/null
 	sleep 1
 	/bin/kill -9 $! 2>/dev/null
@@ -157,7 +157,7 @@ dispatch () {
 		eval "$(echo "$@" | sed 's/(/\\(/g;s/)/\\)/g')" &
 		SUBPID[$SUB]=$!
 	else eval "$(echo "$@" | sed 's/(/\\(/g;s/)/\\)/g')" &
-	wait $(jobs -p)
+	wait $!
 	fi
 }
 
@@ -590,7 +590,7 @@ while [ $FILENUM != $INFC ]
 	dispatch process_inf "$CUR_INF"
 done
 
-wait $(jobs -p)
+wait $!
 test "$Q" = "1" && echo
 
 echo "tritech_devdb_ver:$DBVER" > $TF
