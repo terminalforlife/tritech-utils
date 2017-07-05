@@ -301,6 +301,12 @@ echo -e "\n${CWHT}Log saved to $LOGFILE$COFF"
 
 esac
 
-test "$U" = "1" && echo "${CGRN}Unmounting $CWHT$MTPT$COFF"
 sync
-umount "$MTPT"
+
+# Unmount (if applicable) and exit
+if [ "$U" = "1" ]
+	then echo "${CGRN}Unmounting $CWHT$MTPT$COFF"
+	wait $!
+	sleep 2
+	umount "$MTPT"
+fi
