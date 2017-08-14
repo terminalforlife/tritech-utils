@@ -219,7 +219,7 @@ tt__hdd_smart_status () {
 		unset S LCC RSC UNC REC CPS OUNC UCEC
 		SMART_TEMP=$(mktemp)
 		# Fetch SMART stats into variables
-		smartctl -A /dev/$1 > $SMART_TEMP
+		smartctl -A /dev/$1 > $SMART_TEMP || smartctl -d sat -A /dev/$1 > $SMART_TEMP || return 1
 		LCC=$(grep -m 1 Load_Cycle_Count $SMART_TEMP | sed "$SMART_SED")
 		RSC=$(grep -m 1 Reallocated_Sector_Ct $SMART_TEMP | sed "$SMART_SED")
 		UNC=$(grep -m 1 Reported_Uncorrect $SMART_TEMP | sed "$SMART_SED")
