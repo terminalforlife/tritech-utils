@@ -432,7 +432,7 @@ process_inf () {
 
 	# For each .inf look for a driver drop blacklist (.dd_bl) and process it
 	if [ -e "$BLACKLIST" ]
-		then
+		then test $DBG -gt 1 && echo "${CGRN}Blacklist found for $CWHT$FILE$COFF"
 		while read CHANGE
 			do
 			if [ "$CHANGE" = "-all" ]
@@ -440,6 +440,7 @@ process_inf () {
 				else
 				NEW_FLAG="$(echo "$CHANGE" | tr -d '\0\r' | sed 's/^[^a-zA-Z0-9]//')"
 				OP="$(echo "$CHANGE" | sed 's/^\(...\).*/\1/')"
+				test $DBG -gt 1 && echo "${CBLU}Applying blacklist [$OP] $CWHT$NEW_FLAG$COFF"
 				case $OP in
 					"+nt")
 						set_winver_flags "$NEW_FLAG"
