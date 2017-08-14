@@ -1,10 +1,10 @@
 #!/bin/sh
 
-VER=0.4.1
-VERDATE=2017-02-07
+VER=0.4.2
+VERDATE=2017-08-13
 
 test -z "$TSS_COMMON" && . tss__common
-test -z "$TSS_COMMON" && echo "tss__common required but failed to load." && exit 1
+test -z "$TSS_COMMON" && echo "tss__common required but failed to load" >&2 && exit 1
 
 # Constant paths in the registry
 CMAJ_PATH="Microsoft/Windows NT/CurrentVersion/CurrentMajorVersionNumber.dw"
@@ -23,14 +23,14 @@ PRODSPEC=__NONE__
 for X in $WINDIR/$SYS32/PRODSPEC.INI $WINDIR/$SYS32/prodspec.ini $WINDIR/$SYS32/Prodspec.ini
 	do test -e "$X" && PRODSPEC="$X"
 done
-test "$REGSW" = "__NONE__" && echo "Cannot find SOFTWARE hive." && exit 3
+test "$REGSW" = "__NONE__" && echo "Cannot find SOFTWARE hive." >&2 && exit 3
 
 if mount.winregfs -v >/dev/null 2>/dev/null
 	then
 	# Use winregfs to read registry data
 	TMP=$(mktemp -d || echo "/tmp/foo")
 	if ! mount.winregfs -o ro "$REGSW" $TMP 2>/dev/null
-		then echo "error: cannot mount $REGSW"
+		then echo "error: cannot mount $REGSW" >&1
 		fusermount -u $TMP 2>/dev/null
 		rmdir --ignore-fail-on-non-empty $TMP
 		exit 1
@@ -56,6 +56,8 @@ if mount.winregfs -v >/dev/null 2>/dev/null
 	fusermount -u $TMP
 	rm -rf $TMP
 fi
+
+reged | grep -q "reged version" && echo "winregfs and reged both missing, can't continue" >&2 && exit 1
 
 # Fall back to the "old way" if anything went wrong
 if [ -z "$CVER" ]
