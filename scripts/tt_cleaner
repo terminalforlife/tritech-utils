@@ -474,6 +474,7 @@ NAME="$LOCAL/Adobe/Updater*"; DESC="Adobe Acrobat"; add_to_wipe
 NAME="$LOCAL/alotappbar"; DESC="ALOT Toolbar"; add_to_wipe
 NAME="$LOCAL/Amazon */Data/*Cache"; DESC="Amazon Caches"; add_to_wipe
 NAME="$LOCAL/AMD/Fuel/ClientProxyLog*"; DESC="AMD FUEL logs"; add_to_delete
+NAME="$LOCAL/AOP SDK/Acer Infra/acer/SyncAgent/logs"; DESC="Acer logs"; add_to_wipe
 NAME="$LOCAL/AppGraffiti"; DESC="AppGraffiti"; add_to_wipe
 NAME="$LOCAL/AskToolbar"; DESC="Ask Toolbar"; add_to_wipe
 NAME="$LOCAL/AskSBar"; DESC="Ask Toolbar"; add_to_wipe
