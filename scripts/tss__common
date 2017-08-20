@@ -217,9 +217,13 @@ tt__hdd_smart_status () {
 	if smartctl -V >/dev/null 2>/dev/null
 		then
 		unset S LCC RSC UNC REC CPS OUNC UCEC
-		SMART_TEMP=$(mktemp)
+		SELE=1
+		# Check for existence of SMART error log entries
+		smartctl -l error /dev/$1 | grep -q 'No Errors Logged' && SELE=0
+		test "$SELE" = "1" && S="${CYEL}SELE$COFF"
 		# Fetch SMART stats into variables
-		smartctl -A /dev/$1 > $SMART_TEMP || smartctl -d sat -A /dev/$1 > $SMART_TEMP || return 1
+		SMART_TEMP=$(mktemp)
+		smartctl -A /dev/$1 > $SMART_TEMP
 		LCC=$(grep -m 1 Load_Cycle_Count $SMART_TEMP | sed "$SMART_SED")
 		RSC=$(grep -m 1 Reallocated_Sector_Ct $SMART_TEMP | sed "$SMART_SED")
 		UNC=$(grep -m 1 Reported_Uncorrect $SMART_TEMP | sed "$SMART_SED")
@@ -232,10 +236,9 @@ tt__hdd_smart_status () {
 		# Add color indicators to stats
 		if [ -n "$LCC" ]
 			then
-			test $LCC -lt 200000 && S=" ${CGRN}LCC=$LCC$COFF"
-			test $LCC -ge 200000 && S=" ${CYEL}LCC=$LCC$COFF"
-			test $LCC -ge 300000 && S=" ${CRED}LCC=$LCC$COFF"
-			test $LCC -gt 900000 && unset S
+			test $LCC -lt 200000 && S="$S ${CGRN}LCC=$LCC$COFF"
+			test $LCC -ge 200000 && S="$S ${CYEL}LCC=$LCC$COFF"
+			test $LCC -ge 300000 && test $LCC -lt 1000000 && S="$S ${CRED}LCC=$LCC$COFF"
 		fi
 		if [ -n "$RSC" ]
 			then
