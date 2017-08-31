@@ -1,7 +1,7 @@
 #!/bin/sh
 
-TSS_COMMON_VER=1.0
-TSS_COMMON_VERDATE=2017-05-31
+TSS_COMMON_VER=1.0.1
+TSS_COMMON_VERDATE=2017-08-31
 
 # Prevent loading if we are already loaded
 if [ -z "$TSS_COMMON" ]; then
@@ -219,7 +219,8 @@ tt__hdd_smart_status () {
 		unset S LCC RSC UNC REC CPS OUNC UCEC
 		SELE=1
 		# Check for existence of SMART error log entries
-		smartctl -l error /dev/$1 | grep -q 'No Errors Logged' && SELE=0
+		smartctl -l error /dev/$1 | grep -q '[Nn]o [Ee]rrors [Ll]ogged' && SELE=0
+		test "$SELE" = "1" && smartctl -d sat -l error /dev/$1 | grep -q '[Nn]o [Ee]rrors [Ll]ogged' && SELE=0
 		test "$SELE" = "1" && S="${CYEL}SELE$COFF"
 		# Fetch SMART stats into variables
 		SMART_TEMP=$(mktemp)
