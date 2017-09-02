@@ -30,7 +30,7 @@ get_device_info () {
 	if [ "$DEVSIZE" -lt "9" ]
 		then DEVSIZE="$(expr $Z / 2 \* 1024 / 1000000) MB"
 		else if [ "$DEVSIZE" -gt 999 ]
-			then DEVSIZE="$(expr $Z / 2 \* 1024 / 100000000000 | sed 's/\(.\)\(.\)/\1.\2/') TB"
+			then DEVSIZE="$(expr $Z / 2 \* 1024 / 100000000000 | sed 's/\(.*\)\(.\)/\1.\2/') TB"
 			else DEVSIZE="$DEVSIZE GB"
 		fi
 	fi
