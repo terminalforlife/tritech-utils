@@ -221,6 +221,7 @@ tt__hdd_smart_status () {
 		# Check for existence of SMART error log entries
 		smartctl -l error /dev/$1 | grep -q '[Nn]o [Ee]rrors [Ll]ogged' && SELE=0
 		test "$SELE" = "1" && smartctl -d sat -l error /dev/$1 | grep -q '[Nn]o [Ee]rrors [Ll]ogged' && SELE=0
+		test "$SELE" = "1" && smartctl -l error /dev/$1 >/dev/null 2>/dev/null || SELE=0
 		test "$SELE" = "1" && S="${CYEL}SELE$COFF"
 		# Fetch SMART stats into variables
 		SMART_TEMP=$(mktemp)
