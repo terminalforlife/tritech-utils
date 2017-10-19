@@ -1,7 +1,7 @@
 #!/bin/bash
 
-VER="5.7.4"
-VERDATE="2017-06-27"
+VER="5.7.5"
+VERDATE="2017-10-18"
 
 # Tritech Service System Windows installation clean tool for Linux
 # Copyright (C) by Jody Bruchon <jody@jodybruchon.com>
@@ -526,6 +526,7 @@ NAME="$LOCAL/Corel*/Thumbs"; DESC="Corel thumbnails"; add_to_wipe
 NAME="$LOCAL/Corel PaintShop Pro/*/Thumbs"; DESC="Corel thumbnails"; add_to_wipe
 NAME="$LOCAL/Corel Photo Album"; DESC="Corel Photo Album"; add_to_wipe
 NAME="$LOCAL/CrashDumps"; DESC="App crash dumps"; add_to_wipe
+NAME="$LOCAL/CrashRpt"; DESC="App crash dumps"; add_to_wipe
 NAME="$LOCAL/CurseClient/CurseClient.log"; DESC="CurseClient"; add_to_delete
 NAME="$LOCAL/dd_vcredist*.txt"; DESC="MSVC++ logs"; add_to_delete
 NAME="$LOCAL/DataMngr"; DESC="DataMngr garbage"; add_to_wipe
@@ -1181,10 +1182,12 @@ NAME="ffastun*.ff*"; DESC="Find Fast"; add_to_delete
 NAME="hp/*.log"; DESC="HP Install Logs"; add_to_delete
 NAME="hp/*/*.log"; DESC="HP Install Logs"; add_to_delete
 NAME="hp/bin/logs"; DESC="HP Install Logs"; add_to_wipe
-NAME="swapfile.sys"; DESC="Paging file"; add_to_delete
-NAME="SWAPFILE.SYS"; DESC="Paging file"; add_to_delete
 NAME="pagefile.sys"; DESC="Paging file"; add_to_delete
 NAME="PAGEFILE.SYS"; DESC="Paging file"; add_to_delete
+NAME="tmpgfile.sys"; DESC="Paging file"; add_to_delete
+NAME="TMPGFILE.SYS"; DESC="Paging file"; add_to_delete
+NAME="swapfile.sys"; DESC="Paging file"; add_to_delete
+NAME="SWAPFILE.SYS"; DESC="Paging file"; add_to_delete
 NAME="hiberfil.sys"; DESC="Hibernation file"; add_to_delete
 NAME="HIBERFIL.SYS"; DESC="Hibernation file"; add_to_delete
 NAME="SYSTEM.SAV/Logs"; DESC="Miscellaneous logs"; add_to_wipe
