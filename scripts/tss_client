@@ -48,7 +48,7 @@ get_os_version () {
 		do
 		M=0
 		if ! mountpoint -q /mnt/$PART
-			then ntfs-3g -o ro /dev/$PART /mnt/$PART || return 1
+			then ntfs-3g -o ro /dev/$PART /mnt/$PART || continue
 			M=1
 		fi
 		WD=$(pwd)
@@ -402,7 +402,7 @@ read_sysinfo () {
 # Take the current system information and push it to the TSS server
 push_sysinfo () {
 	test "$TSS_CLIENT_DISABLE" = "1" && return 255
-	detect_current_pc
+	test "$DCPC" != "1" && detect_current_pc
 	test -z "$PCID" && echo "${CRED}push_sysinfo:$COFF PCID not set" && return 1
 	read_sysinfo
 	COMMAND="STORE_PC_SPECS $PCID $TSS_SYSINFO" tss_command
@@ -415,9 +415,11 @@ push_sysinfo () {
 # After that, the MAC address is stored in a database on the TSS server
 # and should be usable to pull the PCID without ever prompting again.
 detect_current_pc () {
+	test "$DCPC" = "1" && return 1
 	test "$TSS_CLIENT_DISABLE" = "1" && return 255
 	# This check must ALWAYS happen BEFORE loading the TSS state!
-	test ! -z "$PCID" && test ! -z "$WOID" && test ! -z "$MAC" && return 0
+	#test ! -z "$PCID" && test ! -z "$WOID" && test ! -z "$MAC" && return 0
+	DCPC=1 # prevent load_tss_state double-calling us
 	test -e "$TSS_STATE_FILE" && test "$TSS_STATE_LOADED" != "1" && load_tss_state
 	# Duplicate check required in case TSS state file contains disabled state
 	test "$TSS_CLIENT_DISABLE" = "1" && return 255
@@ -457,6 +459,7 @@ detect_current_pc () {
 	read_custinfo
 	test -z "$OS" && push_sysinfo
 	echo "$OS" | grep -q NONE && push_sysinfo
+	DCPC=0
 	save_tss_state
 }
 
@@ -504,7 +507,7 @@ load_tss_state () {
 		[[ -z "$OS" || "$OS" = "__NONE__" ]] && get_os_version
 
 		else
-		detect_current_pc
+		test "$DCPC" != "1" && detect_current_pc
 	fi
 }
 
@@ -525,7 +528,7 @@ clear_tss_state () {
 # Pull the customer-visible notes from the TSS server
 read_custnotes () {
 	test "$TSS_CLIENT_DISABLE" = "1" && return 255
-	detect_current_pc
+	test "$DCPC" != "1" && detect_current_pc
 	test -z "$WOID" && echo "${CRED}pull_actions:$COFF WOID not set" && return 1
 	COMMAND="READ_CUSTNOTES $WOID" tss_command
 	tss_proc_response
@@ -535,7 +538,7 @@ read_custnotes () {
 # Pull the technician-only notes from the TSS server
 read_technotes () {
 	test "$TSS_CLIENT_DISABLE" = "1" && return 255
-	detect_current_pc
+	test "$DCPC" != "1" && detect_current_pc
 	test -z "$WOID" && echo "${CRED}pull_actions:$COFF WOID not set" && return 1
 	COMMAND="READ_TECHNOTES $WOID" tss_command
 	tss_proc_response
@@ -545,7 +548,7 @@ read_technotes () {
 # Pull the customer information from the TSS server
 read_custinfo () {
 	test "$TSS_CLIENT_DISABLE" = "1" && return 255
-	detect_current_pc
+	test "$DCPC" != "1" && detect_current_pc
 	test -z "$PCID" && echo "${CRED}pull_actions:$COFF PCID not set" && return 1
 	COMMAND="READ_CUSTINFO $PCID" tss_command
 	tss_proc_response
@@ -555,7 +558,7 @@ read_custinfo () {
 # Pull the list of actions that have already been performed from the TSS server
 pull_actions () {
 	test "$TSS_CLIENT_DISABLE" = "1" && return 255
-	detect_current_pc
+	test "$DCPC" != "1" && detect_current_pc
 	test -z "$WOID" && echo "${CRED}pull_actions:$COFF WOID not set" && return 1
 	COMMAND="READ_ACTIONS $WOID" tss_command
 	tss_proc_response
@@ -565,7 +568,7 @@ pull_actions () {
 # Push the list of performed actions to the TSS server
 push_actions () {
 	test "$TSS_CLIENT_DISABLE" = "1" && return 255
-	detect_current_pc
+	test "$DCPC" != "1" && detect_current_pc
 	test -z "$WOID" && echo "${CRED}push_actions:$COFF WOID not set" && return 1
 	compact_actions
 	COMMAND="WRITE_ACTIONS $WOID $ACTIONS" tss_command
@@ -575,7 +578,7 @@ push_actions () {
 # Read "Problem Description" work order field
 read_probdesc () {
 	test "$TSS_CLIENT_DISABLE" = "1" && return 255
-	detect_current_pc
+	test "$DCPC" != "1" && detect_current_pc
 	test -z "$WOID" && echo "${CRED}read_probdesc:$COFF WOID not set" && return 1
 	COMMAND="READ_PROBDESC $WOID" tss_command
 	tss_proc_response
