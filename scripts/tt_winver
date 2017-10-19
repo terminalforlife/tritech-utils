@@ -1,7 +1,14 @@
 #!/bin/sh
 
-VER=0.4.3
-VERDATE=2017-08-21
+VER=0.4.4
+VERDATE=2017-08-22
+
+if ! mount.winregfs -v >/dev/null 2>/dev/null
+	then if ! reged 2>/dev/null | grep -q "reged version"
+		then echo "winregfs and reged both missing, can't continue" >&2
+		exit 1
+	fi
+fi
 
 test -z "$TSS_COMMON" && . tss__common
 test -z "$TSS_COMMON" && echo "tss__common required but failed to load" >&2 && exit 1
@@ -60,11 +67,6 @@ fi
 # Fall back to the "old way" if anything went wrong
 if [ -z "$CVER" ]
 	then
-	if ! reged | grep -q "reged version"
-		then echo "winregfs and reged both missing, can't continue" >&2
-		exit 1
-	fi
-
 	# Use chntpw's reged to read registry data (slower)
 	TMP=$(mktemp)
 	if reged -x "$REGSW" SOFTWARE 'Microsoft\Windows NT\CurrentVersion' $TMP >/dev/null 2>/dev/null
