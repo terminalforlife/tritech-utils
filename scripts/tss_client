@@ -5,8 +5,8 @@
 # Prevent loading twice
 if [ -z "$TSS_CLIENT" ]; then
 
-TSS_CLIENT_VER=0.8.10
-TSS_CLIENT_VERDATE=2017-05-30
+TSS_CLIENT_VER=0.8.11
+TSS_CLIENT_VERDATE=2017-10-31
 
 # Without socat we can't do any TSS client stuff
 if ! socat -V >/dev/null 2>/dev/null
@@ -418,7 +418,7 @@ detect_current_pc () {
 	test "$DCPC" = "1" && return 1
 	test "$TSS_CLIENT_DISABLE" = "1" && return 255
 	# This check must ALWAYS happen BEFORE loading the TSS state!
-	#test ! -z "$PCID" && test ! -z "$WOID" && test ! -z "$MAC" && return 0
+	test ! -z "$PCID" && test ! -z "$WOID" && test ! -z "$MAC" && return 0
 	DCPC=1 # prevent load_tss_state double-calling us
 	test -e "$TSS_STATE_FILE" && test "$TSS_STATE_LOADED" != "1" && load_tss_state
 	# Duplicate check required in case TSS state file contains disabled state
@@ -457,6 +457,9 @@ detect_current_pc () {
 	tss_proc_response
 	pull_actions
 	read_custinfo
+	read_probdesc
+	read_custnotes
+	read_technotes
 	test -z "$OS" && push_sysinfo
 	echo "$OS" | grep -q NONE && push_sysinfo
 	DCPC=0
@@ -498,11 +501,18 @@ load_tss_state () {
 			then detect_tss_server
 		fi
 
+		# If PCID/WOID is not set, detect current PC
+		if [ "$DCPC" != "1" ]
+			then
+			test -z "$WOID" && detect_current_pc
+			test -z "$PCID" && detect_current_pc
+		fi
+
 		# We don't cache these multi-line fields. They're harder to store and they
 		# often will change on us without notice. Load them on every invocation instead.
-		read_probdesc
-		read_custnotes
-		read_technotes
+		test -z "$WOID" || read_probdesc
+		test -z "$WOID" || read_custnotes
+		test -z "$WOID" || read_technotes
 		# If OS is a known bad value, detect it again
 		[[ -z "$OS" || "$OS" = "__NONE__" ]] && get_os_version
 
