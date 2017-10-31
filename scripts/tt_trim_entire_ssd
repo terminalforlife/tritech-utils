@@ -8,8 +8,11 @@ if [ ! -e "$1" ]
 fi
 
 X=0
-while hdparm --trim-sector-ranges $X:60000 --please-destroy-my-drive "$1" >/dev/null
-	do X=$((X + 60000))
+while true
+	do
+	S=$(hdparm --trim-sector-ranges $X:60000 --please-destroy-my-drive "$1" 2>&1 || echo "error")
+	echo "$S" | grep -qi -e "SG_IO" -e "No such" -e "error" && echo "$S" && break
+	X=$((X + 60000))
 	echo -en "Trim $X\r"
 done
-echo "If you see one input/output error above, trimming is finished."
+echo "Finished."
