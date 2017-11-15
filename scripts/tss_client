@@ -186,7 +186,7 @@ tss_proc_response () {
 
 		PCID|PCID_DOES_EXIST) PCID="$RP1"; save_tss_state ;;
 
-		PCID_DOES_NOT_EXIST|WOID_DOES_NOT_EXIST|NO_PCID_FOR_MACADDR|NO_MACADDR) return 1 ;;
+		PCID_DOES_NOT_EXIST|WOID_DOES_NOT_EXIST|NO_PCID_FOR_MACADDR|NO_PCID_FOR_SERIAL|NO_MACADDR) return 1 ;;
 
 		ERR) echo "${CRED}tss_proc_response:$COFF Error $CYEL$RP_ALL$COFF for command '$CPUR$COMMAND$COFF'" >&2; return 1 ;;
 
@@ -235,6 +235,7 @@ tss_proc_response () {
 		PHONE2="$(echo "$RP_ALL" | cut -d: -f4)"
 		PHONE3="$(echo "$RP_ALL" | cut -d: -f5)"
 		MODEL="$(echo "$RP_ALL" | cut -d: -f6)"
+		SERIAL="$(echo "$RP_ALL" | cut -d: -f7)"
 		save_tss_state
 		;;
 
@@ -426,6 +427,8 @@ detect_current_pc () {
 	test -z "$TSS_SERVER" && detect_tss_server
 	MAC="$(shopt -u nullglob; shopt -u nocaseglob; cat /sys/class/net/{eth*,wlan*}/address 2>/dev/null | tr \\n ' ')"
 	COMMAND="MACADDR_TO_PCID $MAC" tss_command
+	test -z "$PCID" && dmidecode -V >/dev/null && \
+		DMISERIAL="$(dmidecode -s system-serial-number | grep -v '^#')" && COMMAND="SERIAL_TO_PCID $DMISERIAL" tss_command
 	test ! -z "$PCID" && COMMAND="PCID_TO_WOID $PCID" tss_command
 	tss_proc_response
 	test ! -z "$WOID" && COMMAND="WOID_TO_PCID $WOID" tss_command
@@ -472,7 +475,7 @@ save_tss_state () {
 	for X in PCID WOID MAC CPU RAM HDD OS \
 			$SAN_TYPES \
 			TSS_SYSINFO ACTIONS \
-			NAME COMPANY PHONE1 PHONE2 PHONE3 MODEL \
+			NAME COMPANY PHONE1 PHONE2 PHONE3 MODEL SERIAL \
 			TSS_CIFS_BASE TSS_CIFS_HC TSS_CIFS_PW TSS_CIFS_UN TSS_CIFS_SHARE TSS_PORT TSS_SERVER
 		do echo "$X=${!X}" >> $TSS_STATE_FILE
 	done
@@ -490,7 +493,7 @@ load_tss_state () {
 		for X in PCID WOID MAC CPU RAM HDD OS \
 			$SAN_TYPES \
 			TSS_SYSINFO ACTIONS \
-			NAME COMPANY PHONE1 PHONE2 PHONE3 MODEL \
+			NAME COMPANY PHONE1 PHONE2 PHONE3 MODEL SERIAL \
 			TSS_CIFS_BASE TSS_CIFS_PW TSS_CIFS_HC TSS_CIFS_UN TSS_CIFS_SHARE TSS_PORT TSS_SERVER
 			do TSS_TEMP_STATE="$(grep "^$X=" "$TSS_STATE_FILE" | sed 's/[^=]*=//')"
 			test ! "$TSS_TEMP_STATE" = "" && \
@@ -526,7 +529,7 @@ clear_tss_state () {
 	for X in PCID WOID MAC CPU RAM HDD OS \
 		$SAN_TYPES \
 		TSS_SYSINFO ACTIONS TSS_CLIENT_DISABLE \
-		NAME COMPANY PHONE1 PHONE2 PHONE3 MODEL \
+		NAME COMPANY PHONE1 PHONE2 PHONE3 MODEL SERIAL \
 		RESPONSE RCMD RP_ALL RP1 SVR_TEMP BCN \
 		TSS_CIFS_BASE TSS_CIFS_PW TSS_CIFS_UN TSS_CIFS_SHARE TSS_PORT TSS_SERVER
 		do unset $X
