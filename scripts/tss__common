@@ -1,7 +1,7 @@
 #!/bin/sh
 
 TSS_COMMON_VER=1.0.2
-TSS_COMMON_VERDATE=2017-09-15
+TSS_COMMON_VERDATE=2017-11-14
 
 # Prevent loading if we are already loaded
 if [ -z "$TSS_COMMON" ]; then
@@ -43,6 +43,7 @@ export THERMAL_SOURCES="
 	/sys/devices/platform/coretemp.*/temp*_input
 	/sys/bus/pci/drivers/k*temp/*:*/temp1_input
 	/sys/class/thermal/thermal_zone0/temp
+	/sys/bus/platform/devices/coretemp.0/hwmon/hwmon2/temp2_input
 	/sys/bus/platform/devices/coretemp.0/hwmon/hwmon0/temp2_input
 	/sys/bus/platform/devices/coretemp.0/hwmon/hwmon0/temp4_input
 	/sys/devices/platform/coretemp.0/hwmon/hwmon1/temp2_input
@@ -216,7 +217,7 @@ tt__hdd_smart_status () {
 	SMART_SED='s/ ([^)]*)$//;s/([^)]*)$//;s/.* //g;s/[^0-9].*//'
 	if smartctl -V >/dev/null 2>/dev/null
 		then
-		unset S LCC RSC UNC REC CPS OUNC UCEC
+		unset S LCC RSC UNC REC CPS OUNC UCEC PFC EFC CEC
 		SELE=1
 		# Check for existence of SMART error log entries
 		smartctl -l error /dev/$1 | grep -q '[Nn]o [Ee]rrors [Ll]ogged' && SELE=0
@@ -234,6 +235,7 @@ tt__hdd_smart_status () {
 		UCEC=$(grep -m 1 UDMA_CRC_Error_Count $SMART_TEMP | sed "$SMART_SED")
 		PFC=$(grep -m 1 ^171 $SMART_TEMP | sed "$SMART_SED")
 		EFC=$(grep -m 1 ^172 $SMART_TEMP | sed "$SMART_SED")
+		CEC=$(grep -m 1 '[^_]CRC_Error_Count' $SMART_TEMP | sed "$SMART_SED")
 		# Add color indicators to stats
 		if [ -n "$LCC" ]
 			then
@@ -270,12 +272,17 @@ tt__hdd_smart_status () {
 		if [ -n "$PFC" ]
 			then
 			test $PFC -gt 0 && test $PFC -lt 10 && S="$S ${CYEL}PFC=$PFC$COFF"
-			test $PFC -ge 10 && test $PFC -lt 10000 && S="$S ${CRED}PFC=$PFC$COFF"
+			test $PFC -ge 10 && test $PFC -lt 100000 && S="$S ${CRED}PFC=$PFC$COFF"
 		fi
 		if [ -n "$EFC" ]
 			then
 			test $EFC -gt 0 && test $EFC -lt 10 && S="$S ${CYEL}EFC=$EFC$COFF"
-			test $EFC -ge 10 && test $EFC -lt 10000 && S="$S ${CRED}EFC=$EFC$COFF"
+			test $EFC -ge 10 && test $EFC -lt 100000 && S="$S ${CRED}EFC=$EFC$COFF"
+		fi
+		if [ -n "$CEC" ]
+			then
+			test $CEC -gt 0 && test $CEC -lt 32 && S="$S ${CYEL}CEC=$CEC$COFF"
+			test $CEC -ge 32 && test $CEC -lt 100000 && S="$S ${CRED}CEC=$CEC$COFF"
 		fi
 		# Display final stats
 		test "$2" != "-q" && test -n "$S" && echo "$CWHT$1$COFF:     $CWHT+-- ${CCYA}SMART:$S"
