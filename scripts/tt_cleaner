@@ -202,8 +202,8 @@ add_to_wipe () {
 	test ! "$RW" = "1" && RW_W=1 && do_rewrites && unset RW_W
 }
 
+# Wipes entire folders
 do_wipe () {
-# Run requested wipes
 for FILE in $ADD
 	do if [ -d "$FILE" ]
 		then IFS="$IFS0"
@@ -217,7 +217,12 @@ for FILE in $ADD
 			fi
 			for E in "$FILE"
 				do
-				test "$NODEL" = "0" && rm -rf -- "$E" 2>/dev/null && mkdir "$FILE" 2>/dev/null
+				if [ "$NODEL" = "0" ]
+					then if [ "$KEEPDIR" != "1" ]
+						then rm -rf -- "$E" 2>/dev/null && mkdir "$FILE" 2>/dev/null
+						else rm -rf -- "${E}/*" 2>/dev/null
+					fi
+				fi
 				test "$DEBUG" = "1" && echo "\"$E\" "
 			done
 			CLEAN_TYPE="$DESC"
@@ -716,6 +721,7 @@ NAME="$LOCAL/TelevisionFanatic"; DESC="TelevisionFanatic"; add_to_wipe
 NAME="$LOCAL/*.tmp"; DESC="Temporary files"; add_to_delete
 NAME="$LOCAL/temp"; DESC="Temporary files"; add_to_wipe
 NAME="$LOCAL/Temp"; DESC="Temporary files"; add_to_wipe
+NAME="$LOCAL/Tempzxp*"; DESC="Temporary files"; add_to_wipe
 NAME="$LOCAL/TEMP"; DESC="Temporary files"; add_to_wipe
 NAME="$LOCAL/Tific"; DESC="Tific"; add_to_wipe
 NAME="$LOCAL/Toolbar4"; DESC="Toolbar4"; add_to_wipe
@@ -1138,12 +1144,14 @@ if [ ! "$WINDIR" = "__NONE__" ]
 	NAME="$WINDIR/Prefetch"; DESC="Windows prefetcher"; add_to_wipe
 	NAME="$WINDIR/$SYS32/FNTCACHE.DAT"; DESC="Windows font cache"; add_to_delete
 	NAME="$WINDIR/pchealth/helpctr/OfflineCache/*/*.query"; DESC="Windows Help offline cache"; add_to_delete
-	NAME="$WINDIR/Logs"; DESC="Windows logs"; add_to_wipe
-	NAME="$WINDIR/ModemLog*.txt"; DESC="Windows logs"; add_to_wipe
-	NAME="$WINDIR/security/logs"; DESC="Windows logs"; add_to_wipe
-	NAME="$WINDIR/pchealth/helpctr/Logs"; DESC="Windows logs"; add_to_wipe
+
 
 	# LOTS of Windows log files to delete
+	for X in \
+	Logs 'ModemLog*.txt' Panther security/logs pchealth/helpctr/Logs
+		do NAME="$WINDIR/${X}"; DESC="Windows logs"; add_to_wipe
+	done
+
 	for X in \
 	'*.LOG' '*.Log' '*.log' '*.log.*' Debug/blastcln.log \
 	'Debug/mrt*.log' Debug/NetSetup.LOG Debug/sammui.log \
@@ -1151,6 +1159,7 @@ if [ ! "$WINDIR" = "__NONE__" ]
 	debug/blastcln.log 'debug/mrt*.log' debug/NetSetup.LOG \
 	debug/sammui.log 'debug/UserMode/userenv.*' \
 	debug/WIA/wiatrace.log 'inf/setupapi.*.log' 'ModemLog*.txt' \
+	'Inf/setupapi*.log' Performance/WinSAT/winsat.log \
 	Microsoft.NET/Framework*/'*/*.log' 'Panther/*.log' \
 	'Panther/UnattendGC/*.log' SchedLgU.Txt ntbtlog.txt \
 	'SoftwareDistribution/*.log' sectest.db $SYS32/'*.log' \
