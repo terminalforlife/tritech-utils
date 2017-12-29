@@ -1,7 +1,7 @@
 #!/bin/bash
 
-VER="5.7.6"
-VERDATE="2017-10-23"
+VER="5.7.7"
+VERDATE="2017-12-27"
 
 # Tritech Service System Windows installation clean tool for Linux
 # Copyright (C) by Jody Bruchon <jody@jodybruchon.com>
@@ -1213,13 +1213,15 @@ for X in \
 Intel/Logs 'TDSSKiller*_log.txt' '*.log' 'OEM/*.log' 'OEM/*/*.log' \
 'OEM/*/*/*.log' 'OEM/*/*/*/*.log' 'OEM/*/*/*/*/*.log' \
 ActExtLog.txt logfile logFile.xsl YServer.txt log.txt \
-RfLog.txt COMLOG.txt
+RfLog.txt COMLOG.txt 'smtpthread*.log' 'client*.log' \
+inferno.log jetscan.log RHDSetup.log dlbt.log dlcx.log \
+'SMax.log*'
 	do NAME="${X}"; DESC="Log files"; add_to_delete
 done
 # Some MSVC++ runtime installers barf all over the root of the drive
 for X in \
 'VC_RED.*' 'eula.*.txt' globdata.ini install.exe \
-install.ini 'install.res.*.dll' vcredist.bmp;
+install.ini 'install.res.*.dll' vcredist.bmp \;
 	do NAME="${X}"; DESC="MSVC++ installer"; add_to_delete
 done
 
