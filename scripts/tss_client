@@ -5,8 +5,8 @@
 # Prevent loading twice
 if [ -z "$TSS_CLIENT" ]; then
 
-TSS_CLIENT_VER=0.8.11
-TSS_CLIENT_VERDATE=2017-10-31
+TSS_CLIENT_VER=0.9
+TSS_CLIENT_VERDATE=2017-12-19
 
 # Without socat we can't do any TSS client stuff
 if ! socat -V >/dev/null 2>/dev/null
@@ -33,12 +33,19 @@ test "$V" = "" && export V=0
 SAN_TYPES="A_HDD A_BURNIN A_CLEANER A_BACKUP A_VIRUS A_MBR A_CDROM \
 	N_OVERHEAT N_SPACE N_SLOWAV N_LOWRAM N_BADRAM N_BADHDD N_VIRUS N_APPROVE"
 
+# Microsoft Windows serial number ACPI table
+MSDM=/sys/firmware/acpi/tables/MSDM
 
 ### Begin functions
 
 get_date () {
 	DATE="$(date "+%Y-%m-%d %H:%M:%S")"
 }
+
+get_os_prodkey () {
+	test -e $MSDM && PRODKEY="$(strings $MSDM | tail -n 1)"
+}
+
 get_os_version () {
 	# Don't do this if imagedrop/takeimage is happening
 	pgrep -f tt_imagedrop >/dev/null && return 0
@@ -55,10 +62,11 @@ get_os_version () {
 		cd /mnt/$PART
 		OS2="$OS"
 		OSF=0
-		OS="$(tt_winver -a || echo "_FAIL_")"
+		OS="$(tt_winver -a 2>/dev/null || echo "_FAIL_")"
 		# Handle problems with version detection
 		echo "$OS" | grep -q "_FAIL_" && OS="$OS2" && OSF=1
 		test "$OS" = "Cannot find SOFTWARE hive." && OS="$OS2" && OSF=1
+		test -z "$OS" && OS="$OS2" && OSF=1
 		test "$OS" = "nt...* " && OS="$OS2" && OSF=1
 		unset OS2
 		cd $WD
@@ -177,6 +185,7 @@ tss_proc_response () {
 	RCMD="$(echo "$RESPONSE" | head -n 1 | cut -d" " -f1)"
 	RP_ALL="$(echo "$RESPONSE" | cut -d" " -f2-)"
 	RP1="$(echo "$RESPONSE" | head -n 1 | cut -d" " -f2)"
+	test $V -gt 1 && echo "${CGRN}tss_proc_response:$COFF RCMD '$RCMD', RP_ALL='$RP_ALL', RP1='$RP1'" >&2
 	case "$RCMD" in
 		### Start response processing
 
@@ -392,8 +401,7 @@ read_sysinfo () {
 	HDD="$(echo "$HDD" | sed 's/, $//')"
 	test $(echo "$HDD" | wc -c) -lt 8 && test $V -gt 0 && echo "${CRED}read_sysinfo:$COFF drive info too short: '$HDD'" && unset HDD
 	get_os_version
-	MSDM=/sys/firmware/acpi/tables/MSDM
-	test -e $MSDM && PRODKEY="$(strings $MSDM | tail -n 1)"
+	get_os_prodkey
 	unset MEMG MEML MEMT VX X Y VALID SIZE SIZETB DMN DSN MSDM
 	TSS_SYSINFO="$CPU:$RAM:$HDD:$OS:$PRODKEY"
 	read_probdesc
@@ -427,8 +435,10 @@ detect_current_pc () {
 	test -z "$TSS_SERVER" && detect_tss_server
 	MAC="$(shopt -u nullglob; shopt -u nocaseglob; cat /sys/class/net/{eth*,wlan*}/address 2>/dev/null | tr \\n ' ')"
 	COMMAND="MACADDR_TO_PCID $MAC" tss_command
+	tss_proc_response
 	test -z "$PCID" && dmidecode -V >/dev/null && \
 		DMISERIAL="$(dmidecode -s system-serial-number | grep -v '^#')" && COMMAND="SERIAL_TO_PCID $DMISERIAL" tss_command
+	tss_proc_response
 	test ! -z "$PCID" && COMMAND="PCID_TO_WOID $PCID" tss_command
 	tss_proc_response
 	test ! -z "$WOID" && COMMAND="WOID_TO_PCID $WOID" tss_command
@@ -463,6 +473,7 @@ detect_current_pc () {
 	read_probdesc
 	read_custnotes
 	read_technotes
+	test -z "$PRODKEY" && get_os_prodkey && push_sysinfo
 	test -z "$OS" && push_sysinfo
 	echo "$OS" | grep -q NONE && push_sysinfo
 	DCPC=0
@@ -472,7 +483,7 @@ detect_current_pc () {
 # Store all TSS client variables into a state file for persistence across invocations
 save_tss_state () {
 	rm -f $TSS_STATE_FILE 2>/dev/null
-	for X in PCID WOID MAC CPU RAM HDD OS \
+	for X in PCID WOID MAC CPU RAM HDD OS PRODKEY \
 			$SAN_TYPES \
 			TSS_SYSINFO ACTIONS \
 			NAME COMPANY PHONE1 PHONE2 PHONE3 MODEL SERIAL \
@@ -490,7 +501,7 @@ load_tss_state () {
 	if [ -e "$TSS_STATE_FILE" ]
 		then
 		grep -q '^disable$' $TSS_STATE_FILE && export TSS_CLIENT_DISABLE=1 && return 0
-		for X in PCID WOID MAC CPU RAM HDD OS \
+		for X in PCID WOID MAC CPU RAM HDD OS PRODKEY \
 			$SAN_TYPES \
 			TSS_SYSINFO ACTIONS \
 			NAME COMPANY PHONE1 PHONE2 PHONE3 MODEL SERIAL \
@@ -526,7 +537,7 @@ load_tss_state () {
 
 # Wipe all TSS client variables and erase the TSS client persistent state
 clear_tss_state () {
-	for X in PCID WOID MAC CPU RAM HDD OS \
+	for X in PCID WOID MAC CPU RAM HDD OS PRODKEY \
 		$SAN_TYPES \
 		TSS_SYSINFO ACTIONS TSS_CLIENT_DISABLE \
 		NAME COMPANY PHONE1 PHONE2 PHONE3 MODEL SERIAL \
