@@ -802,8 +802,9 @@ NAME="$ROAM/Lavasoft/Ad-Aware/Logs"; DESC="Ad-Aware"; add_to_wipe
 NAME="$ROAM/Lavasoft/Ad-Aware/Quarantine"; DESC="Ad-Aware"; add_to_wipe
 NAME="$ROAM/AdwareAlert/Log"; DESC="AdwareAlert"; add_to_wipe
 NAME="$ROAM/AdwareAlert/Quarantine"; DESC="AdwareAlert"; add_to_wipe
-NAME="$ROAM/Adobe/ARM"; DESC="Adobe ARM"; add_to_wipe
-NAME="$ROAM/Adobe/*/*/ARM"; DESC="Adobe ARM"; add_to_wipe
+NAME="$ROAM/Adobe/ARM"; DESC="Adobe"; add_to_wipe
+NAME="$ROAM/Adobe/*/*/ARM"; DESC="Adobe"; add_to_wipe
+NAME="$ROAM/Adobe/CRLogs"; DESC="Adobe"; add_to_wipe
 NAME="$ROAM/AOL/*/spool"; DESC="AOL"; add_to_wipe
 NAME="$ROAM/AOL/*/bart"; DESC="AOL"; add_to_wipe
 NAME="$ROAM/AOL/*/misc/temp"; DESC="AOL"; add_to_wipe
@@ -859,6 +860,8 @@ NAME="$ROAM/Complitly"; DESC="Complitly spyware"; add_to_wipe
 NAME="$ROAM/Conduit"; DESC="Conduit"; add_to_wipe
 NAME="$ROAM/DataMngr"; DESC="DataMngr"; add_to_wipe
 NAME="$ROAM/Digital Album Organizer/album/*_cache"; DESC="Digital Album Organizer"; add_to_wipe
+NAME="$ROAM/discord/*.log"; DESC="Discord"; add_to_delete
+NAME="$ROAM/discord/*Cache"; DESC="Discord"; add_to_wipe
 NAME="$ROAM/DriverCure"; DESC="DriverCure"; add_to_wipe
 NAME="$ROAM/Error*Fix/Logs"; DESC="ErrorFix"; add_to_wipe
 NAME="$ROAM/F-Secure/logs"; DESC="F-Secure"; add_to_wipe
@@ -882,6 +885,7 @@ NAME="$ROAM/Google/Google Toolbar/Update"; DESC="Google Toolbar updates"; add_to
 NAME="$ROAM/grillaprice"; DESC="GorillaPrice"; add_to_wipe
 NAME="$ROAM/GTek"; DESC="Dell Support Center"; add_to_wipe
 NAME="$ROAM/Gtek"; DESC="Dell Support Center"; add_to_wipe
+NAME="$ROAM/Handbrake/logs"; DESC="HandBrake"; add_to_wipe
 NAME="$ROAM/HBLiteSA"; DESC="HotBar Lite SA"; add_to_wipe
 NAME="$ROAM/Hewlett-Packard/HP Setup/Logs"; DESC="HP temporary files"; add_to_wipe
 NAME="$ROAM/Hewlett-Packard/HP Support Framework/Logs"; DESC="HP temporary files"; add_to_wipe
