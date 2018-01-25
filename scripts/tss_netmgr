@@ -186,7 +186,7 @@ setup_internet_connection () {
 	done
 	if [ $LACP_CNT -gt 1 ]
 		then echo -en "Multiple active wired interfaces. Set up LACP bonding (y/n)? "
-		read -n 1 BOND; echo
+		read -t 10 -n 1 BOND; echo
 		test "$BOND" = "y" && select_bond_interfaces && setup_lacp && unset IF_INET_IP
 		else echo "Skipping LACP (not enough wired interfaces active)"
 	fi
