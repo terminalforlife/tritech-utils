@@ -36,7 +36,6 @@ fi
 export THERMAL_SOURCES="
 	/sys/class/hwmon/hwmon0/device/temp2_input
 	/sys/class/hwmon/hwmon0/temp1_input
-	/sys/class/hwmon/hwmon1/temp1_input
 	/sys/class/hwmon/hwmon0/temp3_input
 	/sys/class/hwmon/hwmon1/temp3_input
 	/sys/bus/acpi/drivers/thermal/LNXTHERM:00/thermal_zone/temp
@@ -48,6 +47,7 @@ export THERMAL_SOURCES="
 	/sys/bus/platform/devices/coretemp.0/hwmon/hwmon0/temp4_input
 	/sys/devices/platform/coretemp.0/hwmon/hwmon1/temp2_input
 	/sys/devices/platform/w83627ehf.656/temp2_input
+	/sys/class/hwmon/hwmon1/temp1_input
 "
 
 ### End thermal sources
@@ -221,9 +221,12 @@ tt__hdd_smart_status () {
 		unset S LCC RSC UNC REC CPS OUNC UCEC PFC EFC CEC
 		SELE=1
 		# Check for existence of SMART error log entries
-		smartctl -l error /dev/$1 | grep -q '[Nn]o [Ee]rrors [Ll]ogged' && SELE=0
-		test "$SELE" = "1" && smartctl -d sat -l error /dev/$1 | grep -q '[Nn]o [Ee]rrors [Ll]ogged' && SELE=0
+		SERROR="$(smartctl -l error /dev/$1)"
+		echo "$SERROR" | grep -q '[Nn]o [Ee]rrors [Ll]ogged' && SELE=0
+		echo "$SERROR" | grep -iq 'SMART Disabled' && SELE=2
+		unset SERROR
 		test "$SELE" = "1" && S="${CYEL}SELE$COFF"
+		test "$SELE" = "2" && S="${CYEL}Disabled, turn on with ${CWHT}smartctl -s on /dev/$1$COFF"
 		# Fetch SMART stats into variables
 		SMART_TEMP=$(mktemp)
 		smartctl -A /dev/$1 > $SMART_TEMP
