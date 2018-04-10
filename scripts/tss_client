@@ -5,8 +5,8 @@
 # Prevent loading twice
 if [ -z "$TSS_CLIENT" ]; then
 
-TSS_CLIENT_VER=0.9
-TSS_CLIENT_VERDATE=2017-12-19
+TSS_CLIENT_VER=0.9.1
+TSS_CLIENT_VERDATE=2018-03-19
 
 # Without socat we can't do any TSS client stuff
 if ! socat -V >/dev/null 2>/dev/null
@@ -43,7 +43,7 @@ get_date () {
 }
 
 get_os_prodkey () {
-	test -e $MSDM && PRODKEY="$(strings $MSDM | tail -n 1)"
+	test -e "$MSDM" && PRODKEY="$(strings < "$MSDM" | tail -n 1)"
 }
 
 get_os_version () {
