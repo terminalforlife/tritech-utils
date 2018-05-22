@@ -5,8 +5,8 @@
 # Prevent loading twice
 if [ -z "$TSS_CLIENT" ]; then
 
-TSS_CLIENT_VER=0.9.1
-TSS_CLIENT_VERDATE=2018-03-19
+TSS_CLIENT_VER=0.9.2
+TSS_CLIENT_VERDATE=2018-05-22
 
 # Without socat we can't do any TSS client stuff
 if ! socat -V >/dev/null 2>/dev/null
@@ -437,7 +437,7 @@ detect_current_pc () {
 	COMMAND="MACADDR_TO_PCID $MAC" tss_command
 	tss_proc_response
 	test -z "$PCID" && dmidecode -V >/dev/null && \
-		DMISERIAL="$(dmidecode -s system-serial-number | grep -v '^#')" && COMMAND="SERIAL_TO_PCID $DMISERIAL" tss_command
+		DMISERIAL="$(dmidecode -s system-serial-number | grep -v '^#' | grep -iv 'none')" && COMMAND="SERIAL_TO_PCID $DMISERIAL" tss_command
 	tss_proc_response
 	test ! -z "$PCID" && COMMAND="PCID_TO_WOID $PCID" tss_command
 	tss_proc_response
