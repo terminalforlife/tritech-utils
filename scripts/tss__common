@@ -215,7 +215,7 @@ do_windows_folder_detection () {
 do_windows_folder_detection
 
 tt__hdd_smart_status () {
-	test $UID -ne 0 && return
+	test $(id -u) -ne 0 && return
 	SMART_SED='s/ ([^)]*)$//;s/([^)]*)$//;s/.* //g;s/[^0-9].*//'
 	if smartctl -V >/dev/null 2>/dev/null
 		then
