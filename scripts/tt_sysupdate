@@ -1,7 +1,7 @@
 #!/bin/bash
 
-VER=1.6.2
-VERDATE="2017-11-01"
+VER=1.6.3
+VERDATE="2018-05-23"
 
 . tss__common
 
@@ -90,6 +90,8 @@ for X in $@
 done
 
 echo "${CWHT}Tritech Service System updater $CGRN$VER $CCYA($VERDATE)$COFF"
+
+test $FORCE -eq 1 && echo "${CBLU}Force-installing packages is ${CWHT}enabled$COFF"
 
 if [ "$BASH" = "" ]
 	then test -e /bin/bash && exec bash $0
