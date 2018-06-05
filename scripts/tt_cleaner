@@ -685,6 +685,7 @@ NAME="$LOCAL/Opera/*/cache"; DESC="Opera caches"; add_to_wipe
 NAME="$LOCAL/OLYMPUS/OLYMPUS Data/cache"; DESC="Olympus cache"; add_to_wipe
 NAME="$LOCAL/PageRage"; DESC="PageRage data"; add_to_wipe
 NAME="$LOCAL/PCHealth"; DESC="PCHealth data"; add_to_wipe
+NAME="$LOCAL/Pokki/IconCache"; DESC="Pokki IconCache"; add_to_wipe
 NAME="$LOCAL/PokerStars*/ImgCache"; DESC="PokerStars cache"; add_to_wipe
 NAME="$LOCAL/PriceGong"; DESC="PriceGong"; add_to_wipe
 NAME="$LOCAL/Productivity_*"; DESC="Productivity Toolbar"; add_to_wipe
