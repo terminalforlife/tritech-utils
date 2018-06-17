@@ -42,12 +42,13 @@ export THERMAL_SOURCES="
 	/sys/devices/platform/coretemp.*/temp*_input
 	/sys/bus/pci/drivers/k*temp/*:*/temp1_input
 	/sys/class/thermal/thermal_zone0/temp
+	/sys/class/hwmon/hwmon1/temp1_input
 	/sys/bus/platform/devices/coretemp.0/hwmon/hwmon2/temp2_input
 	/sys/bus/platform/devices/coretemp.0/hwmon/hwmon0/temp2_input
 	/sys/bus/platform/devices/coretemp.0/hwmon/hwmon0/temp4_input
 	/sys/devices/platform/coretemp.0/hwmon/hwmon1/temp2_input
 	/sys/devices/platform/w83627ehf.656/temp2_input
-	/sys/class/hwmon/hwmon1/temp1_input
+	/sys/devices/platform/w83627ehf.656/temp1_input
 "
 
 ### End thermal sources
