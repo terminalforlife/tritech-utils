@@ -29,6 +29,9 @@ test -e "$TSSC_CONF" && . "$TSSC_CONF"
 LOGFILE=/var/log/tss_client.log
 test "$V" = "" && export V=0
 
+# Announce debug verbosity for easier searching in scrollback
+test $V -gt 1 && echo -e "\n${CPUR}===== TSS client debug verbosity is ON (V=$V) =====$COFF\n"
+
 # Scan/action/note variable names
 SAN_TYPES="A_HDD A_BURNIN A_CLEANER A_BACKUP A_VIRUS A_MBR A_CDROM \
 	N_OVERHEAT N_SPACE N_SLOWAV N_LOWRAM N_BADRAM N_BADHDD N_VIRUS N_APPROVE"
@@ -36,13 +39,18 @@ SAN_TYPES="A_HDD A_BURNIN A_CLEANER A_BACKUP A_VIRUS A_MBR A_CDROM \
 # Microsoft Windows serial number ACPI table
 MSDM=/sys/firmware/acpi/tables/MSDM
 
+# When this is 1, operations that queue TSS state changes need to be flushed
+TSS_STATE_DIRTY=0
+
 ### Begin functions
 
 get_date () {
+	test $V -gt 1 && echo "${CGRN}get_date()$COFF" >&2
 	DATE="$(date "+%Y-%m-%d %H:%M:%S")"
 }
 
 get_os_prodkey () {
+	test $V -gt 1 && echo "${CGRN}get_os_prodkey()$COFF" >&2
 	test -e "$MSDM" && PRODKEY="$(strings < "$MSDM" | tail -n 1)"
 }
 
@@ -50,6 +58,7 @@ get_os_version () {
 	# Don't do this if imagedrop/takeimage is happening
 	pgrep -f tt_imagedrop >/dev/null && return 0
 	pgrep -f tt_takeimage >/dev/null && return 0
+	test $V -gt 1 && echo "${CGRN}get_os_version()$COFF" >&2
 	ALLPARTS=$(cat /proc/partitions | grep -e 'sd.[0-9]$' -e 'mmcblk[0-9]p[0-9]$' -e 'nvme[0-9]n[0-9]$' -e 'hd.[0-9]$' | sort -k3 -gr | awk '{print $4}')
 	for PART in $ALLPARTS
 		do
@@ -82,6 +91,8 @@ get_os_version () {
 
 validate_mac () {
 	test "$TSS_CLIENT_DISABLE" = "1" && return 255
+	test $V -gt 1 && echo "${CGRN}validate_mac()$COFF MAC '$MAC'" >&2
+	OLDMAC="$MAC"
 	MAC="$(echo "$MAC" | tr '[:upper:]' '[:lower:]')"
 	# If characters are found that aren't valid in a MAC address, assume it is invalid.
 	if echo "$MAC" | grep -q '[^0-9a-f: ]'
@@ -99,14 +110,15 @@ validate_mac () {
 			return 2
 		fi
 	done
-	unset X
-	save_tss_state
+	test "$MAC" != "$OLDMAC" && save_tss_state
+	unset X OLDMAC
 	return 0
 }
 
 # Merge MAC and MACADDR variables, sorting and removing any duplicates
 merge_mac_and_macaddr () {
 	test "$TSS_CLIENT_DISABLE" = "1" && return 255
+	test $V -gt 1 && echo "${CGRN}merge_mac_and_macaddr()$COFF MAC '$MAC' MACADDR '${MACADDR[@]}'" >&2
 	if ! validate_mac
 		then echo "${CRED}merge_mac_and_macaddr:$COFF validate_mac failed" >&2
 		return 1
@@ -114,18 +126,20 @@ merge_mac_and_macaddr () {
 	# Combine MAC and MACADDR, force lowercase, remove duplicates, remove excess whitespace
 	MAC="$(echo $MAC ${MACADDR[@]} | tr '[:upper:]' '[:lower:]' | tr ' ' '\n' | sort | uniq | tr '\n' ' ' | sed 's/^\s*//;s/\s*$//')"
 	Y=0
+	OLDMAC="$MAC"
 	for X in $MAC
 		do MACADDR[$Y]="$X"
 		Y=$((Y + 1))
 	done
-	unset X Y
 	test $V -eq 1 && echo "${CGRN}merge_mac_and_macaddr:$COFF MAC list $CBLU${MACADDR[@]}$COFF" >&2
-	save_tss_state
+	test "$OLDMAC" != "$MAC" && save_tss_state
+	unset X Y OLDMAC
 }
 
 # Read ACTIONS variable and set individual variable flags from its contents
 expand_actions () {
 	test "$TSS_CLIENT_DISABLE" = "1" && return 255
+	test $V -gt 1 && echo "${CGRN}expand_actions()$COFF" >&2
 	for X in $SAN_TYPES
 		do
 		test -z "${!X}" && export $X=0
@@ -137,6 +151,7 @@ expand_actions () {
 # Build ACTIONS variable from the individual variable flags
 compact_actions () {
 	test "$TSS_CLIENT_DISABLE" = "1" && return 255
+	test $V -gt 1 && echo "${CGRN}compact_actions()$COFF" >&2
 	unset ACTIONS
 	for X in $SAN_TYPES
 		do
@@ -150,6 +165,7 @@ compact_actions () {
 # Send a command to the TSS server and get its response
 tss_command () {
 	test "$TSS_CLIENT_DISABLE" = "1" && return 255
+	test $V -gt 2 && echo "${CGRN}tss_command()$COFF COMMAND '$COMMAND'" >&2
 	if [[ "$TSS_SERVER" = "" || "$TSS_PORT" = "" ]]
 		then echo "${CRED}tss_command:$COFF TSS_SERVER or TSS_PORT blank: '$TSS_SERVER:$TSS_PORT'" >&2; return 1
 	fi
@@ -179,13 +195,13 @@ tss_proc_response () {
 	test "$TSS_CLIENT_DISABLE" = "1" && return 255
 	if [ -z "$RESPONSE" ]
 		then
-		echo "${CRED}tss_proc_response:$COFF Empty response" >&2
+		echo "${CRED}tss_proc_response:$COFF Empty response"
 		return 1
 	fi
 	RCMD="$(echo "$RESPONSE" | head -n 1 | cut -d" " -f1)"
 	RP_ALL="$(echo "$RESPONSE" | cut -d" " -f2-)"
 	RP1="$(echo "$RESPONSE" | head -n 1 | cut -d" " -f2)"
-	test $V -gt 1 && echo "${CGRN}tss_proc_response:$COFF RCMD '$RCMD', RP_ALL='$RP_ALL', RP1='$RP1'" >&2
+	test $V -gt 2 && echo "${CGRN}tss_proc_response:$COFF RCMD '$RCMD', RP_ALL='$RP_ALL', RP1='$RP1'" >&2
 	case "$RCMD" in
 		### Start response processing
 
@@ -258,6 +274,7 @@ tss_proc_response () {
 # Find a TSS server on the network.
 detect_tss_server () {
 	test "$TSS_CLIENT_DISABLE" = "1" && test "$TSSC_FORCE" != "1" && return 255
+	test $V -gt 1 && echo "${CGRN}detect_tss_server()$COFF SVR '$SVR' SVRX '$SVRX' SVRSHARE '$SVRSHARE' UN '$UN' PW '$PW'" >&2
 	BCN=1; SVR_TEMP=$(mktemp)
 	test "$TSS_PORT" = "" && export TSS_PORT=60607
 	SVR_TIMEOUT=3
@@ -365,6 +382,7 @@ detect_tss_server () {
 # Gather information about the current system, setting the corresponding variables to suit
 read_sysinfo () {
 	test "$TSS_CLIENT_DISABLE" = "1" && return 255
+	test $V -gt 1 && echo "${CGRN}read_sysinfo()$COFF" >&2
 	CPU="$(grep "model name" /proc/cpuinfo | sed 's/[^:]*:[^A-Za-z]*//g;s/  */ /g' | head -n 1)"
 	CORES="$(grep "model name" /proc/cpuinfo | wc -l)"
 
@@ -404,13 +422,13 @@ read_sysinfo () {
 	get_os_prodkey
 	unset MEMG MEML MEMT VX X Y VALID SIZE SIZETB DMN DSN MSDM
 	TSS_SYSINFO="$CPU:$RAM:$HDD:$OS:$PRODKEY"
-	read_probdesc
 	save_tss_state
 }
 
 # Take the current system information and push it to the TSS server
 push_sysinfo () {
 	test "$TSS_CLIENT_DISABLE" = "1" && return 255
+	test $V -gt 1 && echo "${CGRN}push_sysinfo()$COFF PCID '$PCID' DCPC '$DCPC'" >&2
 	test "$DCPC" != "1" && detect_current_pc
 	test -z "$PCID" && echo "${CRED}push_sysinfo:$COFF PCID not set" && return 1
 	read_sysinfo
@@ -426,6 +444,8 @@ push_sysinfo () {
 detect_current_pc () {
 	test "$DCPC" = "1" && return 1
 	test "$TSS_CLIENT_DISABLE" = "1" && return 255
+	test $V -gt 1 && echo "${CGRN}detect_current_pc()$COFF" >&2
+
 	# This check must ALWAYS happen BEFORE loading the TSS state!
 	test ! -z "$PCID" && test ! -z "$WOID" && test ! -z "$MAC" && return 0
 	DCPC=1 # prevent load_tss_state double-calling us
@@ -433,24 +453,34 @@ detect_current_pc () {
 	# Duplicate check required in case TSS state file contains disabled state
 	test "$TSS_CLIENT_DISABLE" = "1" && return 255
 	test -z "$TSS_SERVER" && detect_tss_server
+
+	TSS_PC_NEW=0
+
+	# Find out if the current PC is in the TSS server already
+	# Check by MAC addresses first since they're "serial numbers"
 	MAC="$(shopt -u nullglob; shopt -u nocaseglob; cat /sys/class/net/{eth*,wlan*}/address 2>/dev/null | tr \\n ' ')"
 	COMMAND="MACADDR_TO_PCID $MAC" tss_command
 	tss_proc_response
-	test -z "$PCID" && dmidecode -V >/dev/null && \
+	# If MAC addresses failed, it's a new PC; try the DMI serial number
+	test -z "$PCID" && TSS_PC_NEW=1 && dmidecode -V >/dev/null && \
 		DMISERIAL="$(dmidecode -s system-serial-number | grep -v '^#' | grep -iv 'none')" && COMMAND="SERIAL_TO_PCID $DMISERIAL" tss_command
 	tss_proc_response
-	test ! -z "$PCID" && COMMAND="PCID_TO_WOID $PCID" tss_command
+	# If one of those worked, use the PCID get the WOID
+	test ! -z "$PCID" && test -z "$WOID" && COMMAND="PCID_TO_WOID $PCID" tss_command
 	tss_proc_response
-	test ! -z "$WOID" && COMMAND="WOID_TO_PCID $WOID" tss_command
+	# Only try to resolve by WOID if PCID is still blank
+	test -z "$PCID" && test ! -z "$WOID" && COMMAND="WOID_TO_PCID $WOID" tss_command
 	tss_proc_response
 
+	# If PC can't be detected automatically, ask the user
 	if [[ -z "$PCID" && -z "$WOID" ]]
 		then echo "${CYEL}detect_current_pc:$COFF PC not detected."
 		echo "Enter a PC ID or work order ID, or 'd' to disable the TSS client."
-		echo -n "Prefix a WOID with $CBLU'w'$COFF as in $CBLU'w7654'$COFF. Enter ID: "
+		echo -n "If using WOID, prefix with $CBLU'w'$COFF as in $CBLU'w12345'$COFF. Enter ID: "
 		read X
 		TSS_CLIENT_DISABLE=0
 		test "$X" = "d" && export TSS_CLIENT_DISABLE=1 && echo "disable" > $TSS_STATE_FILE && return 255
+		TSS_PC_NEW=1
 		if echo "$X" | grep -q '^w[0-9]*$'
 			then X="$(echo "$X" | sed 's/^w//')"
 			COMMAND="WOID_EXISTS $X" tss_command
@@ -459,11 +489,16 @@ detect_current_pc () {
 			tss_proc_response
 		fi
 	fi
-	test ! -z "$PCID" && COMMAND="PCID_TO_WOID $PCID" tss_command
+
+	# Repeat the PCID<->WOID resolution as above
+	test ! -z "$PCID" && test -z "$WOID" && COMMAND="PCID_TO_WOID $PCID" tss_command
 	tss_proc_response
-	test ! -z "$WOID" && COMMAND="WOID_TO_PCID $WOID" tss_command
+	test -z "$PCID" && test ! -z "$WOID" && COMMAND="WOID_TO_PCID $WOID" tss_command
 	tss_proc_response
+	# If we can't identify the current PC after all that, just give up.
 	test -z "$PCID" && echo "${CRED}detect_current_pc:$COFF Could not identify the current PC." >&2 && return 1
+
+	# Collect MAC addresses and store for this PCID on the TSS server
 	merge_mac_and_macaddr
 	tss_proc_response
 	test ! -z "$MAC" && COMMAND="STORE_MACADDR $PCID $MAC" tss_command
@@ -473,15 +508,24 @@ detect_current_pc () {
 	read_probdesc
 	read_custnotes
 	read_technotes
-	test -z "$PRODKEY" && get_os_prodkey && push_sysinfo
-	test -z "$OS" && push_sysinfo
-	echo "$OS" | grep -q NONE && push_sysinfo
+	
+	# If the PC was not previously known, push all system info
+	if [ $TSS_PC_NEW -eq 0 ]
+		then
+		test -z "$PRODKEY" && get_os_prodkey && push_sysinfo
+		test -z "$OS" && push_sysinfo
+		echo "$OS" | grep -q NONE && push_sysinfo
+	else
+		get_os_prodkey
+		push_sysinfo
+	fi
 	DCPC=0
 	save_tss_state
 }
 
 # Store all TSS client variables into a state file for persistence across invocations
 save_tss_state () {
+	test $V -gt 1 && echo "${CGRN}save_tss_state()$COFF" >&2
 	rm -f $TSS_STATE_FILE 2>/dev/null
 	for X in PCID WOID MAC CPU RAM HDD OS PRODKEY \
 			$SAN_TYPES \
@@ -497,6 +541,7 @@ save_tss_state () {
 load_tss_state () {
 	# Only allow this to be called once to avoid an endless loop
 	test "$TSS_STATE_LOADED" = "1" && return
+	test $V -gt 1 && echo "${CGRN}load_tss_state()$COFF" >&2
 	TSS_STATE_LOADED=1
 	if [ -e "$TSS_STATE_FILE" ]
 		then
@@ -537,6 +582,7 @@ load_tss_state () {
 
 # Wipe all TSS client variables and erase the TSS client persistent state
 clear_tss_state () {
+	test $V -gt 1 && echo "${CGRN}clear_tss_state()$COFF" >&2
 	for X in PCID WOID MAC CPU RAM HDD OS PRODKEY \
 		$SAN_TYPES \
 		TSS_SYSINFO ACTIONS TSS_CLIENT_DISABLE \
@@ -552,6 +598,7 @@ clear_tss_state () {
 # Pull the customer-visible notes from the TSS server
 read_custnotes () {
 	test "$TSS_CLIENT_DISABLE" = "1" && return 255
+	test $V -gt 1 && echo "${CGRN}read_custnotes()$COFF WOID '$WOID' DCPC '$DCPC'" >&2
 	test "$DCPC" != "1" && detect_current_pc
 	test -z "$WOID" && echo "${CRED}pull_actions:$COFF WOID not set" && return 1
 	COMMAND="READ_CUSTNOTES $WOID" tss_command
@@ -562,6 +609,7 @@ read_custnotes () {
 # Pull the technician-only notes from the TSS server
 read_technotes () {
 	test "$TSS_CLIENT_DISABLE" = "1" && return 255
+	test $V -gt 1 && echo "${CGRN}read_technotes()$COFF WOID '$WOID' DCPC '$DCPC'" >&2
 	test "$DCPC" != "1" && detect_current_pc
 	test -z "$WOID" && echo "${CRED}pull_actions:$COFF WOID not set" && return 1
 	COMMAND="READ_TECHNOTES $WOID" tss_command
@@ -572,6 +620,7 @@ read_technotes () {
 # Pull the customer information from the TSS server
 read_custinfo () {
 	test "$TSS_CLIENT_DISABLE" = "1" && return 255
+	test $V -gt 1 && echo "${CGRN}read_custinfo()$COFF PCID '$PCID' DCPC '$DCPC'" >&2
 	test "$DCPC" != "1" && detect_current_pc
 	test -z "$PCID" && echo "${CRED}pull_actions:$COFF PCID not set" && return 1
 	COMMAND="READ_CUSTINFO $PCID" tss_command
@@ -582,6 +631,7 @@ read_custinfo () {
 # Pull the list of actions that have already been performed from the TSS server
 pull_actions () {
 	test "$TSS_CLIENT_DISABLE" = "1" && return 255
+	test $V -gt 1 && echo "${CGRN}pull_actions()$COFF WOID '$WOID' DCPC '$DCPC'" >&2
 	test "$DCPC" != "1" && detect_current_pc
 	test -z "$WOID" && echo "${CRED}pull_actions:$COFF WOID not set" && return 1
 	COMMAND="READ_ACTIONS $WOID" tss_command
@@ -592,6 +642,7 @@ pull_actions () {
 # Push the list of performed actions to the TSS server
 push_actions () {
 	test "$TSS_CLIENT_DISABLE" = "1" && return 255
+	test $V -gt 1 && echo "${CGRN}push_actions()$COFF WOID '$WOID' DCPC '$DCPC'" >&2
 	test "$DCPC" != "1" && detect_current_pc
 	test -z "$WOID" && echo "${CRED}push_actions:$COFF WOID not set" && return 1
 	compact_actions
@@ -602,6 +653,7 @@ push_actions () {
 # Read "Problem Description" work order field
 read_probdesc () {
 	test "$TSS_CLIENT_DISABLE" = "1" && return 255
+	test $V -gt 1 && echo "${CGRN}read_probdesc()$COFF WOID '$WOID' DCPC '$DCPC'" >&2
 	test "$DCPC" != "1" && detect_current_pc
 	test -z "$WOID" && echo "${CRED}read_probdesc:$COFF WOID not set" && return 1
 	COMMAND="READ_PROBDESC $WOID" tss_command
@@ -613,6 +665,8 @@ read_probdesc () {
 
 # Allow loading clients to skip automatic PC detection if needed
 test ! "$TSSC_AUTO" = "0" && detect_current_pc
+
+test $TSS_STATE_DIRTY -eq 1 && save_tss_state
 
 # Close double loading prevention statement
 fi
