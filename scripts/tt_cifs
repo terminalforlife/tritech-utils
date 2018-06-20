@@ -2,14 +2,14 @@
 
 # Mounts the Tritech CIFS source share to /mnt/cifs
 
-VER=2.0.1
-VERDATE="2017-05-30"
+VER=2.1
+VERDATE="2018-06-20"
 
 . tss__common
 
-V=2
-test "$1" = "-c" && V=1
-test "$1" = "-q" && V=0
+CV=2
+test "$1" = "-c" && CV=1
+test "$1" = "-q" && CV=0
 
 # Load TSS client to get CIFS configuration details
 TSSC_AUTO=0; TSSC_FORCE=1
@@ -23,7 +23,7 @@ test $(uname -r | cut -d. -f1) -eq 3 && \
 	test $(uname -r | cut -d. -f2) -lt 16 && \
 	CACHE=",cache=loose" && LOOSE="$CYEL (loose cache)$COFF"
 
-test "$V" = "2" && \
+test "$CV" = "2" && \
 	echo "${CWHT}TSS CIFS automount version $CGRN$VER$CWHT, updated $CGRN$VERDATE$COFF"
 
 # Check for CIFS mount helper (required)
@@ -78,7 +78,7 @@ fi
 # Sanity check: can't proceed if there is no server value at all
 if [[ "$SVRX" = "" || "$UN" = "" ]]
 	then
-	test $V -gt 1 && echo "${CRED}Error in data, info: cifs:$SVRX:$UN:$PW$COFF"
+	test $CV -gt 1 && echo "${CRED}Error in data, info: cifs:$SVRX:$UN:$PW$COFF"
 	exit 1
 fi
 
@@ -95,10 +95,10 @@ TIMEOUT=3
 if [ "$HARDCODED" != "1" ]
 	then
 	if ! ping -c 1 -W 1 $SVR >/dev/null 2>/dev/null
-		then test "$V" = "2" && echo -n "${CYEL}Trying to reach $SVR: $COFF"
+		then test "$CV" = "2" && echo -n "${CYEL}Trying to reach $SVR: $COFF"
 		X=$TIMEOUT; Y=0
 		while [ "$X" -gt "0" ]
-			do test "$V" -gt "0" && echo -n "${CWHT}${X}${COFF} "
+			do test "$CV" -gt "0" && echo -n "${CWHT}${X}${COFF} "
 			if ! ping -c 1 -W 1 $SVR >/dev/null 2>/dev/null
 				then X=$((X - 1))
 				else Y=1
@@ -112,24 +112,24 @@ if [ "$HARDCODED" != "1" ]
 	fi
 
 	if ! ping -c 1 -W 1 $SVR >/dev/null 2>/dev/null
-		then test "$V" = "2" && \
+		then test "$CV" = "2" && \
 			echo "${CRED}All pings to server $SVR timed out.${COFF}"
 		exit 1
 	fi
 fi
 
-test "$V" = "2" && echo -n "${CYEL}Mounting...$COFF"
+test "$CV" = "2" && echo -n "${CYEL}Mounting...$COFF"
 
 TESTLINE=$(mount | grep "on /mnt/cifs type")
 if [ ! "$TESTLINE" = "" ]
 	then
 	if echo $TESTLINE | cut -d" " -f1 | grep -q "$SVRX"
 		then
-		test "$V" -gt "0" && echo "$CGRN$SVRX $CWHT=>$CGRN /mnt/cifs (already mounted)$COFF"
+		test "$CV" -gt "0" && echo "$CGRN$SVRX $CWHT=>$CGRN /mnt/cifs (already mounted)$COFF"
 		exit
 
 		else
-		test "$V" -gt "0" && echo "${CRED}/mnt/cifs is used by a different mount; aborting.$COFF"
+		test "$CV" -gt "0" && echo "${CRED}/mnt/cifs is used by a different mount; aborting.$COFF"
 		exit 1
 	fi
 fi
@@ -137,7 +137,7 @@ fi
 # Try a SMB3 mount if possible for better performance
 if mount -t cifs -o vers=3.0,user="$UN",pass="$PW"$CACHE //$SVRX /mnt/cifs 2>/dev/null >/dev/null
 	then
-	test "$V" -gt "0" && echo "$CGRN$SVRX $CWHT=>$CGRN /mnt/cifs ${CWHT}(SMB 3.0)$LOOSE$COFF"
+	test "$CV" -gt "0" && echo "$CGRN$SVRX $CWHT=>$CGRN /mnt/cifs ${CWHT}(SMB 3.0)$LOOSE$COFF"
 	exit
 fi
 
@@ -145,9 +145,9 @@ fi
 # Added cache=loose due to default change causing breakage in kernels >3.6.11
 if mount.cifs //$SVRX /mnt/cifs -o user="$UN",pass="$PW"$CACHE 2>/dev/null >/dev/null
 	then
-	test "$V" -gt "0" && echo "$CGRN$SVRX $CWHT=>$CGRN /mnt/cifs ${CYEL}(SMB1/2)$LOOSE$COFF"
+	test "$CV" -gt "0" && echo "$CGRN$SVRX $CWHT=>$CGRN /mnt/cifs ${CYEL}(SMB1/2)$LOOSE$COFF"
 	exit
-	else test "$V" -gt "0" && echo "${CRED}failed.$COFF"
+	else test "$CV" -gt "0" && echo "${CRED}failed.$COFF"
 	exit 1
 fi
 

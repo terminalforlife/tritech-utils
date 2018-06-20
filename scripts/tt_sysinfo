@@ -13,7 +13,7 @@ VERDATE="2017-03-09"
 
 # Verbosity level
 V=0
-test "$1" = "-v" && V=1
+test "$1" = "-v" && SIV=1
 
 echo "${CCYA}CPU:     $CGRN$(cat /proc/cpuinfo | grep "model name" | sed s/.*:[^A-Za-z]*//g | head -n 1)$COFF ($CBLU$(cat /proc/cpuinfo | grep "model name" | wc -l) cores$COFF)"
 
@@ -60,7 +60,7 @@ done
 unset VGA
 if lspci --version >/dev/null 2>&1
 	then VGA="$(lspci -mm | grep "VGA compatible" | cut -d\" -f6 | sed 's/^ *//' | head -n 1)"
-	test $V -gt 0 && echo "${CPUR}VGA:     $VGA$COFF"
+	test $SIV -gt 0 && echo "${CPUR}VGA:     $VGA$COFF"
 fi
 
 unset BIOS BIOS2
@@ -73,8 +73,8 @@ if dmidecode -V >/dev/null 2>&1
 	done
 	BIOS="$(echo "$BIOS" | sed 's/^ *//')"
 	BIOS2="$(echo "$BIOS2" | sed 's/^ *//')"
-	test $V -gt 0 && test ! -z "$BIOS" && echo "${CPUR}ROM:     $BIOS$COFF"
-	test $V -gt 0 && test ! -z "$BIOS2" && echo "${CPUR}ROM:     $BIOS2$COFF"
+	test $SIV -gt 0 && test ! -z "$BIOS" && echo "${CPUR}ROM:     $BIOS$COFF"
+	test $SIV -gt 0 && test ! -z "$BIOS2" && echo "${CPUR}ROM:     $BIOS2$COFF"
 fi
 
 unset NET
