@@ -12,7 +12,7 @@ VERDATE="2017-03-09"
 . tss_client
 
 # Verbosity level
-V=0
+SIV=0
 test "$1" = "-v" && SIV=1
 
 echo "${CCYA}CPU:     $CGRN$(cat /proc/cpuinfo | grep "model name" | sed s/.*:[^A-Za-z]*//g | head -n 1)$COFF ($CBLU$(cat /proc/cpuinfo | grep "model name" | wc -l) cores$COFF)"
