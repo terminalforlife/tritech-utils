@@ -1,7 +1,7 @@
 #!/bin/bash
 
-VER=1.6.3
-VERDATE="2018-05-23"
+VER=2.0
+VERDATE="2018-07-21"
 
 . tss__common
 
@@ -18,46 +18,15 @@ do_help () {
 	exit
 }
 
-unpack_package () {
-	FNAME="$1"
-	FLIST="/packages/installed/${FNAME//*\//}"
-	FLIST="${FLIST/%.pkg.tar.[a-z]*/}"
-	test -e "$FLIST" && test $FORCE -eq 0 && return 2
-	DECOMP="$(suggest_decompressor "$FNAME")"
-	# Do not unpack existing packages unless -f is passed
-	dispatch $DECOMP -dc "$FNAME" | tar -C / -xvp > $FLIST 2>/dev/null
-}
-
-dispatch () {
-	test -z "$SUB" && SUB=0
-	test -z "$MAXSUB" && MAXSUB=$(grep ^processor /proc/cpuinfo | tail -n 1 | sed 's/.*:\s*//') && MAXSUB=$((MAXSUB + 1))
-	if [ $MAXSUB -gt 1 ]
-		then
-		while [ $SUB -ge $MAXSUB ]
-			do sleep 0.001
-			SP=$MAXSUB
-			while [ $SP -gt 0 ]
-				# If child process terminates, remove it.
-			 	do if ! kill -0 ${SUBPID[$SP]} 2>/dev/null
-					then
-					DEL=$SP
-					while [ $DEL -lt $SUB ]
-						do
-						DEL2=$((DEL + 1))
-						SUBPID[$DEL]="${SUBPID[$DEL2]}"
-						DEL=$DEL2
-					done
-					unset SUBPID[$SUB]
-					SUB=$((SUB - 1))
-				fi
-				SP=$((SP - 1))
-			done
-		done
-		SUB=$((SUB + 1))
-		$@ &
-		SUBPID[$SUB]=$!
-	else $@
-	fi
+suggest_decompressor () {
+	EXT=$(echo "$1" | sed 's/.*\.//')
+	test "$EXT" = "lzo" && DECOMP=lzop && return
+	test "$EXT" = "xz" && DECOMP=xz && return
+	test "$EXT" = "gz" && DECOMP=gzip && return
+	test "$EXT" = "bz2" && DECOMP=bzip2 && return
+	test "$EXT" = "lz4" && DECOMP=lz4 && return
+	test "$EXT" = "lzma" && DECOMP=xz && return
+	DECOMP=__NONE__
 }
 
 shopt -s nullglob
@@ -250,28 +219,30 @@ echo -n "Unpacking packages: "
 cd "$UPDPATH"
 
 for X in $(cat ${UP}.pkglist)
-	do Y="none"
+	do
 	# Handle multiple package types available if required
-	for ARCHPKG in all/${X}_*.pkg.tar.{lzo,gz,bz2,xz,lzma} $ARCH/${X}_*.pkg.tar.{lzo,gz,bz2,xz,lzma}
-		do W="__NONE__"
-		test -e "$ARCHPKG" && W="$ARCHPKG"
-		test "$W" = "__NONE__" && test -e "$ALLPKG" && W="$ALLPKG"
-		if [ -e "$W" ]
-			then Y="$W"
-			test "$SUV" = "1" && echo -n "$CBLU$Y$COFF "
+	PKGFILE="__NONE__"
+	for PKG in ${ARCH}/${X}_*-${ARCH}.*
+		do test -z "$PKG" && PKG=all/${X}_*-all.*
+		if [ -e "$PKG" ]
+			then PKGFILE="$PKG"
+			test "$SUV" = "1" && echo -n "$CBLU$X$COFF "
 			break
 		fi
 	done
-	if [ "$Y" = "none" ]
+	if [ "$PKGFILE" = "__NONE__" ]
 		then echo -n " $CRED$X$COFF "
 		else
-		test "$DBG" = "0" && unpack_package "$Y"
-		test $? = 2 && echo -n "$CYEL" || echo -n "$CGRN"
+		FLIST="/packages/installed/${PKGFILE//*\//}"
+		FLIST="${FLIST/%.pkg.tar.[a-z]*/}"
+		test -e "$FLIST" && test $FORCE -eq 0
+		suggest_decompressor "$PKGFILE"
+		# Do not unpack existing packages unless -f is passed
+		test "$DBG" = "0" && $DECOMP -dc "$PKGFILE" | tar -C / -xvp > $FLIST 2>/dev/null
+		test $? = 2 && echo -n "$CORA" || echo -n "$CGRN"
 		echo -n ".$COFF"
 	fi
 done
-
-wait ${SUBPID[@]}
 
 echo
 cd /
@@ -286,4 +257,3 @@ if [ -d "$POST" ]
 		rm -f $S
 	done
 fi
-
