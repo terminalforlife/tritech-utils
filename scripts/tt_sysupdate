@@ -222,8 +222,8 @@ for X in $(cat ${UP}.pkglist)
 	do
 	# Handle multiple package types available if required
 	PKGFILE="__NONE__"
-	for PKG in ${ARCH}/${X}_*-${ARCH}.*
-		do test -z "$PKG" && PKG=all/${X}_*-all.*
+	for PKG in ${ARCH}/${X}_*-${ARCH}.* all/${X}_*-all.*
+		do
 		if [ -e "$PKG" ]
 			then PKGFILE="$PKG"
 			test "$SUV" = "1" && echo -n "$CBLU$X$COFF "
