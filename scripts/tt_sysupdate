@@ -235,9 +235,9 @@ for X in $(cat ${UP}.pkglist)
 		else
 		FLIST="/packages/installed/${PKGFILE//*\//}"
 		FLIST="${FLIST/%.pkg.tar.[a-z]*/}"
-		test -e "$FLIST" && test $FORCE -eq 0
-		suggest_decompressor "$PKGFILE"
 		# Do not unpack existing packages unless -f is passed
+		test -e "$FLIST" && test $FORCE -eq 0 && echo -n "${CYEL}.$COFF" && continue
+		suggest_decompressor "$PKGFILE"
 		test "$DBG" = "0" && $DECOMP -dc "$PKGFILE" | tar -C / -xvp > $FLIST 2>/dev/null
 		test $? = 2 && echo -n "$CORA" || echo -n "$CGRN"
 		echo -n ".$COFF"
