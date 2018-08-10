@@ -1,9 +1,9 @@
 #!/bin/bash
 
-VER="5.7.7"
-VERDATE="2017-12-27"
+VER="5.8"
+VERDATE="2018-08-08"
 
-# Tritech Service System Windows installation clean tool for Linux
+# Tritech Service System cleaning tool for Linux
 # Copyright (C) by Jody Bruchon <jody@jodybruchon.com>
 
 # Must be run from the root of the filesystem to clean.
@@ -35,7 +35,7 @@ control_c () {
 trap control_c INT
 
 # Initialize some settings
-NODEL=0; MSG=2; DEBUG=0; NOSIZE=0
+NODEL=0; MSG=2; DEBUG=0; NOSIZE=0; NOFILESCAN=0
 unset FORCED NOREPORT
 
 # Parse command line parameters
@@ -52,6 +52,9 @@ for X in $@
 		echo "$PN -s      silent mode, no output, returns an exit code"
 		echo "$PN -n      normal mode, but don't actually delete anything"
 		echo "$PN -d      debug mode: -n, plus shows what would be deleted"
+		echo "$PN -N      do not run the time-consuming file list scan"
+		echo "$PN --no-report  do not report cleaning to TSS"
+		echo "$PN --[os]  Force OS type: --xp --v7 --osx"
 		echo "$PN -h      this help screen"
 		echo "$PN --help  this help screen with four wasted keystrokes"
 		echo -e "\nCopyright (C) Jody Bruchon <jody@jodybruchon.com>"
@@ -68,6 +71,7 @@ for X in $@
 	test "$X" = "-x" && MSG=2 && NOSIZE=1
 	test "$X" = "-n" && MSG=2 && NODEL=1
 	test "$X" = "-d" && MSG=2 && NODEL=1 && DEBUG=1
+	test "$X" = "-N" && NOFILESCAN=1
 	# Allow forcing the OS selection and directories
 	test "$X" = "--xp" && export V7=1 && FORCED=1
 	test "$X" = "--v7" && export V7=2 && FORCED=1
@@ -130,13 +134,6 @@ SCANP="$(echo "$P" | sed 's#\*#\[\^/\]\*#g')"
 ### Common variables and locations
 
 APPLE="Apple Computer"
-APPLEIC="Apple/Installer Cache"
-APPLEIC2="$APPLE/Installer Cache"
-APPLELOGS="$APPLE/Logs"
-APPLEMSB="$APPLE/MobileSync/Backup"
-APPLEIPSW="$APPLE/iTunes/*Software Updates"
-APPLEIPLG="$APPLE/iTunes/*Updater Logs"
-APPLESN="$APPLE/SyncNotifier/SyncNotifier/Logs"
 CARBONITEUS="Carbonite Restored OLD User Settings"
 JAVACACHE="Sun/Java/Deployment/cache"
 JSYSCACHE="Sun/Java/Deployment/SystemCache"
@@ -268,6 +265,7 @@ done
 }
 
 add_to_scan () {
+test "$NOFILESCAN" = "1" && return
 #	RXS="$NAME"; escape_regex; NAME="$RXS"
 #	RXS="$SP"; escape_regex; SP="$RXS"
 # Run requested scans
@@ -469,7 +467,8 @@ NAME="$LOCAL/ars.cache"; DESC="Miscellanous junk"; add_to_delete
 NAME="$LOCAL/census.cache"; DESC="Miscellanous junk"; add_to_delete
 NAME="$LOCAL/$APPLE/QuickTime/downloads"; DESC="QuickTime downloads"; add_to_wipe
 NAME="$LOCAL/$APPLE/iTunes/Cache.db"; DESC="iTunes cache"; add_to_delete
-NAME="$LOCAL/$APPLESN"; DESC="Apple SN logs"; add_to_wipe
+NAME="$LOCAL/$APPLE/iTunes/SubscriptionPlayCache"; DESC="iTunes cache"; add_to_delete
+NAME="$LOCAL/$APPLE/SyncNotifier/SyncNotifier/Logs"; DESC="Apple SN logs"; add_to_wipe
 NAME="$LOCAL/Adobe/Air/Logs"; DESC="Adobe AIR"; add_to_wipe
 NAME="$LOCAL/Adobe/AIR/Logs"; DESC="Adobe AIR"; add_to_wipe
 NAME="$LOCAL/Adobe/Acrobat/*/Updater"; DESC="Adobe Acrobat"; add_to_wipe
@@ -501,6 +500,7 @@ NAME="$LOCAL/Corel/Thumbs"; DESC="Corel Thumbs"; add_to_wipe
 DESC="Google Chrome"
 for CHROME in "Google/Chrome/User Data" "speed browser/User Data" "Sony Corporation/Some/Chromium/User Data"
 	do CHROME="$LOCAL/$CHROME"
+	NAME="$CHROME/*/*/CacheStorage"; add_to_wipe
 	NAME="$CHROME/*/*Cache*/"; add_to_wipe
 	NAME="$CHROME/*/*Cookies"; add_to_delete
 	NAME="$CHROME/*/Extensions/Temp"; add_to_wipe
@@ -817,12 +817,12 @@ NAME="$ROAM/A* Software/Avast*/chest"; DESC="Avast Antivirus"; add_to_wipe
 NAME="$ROAM/A* Software/Avast*/log"; DESC="Avast Antivirus"; add_to_wipe
 NAME="$ROAM/A* Software/Avast*/report"; DESC="Avast Antivirus"; add_to_wipe
 NAME="$ROAM/A* Software/Persistent Data/Avast/Logs"; DESC="Avast Antivirus"; add_to_wipe
-NAME="$ROAM/$APPLEIC"; DESC="Apple installer cache"; add_to_wipe
-NAME="$ROAM/$APPLEIC2"; DESC="Apple installer cache"; add_to_wipe
-NAME="$ROAM/$APPLEIPSW"; DESC="Apple software updates"; add_to_wipe
-NAME="$ROAM/$APPLEIPLG"; DESC="Apple install logs"; add_to_wipe
-NAME="$ROAM/$APPLELOGS"; DESC="Apple app logs"; add_to_wipe
-NAME="$ROAM/$APPLEMSB"; DESC="Apple MobileSync backup"; add_to_wipe
+NAME="$ROAM/Apple/Installer Cache"; DESC="Apple installer cache"; add_to_wipe
+NAME="$ROAM/$APPLE/Installer Cache"; DESC="Apple installer cache"; add_to_wipe
+NAME="$ROAM/$APPLE/iTunes/*Software Updates"; DESC="Apple software updates"; add_to_wipe
+NAME="$ROAM/$APPLE/iTunes/*Updater Logs"; DESC="Apple install logs"; add_to_wipe
+NAME="$ROAM/$APPLE/Logs"; DESC="Apple app logs"; add_to_wipe
+NAME="$ROAM/$APPLE/MobileSync/Backup"; DESC="Apple MobileSync backup"; add_to_wipe
 NAME="$ROAM/Sammsoft/ARO/Version 2011"; DESC="Sammsoft ARO"; add_to_wipe
 
 NAME="$ROAM/AskPartnerNetwork"; DESC="Ask Partner Network"; add_to_wipe
@@ -1062,6 +1062,7 @@ NAME="$ROAM/ShoppingReport*"; DESC="ShoppingReport"; add_to_wipe
 NAME="$ROAM/Sierra Wireless/Logs"; DESC="Sierra Wireless"; add_to_wipe
 NAME="$ROAM/Skype/DbTemp"; DESC="Skype"; add_to_wipe
 NAME="$ROAM/Skype/temp-*"; DESC="Skype"; add_to_delete
+NAME="$ROAM/Skype/*/media_messaging/emo_cache_v2"; DESC="Skype"; add_to_wipe
 NAME="$ROAM/Skype/Plugins/Local Cache"; DESC="Skype"; add_to_wipe
 NAME="$ROAM/skype.dat"; DESC="VIRUS: skype.dat"; add_to_delete
 NAME="$ROAM/SPORE/GraphicsCache*.package"; DESC="SPORE caches"; add_to_delete
@@ -1232,38 +1233,39 @@ install.ini 'install.res.*.dll' vcredist.bmp \;
 done
 
 # Load file list in a background process
-test $MSG -gt 1 && echo -e "\nLoading file list. Please wait."
-find . 2>/dev/null >$TMPFILE
+if [ "$NOFILESCAN" = "1" ]
+	then echo -e "\n${CYEL}Skipping file scans (${CWHT}-N${CYEL} specified)$COFF"
+	else
+	test $MSG -gt 1 && echo -e "\nLoading file list. Please wait."
+	find . 2>/dev/null >$TMPFILE
 
-# Scan files
-NAME='*.crdownload'; DESC="Partial downloads"; SP='\.'; add_to_scan
-NAME='*.partial'; DESC="Partial downloads"; SP='\.'; add_to_scan
-NAME='Thumbs\.db'; DESC="Thumbnail DBs"; SP='\.'; add_to_scan
-NAME='ehthumbs_vista.db'; DESC="Thumbnail DBs"; SP='\.'; add_to_scan
-NAME='\.thumbnails'; DESC="Thumbnails"; SP="\./$P"; add_to_scan
-NAME='\~\$[^/]*\.[^/]*'; DESC="Office temp files"; SP='\.'; add_to_scan
-NAME='\~WRL[^/]*\.tmp'; DESC="Office temp files"; SP='\.'; add_to_scan
-NAME='\~uTorrentPartFile_.*.dat'; DESC="uTorrent part file"; SP='\.'; add_to_scan
-
-# Windows folder viruses
-for X in \
-sdra64.exe winlogon86.exe \
-'TDSS?????*' 'UAC??????*' 'VOID?????*' \
-'_VOID?????*' 'PRAGMA???*' 'pragma???*' \
-exe.exe svchast.exe nail.exe \
-winlgoon.exe iesafemode.exe
-	do NAME="${X}"; DESC="KNOWN VIRUS"; SP='\.'; add_to_scan
-done
-
-# AppData viruses
-for X in \
-av.exe ave.exe hotfix.exe virus.exe
-	do NAME="${X}"; DESC="KNOWN VIRUS"; SP="\./$P"; add_to_scan
-done
-
-rmdir --ignore-fail-on-non-empty "$P/$ROAM/$STARTMENU/*/" "$PD/$STARTMENU/*/" 2>/dev/null
-
+	# Scan files
+	NAME='*.crdownload'; DESC="Partial downloads"; SP='\.'; add_to_scan
+	NAME='*.partial'; DESC="Partial downloads"; SP='\.'; add_to_scan
+	NAME='Thumbs\.db'; DESC="Thumbnail DBs"; SP='\.'; add_to_scan
+	NAME='ehthumbs_vista.db'; DESC="Thumbnail DBs"; SP='\.'; add_to_scan
+	NAME='\.thumbnails'; DESC="Thumbnails"; SP="\./$P"; add_to_scan
+	NAME='\~\$[^/]*\.[^/]*'; DESC="Office temp files"; SP='\.'; add_to_scan
+	NAME='\~WRL[^/]*\.tmp'; DESC="Office temp files"; SP='\.'; add_to_scan
+	NAME='\~uTorrentPartFile_.*.dat'; DESC="uTorrent part file"; SP='\.'; add_to_scan
+	# Windows folder viruses
+	for X in \
+		sdra64.exe winlogon86.exe \
+		'TDSS?????*' 'UAC??????*' 'VOID?????*' \
+		'_VOID?????*' 'PRAGMA???*' 'pragma???*' \
+		exe.exe svchast.exe nail.exe \
+		winlgoon.exe iesafemode.exe
+		do NAME="${X}"; DESC="KNOWN VIRUS"; SP='\.'; add_to_scan
+	done
+	# AppData viruses
+	for X in \
+	av.exe ave.exe hotfix.exe virus.exe
+		do NAME="${X}"; DESC="KNOWN VIRUS"; SP="\./$P"; add_to_scan
+	done
+	rmdir --ignore-fail-on-non-empty "$P/$ROAM/$STARTMENU/*/" "$PD/$STARTMENU/*/" 2>/dev/null
 fi
+
+fi  # Close OS type if-then
 ########### End Windows definitions #############
 
 ########### Begin Mac OS X definitions #############
@@ -1307,10 +1309,8 @@ NAME="$LIBRARY/Containers/*/Data/Library/Logs"; DESC="Application Logs"; add_to_
 NAME="$LIBRARY/Logs/*/"; DESC="Application Logs"; add_to_wipe
 NAME="$LIBRARY/Logs/*.*"; DESC="Application Logs"; add_to_delete
 
-fi
-
+fi  # Close OS type if-then
 ############# End Mac OS X definitions ##############
-
 
 rm -f $TMPFILE
 
@@ -1328,7 +1328,7 @@ fi
 for X in Windows.old*/ "Restored from Carbonite" Backup* "My Backup*"
 	do if [ -d "$X" ]
 		then
-		test $MSG -gt 1 && echo "Running in subfolder $X"
+		test $MSG -gt 1 && echo -e "\n${CPUR}Running in subfolder $CWHT$X$COFF\n"
 		CWD="$(pwd)"
 		cd "$X"
 		if echo "$0" | grep -q '^/'
