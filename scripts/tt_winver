@@ -62,7 +62,7 @@ if mount.winregfs -v >/dev/null 2>/dev/null
 		else EDITION="$(cat "$TMP/$EID_PATH")"
 	fi
 	unset RELEASE
-	test -e "$RID_PATH" && RELEASE=" $(cat "$TMP/$RID_PATH" 2>/dev/null)"
+	test -e "$TMP/$RID_PATH" && RELEASE=" $(cat "$TMP/$RID_PATH" 2>/dev/null)"
 	test "$RELEASE" = " " && unset RELEASE
 	fusermount -u $TMP
 	rm -rf $TMP
