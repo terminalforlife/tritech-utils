@@ -254,7 +254,7 @@ tt__hdd_smart_status () {
 			test $RSC -gt 0 && test $RSC -lt 100 && S="$S ${CYEL}RSC=$RSC$COFF"
 			test $RSC -ge 100 && test $RSC -lt 100000 && S="$S ${CRED}RSC=$RSC$COFF"
 		fi
-		test -n "$UNC" && test $UNC -gt 0 && test $UNC -ne 65536 && test $UNC -lt 500000 && S="$S  ${CRED}UNC=$UNC$COFF"
+		test -n "$UNC" && test $UNC -gt 0 && test $UNC -ne 65536 && test $UNC -ne 393216 && test $UNC -lt 500000 && S="$S  ${CRED}UNC=$UNC$COFF"
 		if [ -n "$REC" ]
 			then
 			test $REC -gt 0 && test $REC -lt 10 && S="$S ${CYEL}REC=$REC$COFF"
