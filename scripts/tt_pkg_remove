@@ -25,7 +25,7 @@ if [ -e "$P" ]
 	for X in $(cat $P | grep -v '/$'); do rm -f "./$X"; done
 	for X in $(cat $P | grep '/$' | sort -r); do rmdir -p --ignore-fail-on-non-empty "./$X" 2>/dev/null; done
 	rm -f $P
-	else echo "Bad package spec: '$1'"
+	else echo "Bad package spec: '$1' => '$P'"
 	exit 1
 fi
 
