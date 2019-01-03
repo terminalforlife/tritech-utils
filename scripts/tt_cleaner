@@ -1061,7 +1061,7 @@ NAME="$ROAM/Real/RealPlayer/WatchFolders"; DESC="RealPlayer"; add_to_wipe
 NAME="$ROAM/Registry Mechanic"; DESC="Registry Mechanic"; add_to_wipe
 NAME="$ROAM/Roxio Log Files"; DESC="Roxio Log Files"; add_to_wipe
 NAME="$ROAM/$SAFARI/PubSub"; DESC="Safari PubSub data"; add_to_wipe
-NAME="$ROAM/SUPERAntiSpyware.com/SUPERAntiSpyware/AppLogs"; DESC="SUPERAntiSpyware logs"; add_to_wipe
+NAME="$ROAM/SUPERAntiSpyware.com/SUPERAntiSpyware/*Logs"; DESC="SUPERAntiSpyware logs"; add_to_wipe
 NAME="$ROAM/ScanQuery"; DESC="ScanQuery"; add_to_wipe
 NAME="$ROAM/SearchDonkey"; DESC="SearchDonkey"; add_to_wipe
 NAME="$ROAM/SecondLife/*/browser/_profile/cache"; DESC="SecondLife"; add_to_wipe
