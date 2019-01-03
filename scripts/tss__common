@@ -220,79 +220,90 @@ tt__hdd_smart_status () {
 	SMART_SED='s/ ([^)]*)$//;s/([^)]*)$//;s/.* //g;s/[^0-9].*//'
 	if smartctl -V >/dev/null 2>/dev/null
 		then
-		unset S LCC RSC UNC REC CPS OUNC UCEC PFC EFC CEC
+		unset S LCC RSC UNC REC CPS OUNC UCEC PFC EFC CEC SSATP SSAT
 		SELE=1
 		# Check for existence of SMART error log entries
 		SERROR="$(smartctl -l error /dev/$1)"
+		echo "$SERROR" | grep -q 'Unknown USB bridge' && \
+			SSATP=" -d sat" && SSAT="${CPUR}SAT$COFF" && \
+			SERROR="$(smartctl -d sat -l error /dev/$1)"
 		echo "$SERROR" | grep -q '[Nn]o [Ee]rrors [Ll]ogged' && SELE=0
 		echo "$SERROR" | grep -iq 'SMART Disabled' && SELE=2
+		echo "$SERROR" | grep -iq 'mandatory SMART command failed' && SELE=3 && unset SSAT
 		unset SERROR
 		test "$SELE" = "1" && S="${CYEL}SELE$COFF"
-		test "$SELE" = "2" && S="${CYEL}Disabled, turn on with ${CWHT}smartctl -s on /dev/$1$COFF"
-		# Fetch SMART stats into variables
-		SMART_TEMP=$(mktemp)
-		smartctl -A /dev/$1 > $SMART_TEMP
-		LCC=$(grep -m 1 Load_Cycle_Count $SMART_TEMP | sed "$SMART_SED")
-		RSC=$(grep -m 1 Reallocated_Sector_Ct $SMART_TEMP | sed "$SMART_SED")
-		UNC=$(grep -m 1 Reported_Uncorrect $SMART_TEMP | sed "$SMART_SED")
-		REC=$(grep -m 1 Reallocated_Event_Count $SMART_TEMP | sed "$SMART_SED")
-		CPS=$(grep -m 1 Current_Pending_Sector $SMART_TEMP | sed "$SMART_SED")
-		OUNC=$(grep -m 1 Offline_Uncorrectable $SMART_TEMP | sed "$SMART_SED")
-		UCEC=$(grep -m 1 UDMA_CRC_Error_Count $SMART_TEMP | sed "$SMART_SED")
-		PFC=$(grep -m 1 ^171 $SMART_TEMP | sed "$SMART_SED")
-		EFC=$(grep -m 1 ^172 $SMART_TEMP | sed "$SMART_SED")
-		CEC=$(grep -m 1 '[^_]CRC_Error_Count' $SMART_TEMP | sed "$SMART_SED")
-		# Add color indicators to stats
-		if [ -n "$LCC" ]
+		test "$SELE" = "2" && S="${CYEL}Disabled, turn on with ${CWHT}smartctl$SSATP -s on /dev/$1$COFF"
+		test "$SELE" = "3" && S="${CYEL}Not supported by the drive$COFF"
+
+		# Don't do extra work if there's a failure/problem with smartctl run
+		if [ $SELE -lt 2 ]
 			then
-			test $LCC -lt 200000 && S="$S ${CGRN}LCC=$LCC$COFF"
-			test $LCC -ge 200000 && test $LCC -lt 300000 && S="$S ${CYEL}LCC=$LCC$COFF"
-			test $LCC -ge 300000 && test $LCC -lt 1000000 && S="$S ${CRED}LCC=$LCC$COFF"
-		fi
-		if [ -n "$RSC" ]
-			then
-			test $RSC -gt 0 && test $RSC -lt 100 && S="$S ${CYEL}RSC=$RSC$COFF"
-			test $RSC -ge 100 && test $RSC -lt 100000 && S="$S ${CRED}RSC=$RSC$COFF"
-		fi
-		test -n "$UNC" && test $UNC -gt 0 && test $UNC -ne 65536 && test $UNC -ne 393216 && test $UNC -lt 500000 && S="$S  ${CRED}UNC=$UNC$COFF"
-		if [ -n "$REC" ]
-			then
-			test $REC -gt 0 && test $REC -lt 10 && S="$S ${CYEL}REC=$REC$COFF"
-			test $REC -ge 10 && test $REC -lt 10000 && S="$S ${CRED}REC=$REC$COFF"
-		fi
-		if [ -n "$CPS" ]
-			then
-			test $CPS -gt 0 && test $CPS -lt 10 && S="$S ${CYEL}CPS=$CPS$COFF"
-			test $CPS -ge 10 && test $CPS -lt 10000 && S="$S ${CRED}CPS=$CPS$COFF"
-		fi
-		if [ -n "$OUNC" ]
-			then
-			test $OUNC -gt 0 && test $OUNC -lt 10 && S="$S ${CYEL}OUNC=$OUNC$COFF"
-			test $OUNC -ge 10 && test $OUNC -lt 10000 && S="$S ${CRED}OUNC=$OUNC$COFF"
-		fi
-		if [ -n "$UCEC" ]
-			then
-			test $UCEC -gt 0 && test $UCEC -lt 2000 && S="$S ${CYEL}UCEC=$UCEC$COFF"
-			test $UCEC -ge 2000 && test $UCEC -lt 10000 && S="$S ${CRED}UCEC=$UCEC$COFF"
-		fi
-		if [ -n "$PFC" ]
-			then
-			test $PFC -gt 0 && test $PFC -lt 10 && S="$S ${CYEL}PFC=$PFC$COFF"
-			test $PFC -ge 10 && test $PFC -lt 100000 && S="$S ${CRED}PFC=$PFC$COFF"
-		fi
-		if [ -n "$EFC" ]
-			then
-			test $EFC -gt 0 && test $EFC -lt 10 && S="$S ${CYEL}EFC=$EFC$COFF"
-			test $EFC -ge 10 && test $EFC -lt 100000 && S="$S ${CRED}EFC=$EFC$COFF"
-		fi
-		if [ -n "$CEC" ]
-			then
-			test $CEC -gt 0 && test $CEC -lt 32 && S="$S ${CYEL}CEC=$CEC$COFF"
-			test $CEC -ge 32 && test $CEC -lt 100000 && S="$S ${CRED}CEC=$CEC$COFF"
+			# Fetch SMART stats into variables
+			SMART_TEMP=$(mktemp)
+			smartctl $SSATP -A /dev/$1 > $SMART_TEMP
+			LCC=$(grep -m 1 Load_Cycle_Count $SMART_TEMP | sed "$SMART_SED")
+			RSC=$(grep -m 1 Reallocated_Sector_Ct $SMART_TEMP | sed "$SMART_SED")
+			UNC=$(grep -m 1 Reported_Uncorrect $SMART_TEMP | sed "$SMART_SED")
+			REC=$(grep -m 1 Reallocated_Event_Count $SMART_TEMP | sed "$SMART_SED")
+			CPS=$(grep -m 1 Current_Pending_Sector $SMART_TEMP | sed "$SMART_SED")
+			OUNC=$(grep -m 1 Offline_Uncorrectable $SMART_TEMP | sed "$SMART_SED")
+			UCEC=$(grep -m 1 UDMA_CRC_Error_Count $SMART_TEMP | sed "$SMART_SED")
+			PFC=$(grep -m 1 ^171 $SMART_TEMP | sed "$SMART_SED")
+			EFC=$(grep -m 1 ^172 $SMART_TEMP | sed "$SMART_SED")
+			CEC=$(grep -m 1 '[^_]CRC_Error_Count' $SMART_TEMP | sed "$SMART_SED")
+			S="$S $SSAT" # Add USB SAT bridge indicator if applicable
+			rm -f "$SMART_TEMP"
+			# Add color indicators to stats
+			if [ -n "$LCC" ]
+				then
+				test $LCC -lt 200000 && S="$S ${CGRN}LCC=$LCC$COFF"
+				test $LCC -ge 200000 && test $LCC -lt 300000 && S="$S ${CYEL}LCC=$LCC$COFF"
+				test $LCC -ge 300000 && test $LCC -lt 1000000 && S="$S ${CRED}LCC=$LCC$COFF"
+			fi
+			if [ -n "$RSC" ]
+				then
+				test $RSC -gt 0 && test $RSC -lt 100 && S="$S ${CYEL}RSC=$RSC$COFF"
+				test $RSC -ge 100 && test $RSC -lt 100000 && S="$S ${CRED}RSC=$RSC$COFF"
+			fi
+			test -n "$UNC" && test $UNC -gt 0 && test $UNC -ne 65536 && test $UNC -ne 393216 && test $UNC -lt 500000 && S="$S  ${CRED}UNC=$UNC$COFF"
+			if [ -n "$REC" ]
+				then
+				test $REC -gt 0 && test $REC -lt 10 && S="$S ${CYEL}REC=$REC$COFF"
+				test $REC -ge 10 && test $REC -lt 10000 && S="$S ${CRED}REC=$REC$COFF"
+			fi
+			if [ -n "$CPS" ]
+				then
+				test $CPS -gt 0 && test $CPS -lt 10 && S="$S ${CYEL}CPS=$CPS$COFF"
+				test $CPS -ge 10 && test $CPS -lt 10000 && S="$S ${CRED}CPS=$CPS$COFF"
+			fi
+			if [ -n "$OUNC" ]
+				then
+				test $OUNC -gt 0 && test $OUNC -lt 10 && S="$S ${CYEL}OUNC=$OUNC$COFF"
+				test $OUNC -ge 10 && test $OUNC -lt 10000 && S="$S ${CRED}OUNC=$OUNC$COFF"
+			fi
+			if [ -n "$UCEC" ]
+				then
+				test $UCEC -gt 0 && test $UCEC -lt 2000 && S="$S ${CYEL}UCEC=$UCEC$COFF"
+				test $UCEC -ge 2000 && test $UCEC -lt 10000 && S="$S ${CRED}UCEC=$UCEC$COFF"
+			fi
+			if [ -n "$PFC" ]
+				then
+				test $PFC -gt 0 && test $PFC -lt 10 && S="$S ${CYEL}PFC=$PFC$COFF"
+				test $PFC -ge 10 && test $PFC -lt 100000 && S="$S ${CRED}PFC=$PFC$COFF"
+			fi
+			if [ -n "$EFC" ]
+				then
+				test $EFC -gt 0 && test $EFC -lt 10 && S="$S ${CYEL}EFC=$EFC$COFF"
+				test $EFC -ge 10 && test $EFC -lt 100000 && S="$S ${CRED}EFC=$EFC$COFF"
+			fi
+			if [ -n "$CEC" ]
+				then
+				test $CEC -gt 0 && test $CEC -lt 32 && S="$S ${CYEL}CEC=$CEC$COFF"
+				test $CEC -ge 32 && test $CEC -lt 100000 && S="$S ${CRED}CEC=$CEC$COFF"
+			fi
 		fi
 		# Display final stats
 		test "$2" != "-q" && test -n "$S" && echo "$CWHT$1$COFF:     $CWHT+-- ${CCYA}SMART:$S"
-		rm -f $SMART_TEMP
 	fi
 }
 
