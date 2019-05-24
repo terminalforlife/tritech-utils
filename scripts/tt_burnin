@@ -1,9 +1,7 @@
-#!/bin/ash
+#!/bin/sh
 
 VER=0.4.1
 VERDATE="2012-03-08"
-
-# 2012-03-08: modified to work with /bin/ash instead of bash
 
 echo "Tritech CPU burn-in tool, version $VER"
 echo "Usage: $0 [minutes] (default is 5 minutes)"

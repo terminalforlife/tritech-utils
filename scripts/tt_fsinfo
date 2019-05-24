@@ -1,4 +1,4 @@
-#!/bin/ash
+#!/bin/sh
 
 # Displays info on storage devices in the system
 

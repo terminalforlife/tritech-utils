@@ -1,4 +1,4 @@
-#!/bin/ash
+#!/bin/sh
 
 # Prototype Windows file hash collector
 # This thing is a mess, but it's at least a start.

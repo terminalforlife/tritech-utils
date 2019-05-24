@@ -1,4 +1,4 @@
-#!/bin/ash
+#!/bin/sh
 
 VER="0.2"
 VERDATE="2012-09-22"

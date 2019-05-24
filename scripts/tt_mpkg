@@ -1,4 +1,4 @@
-#!/bin/ash
+#!/bin/sh
 
 # TSS squashfs package utility
 # Quick and dirty tool to create squashfs files from packages

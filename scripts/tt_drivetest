@@ -1,4 +1,4 @@
-#!/bin/ash
+#!/bin/sh
 
 # Presents a list of disks and attempts to test the
 # disk that the user selects.

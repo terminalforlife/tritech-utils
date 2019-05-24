@@ -1,4 +1,4 @@
-#!/bin/ash
+#!/bin/sh
 
 
 expr $(cat /proc/meminfo | head -n 4 | grep -v MemTotal | awk '{ print $2 }' | tr \\\n "+" | sed 's/+/ + /g') 0

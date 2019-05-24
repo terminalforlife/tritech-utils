@@ -1,4 +1,4 @@
-#!/bin/ash
+#!/bin/sh
 
 # Outputs the file version for Windows PE executables
 
