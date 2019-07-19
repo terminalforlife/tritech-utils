@@ -702,6 +702,7 @@ NAME="$LOCAL/PokerStars*/ImgCache"; DESC="PokerStars cache"; add_to_wipe
 NAME="$LOCAL/PriceGong"; DESC="PriceGong"; add_to_wipe
 NAME="$LOCAL/Productivity_*"; DESC="Productivity Toolbar"; add_to_wipe
 NAME="$LOCAL/Produtools_Manuals_*"; DESC="Produtools Toolbar"; add_to_wipe
+NAME="$LOCAL/RawTherapee/cache"; DESC="RawTherapee cache"; add_to_wipe
 NAME="$LOCAL/RebateInformer"; DESC="RebateInformer"; add_to_wipe
 NAME="$LOCAL/RecipeHub_*"; DESC="RecipeHub"; add_to_wipe
 NAME="$LOCAL/Retrogamer_*"; DESC="Retrogamer"; add_to_wipe
