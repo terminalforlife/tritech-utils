@@ -1,7 +1,7 @@
 #!/bin/bash
 
-VER=0.7.8
-VERDATE="2019-06-14"
+VER=0.7.9
+VERDATE="2019-08-22"
 
 . tss__common
 . tss_client
@@ -94,7 +94,9 @@ select_backup_data () {
 			"\$Windows.\~WS" AMD BOOTSECT.BAK ESD OneDriveTemp \
 			RecoveryLog UserGuidePDF hiberfil.sys swapfile.sys \
 			"\$WINRE_BACKUP_PARTITION_MARKER" "\$Windows.~BT" \
-			"\$Windows.~WS" "\$SysReset" msdia80.dll bootTel.dat
+			"\$Windows.~WS" "\$SysReset" msdia80.dll bootTel.dat \
+			mfg rescue.info session.log setup.log swshare \
+			"\$WINDOWS.~BT"
 
 			do test "$(basename "$X")" = "$BL" && ADD=0 && break
 		done
