@@ -503,11 +503,16 @@ NAME="$LOCAL/Corel/Thumbs"; DESC="Corel Thumbs"; add_to_wipe
 
 # Google Chrome definitions, now with less redundancy
 DESC="Google Chrome"
-for CHROME in "Google/Chrome/User Data" "speed browser/User Data" "Sony Corporation/Some/Chromium/User Data" \
-	"HP JumpStart Apps/User Data" "PrivateInternetAccess/User Data" "Epic Privacy Browser/User Data" \
-	"BraveSoftware/Brave-Browser/User Data"
+for CHROME in "Google/Chrome/User Data" "speed browser/User Data" \
+	"Sony Corporation/Some/Chromium/User Data" \
+	"HP JumpStart Apps/User Data" "PrivateInternetAccess/User Data" \
+	"Epic Privacy Browser/User Data" \
+	"BraveSoftware/Brave-Browser/User Data" \
+	"AVAST Software/Browser/User Data" \
+	"Adobe/AcroCef/DC/Acrobat" "Adobe/AcroCef/DC"
 	do CHROME="$LOCAL/$CHROME"
 	NAME="$CHROME/*/*/CacheStorage"; add_to_wipe
+	NAME="$CHROME/*/*cache*/"; add_to_wipe
 	NAME="$CHROME/*/*Cache*/"; add_to_wipe
 	NAME="$CHROME/*/*Cookies"; add_to_delete
 	NAME="$CHROME/*/Extensions/Temp"; add_to_wipe
