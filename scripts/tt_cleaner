@@ -1,7 +1,7 @@
 #!/bin/bash
 
-VER="5.9"
-VERDATE="2018-11-28"
+VER="5.9.1"
+VERDATE="2019-10-30"
 
 # Tritech Service System cleaning tool for Linux
 # Copyright (C) by Jody Bruchon <jody@jodybruchon.com>
@@ -512,7 +512,6 @@ for CHROME in "Google/Chrome/User Data" "speed browser/User Data" \
 	"Adobe/AcroCef/DC/Acrobat" "Adobe/AcroCef/DC"
 	do CHROME="$LOCAL/$CHROME"
 	NAME="$CHROME/*/*/CacheStorage"; add_to_wipe
-	NAME="$CHROME/*/*cache*/"; add_to_wipe
 	NAME="$CHROME/*/*Cache*/"; add_to_wipe
 	NAME="$CHROME/*/*Cookies"; add_to_delete
 	NAME="$CHROME/*/Extensions/Temp"; add_to_wipe
@@ -970,7 +969,7 @@ for MOZPROF in "Mozilla" "Mozilla/Firefox" "Thunderbird" \
 	NAME="$MOZPROF/minidumps"; add_to_wipe
 	NAME="$MOZPROF/ConduitEngine"; add_to_delete
 	NAME="$MOZPROF/conduit"; add_to_delete
-	NAME="$MOZPROF/cookies.sqlite"; add_to_delete
+#	NAME="$MOZPROF/cookies.sqlite"; add_to_delete
 	NAME="$MOZPROF/downloads.sqlite"; add_to_delete
 	NAME="$MOZPROF/extensions/*/*/conduit*"; add_to_delete
 	NAME="$MOZPROF/extensions/*/*/Conduit*"; add_to_delete
@@ -981,6 +980,11 @@ for MOZPROF in "Mozilla" "Mozilla/Firefox" "Thunderbird" \
 	NAME="$MOZPROF/extensions/plugin@yontoo.com"; add_to_delete
 	NAME="$MOZPROF/extensions/toolbar@ask.com"; add_to_delete
 	NAME="$MOZPROF/Yahoo! Inc/ytoolbar"; add_to_delete
+	NAME="$MOZPROF/favicons.sqlite"; add_to_delete
+	NAME="$MOZPROF/datareporting/archived"; add_to_wipe
+	NAME="$MOZPROF/saved-telemetry-pings"; add_to_wipe
+	NAME="$MOZPROF/minidumps"; add_to_wipe
+	NAME="$MOZPROF/crashes"; add_to_wipe
 	NAME="$MOZPROF/X*.mfl"; add_to_delete
 done
 NAME="$ROAM/Mozilla/Firefox/Crash Reports"; DESC="Mozilla applications"; add_to_wipe
