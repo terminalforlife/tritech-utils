@@ -249,7 +249,7 @@ if [ "$RO" != "1" ]
 	X=0
 	read -t 3 -s -n 1 && echo "${CPUR}Not running tt_cleaner due to user keypress.$COFF" && X=1
 	test $X -eq 0 && echo "Please wait while the cleaner is run." && \
-		tt_cleaner -Q | tee -a $LOGFILE
+		tt_cleaner -Q -N | tee -a $LOGFILE
 	unset X
 fi
 
