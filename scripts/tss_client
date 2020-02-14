@@ -217,11 +217,11 @@ tss_proc_response () {
 
 		FAIL) echo "${CRED}tss_proc_response:$COFF Got ${CRED}FAIL$COFF for command '$CPUR$COMMAND$COFF'" >&2; return 1 ;;
 
-		EMPTY_TECHNOTES) TECHNOTES=""; ;;
+		EMPTY_TECHNOTES) export TECHNOTES=""; ;;
 
-		EMPTY_CUSTNOTES) CUSTNOTES=""; ;;
+		EMPTY_CUSTNOTES) export CUSTNOTES=""; ;;
 
-		EMPTY_PROBDESC) echo "${CRED}tss_proc_response:$COFF Empty problem description for WOID $CPUR$WOID$COFF" >&2; return 1 ;;
+		EMPTY_PROBDESC) export PROBDESC=""; echo "${CRED}tss_proc_response:$COFF Empty problem description for WOID $CPUR$WOID$COFF" >&2; return 1 ;;
 
 		EMPTY_CUSTINFO) echo "${CRED}tss_proc_response:$COFF Empty customer information for PCID $CPUR$PCID$COFF" >&2; return 1 ;;
 
