@@ -8,12 +8,22 @@ VERDATE="2017-03-09"
 
 # Presents system information
 
+test "$1" = "-c" && export TSSC_AUTO=0
 . tss__common
 . tss_client
+test "$1" = "-c" && unset TSSC_AUTO
 
 # Verbosity level
 SIV=0
 test "$1" = "-v" && SIV=1
+
+# Clear (reset) TSS state
+if [ "$1" = "-c" ]
+	then echo "${CYEL}WARNING:$CWHT clearing TSS state$COFF"
+	clear_tss_state
+	detect_current_pc
+	read_sysinfo
+fi
 
 echo "${CCYA}CPU:     $CGRN$(cat /proc/cpuinfo | grep "model name" | sed s/.*:[^A-Za-z]*//g | head -n 1)$COFF ($CBLU$(cat /proc/cpuinfo | grep "model name" | wc -l) cores$COFF)"
 
