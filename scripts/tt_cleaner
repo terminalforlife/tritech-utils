@@ -509,6 +509,7 @@ for CHROME in "Google/Chrome/User Data" "speed browser/User Data" \
 	"Epic Privacy Browser/User Data" \
 	"BraveSoftware/Brave-Browser/User Data" \
 	"AVAST Software/Browser/User Data" \
+	"Chromium/User Data" \
 	"Adobe/AcroCef/DC/Acrobat" "Adobe/AcroCef/DC"
 	do CHROME="$LOCAL/$CHROME"
 	NAME="$CHROME/*/*/CacheStorage"; add_to_wipe
@@ -702,6 +703,7 @@ NAME="$LOCAL/OLYMPUS/OLYMPUS Data/cache"; DESC="Olympus cache"; add_to_wipe
 NAME="$LOCAL/PageRage"; DESC="PageRage data"; add_to_wipe
 NAME="$LOCAL/PCHealth"; DESC="PCHealth data"; add_to_wipe
 NAME="$LOCAL/Pokki/IconCache"; DESC="SweetLabs"; add_to_wipe
+NAME="$LOCAL/Move Networks/QMCache00"; DESC="Move Media Player cache"; add_to_wipe
 NAME="$LOCAL/SweetLabs App Platform/IconCache"; DESC="SweetLabs"; add_to_wipe
 NAME="$LOCAL/PokerStars*/ImgCache"; DESC="PokerStars cache"; add_to_wipe
 NAME="$LOCAL/PriceGong"; DESC="PriceGong"; add_to_wipe
@@ -1256,7 +1258,7 @@ done
 
 # Load file list in a background process
 if [ "$NOFILESCAN" = "1" ]
-	then echo -e "\n${CYEL}Skipping file scans (${CWHT}-N${CYEL} specified)$COFF"
+	then test $MSG -gt 1 && echo -e "\n${CYEL}Skipping file scans (${CWHT}-N${CYEL} specified)$COFF"
 	else
 	test $MSG -gt 1 && echo -e "\nLoading file list. Please wait."
 	find . 2>/dev/null >$TMPFILE
