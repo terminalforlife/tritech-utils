@@ -514,7 +514,7 @@ for CHROME in "Google/Chrome/User Data" "speed browser/User Data" \
 	do CHROME="$LOCAL/$CHROME"
 	NAME="$CHROME/*/*/CacheStorage"; add_to_wipe
 	NAME="$CHROME/*/*Cache*/"; add_to_wipe
-	NAME="$CHROME/*/*Cookies"; add_to_delete
+#	NAME="$CHROME/*/*Cookies"; add_to_delete
 	NAME="$CHROME/*/Extensions/Temp"; add_to_wipe
 	NAME="$CHROME/*/Favicons"; add_to_delete
 	NAME="$CHROME/*/File System"; add_to_delete
@@ -1310,7 +1310,7 @@ for MOZPROFX in Mozilla Mozilla/Firefox Firefox Thunderbird \
 	NAME="$MOZPROF/minidumps"; add_to_wipe
 	NAME="$MOZPROF/ConduitEngine"; add_to_delete
 	NAME="$MOZPROF/conduit"; add_to_delete
-	NAME="$MOZPROF/cookies.sqlite"; add_to_delete
+#	NAME="$MOZPROF/cookies.sqlite"; add_to_delete
 	NAME="$MOZPROF/downloads.sqlite"; add_to_delete
 	NAME="$MOZPROF/extensions/*/*/conduit*"; add_to_delete
 	NAME="$MOZPROF/extensions/*/*/Conduit*"; add_to_delete
