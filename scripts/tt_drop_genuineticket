@@ -1,18 +1,29 @@
 #!/bin/bash
 
+VER=0.2
+VERDATE="2020-03-31"
+echo "Tritech GenuineTicket Drop Tool $VER ($VERDATE)"
+echo "Variables:"
+echo "GTPATH - Path containing target GenuineTicket.xml file"
+echo "GT - Path to file to use as the GenuineTicket.xml file"
+
 shopt -s nullglob
 
 # Put a genuine ticket in place
 GTF="ProgramData/Microsoft/Windows/ClipSVC/GenuineTicket"
-GT=/mnt/cifs/GenuineTicket.xml
+test -z "$GTPATH" && GTPATH=/mnt/cifs
+test -z "$GT" && GT="$GTPATH/GenuineTicket.xml"
+echo "Using source: $GT"
 
 # Exit if image tools are running
 pgrep -f tt_imagedrop >/dev/null && echo "Aborting: imagedrop" && exit 1
 pgrep -f tt_takeimage >/dev/null && echo "Aborting: takeimage" && exit 1
 
 T=$(mktemp)
-
-tt__disk_prompt $T
+if [ -b /dev/"$1" ]
+	then echo "$1" > $T
+	else tt__disk_prompt $T
+fi
 
 for X in /mnt/$(cat $T)*[0-9]*
 	do M=0
@@ -24,7 +35,7 @@ for X in /mnt/$(cat $T)*[0-9]*
 		then mount $X 2>/dev/null || tt_ntfs_mount_fix $X 2>/dev/null
 		mountpoint -q $X && M=1
 	fi
-	test -d "$X/$GTF" && cp "$GT" "$X/$GTF" && echo -e "GenuineTicket installed:\n$X/$GTF"
+	test -d "$X/$GTF" && cp "$GT" "$X/$GTF/GenuineTicket.xml" && echo -e "GenuineTicket installed:\n$X/$GTF"
 	test $M -eq 1 && umount $X
 done
 
