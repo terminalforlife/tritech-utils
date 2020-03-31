@@ -1216,6 +1216,7 @@ NAME="ADSClient.txt"; DESC="Aluria client files"; add_to_delete
 NAME="ADSServer.txt"; DESC="Aluria client files"; add_to_delete
 NAME="ADSService.txt"; DESC="Aluria client files"; add_to_delete
 NAME="AluriaCacheFile.dat"; DESC="Aluria client files"; add_to_delete
+NAME="AdwCleaner"; DESC="AdwCleaner"; add_to_wipe
 NAME="AI_RecycleBin"; DESC="Advanced Installer files"; add_to_wipe
 NAME="\$AVG*"; DESC="AVG virus vault"; add_to_wipe
 NAME="found.[0-9][0-9][0-9]"; DESC="CHKDSK fragments"; add_to_wipe
