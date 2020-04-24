@@ -93,7 +93,7 @@ select_backup_data () {
 			MSDOS.SYS "\$SysReset" "\$WINDOWS.\~BT" Windows.old \
 			"\$Windows.\~WS" AMD BOOTSECT.BAK ESD OneDriveTemp \
 			RecoveryLog UserGuidePDF hiberfil.sys swapfile.sys \
-			"\$WINRE_BACKUP_PARTITION_MARKER" "\$Windows.~BT" \
+			"\$WINRE_BACKUP_PARTITION.MARKER" "\$Windows.~BT" \
 			"\$Windows.~WS" "\$SysReset" msdia80.dll bootTel.dat \
 			mfg rescue.info session.log setup.log swshare \
 			"\$WINDOWS.~BT"
