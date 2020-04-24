@@ -655,7 +655,7 @@ NAME="$LOCAL/$MS/Windows/Explorer/iconcache*.db"; DESC="Explorer thumbnails"; ad
 NAME="$LOCAL/$MS/Windows/Explorer/thumbcache*.db"; DESC="Explorer thumbnails"; add_to_delete
 NAME="$LOCAL/$MS/Windows/History"; DESC="Temporary Internet Files"; add_to_wipe
 NAME="$LOCAL/$MS/Windows/$TIF"; DESC="Temporary Internet Files"; add_to_wipe
-NAME="$LOCAL/$MS/Windows/WebCache"; DESC="Temporary Internet Files"; add_to_wipe
+NAME="$LOCAL/$MS/Windows/WebCache*"; DESC="Temporary Internet Files"; add_to_wipe
 NAME="$LOCAL/$MS/Windows/WER"; DESC="Windows Error Reporting"; add_to_wipe
 NAME="$LOCAL/$MS/Windows NT/NTBackup"; DESC="NTBackup data"; add_to_wipe
 NAME="$LOCAL/$MS/Windows Store/Cache Medium IL"; DESC="Windows Store"; add_to_wipe
