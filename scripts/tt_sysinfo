@@ -68,23 +68,28 @@ for X in /sys/block/sd* /sys/block/hd* /sys/block/mmcblk? /sys/block/nvme?n?
 done
 
 unset VGA
-if lspci --version >/dev/null 2>&1
+if test $SIV -gt 0 && lspci --version >/dev/null 2>&1
 	then VGA="$(lspci -mm | grep "VGA compatible" | cut -d\" -f6 | sed 's/^ *//' | head -n 1)"
-	test $SIV -gt 0 && echo "${CPUR}VGA:     $VGA$COFF"
+	echo "${CPUR}VGA:     $VGA$COFF"
 fi
 
-unset BIOS BIOS2
-if dmidecode -V >/dev/null 2>&1
+unset BIOS BIOS2 BIOS3
+if test $SIV -gt 0 && dmidecode -V >/dev/null 2>&1
 	then for X in "Manufacturer:" "Product Name:"
 		do BIOS="$BIOS $(dmidecode -t 1 2>/dev/null | grep -m 1 "$X" | cut -d: -f2)"
 	done
 	for X in "Vendor:" "Version:" "Release Date:"
 		do BIOS2="$BIOS2 $(dmidecode -t bios 2>/dev/null | grep -m 1 "$X" | cut -d: -f2)"
 	done
+	for X in "Serial Number:" "SKU Number:"
+		do BIOS3="$BIOS3 $(dmidecode -t 1 2>/dev/null | grep -m 1 "$X" | cut -d: -f2)"
+	done
 	BIOS="$(echo "$BIOS" | sed 's/^ *//')"
 	BIOS2="$(echo "$BIOS2" | sed 's/^ *//')"
-	test $SIV -gt 0 && test ! -z "$BIOS" && echo "${CPUR}ROM:     $BIOS$COFF"
-	test $SIV -gt 0 && test ! -z "$BIOS2" && echo "${CPUR}ROM:     $BIOS2$COFF"
+	BIOS3="$(echo "$BIOS3" | sed 's/^ *//')"
+	test ! -z "$BIOS" && echo "${CRED}ROM:     Product:$CWHT  $BIOS$COFF"
+	test ! -z "$BIOS2" && echo "${CRED}ROM:     BIOS ver:$CWHT $BIOS2$COFF"
+	test ! -z "$BIOS3" && echo "${CRED}ROM:     Serial #:$CWHT $BIOS3$COFF"
 fi
 
 unset NET
