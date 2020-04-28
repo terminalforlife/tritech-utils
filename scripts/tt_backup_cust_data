@@ -316,3 +316,5 @@ if [ "$U" = "1" ]
 	sleep 2
 	umount "$MTPT"
 fi
+
+eval $PASS_COMMAND &

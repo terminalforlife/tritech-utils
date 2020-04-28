@@ -26,7 +26,12 @@ clean_exit () {
 	cd /
 	test -z "$EXIST" && test ! -z "$MTPT" && umount $MTPT
 	test -z "$CLEAN" && echo -e "\n${CWHT}Interrupted, cleaning up.$COFF"
-	rm -f $TF $TF2 $DBF2 $DBF_ACPI $DBF_PCI $DBF_HDAUDIO $DBF_USB; exit $1
+	rm -f $TF $TF2 $DBF2 $DBF_ACPI $DBF_PCI $DBF_HDAUDIO $DBF_USB
+	if [ "$1" != "1" ]
+		then eval $PASS_COMMAND &
+		else eval $FAIL_COMMAND &
+	fi
+	exit $1
 }
 trap clean_exit INT ABRT TERM HUP
 

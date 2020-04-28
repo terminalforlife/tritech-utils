@@ -1383,4 +1383,5 @@ test "$TSS_CLIENT" = "1" && test "$TSS_CLIENT_DISABLE" != "1" && \
 	test "$X" = "x" && echo "Aborting cleaning report push. Use 'tss_push_all' to try again later." && break
 done
 
+eval $PASS_COMMAND &
 exit 0
