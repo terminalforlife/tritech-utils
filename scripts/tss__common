@@ -1,7 +1,7 @@
 #!/bin/sh
 
-TSS_COMMON_VER=1.0.3
-TSS_COMMON_VERDATE=2019-07-19
+TSS_COMMON_VER=1.0.4
+TSS_COMMON_VERDATE=2020-05-14
 
 # Prevent loading if we are already loaded
 if [ -z "$TSS_COMMON" ]; then
@@ -222,11 +222,12 @@ tt__hdd_smart_status () {
 		then
 		unset S LCC RSC UNC REC CPS OUNC UCEC PFC EFC CEC SSATP SSAT
 		SELE=1
+		SMART_TEMP=$(mktemp)
 		# Check for existence of SMART error log entries
-		SERROR="$(smartctl -l error /dev/$1)"
+		SERROR=$(smartctl -A -l error /dev/$1 | tee $SMART_TEMP)
 		echo "$SERROR" | grep -q 'Unknown USB bridge' && \
 			SSATP=" -d sat" && SSAT="${CPUR}SAT$COFF" && \
-			SERROR="$(smartctl -d sat -l error /dev/$1)"
+			smartctl -d sat -A -l error /dev/$1 > $SMART_TEMP
 		echo "$SERROR" | grep -q '[Nn]o [Ee]rrors [Ll]ogged' && SELE=0
 		echo "$SERROR" | grep -iq 'SMART Error Log not supported' && SELE=0
 		echo "$SERROR" | grep -iq 'SMART Disabled' && SELE=2
@@ -240,8 +241,6 @@ tt__hdd_smart_status () {
 		if [ $SELE -lt 2 ]
 			then
 			# Fetch SMART stats into variables
-			SMART_TEMP=$(mktemp)
-			smartctl $SSATP -A /dev/$1 > $SMART_TEMP
 			LCC=$(grep -m 1 Load_Cycle_Count $SMART_TEMP | sed "$SMART_SED")
 			RSC=$(grep -m 1 Reallocated_Sector_Ct $SMART_TEMP | sed "$SMART_SED")
 			UNC=$(grep -m 1 Reported_Uncorrect $SMART_TEMP | sed "$SMART_SED")
@@ -253,7 +252,6 @@ tt__hdd_smart_status () {
 			EFC=$(grep -m 1 ^172 $SMART_TEMP | sed "$SMART_SED")
 			CEC=$(grep -m 1 '[^_]CRC_Error_Count' $SMART_TEMP | sed "$SMART_SED")
 			test ! -z "$SSAT" && S="$S $SSAT" # Add USB SAT bridge indicator if applicable
-			rm -f "$SMART_TEMP"
 			# Add color indicators to stats
 			if [ -n "$LCC" ]
 				then
@@ -305,6 +303,7 @@ tt__hdd_smart_status () {
 		fi
 		# Display final stats
 		test "$2" != "-q" && test -n "$S" && echo "$CWHT$1$COFF:     $CWHT+-- ${CCYA}SMART:$S"
+		rm -f "$SMART_TEMP"
 	fi
 }
 
