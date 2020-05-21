@@ -1,7 +1,7 @@
 #!/bin/bash
 
-VER="5.9.1"
-VERDATE="2019-10-30"
+VER="5.9.2"
+VERDATE="2020-05-18"
 
 # Tritech Service System cleaning tool for Linux
 # Copyright (C) by Jody Bruchon <jody@jodybruchon.com>
@@ -1014,6 +1014,7 @@ NAME="$ROAM/$MS/Windows/Recent"; DESC="Recent documents"; add_to_wipe
 NAME="$ROAM/$MS/Windows/Cookies"; DESC="IE cookies"; add_to_wipe
 NAME="$ROAM/$MS/Windows/WER/ReportArchive"; DESC="Windows Error Reporting"; add_to_wipe
 NAME="$ROAM/$MS/Windows/WER/ReportQueue"; DESC="Windows Error Reporting"; add_to_wipe
+NAME="$ROAM/$MS/Windows Security Health/Logs"; DESC="Windows Defender"; add_to_wipe
 NAME="$ROAM/$MS/$WINDEF/Quarantine"; DESC="Windows Defender"; add_to_wipe
 NAME="$ROAM/$MS/$WINDEF/Scans"; DESC="Windows Defender"; add_to_wipe
 NAME="$ROAM/$MS/$WINDEF/Support"; DESC="Windows Defender"; add_to_wipe
@@ -1140,6 +1141,7 @@ NAME="$P/Incomplete"; DESC="LimeWire incompletes"; add_to_wipe
 NAME="$P/IECompatCache"; DESC="IE7 cache"; add_to_wipe
 NAME="$P/IETldCache"; DESC="IE7 cache"; add_to_wipe
 NAME="$P/PrivacIE"; DESC="IE7 cache"; add_to_wipe
+NAME="$P/USOShared/Logs"; DESC="USOShared Logs"; add_to_wipe
 NAME="$P/$XPLS/TEMP"; DESC="XP temporary files"; add_to_wipe
 NAME="$P/$XPLS/Temp"; DESC="XP temporary files"; add_to_wipe
 NAME="$P/$XPLS/temp"; DESC="XP temporary files"; add_to_wipe
