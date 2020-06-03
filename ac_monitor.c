@@ -81,7 +81,7 @@ int main(int argc, char **argv)
 		exit(EXIT_SUCCESS);
 	}
 
-	strncpy(path, power_path, PATH_MAX);
+	strcpy(path, power_path);
 
 	/* Find the AC adapter file */
 	if ((dir = opendir(power_path)) == NULL) {
@@ -96,19 +96,19 @@ int main(int argc, char **argv)
 		}
 		if (*(entry->d_name) != '.') {
 			/* Construct the path strings */
-			strncat(path, entry->d_name, PATH_MAX);
-			strncat(path, "/", PATH_MAX);
+			strcat(path, entry->d_name);
+			strcat(path, "/");
 			/* "type" is used to determine if this is an AC adapter or not */
-			strncpy(type, path, PATH_MAX);
-			strncat(type, "type", PATH_MAX);
+			strcpy(type, path);
+			strcat(type, "type");
 			if ((i = open(type, O_RDONLY)) != -1) {
 				if (read(i, buf, 15) == -1) {
 					fprintf(stderr, "Warning: error reading %s\n", type);
 					close(i);
 				} else {
-					if (strncmp(buf, "Mains", 15)) {
+					if (strcmp(buf, "Mains")) {
 						/* "path" is used to check the status of the AC adapter */
-						strncat(path, "online", PATH_MAX);
+						strcat(path, "online");
 						closedir(dir);
 						goto found_ac_file;  /* Found an AC adapter file */
 					}
