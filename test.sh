@@ -66,6 +66,18 @@ if [ "$(./tss_file_tool registry test/ntfs)" = "no" ]
 	else echo "broken" && ERR=1
 fi
 
+echo -n "tss_file_tool exfat yes:    "
+if [ "$(./tss_file_tool exfat test/exfat)" = "yes" ]
+	then echo "OK"
+	else echo "broken" && ERR=1
+fi
+
+echo -n "tss_file_tool exfat no:     "
+if [ "$(./tss_file_tool exfat test/ntfs)" = "no" ]
+	then echo "OK"
+	else echo "broken" && ERR=1
+fi
+
 echo -n "tss_file_tool ntfsgeom:     "
 cp test/ntfs test/ntfs_test
 ./tss_file_tool ntfsgeom test/ntfs_test 66 2>&1 >/dev/null

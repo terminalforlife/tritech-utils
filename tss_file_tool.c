@@ -13,8 +13,9 @@
 
 #include "version.h"
 
-#define CHECK_IF_NTFS(a) !strncmp((char *)(a + 3), "NTFS", 4)
+#define CHECK_IF_NTFS(a)    !strncmp((char *)(a + 3), "NTFS", 4)
 #define CHECK_IF_HFSPLUS(a) !strncmp((char *)(a + 1032), "HFSJ", 4)
+#define CHECK_IF_EXFAT(a)   !strncmp((char *)(a + 3), "EXFAT   ", 8)
 
 static inline int change_ntfs_geometry(FILE *fp, uint8_t * const restrict bp, const uint8_t heads)
 {
@@ -85,6 +86,9 @@ int main(const int argc, const char **argv)
 			exit(EXIT_FAILURE);
 		}
 		printf("not written\n");
+	} else if (!strcmp(argv[1], "exfat")) {
+		if (CHECK_IF_EXFAT(buffer)) printf("yes\n");
+		else printf("no\n");
 	} else {
 		printf("Unknown command %s\n", argv[1]);
 		fclose(fp);
@@ -97,12 +101,13 @@ usage:
 	fprintf(stderr, "Tritech Service System miscellaneous file tool %s (%s)\n", TRITECH_UTILS_VER, TRITECH_UTILS_DATE);
 	fprintf(stderr, "Usage: %s command dev/device|/path/to/file [hex-head-count]\n\n", argv[0]);
 	fprintf(stderr, "Commands:\n");
-	fprintf(stderr, "gpt         Checks for GPT partitioning.\n");
-	fprintf(stderr, "ntfs        Checks for an NTFS filesystem signature.\n");
-	fprintf(stderr, "winexec     Checks for a DOS/Windows EXE signature.\n");
-	fprintf(stderr, "ntfsgeom    Change NTFS partition head count. Requires two-digit hex head count.\n");
-	fprintf(stderr, "registry    Checks if the file is a Windows registry hive.\n");
-	fprintf(stderr, "\n");
+	fprintf(stderr, "gpt         Checks for GPT partitioning\n");
+	fprintf(stderr, "ntfs        Checks for an NTFS filesystem signature\n");
+	fprintf(stderr, "hfsplus     Checks for an HFS+ filesystem signature\n");
+	fprintf(stderr, "exfat       Checks for an exFAT filesystem signature\n");
+	fprintf(stderr, "winexec     Checks for a DOS/Windows EXE signature\n");
+	fprintf(stderr, "ntfsgeom    Change NTFS partition head count; requires two-digit hex head count\n");
+	fprintf(stderr, "registry    Checks if the file is a Windows registry hive\n\n");
 	return EXIT_FAILURE;
 }
 
