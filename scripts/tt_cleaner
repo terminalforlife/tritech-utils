@@ -760,6 +760,7 @@ NAME="$LOCAL/Vuze_Remote"; DESC="Vuze Remote spyware"; add_to_wipe
 NAME="$LOCAL/Wajam"; DESC="Wajam"; add_to_wipe
 NAME="$ROAM/$STARTMENU/Wajam"; DESC="Wajam"; add_to_wipe
 NAME="$LOCAL/$WDSMART/.txt"; DESC="WD SmartWare"; add_to_delete
+NAME="$LOCAL/WebDiscoverBrowser"; DESC="WebDiscover"; add_to_wipe
 NAME="$LOCAL/WeatherAlerts"; DESC="WeatherAlerts"; add_to_wipe
 NAME="$LOCAL/WhiteSmoke_*"; DESC="WhiteSmoke Toolbar"; add_to_wipe
 NAME="$LOCAL/Windows Live/.cache"; DESC="Windows Live cache"; add_to_wipe
