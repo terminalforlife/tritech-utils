@@ -1,7 +1,7 @@
 #!/bin/bash
 
-VER=0.1.4
-VERDATE="2019-10-28"
+VER=0.2.0
+VERDATE="2020-06-11"
 
 . tss__common
 
@@ -147,9 +147,15 @@ while read -u 3 X
 
 	NAME="$(echo "$X" | sed 's/=.*//')"
 	echo -n "${CWHT}Drop $CGRN$NAME$CWHT (y/n/x)? $COFF"
-	read -n 1 Y; echo
-	test "$Y" = "y" && SOURCES="$SOURCES:$X"
-	test "$Y" = "x" && echo "...skipping the rest of this section..."
+	read -n 1 Y
+	if [ "$Y" = "y" ]
+		then SOURCES="$SOURCES:$X"
+		echo
+		else if [ "$Y" = "x" ]
+			then echo -e "\n$CPUR...skipping the rest of this section...$COFF"
+			else echo -e "\r${YEL}Skip $CRED$NAME$COFF             "
+		fi
+	fi
 done 3< $SWDB
 
 echo -e "\n${CWHT}Dropping software$COFF\n"
