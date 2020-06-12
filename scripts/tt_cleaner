@@ -475,13 +475,17 @@ NAME="$LOCAL/$APPLE/iTunes/SubscriptionPlayCache"; DESC="iTunes cache"; add_to_d
 NAME="$LOCAL/$APPLE/SyncNotifier/SyncNotifier/Logs"; DESC="Apple SN logs"; add_to_wipe
 NAME="$LOCAL/Adobe/Air/Logs"; DESC="Adobe AIR"; add_to_wipe
 NAME="$LOCAL/Adobe/AIR/Logs"; DESC="Adobe AIR"; add_to_wipe
-NAME="$LOCAL/Adobe/Acrobat/*/Updater"; DESC="Adobe Acrobat"; add_to_wipe
+NAME="$LOCAL/Adobe/AAMUpdater/*/*.log"; DESC="Adobe Acrobat"; add_to_delete
 NAME="$LOCAL/Adobe/Acrobat/*/Cache"; DESC="Adobe Acrobat"; add_to_wipe
+NAME="$LOCAL/Adobe/Acrobat/Distiller*"; DESC="Adobe Acrobat"; add_to_wipe
+NAME="$LOCAL/Adobe/Acrobat/*/Updater"; DESC="Adobe Acrobat"; add_to_wipe
 NAME="$LOCAL/Adobe/Reader*/Setup Files"; DESC="Adobe Acrobat"; add_to_wipe
 NAME="$LOCAL/Adobe/Updater*"; DESC="Adobe Acrobat"; add_to_wipe
 NAME="$LOCAL/alotappbar"; DESC="ALOT Toolbar"; add_to_wipe
 NAME="$LOCAL/Amazon */Data/*Cache"; DESC="Amazon Caches"; add_to_wipe
-NAME="$LOCAL/AMD/Fuel/ClientProxyLog*"; DESC="AMD FUEL logs"; add_to_delete
+NAME="$LOCAL/AMD/CN"; DESC="AMD software"; add_to_wipe
+NAME="$LOCAL/AMD/*Cache"; DESC="AMD software"; add_to_wipe
+NAME="$LOCAL/AMD/Fuel/ClientProxyLog*"; DESC="AMD software"; add_to_delete
 NAME="$LOCAL/AOP SDK/Acer Infra/acer/SyncAgent/logs"; DESC="Acer logs"; add_to_wipe
 NAME="$LOCAL/AppGraffiti"; DESC="AppGraffiti"; add_to_wipe
 NAME="$LOCAL/AskToolbar"; DESC="Ask Toolbar"; add_to_wipe
@@ -702,6 +706,8 @@ NAME="$LOCAL/Opera/*/cache"; DESC="Opera caches"; add_to_wipe
 NAME="$LOCAL/OLYMPUS/OLYMPUS Data/cache"; DESC="Olympus cache"; add_to_wipe
 NAME="$LOCAL/PageRage"; DESC="PageRage data"; add_to_wipe
 NAME="$LOCAL/PCHealth"; DESC="PCHealth data"; add_to_wipe
+NAME="$LOCAL/Plex Media Server/Logs"; DESC="Plex Media Server"; add_to_wipe
+NAME="$LOCAL/Plex Media Server/Updates"; DESC="Plex Media Server"; add_to_wipe
 NAME="$LOCAL/Pokki/IconCache"; DESC="SweetLabs"; add_to_wipe
 NAME="$LOCAL/Move Networks/QMCache00"; DESC="Move Media Player cache"; add_to_wipe
 NAME="$LOCAL/SweetLabs App Platform/IconCache"; DESC="SweetLabs"; add_to_wipe
