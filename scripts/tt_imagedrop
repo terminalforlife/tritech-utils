@@ -1,7 +1,7 @@
 #!/bin/bash
 
-VER="2.2.4"
-VERDATE="2017-02-01"
+VER="2.3.0"
+VERDATE="2020-06-18"
 
 shopt -s nullglob
 . tss__common
@@ -65,24 +65,26 @@ scan_partitions () {
 }
 
 maximize_last_partition () {
-	sync; sleep 1
+	ERR=0
 	if [ "$GPT" = "1" ]
 		then
 		# For GPT: delete, recreate, set type GUID, set partition GUID
-		sgdisk -d $CNT /dev/$DEV 2>/dev/null >/dev/null || echo "sgdisk failed!"
-		sgdisk -n $CNT:${START[CNT]}:0 /dev/$DEV 2>/dev/null >/dev/null || echo "sgdisk failed!"
-		sgdisk -t $CNT:${TYPE[CNT]} /dev/$DEV 2>/dev/null >/dev/null || echo "sgdisk failed!"
-		sgdisk -u $CNT:${GUID[CNT]} /dev/$DEV 2>/dev/null >/dev/null || echo "sgdisk failed!"
+		sgdisk -d $CNT /dev/$DEV 2>/dev/null >/dev/null || ERR=1
+		sgdisk -n $CNT:${START[CNT]}:0 /dev/$DEV 2>/dev/null >/dev/null || ERR=1
+		sgdisk -t $CNT:${TYPE[CNT]} /dev/$DEV 2>/dev/null >/dev/null || ERR=1
+		sgdisk -u $CNT:${GUID[CNT]} /dev/$DEV 2>/dev/null >/dev/null || ERR=1
 		else
 		# For MBR: sfdisk can change an existing partition's size without deleting
-		echo ",+,,," | sfdisk /dev/$DEV --no-reread --force -uS -N $CNT -H $HEADS 2>/dev/null >/dev/null
+		echo ",+,,," | sfdisk /dev/$DEV --no-reread --force -uS -N $CNT -H $HEADS 2>/dev/null >/dev/null || ERR=1
 	fi
 	hdparm -z /dev/$DEV 2>/dev/null >/dev/null
+	test $ERR -eq 1 && return 1
+	return 0
 }
 
 read_new_partition_table () {
 	# This wait is required to allow the partition table to be re-read
-	sync; sleep 1
+	sleep 1
 	hdparm -z /dev/$DEV 2>/dev/null >/dev/null
 	sleep 1
 	T=0
@@ -112,6 +114,12 @@ if [ ! -d "$IMGDIR" ]
 	clean_exit 2
 fi
 
+MAX=0
+if [ "$1" = "maximize" ]
+	then echo "${CYEL}Running maximize_last_partition() ONLY$COFF"
+	MAX=1
+fi
+
 tt__disk_prompt $TMPFILE
 DEV=$(cat $TMPFILE)
 
@@ -123,6 +131,24 @@ fi
 check_mounts
 EFIMODE=0
 test -d /sys/firmware/efi && EFIMODE=1 && echo "${CGRN}This system seems to be in ${CWHT}EFI$CGRN mode.$COFF"
+
+if [ $MAX -eq 1 ]
+	then
+	ERR=1
+	XP=0; UEFI=0; GPT=0
+	echo "${CGRN}Scanning partitions on $CWHT$DEV$COFF"
+	scan_partitions || clean_exit 1
+	echo "${CGRN}Maximizing last partition$COFF"
+	maximize_last_partition || clean_exit 1
+	echo "${CGRN}Reading new partition table$COFF"
+	read_new_partition_table || clean_exit 1
+	PART=$DEV$CNT
+	echo "$DEV" | grep -q -e nvme -e mmcblk && PART="${DEV}p$CNT"
+	echo "${CGRN}Resizing NTFS file system to new partition size$COFF"
+	yes | ntfsresize -f /dev/$PART 2>/dev/null >/dev/null || clean_exit 1
+	clean_exit 0
+fi
+
 # Select an image to drop
 echo "${CGRN}Choose an image to drop:${COFF}"
 
@@ -232,9 +258,7 @@ fi
 scan_partitions
 PART=$DEV$CNT
 echo "$DEV" | grep -q -e nvme -e mmcblk && PART="${DEV}p$CNT"
-SZFILE=/sys/block/$DEV/$PART/size
-OLDSIZE=$(cat $SZFILE)
-maximize_last_partition
+maximize_last_partition || clean_exit 1
 echo "Waiting for new partitions to come up."
 read_new_partition_table
 
