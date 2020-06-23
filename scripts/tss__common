@@ -1,7 +1,7 @@
 #!/bin/sh
 
-TSS_COMMON_VER=1.0.4
-TSS_COMMON_VERDATE=2020-05-14
+TSS_COMMON_VER=1.0.5
+TSS_COMMON_VERDATE=2020-06-23
 
 # Prevent loading if we are already loaded
 if [ -z "$TSS_COMMON" ]; then
@@ -47,6 +47,8 @@ export THERMAL_SOURCES="
 	/sys/bus/platform/devices/coretemp.0/hwmon/hwmon0/temp2_input
 	/sys/bus/platform/devices/coretemp.0/hwmon/hwmon0/temp4_input
 	/sys/devices/platform/coretemp.0/hwmon/hwmon1/temp2_input
+	/sys/devices/platform/coretemp.0/hwmon/hwmon3/temp2_input
+	/sys/devices/platform/coretemp.0/hwmon/hwmon3/temp1_input
 	/sys/devices/platform/w83627ehf.656/temp2_input
 	/sys/devices/platform/w83627ehf.656/temp1_input
 "
