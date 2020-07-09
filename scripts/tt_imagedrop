@@ -1,7 +1,7 @@
 #!/bin/bash
 
-VER="2.3.0"
-VERDATE="2020-06-18"
+VER="2.3.1"
+VERDATE="2020-06-29"
 
 shopt -s nullglob
 . tss__common
@@ -28,7 +28,7 @@ check_mounts () {
 	grep -q "/dev/${DEV}" /proc/mounts && umount /dev/${DEV}* 2>/dev/null
 	if grep -q "/dev/${DEV}" /proc/mounts
 		then echo "${CRED}Device ${CCYA}${DEV}${CRED} is mounted according to /proc/mounts. Aborting.${COFF}"
-		clean_exit 4
+		return 1
 	fi
 }
 
@@ -66,19 +66,21 @@ scan_partitions () {
 
 maximize_last_partition () {
 	ERR=0
+	sync
+	sleep 2
 	if [ "$GPT" = "1" ]
 		then
 		# For GPT: delete, recreate, set type GUID, set partition GUID
 		sgdisk -d $CNT /dev/$DEV 2>/dev/null >/dev/null || ERR=1
-		sgdisk -n $CNT:${START[CNT]}:0 /dev/$DEV 2>/dev/null >/dev/null || ERR=1
-		sgdisk -t $CNT:${TYPE[CNT]} /dev/$DEV 2>/dev/null >/dev/null || ERR=1
-		sgdisk -u $CNT:${GUID[CNT]} /dev/$DEV 2>/dev/null >/dev/null || ERR=1
+		sgdisk -n $CNT:${START[CNT]}:0 /dev/$DEV 2>/dev/null >/dev/null || ERR=2
+		sgdisk -t $CNT:${TYPE[CNT]} /dev/$DEV 2>/dev/null >/dev/null || ERR=3
+		sgdisk -u $CNT:${GUID[CNT]} /dev/$DEV 2>/dev/null >/dev/null || ERR=4
 		else
 		# For MBR: sfdisk can change an existing partition's size without deleting
-		echo ",+,,," | sfdisk /dev/$DEV --no-reread --force -uS -N $CNT -H $HEADS 2>/dev/null >/dev/null || ERR=1
+		echo ",+,,," | sfdisk /dev/$DEV --no-reread --force -uS -N $CNT -H $HEADS 2>/dev/null >/dev/null || ERR=5
 	fi
 	hdparm -z /dev/$DEV 2>/dev/null >/dev/null
-	test $ERR -eq 1 && return 1
+	test $ERR -gt 0 && echo "Error $ERR during partition maximization" && return 1
 	return 0
 }
 
@@ -94,8 +96,9 @@ read_new_partition_table () {
 		test -e /dev/$PART && break
 		sleep 1
 		T=$((T + 1))
-		test "$T" = "5" && clean_exit 1
+		test "$T" = "5" && echo "Partition failed to come up!" && return 1
 	done
+	return 0
 }
 
 if [ "$NTFSMOUNT" = "0" ]
@@ -128,7 +131,7 @@ if [ ! -e /sys/block/$DEV ]
 	clean_exit 4
 fi
 
-check_mounts
+check_mounts || clean_exit 1
 EFIMODE=0
 test -d /sys/firmware/efi && EFIMODE=1 && echo "${CGRN}This system seems to be in ${CWHT}EFI$CGRN mode.$COFF"
 
@@ -138,6 +141,12 @@ if [ $MAX -eq 1 ]
 	XP=0; UEFI=0; GPT=0
 	echo "${CGRN}Scanning partitions on $CWHT$DEV$COFF"
 	scan_partitions || clean_exit 1
+	if [ "$GPT" = "0" ]
+		then echo -n "Specify number of heads for MBR mode (255): "
+		read HEADS
+		test -z "$HEADS" && HEADS=255
+		echo "${CBLU}Using $CWHT$HEADS$CBLU head count"
+	fi
 	echo "${CGRN}Maximizing last partition$COFF"
 	maximize_last_partition || clean_exit 1
 	echo "${CGRN}Reading new partition table$COFF"
@@ -255,12 +264,12 @@ fi
 # Create fdisk script to repartition the device
 # Win7 requires a boot partition and must be handled specially
 # WARNING: This code ALWAYS assumes the LAST PARTITION is the system partition!
-scan_partitions
+scan_partitions || clean_exit 1
 PART=$DEV$CNT
 echo "$DEV" | grep -q -e nvme -e mmcblk && PART="${DEV}p$CNT"
 maximize_last_partition || clean_exit 1
 echo "Waiting for new partitions to come up."
-read_new_partition_table
+read_new_partition_table || clean_exit 1
 
 # Change boot sector head counts for NTFS filesystems if not using UEFI
 if [ "$UEFI" = "0" ]
