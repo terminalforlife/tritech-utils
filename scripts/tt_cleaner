@@ -1131,6 +1131,8 @@ NAME="$ROAM/Vso/ConvertXtoDVD.log"; DESC="VSO ConvertXtoDVD"; add_to_delete
 NAME="$ROAM/Webroot/BugReports"; DESC="Webroot bug reports"; add_to_wipe
 NAME="$ROAM/WinClon/Logs"; DESC="WinClon logs"; add_to_wipe
 NAME="$ROAM/$WDSMART/*.txt"; DESC="WD SmartWare logs"; add_to_delete
+NAME="$ROAM/WindSolutions/CopyTransHEICforWindows/Logs"; DESC="CopyTrans HEIC Logs"; add_to_wipe
+
 NAME="$ROAM/WindowsSearch/MiniDumps"; DESC="Windows Search minidumps"; add_to_wipe
 NAME="$ROAM/Windows Discount"; DESC="FindingDiscount"; add_to_wipe
 NAME="$ROAM/Yahoo!/Companion"; DESC="Yahoo Companion"; add_to_wipe
