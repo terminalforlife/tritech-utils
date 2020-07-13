@@ -1,7 +1,7 @@
 #!/bin/bash
 
-VER="2.3.1"
-VERDATE="2020-06-29"
+VER="2.3.2"
+VERDATE="2020-07-13"
 
 shopt -s nullglob
 . tss__common
@@ -86,9 +86,9 @@ maximize_last_partition () {
 
 read_new_partition_table () {
 	# This wait is required to allow the partition table to be re-read
-	sleep 1
+	sync; sleep 1
 	hdparm -z /dev/$DEV 2>/dev/null >/dev/null
-	sleep 1
+	sync; sleep 1
 	T=0
 	while true
 		do
@@ -131,7 +131,7 @@ if [ ! -e /sys/block/$DEV ]
 	clean_exit 4
 fi
 
-check_mounts || clean_exit 1
+! check_mounts && echo "Error checking mount" && clean_exit 1
 EFIMODE=0
 test -d /sys/firmware/efi && EFIMODE=1 && echo "${CGRN}This system seems to be in ${CWHT}EFI$CGRN mode.$COFF"
 
@@ -140,7 +140,7 @@ if [ $MAX -eq 1 ]
 	ERR=1
 	XP=0; UEFI=0; GPT=0
 	echo "${CGRN}Scanning partitions on $CWHT$DEV$COFF"
-	scan_partitions || clean_exit 1
+	! scan_partitions && echo "Error scanning partitions" && clean_exit 1
 	if [ "$GPT" = "0" ]
 		then echo -n "Specify number of heads for MBR mode (255): "
 		read HEADS
@@ -148,13 +148,13 @@ if [ $MAX -eq 1 ]
 		echo "${CBLU}Using $CWHT$HEADS$CBLU head count"
 	fi
 	echo "${CGRN}Maximizing last partition$COFF"
-	maximize_last_partition || clean_exit 1
+	! maximize_last_partition && echo "Error maximizing last partition" && clean_exit 1
 	echo "${CGRN}Reading new partition table$COFF"
-	read_new_partition_table || clean_exit 1
+	! read_new_partition_table && echo "Error reading new partition table" && clean_exit 1
 	PART=$DEV$CNT
 	echo "$DEV" | grep -q -e nvme -e mmcblk && PART="${DEV}p$CNT"
 	echo "${CGRN}Resizing NTFS file system to new partition size$COFF"
-	yes | ntfsresize -f /dev/$PART 2>/dev/null >/dev/null || clean_exit 1
+	yes | ! ntfsresize -f /dev/$PART 2>/dev/null >/dev/null && echo "Error resizing NTFS" && clean_exit 1
 	clean_exit 0
 fi
 
@@ -264,12 +264,12 @@ fi
 # Create fdisk script to repartition the device
 # Win7 requires a boot partition and must be handled specially
 # WARNING: This code ALWAYS assumes the LAST PARTITION is the system partition!
-scan_partitions || clean_exit 1
+! scan_partitions && echo "Error scanning partitions"  && clean_exit 1
 PART=$DEV$CNT
 echo "$DEV" | grep -q -e nvme -e mmcblk && PART="${DEV}p$CNT"
-maximize_last_partition || clean_exit 1
+! maximize_last_partition && echo "Error reading new partition table" && clean_exit 1
 echo "Waiting for new partitions to come up."
-read_new_partition_table || clean_exit 1
+! read_new_partition_table && echo "Error reading new partition table" && clean_exit 1
 
 # Change boot sector head counts for NTFS filesystems if not using UEFI
 if [ "$UEFI" = "0" ]
