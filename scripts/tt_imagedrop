@@ -154,7 +154,7 @@ if [ $MAX -eq 1 ]
 	PART=$DEV$CNT
 	echo "$DEV" | grep -q -e nvme -e mmcblk && PART="${DEV}p$CNT"
 	echo "${CGRN}Resizing NTFS file system to new partition size$COFF"
-	yes | ! ntfsresize -f /dev/$PART 2>/dev/null >/dev/null && echo "Error resizing NTFS" && clean_exit 1
+	! yes | ntfsresize -f /dev/$PART 2>/dev/null >/dev/null && echo "Error resizing NTFS" && clean_exit 1
 	clean_exit 0
 fi
 
