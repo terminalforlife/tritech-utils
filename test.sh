@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Test tss_file_tool for correctness
 
