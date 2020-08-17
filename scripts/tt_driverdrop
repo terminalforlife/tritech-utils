@@ -1,7 +1,7 @@
 #!/bin/bash
 
-VER=0.8.3
-VERDATE=2017-06-01
+VER=1.0
+VERDATE=2020-08-17
 
 BLACKLIST=" acpi:dev=pnp0103 acpi:dev=pnp0300 acpi:dev=pnp0301 acpi:dev=pnp0302 acpi:dev=pnp0303 acpi:dev=pnp0a03 acpi:dev=pnp0a08 acpi:dev=pnp0c0f acpi:dev=pnp0f13 acpi:dev=abcd0001 acpi:dev=int3f0d"
 
@@ -76,21 +76,21 @@ get_host_winver_flags () {
 	XP64=.; V64=.; W764=.; W864=.; W8164=.; W1064=.
 	case $WINVER in
 		ntia64*) IA64=1 ;;
-		ntamd64.10.0) W1064=1 ;;
-		ntamd64.6.3) W8164=1 ;;
-		ntamd64.6.2) W864=1 ;;
-		ntamd64.6.1) W764=1 ;;
-		ntamd64.6.0) V64=1 ;;
-		ntamd64.5.2) S2K364=1 ;;
-		ntamd64.5.1) XP64=1 ;;
-		ntx86.10.0) W1032=1 ;;
-		ntx86.6.3) W8132=1 ;;
-		ntx86.6.2) W832=1 ;;
-		ntx86.6.1) W732=1 ;;
-		ntx86.6.0) V32=1 ;;
-		ntx86.5.2) S2K3=1 ;;
-		ntx86.5.1) XP32=1 ;;
-		ntx86.5.0) W2K=1 ;;
+		ntamd64.10.0*) W1064=1 ;;
+		ntamd64.6.3*) W8164=1 ;;
+		ntamd64.6.2*) W864=1 ;;
+		ntamd64.6.1*) W764=1 ;;
+		ntamd64.6.0*) V64=1 ;;
+		ntamd64.5.2*) S2K364=1 ;;
+		ntamd64.5.1*) XP64=1 ;;
+		ntx86.10.0*) W1032=1 ;;
+		ntx86.6.3*) W8132=1 ;;
+		ntx86.6.2*) W832=1 ;;
+		ntx86.6.1*) W732=1 ;;
+		ntx86.6.0*) V32=1 ;;
+		ntx86.5.2*) S2K3=1 ;;
+		ntx86.5.1*) XP32=1 ;;
+		ntx86.5.0*) W2K=1 ;;
 		*) echo "tt_winver failed!"; exit 1 ;;
 	esac
 	WIN=":win=$IA64$W2K$XP32$XP64$S2K3$S2K364$V32$V64$W732$W764$W832$W864$W8132$W8164$W1032$W1064"
