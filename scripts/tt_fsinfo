@@ -149,7 +149,7 @@ for DRIVE in $DRIVES
 	if tss_file_tool gpt $DRIVE 2>/dev/null | grep -q "no"
 		then $FDISK -l $DRIVE 2>/dev/null | grep /dev | \
 			grep -v Disk | tr -d \* | tr -d + | \
-			awk '{ print $1"="$5"."$4 }' >> $PART
+			awk '{ print $1"="$5":"$4 }' >> $PART
 		else $SGDISK -p $DRIVE 2>/dev/null | grep '^   ' | \
 			sed 's/  */ /g;s/^ //g' | while read LINE
 			do
@@ -166,7 +166,7 @@ for DRIVE in $DRIVES
 			PT=$(echo $LINE | cut -d" " -f6)
 			# Re-add the 'p' for MMC block devices
 			echo "$DRIVE" | grep -q -e mmcblk -e nvme && PN="p$PN"
-			echo "$DRIVE$PN=$PT.$PSIZE" >> $PART
+			echo "$DRIVE$PN=$PT:$PSIZE" >> $PART
 		done
 	fi
 done
@@ -218,7 +218,7 @@ for DRV in $DRIVES
 		then for X in $(cat "$PART" | grep "$DRV" | tr \\n " ")
 			do
 			unset PARTATTR
-			Y=$(echo $X | tr . " " | awk '{ print $2 }')
+			Y=$(echo $X | tr : " " | awk '{ print $2 }')
 			Z=$(expr $Y \* 1024 / 1000000000)
 			if [ "$Z" -lt "2" ]
 				then Z=$(expr $Y \* 1024 / 1000000)
