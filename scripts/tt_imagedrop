@@ -61,7 +61,11 @@ scan_partitions () {
 		done < $PART_TEMP
 	fi
 	rm -f $PART_TEMP; unset PART_TEMP
-	hdparm -z /dev/$DEV 2>/dev/null >/dev/null
+	if ! hdparm -z /dev/$DEV 2>/dev/null >/dev/null
+		then sync
+		sleep 2
+		hdparm -z /dev/$DEV 2>/dev/null >/dev/null
+	fi
 }
 
 maximize_last_partition () {
