@@ -5,8 +5,8 @@
 # Prevent loading twice
 if [ -z "$TSS_CLIENT" ]; then
 
-TSS_CLIENT_VER=0.9.2
-TSS_CLIENT_VERDATE=2018-05-22
+TSS_CLIENT_VER=0.9.3
+TSS_CLIENT_VERDATE=2020-08-24
 
 # Without socat we can't do any TSS client stuff
 if ! socat -V >/dev/null 2>/dev/null
@@ -458,7 +458,7 @@ detect_current_pc () {
 
 	# Find out if the current PC is in the TSS server already
 	# Check by MAC addresses first since they're "serial numbers"
-	MAC="$(shopt -u nullglob; shopt -u nocaseglob; cat /sys/class/net/{eth*,wlan*}/address 2>/dev/null | tr \\n ' ')"
+	MAC="$(shopt -u nullglob; shopt -u nocaseglob; cat /sys/class/net/{eth*,wlan*,usb*}/address 2>/dev/null | tr \\n ' ')"
 	COMMAND="MACADDR_TO_PCID $MAC" tss_command
 	tss_proc_response
 	# If MAC addresses failed, it's a new PC; try the DMI serial number
