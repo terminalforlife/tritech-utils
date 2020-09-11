@@ -270,6 +270,7 @@ while [ $DIC -lt $DI ]
 	test -z "$UNC" && UNC=0
 	test -z "$REC" && REC=0
 	test -z "$CPS" && CPS=0
+	test -z "$CTO" && CTO=0
 	test -z "$OUNC" && OUNC=0
 	test -z "$UCEC" && UCEC=0
 	test -z "$PFC" && PFC=0
@@ -286,6 +287,7 @@ while [ $DIC -lt $DI ]
 	test $RSC -gt 50 && SMART_BADHDD=1
 	test $REC -gt 50 && SMART_BADHDD=1
 	test $CPS -gt 50 && SMART_BADHDD=1
+	test $CTO -gt 13 && test $CTO -lt 1000000 && SMART_BADHDD=1
 	test $OUNC -gt 10 && SMART_BADHDD=1
 	test $UCEC -gt 2000 && test $UCEC -lt 500000 SMART_BADHDD=1
 	test $PFC -gt 50 && SMART_BADHDD=1

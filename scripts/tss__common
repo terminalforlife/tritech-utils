@@ -222,7 +222,7 @@ tt__hdd_smart_status () {
 	SMART_SED='s/ ([^)]*)$//;s/([^)]*)$//;s/.* //g;s/[^0-9].*//'
 	if smartctl -V >/dev/null 2>/dev/null
 		then
-		unset S LCC RSC UNC REC CPS OUNC UCEC PFC EFC CEC SSATP SSAT
+		unset S LCC RSC UNC REC CPS CTO OUNC UCEC PFC EFC CEC SSATP SSAT
 		SELE=1
 		SMART_TEMP=$(mktemp)
 		# Check for existence of SMART error log entries
@@ -248,6 +248,7 @@ tt__hdd_smart_status () {
 			UNC=$(grep -m 1 Reported_Uncorrect $SMART_TEMP | sed "$SMART_SED")
 			REC=$(grep -m 1 Reallocated_Event_Count $SMART_TEMP | sed "$SMART_SED")
 			CPS=$(grep -m 1 Current_Pending_Sector $SMART_TEMP | sed "$SMART_SED")
+			CTO=$(grep -m 1 Command_Timeout $SMART_TEMP | sed "$SMART_SED")
 			OUNC=$(grep -m 1 Offline_Uncorrectable $SMART_TEMP | sed "$SMART_SED")
 			UCEC=$(grep -m 1 UDMA_CRC_Error_Count $SMART_TEMP | sed "$SMART_SED")
 			PFC=$(grep -m 1 ^171 $SMART_TEMP | sed "$SMART_SED")
@@ -276,6 +277,11 @@ tt__hdd_smart_status () {
 				then
 				test $CPS -gt 0 && test $CPS -lt 10 && S="$S ${CYEL}CPS=$CPS$COFF"
 				test $CPS -ge 10 && test $CPS -lt 10000 && S="$S ${CRED}CPS=$CPS$COFF"
+			fi
+			if [ -n "$CTO" ]
+				then
+				test $CTO -gt 0 && test $CTO -lt 13 && S="$S ${CYEL}CTO=$CTO$COFF"
+				test $CTO -ge 13 && test $CTO -lt 1000000 S="$S ${CRED}CTO=$CTO$COFF"
 			fi
 			if [ -n "$OUNC" ]
 				then
