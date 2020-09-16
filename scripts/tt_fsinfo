@@ -2,8 +2,8 @@
 
 # Displays info on storage devices in the system
 
-VER=1.10.4
-VERDATE="2017-06-02"
+VER=1.11
+VERDATE="2020-08-03"
 
 . tss__common
 
@@ -231,7 +231,7 @@ for DRV in $DRIVES
 			while [ $LEN -gt 0 ]; do SIZE=" $SIZE"; LEN=$((LEN - 1)); done
 			unset LEN
 			DEVICE=$(echo "$X" | sed 's/=.*//g')
-			FSID=$(echo "$X" | sed 's/^.*=//;s/\..*//' | tr '[:upper:]' '[:lower:]')
+			FSID=$(echo "$X" | sed 's/^.*=//;s/\..*//;s/:.*//' | tr '[:upper:]' '[:lower:]')
 			expand_fsid "$FSID"
 			echo "$MOUNTED" | grep -q "$DEVICE " && PARTATTR="$PARTATTR${CYEL}[Mounted]$COFF "
 			echo "$KILL" | grep -q "$(basename $DEVICE)" || echo "  $CWHT+-- $CPUR$DEVICE  $CGRN$SIZE  $CWHT$FS  $PARTATTR"
