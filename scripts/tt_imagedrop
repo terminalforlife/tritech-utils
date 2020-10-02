@@ -1,7 +1,7 @@
 #!/bin/bash
 
-VER="2.3.3"
-VERDATE="2020-09-11"
+VER="2.3.4"
+VERDATE="2020-10-02"
 
 shopt -s nullglob
 . tss__common
@@ -83,7 +83,7 @@ maximize_last_partition () {
 		# For MBR: sfdisk can change an existing partition's size without deleting
 		echo ",+,,," | sfdisk /dev/$DEV --no-reread --force -uS -N $CNT -H $HEADS 2>/dev/null >/dev/null || ERR=5
 		# sfdisk 2.26 and up don't support CHS properly anymore; retry without -H
-		test $ERR -eq 5 && echo ",+,,," | sfdisk /dev/$DEV --no-reread --force -uS -N $CNT 2>/dev/null >/dev/null && ERR=0 || ERR=6
+		test $ERR -eq 5 && ERR=6 && echo ',+,,,' | sfdisk /dev/$DEV --no-reread --force -uS -N $CNT 2>/dev/null >/dev/null && ERR=0
 	fi
 	hdparm -z /dev/$DEV 2>/dev/null >/dev/null
 	test $ERR -gt 0 && echo "Error $ERR during partition maximization" && return 1
