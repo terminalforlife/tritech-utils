@@ -37,6 +37,7 @@ export THERMAL_SOURCES="
 	/sys/class/hwmon/hwmon0/device/temp2_input
 	/sys/class/hwmon/hwmon0/temp1_input
 	/sys/class/hwmon/hwmon0/temp3_input
+	/sys/class/hwmon/hwmon2/temp3_input
 	/sys/class/hwmon/hwmon1/temp3_input
 	/sys/bus/acpi/drivers/thermal/LNXTHERM:00/thermal_zone/temp
 	/sys/devices/platform/coretemp.*/temp*_input
