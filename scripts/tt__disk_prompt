@@ -1,7 +1,7 @@
 #!/bin/bash
 
-VER="1.1"
-VERDATE="2016-10-07"
+VER="1.2"
+VERDATE="2020-10-27"
 
 # Finds all possible hard drives on the system, provides info on each,
 # and prompts which one to use. Aborts if no drives exist or if the
@@ -25,6 +25,9 @@ if [ "$1" = "" ]
 		then echo "${0}: temp file must be in /tmp"; exit 2
 	fi
 fi
+
+# Allow no-prompt usage
+USEDEFAULT=0; test "$2" = "usedefault" && USEDEFAULT=1
 
 # Check to ensure there are possible hard drives at all
 # Additionally, determine if we use hdX or sdX drive designations
@@ -58,11 +61,14 @@ if [ "$PREF" = "" ]
 	echo "$CYEL$PREF$COFF was chosen as the default out of ALL possible disks."
 fi
 
-tt_fsinfo nopart
-
-echo -n "Enter the target device (${PREF}): "
-read DEV
-# If nothing was entered, use the default choice
+if [ "$USEDEFAULT" != "1" ]
+	then
+	tt_fsinfo nopart
+	echo -n "Enter the target device (${PREF}): "
+	read DEV
+	else unset DEV
+fi
+# If nothing entered or USEDEFAULT set, use the default choice
 test "$DEV" = "" && DEV="$PREF"
 
 rm -f $DISKS $TMPFILE
