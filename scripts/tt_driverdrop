@@ -1,7 +1,7 @@
 #!/bin/bash
 
-VER=1.0
-VERDATE=2020-08-17
+VER=1.1
+VERDATE=2020-10-27
 
 BLACKLIST=" acpi:dev=pnp0103 acpi:dev=pnp0300 acpi:dev=pnp0301 acpi:dev=pnp0302 acpi:dev=pnp0303 acpi:dev=pnp0a03 acpi:dev=pnp0a08 acpi:dev=pnp0c0f acpi:dev=pnp0f13 acpi:dev=abcd0001 acpi:dev=int3f0d"
 
@@ -99,11 +99,13 @@ get_host_winver_flags () {
 ### End functions
 
 test "$1" = "simulate" && SIMULATE=1
+test "$1" = "benchmark" && SIMULATE=1 && NOPROMPT=1
+
 DBG=0; test "$1" = "-d" && DBG=1; test "$1" = "-dd" && DBG=2
 WINDB=0; test "$1" = "-w" && WINDB=1
 if [[ $DBG -eq 0 && "$1" != "dump" ]]
 	then TMP=$(mktemp)
-	tt__disk_prompt $TMP
+	tt__disk_prompt $TMP usedefault
 	DEV="$(cat $TMP)"
 	rm $TMP
 
@@ -235,12 +237,15 @@ for X in $DEVS
 	case $TYPE in
 		pci|hdaudio)
 			DBF3="$DBF_HDAUDIO"; test "$TYPE" = "pci" && DBF3="$DBF_PCI"
-			VEN="$(echo "$X" | sed 's/.*\(:ven=....:\).*/\1/')"
-			DEV="$(echo "$X" | sed 's/.*\(:dev=....:\).*/\1/')"
-			SUBSYS="$(echo "$X" | sed 's/.*\(:subsys=........\).*/\1/')"
-			TAGS="$(echo "$TAGS" | sed 's/ven=....//;s/dev=....//')"
-			grep "$SUBSYS" "$DBF3" | grep "$VEN" | grep "$DEV" > $TF
-			test -z "$(cat $TF)" && grep "$DEV" "$DBF3" | grep "$VEN" > $TF
+			VEN=${X/#*ven=/ven=}; VEN=${VEN/%:*/}
+			DEV=${X/#*:dev=/dev=}; DEV=${DEV/%:*/}
+			#DEV="$(echo "$X" | sed 's/.*\(:dev=....:\).*/\1/')"
+			SUBSYS=${X/#*:subsys=/subsys=}; SUBSYS=${SUBSYS/%:*/}
+			#SUBSYS="$(echo "$X" | sed 's/.*\(:subsys=........\).*/\1/')"
+			TAGS="$(echo "$TAGS" | sed 's/ven=....//;s/subsys=....//')"
+			grep "$VEN:$DEV" "$DBF3" > $TF
+			grep "$SUBSYS" "$TF" > $TF2
+			test -n "$(cat $TF2)" && cat $TF2 > $TF
 			;;
 		usb)
 			CLASS="$(echo "$X" | sed 's/.*\(:class=..\).*/\1/')"
@@ -248,11 +253,11 @@ for X in $DEVS
 			PROT="$(echo "$X" | sed 's/.*\(:prot=..\).*/\1/')"
 			VID="$(echo "$X" | sed 's/.*\(:vid=....\).*/\1/')"
 			PID="$(echo "$X" | sed 's/.*\(:pid=....\).*/\1/')"
-			grep "$CLASS" "$DBF_USB" | grep "$SC" | grep "$PROT" > $TF
-			test -z "$(cat $TF)" && grep "$VID" "$DBF_USB" | grep "$PID" > $TF
+			grep "$CLASS:$SC" "$DBF_USB" | grep "$PROT" > $TF
+			test -z "$(cat $TF)" && grep "$VID:$PID" "$DBF_USB" > $TF
 			;;
 		acpi)
-			REQ1="$(echo "$X" | sed 's/.*\(:dev=.*:\).*/\1/')"
+			REQ1=${X/#*:dev=/dev=}; REQ1=${REQ1/%:*/}
 			grep "$REQ1" "$DBF_ACPI" > $TF
 			;;
 
