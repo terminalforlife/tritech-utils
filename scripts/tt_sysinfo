@@ -1,7 +1,7 @@
 #!/bin/bash
 
-VER="1.18.1"
-VERDATE="2020-08-24"
+VER="1.19"
+VERDATE="2020-10-22"
 
 #echo "Tritech system info tool $VER, updated on $VERDATE"
 #echo "Copyright (c) by Jody Bruchon <jody@jodybruchon.com>"
@@ -97,12 +97,12 @@ for X in /sys/class/net/eth* /sys/class/net/en* /sys/class/net/usb*
 	do if [ "$(cat $X/carrier 2>/dev/null)" = "1" ]
 		then NET="$NET  $CWHT$(basename $X):"
 		LINK="$(cat $X/speed 2>/dev/null)"
-		case $LINK in
-			1000) NET="$NET ${CGRN}1000 Mbps$COFF" ;;
-			100) NET="$NET ${CYEL}100 Mbps$COFF" ;;
-			10) NET="$NET ${CRED}10 Mbps$COFF" ;;
-			*) NET="$NET ${CCYA}Unsure ($LINK)$COFF" ;;
-		esac
+		     if [ $LINK -gt 1199 ]; then NET="$NET $BGGRN$CWHT$LINK"
+		else if [ $LINK -gt 499 ]; then NET="$NET $CGRN$LINK"
+		else if [ $LINK -lt 100 ]; then NET="$NET $CRED$LINK"
+		else                             NET="$NET $CYEL$LINK"
+		fi; fi; fi
+		NET="$NET Mbps$COFF"
 	fi
 done
 if [ -z "$NET" ]
