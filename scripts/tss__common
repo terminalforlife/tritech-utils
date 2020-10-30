@@ -282,7 +282,7 @@ tt__hdd_smart_status () {
 			if [ -n "$CTO" ]
 				then
 				test $CTO -gt 0 && test $CTO -lt 13 && S="$S ${CYEL}CTO=$CTO$COFF"
-				test $CTO -ge 13 && test $CTO -lt 1000000 S="$S ${CRED}CTO=$CTO$COFF"
+				test $CTO -ge 13 && test $CTO -lt 1000000 && S="$S ${CRED}CTO=$CTO$COFF"
 			fi
 			if [ -n "$OUNC" ]
 				then
