@@ -116,14 +116,15 @@ expand_fsid () {
 	esac
 }
 
-NP=0
-NOSMART=0
+NP=0; NOSMART=0; NORAID=0
 for X in $@
 	do
 	# If "nopart" is passed, only display devices.
 	test "$X" = "nopart" && NP=1
 	# Allow display without SMART data
 	test "$X" = "nosmart" && NOSMART=1
+	# Do not display RAID arrays
+	test "$X" = "noraid" && NORAID=1
 done
 
 
@@ -244,13 +245,16 @@ for DRV in $DRIVES
 	fi
 done
 
-test ! -z "$RAID" && echo
-for DRV in $RAID
-	do
-	get_device_info $DRV
-	echo "$CCYA$DRV: $CRED$MDTYPE $CGRN($DEVSIZE)  $CWHT$ATTRIBS$COFF"
-	echo "  $CWHT+-- ${CGRN}Members: $CWHT$MEMBERS$COFF"
-done
+if [ "$NORAID" = "0" ]
+	then
+	test ! -z "$RAID" && echo
+	for DRV in $RAID
+		do
+		get_device_info $DRV
+		echo "$CCYA$DRV: $CRED$MDTYPE $CGRN($DEVSIZE)  $CWHT$ATTRIBS$COFF"
+		echo "  $CWHT+-- ${CGRN}Members: $CWHT$MEMBERS$COFF"
+	done
+fi
 
 if [ ! -z "$ZERO" ]
 	then echo -e "\n${CCYA}Empty devices: $CYEL$ZERO$COFF"
