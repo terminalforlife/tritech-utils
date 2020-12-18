@@ -18,7 +18,7 @@ trap clean_exit INT QUIT ABRT TERM HUP
 
 clean_exit () {
 	test "$1" != "0" && echo "Interrupted, cleaning up."
-	rm -f "$DISKS" "$TMPFILE" "$PART_TEMP"
+	rm -f "$DISKS" "$TMPFILE"
 	EXIT="$1"; test -n "$EXIT" && EXIT=0
 	exit $EXIT
 }
@@ -35,12 +35,10 @@ check_mounts () {
 scan_partitions () {
 	test ! -e "/dev/$DEV" && echo "scan_partitions: '/dev/$DEV' does not exist" && return 1
 	unset START END TYPE GPT DISK_GUID GUID; CNT=0
-	PART_TEMP=$(mktemp)
 	if [ "$(tss_file_tool gpt /dev/$DEV)" = "yes" ]
 		then GPT=1
 		sync
 		sgdisk -e /dev/$DEV 2>/dev/null >/dev/null
-		sgdisk -p /dev/$DEV 2>/dev/null | grep '^Number' -A 128 | grep -v '^Number' | sed 's/^ *//;s/  */ /g' > $PART_TEMP
 		DISK_GUID="$(sgdisk -p /dev/$DEV 2>/dev/null | grep '^Disk identifier' | cut -d: -f2 | tr -d ' ')"
 		while read LINE
 			do CNT=$((CNT + 1))
@@ -48,19 +46,17 @@ scan_partitions () {
 			SIZE[CNT]=$(echo "$LINE" | cut -d\  -f3)
 			TYPE[CNT]=$(echo "$LINE" | cut -d\  -f6)
 			GUID[CNT]=$(sgdisk -i $CNT /dev/$DEV 2>/dev/null | grep '^Partition unique GUID' | cut -d: -f2 | tr -d ' ')
-		done < $PART_TEMP
+		done < <(sgdisk -p /dev/$DEV 2>/dev/null | grep '^Number' -A 128 | grep -v '^Number' | sed 's/^ *//;s/  */ /g')
 		else GPT=0  # MBR partitioning
 		sync
-		sfdisk --force -d -uS /dev/$DEV 2>/dev/null | sed 's/ *//g' | tr = , | grep -v 'Id,0' | grep "^/dev/" > $PART_TEMP
 		while read LINE
 			do CNT=$((CNT + 1))
 			START[CNT]=$(echo "$LINE" | cut -d\  -f2)
 			SIZE[CNT]=$(echo "$LINE" | cut -d\  -f4)
 			TYPE[CNT]=$(echo "$LINE" | cut -d\  -f6)
 			FLAG[CNT]=$(echo "$LINE" | cut -d\  -f7)
-		done < $PART_TEMP
+		done < <(sfdisk --force -d -uS /dev/$DEV 2>/dev/null | sed 's/ *//g' | tr = , | grep -v 'Id,0' | grep "^/dev/")
 	fi
-	rm -f $PART_TEMP; unset PART_TEMP
 	if ! hdparm -z /dev/$DEV 2>/dev/null >/dev/null
 		then sync
 		sleep 2
