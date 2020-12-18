@@ -63,7 +63,7 @@ fi
 
 if [ "$USEDEFAULT" != "1" ]
 	then
-	tt_fsinfo nopart
+	tt_fsinfo nopart nosmart
 	echo -n "Enter the target device (${PREF}): "
 	read DEV
 	else unset DEV

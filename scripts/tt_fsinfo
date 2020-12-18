@@ -116,11 +116,16 @@ expand_fsid () {
 	esac
 }
 
-# If "nopart" is passed, only display devices.
-NP=0; test "$1" = "nopart" && NP=1
+NP=0
+NOSMART=0
+for X in $@
+	do
+	# If "nopart" is passed, only display devices.
+	test "$X" = "nopart" && NP=1
+	# Allow display without SMART data
+	test "$X" = "nosmart" && NOSMART=1
+done
 
-# Allow display without SMART data
-NOSMART=0; test "$1" = "nosmart" && NOSMART=1
 
 if [ "$NP" = "0" ]
 	then echo -n "${CWHT}Tritech filesystem info tool, version "
