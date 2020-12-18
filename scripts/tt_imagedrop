@@ -11,14 +11,13 @@ echo "${CWHT}Tritech automatic system image drop $CGRN$VER ($VERDATE)$COFF"
 LZOP=/bin/lzop; test -e /usr/bin/lzop && LZOP=/usr/bin/lzop
 GZIP=/bin/gzip; test -e /usr/bin/gzip && GZIP=/usr/bin/gzip
 XZ=/bin/xz; test -e /usr/bin/xz && XZ=/usr/bin/xz
-DISKS="$(mktemp)"
 TMPFILE="$(mktemp)"
 
 trap clean_exit INT QUIT ABRT TERM HUP
 
 clean_exit () {
 	test "$1" != "0" && echo "Interrupted, cleaning up."
-	rm -f "$DISKS" "$TMPFILE"
+	rm -f "$TMPFILE"
 	EXIT="$1"; test -n "$EXIT" && EXIT=0
 	exit $EXIT
 }
@@ -60,8 +59,10 @@ scan_partitions () {
 	if ! hdparm -z /dev/$DEV 2>/dev/null >/dev/null
 		then sync
 		sleep 2
-		hdparm -z /dev/$DEV 2>/dev/null >/dev/null
+		! hdparm -z /dev/$DEV 2>/dev/null >/dev/null && return 2
 	fi
+	test "$CNT" = "0" && return 1
+	return 0
 }
 
 maximize_last_partition () {
@@ -142,7 +143,7 @@ if [ $MAX -eq 1 ]
 	ERR=1
 	XP=0; UEFI=0; GPT=0
 	echo "${CGRN}Scanning partitions on $CWHT$DEV$COFF"
-	! scan_partitions && echo "Error scanning partitions" && clean_exit 1
+	scan_partitions && echo "Error $? scanning partitions" && clean_exit 1
 	if [ "$GPT" = "0" ]
 		then echo -n "Specify number of heads for MBR mode (255): "
 		read HEADS
