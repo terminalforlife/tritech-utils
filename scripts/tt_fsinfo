@@ -2,8 +2,8 @@
 
 # Displays info on storage devices in the system
 
-VER=1.11
-VERDATE="2020-08-03"
+VER=1.12
+VERDATE="2020-12-28"
 
 . tss__common
 
@@ -133,10 +133,16 @@ if [ "$NP" = "0" ]
 	echo "$CCYA$VER$CWHT, last updated $CPUR$VERDATE$COFF"
 fi
 
+# Detect fdisk binary location
 if [ -e /sbin/fdisk ]; then FDISK=/sbin/fdisk; fi
 if [ -e /usr/sbin/fdisk ]; then FDISK=/usr/sbin/fdisk; fi
 if [ -e /sbin/sgdisk ]; then SGDISK=/sbin/sgdisk; fi
 if [ -e /usr/sbin/sgdisk ]; then SGDISK=/usr/sbin/sgdisk; fi
+
+# util-linux fdisk uses sectors instead of blocks; detect it and modify as needed
+FD_FIELD=5; FD_MULT=1024
+$FDISK -V 2>/dev/null | grep -q 'util-linux' && FD_FIELD=6 && FD_MULT=512
+echo "FD_FIELD $FD_FIELD, FD_MULT $FD_MULT"
 
 PART=$(mktemp)
 DRIVES="$(echo /dev/sd? /dev/hd? /dev/mmcblk? /dev/nvme?n? | tr ' ' '\n' | grep -v '\?' | sort)"
@@ -155,7 +161,7 @@ for DRIVE in $DRIVES
 	if tss_file_tool gpt $DRIVE 2>/dev/null | grep -q "no"
 		then $FDISK -l $DRIVE 2>/dev/null | grep /dev | \
 			grep -v Disk | tr -d \* | tr -d + | \
-			awk '{ print $1"="$5":"$4 }' >> $PART
+			awk '{ print $1"="$'$FD_FIELD'":"$4 }' >> $PART
 		else $SGDISK -p $DRIVE 2>/dev/null | grep '^   ' | \
 			sed 's/  */ /g;s/^ //g' | while read LINE
 			do
@@ -225,9 +231,9 @@ for DRV in $DRIVES
 			do
 			unset PARTATTR
 			Y=$(echo $X | tr : " " | awk '{ print $2 }')
-			Z=$(expr $Y \* 1024 / 1000000000)
+			Z=$(expr $Y \* $FD_MULT / 1000000000)
 			if [ "$Z" -lt "2" ]
-				then Z=$(expr $Y \* 1024 / 1000000)
+				then Z=$(expr $Y \* $FD_MULT / 1000000)
 				Z="${Z} MB"
 				else Z="${Z} GB"
 			fi
