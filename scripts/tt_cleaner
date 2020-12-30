@@ -461,12 +461,13 @@ fi
 ########### Start Windows cleaning definitions ############
 
 if [ $V7 -gt 0 ]; then
+NAME="$LOCAL/*/Saved/webcache"; DESC="General web caches"; add_to_wipe
 NAME="$LOCAL/4kdownload.com/4K Video Downloader/4K Video Downloader/*.log"; DESC="4Kdownload.com logs"; add_to_delete
 NAME="$LOCAL/AdvinstAnalytics"; DESC="AdvinstAnalytics"; add_to_wipe
 NAME="$LOCAL/AMD/CN/NewsFeed"; DESC="AMD CN news feed"; add_to_wipe
-NAME="$LOCAL/AMD/DxCache"; DESC="AMD DirectX Cache"; add_to_wipe
-NAME="$LOCAL/AOL/*/toolbarCache"; DESC="AOL Caches"; add_to_wipe
-NAME="$LOCAL/AOL/*/browserCache"; DESC="AOL Caches"; add_to_wipe
+NAME="$LOCAL/AMD/DxCache"; DESC="AMD DirectX cache"; add_to_wipe
+NAME="$LOCAL/AOL/*/toolbarCache"; DESC="AOL caches"; add_to_wipe
+NAME="$LOCAL/AOL/*/browserCache"; DESC="AOL caches"; add_to_wipe
 NAME="$LOCAL/ars.cache"; DESC="Miscellanous junk"; add_to_delete
 NAME="$LOCAL/census.cache"; DESC="Miscellanous junk"; add_to_delete
 NAME="$LOCAL/$APPLE/QuickTime/downloads"; DESC="QuickTime downloads"; add_to_wipe
@@ -482,7 +483,7 @@ NAME="$LOCAL/Adobe/Acrobat/*/Updater"; DESC="Adobe Acrobat"; add_to_wipe
 NAME="$LOCAL/Adobe/Reader*/Setup Files"; DESC="Adobe Acrobat"; add_to_wipe
 NAME="$LOCAL/Adobe/Updater*"; DESC="Adobe Acrobat"; add_to_wipe
 NAME="$LOCAL/alotappbar"; DESC="ALOT Toolbar"; add_to_wipe
-NAME="$LOCAL/Amazon */Data/*Cache"; DESC="Amazon Caches"; add_to_wipe
+NAME="$LOCAL/Amazon */Data/*Cache"; DESC="Amazon caches"; add_to_wipe
 NAME="$LOCAL/AMD/CN"; DESC="AMD software"; add_to_wipe
 NAME="$LOCAL/AMD/*Cache"; DESC="AMD software"; add_to_wipe
 NAME="$LOCAL/AMD/Fuel/ClientProxyLog*"; DESC="AMD software"; add_to_delete
@@ -493,8 +494,10 @@ NAME="$LOCAL/AskSBar"; DESC="Ask Toolbar"; add_to_wipe
 NAME="$LOCAL/AVG Secure Search/cache"; DESC="AVG Secure Search"; add_to_wipe
 NAME="$LOCAL/AVG Web TuneUp/IE/tmp"; DESC="AVG Web TuneUp"; add_to_wipe
 NAME="$LOCAL/Backup Assistant Plus/BackupLog"; DESC="Backup Assistant Plus"; add_to_wipe
+NAME="$LOCAL/Battle.net/BrowserCache"; DESC="Battle.net Browser"; add_to_wipe
 NAME="$LOCAL/BearShare"; DESC="BearShare"; add_to_wipe
 NAME="$LOCAL/bearsharemediabartb"; DESC="BearShare Media Bar"; add_to_wipe
+NAME="$LOCAL/Bethesda.net Launcher/cache/Cache"; DESC="Bethesda cache"; add_to_wipe
 NAME="$LOCAL/BibleTB"; DESC="BibleTB spyware"; add_to_wipe
 NAME="$LOCAL/adaware"; DESC="Blekko Toolbar"; add_to_wipe
 NAME="$LOCAL/blekkotb*"; DESC="Blekko Toolbar"; add_to_wipe
@@ -514,7 +517,9 @@ for CHROME in "Google/Chrome/User Data" "speed browser/User Data" \
 	"BraveSoftware/Brave-Browser/User Data" \
 	"AVAST Software/Browser/User Data" \
 	"Chromium/User Data" "Microsoft/Edge/User Data" \
-	"Adobe/AcroCef/DC/Acrobat" "Adobe/AcroCef/DC"
+	"Adobe/AcroCef/DC/Acrobat" "Adobe/AcroCef/DC" \
+	"obs-studio/plugin_config/obs-browser" \
+	"Wargaming.net/WorldOfTanks/awesomium_cache"
 	do CHROME="$LOCAL/$CHROME"
 	NAME="$CHROME/*/*/CacheStorage"; add_to_wipe
 	NAME="$CHROME/*/*Cache*/"; add_to_wipe
@@ -742,6 +747,7 @@ NAME="$LOCAL/Spotify/Data"; DESC="Spotify"; add_to_wipe
 NAME="$LOCAL/Spotify/Storage"; DESC="Spotify"; add_to_wipe
 NAME="$LOCAL/SquirrelTemp"; DESC="Discord SquirrelTemp"; add_to_wipe
 NAME="$LOCAL/SupportSoft"; DESC="SupportSoft"; add_to_wipe
+NAME="$LOCAL/Steam/htmlcache"; DESC="Steam HTML cache"; add_to_wipe
 NAME="$LOCAL/Sweetpacks*"; DESC="Sweetpacks"; add_to_wipe
 NAME="$LOCAL/$SAVCELOGS"; DESC="Symantec AV logs"; add_to_wipe
 NAME="$LOCAL/SupportSoft/DellSupportCenter/family/data/*.tmp"; DESC="Dell Support Center"; add_to_delete
@@ -825,6 +831,7 @@ NAME="$PF/$YMSGR/logs"; DESC="Yahoo Messenger"; add_to_wipe
 NAME="$PF/$YMSGR/Logs"; DESC="Yahoo Messenger"; add_to_wipe
 
 
+NAME="$ROAM/.minecraft/webcache/Cache"; DESC="Minecraft web cache"; add_to_wipe
 NAME="$ROAM/24x7 Help"; DESC="24x7 Help"; add_to_wipe
 NAME="$ROAM/$STARTMENU/24x7 Help"; DESC="24x7 Help"; add_to_wipe
 NAME="$ROAM/Lavasoft/Ad-Aware/Logs"; DESC="Ad-Aware"; add_to_wipe
@@ -1130,6 +1137,7 @@ NAME="$ROAM/uTorrent/ie"; DESC="uTorrent"; add_to_wipe
 NAME="$ROAM/utorrent/ie"; DESC="uTorrent"; add_to_wipe
 NAME="$ROAM/Vso/ConvertXtoDVD.log"; DESC="VSO ConvertXtoDVD"; add_to_delete
 NAME="$ROAM/Webroot/BugReports"; DESC="Webroot bug reports"; add_to_wipe
+NAME="$ROAM/Wargaming.net/WorldOfTanks/Profile/cef_cache"; DESC="World Of Tanks"; add_to_wipe
 NAME="$ROAM/WinClon/Logs"; DESC="WinClon logs"; add_to_wipe
 NAME="$ROAM/$WDSMART/*.txt"; DESC="WD SmartWare logs"; add_to_delete
 NAME="$ROAM/WindSolutions/CopyTransHEICforWindows/Logs"; DESC="CopyTrans HEIC Logs"; add_to_wipe
