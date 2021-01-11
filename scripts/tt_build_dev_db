@@ -247,11 +247,15 @@ get_manufacturer_names () {
 	done < $TFPI2
 	read_inf_sec "version" $TFPI $TFPI2
 	# Extract date code from file
-	DV="$(grep -m 1 "driverver" $TFPI2 | sed 's/  *//g;s/.*=//;s/,.*//')"
+#	DV="$(grep -m 1 "driverver" $TFPI2 | sed 's/  *//g;s/.*=//;s/,.*//')"
+	while read DV
+		do [[ $DV == *driverver* ]] && break
+	done < $TFPI2
+	DV="${DV// /}"; DV="${DV/*=/}"; DV="${DV/,*/}"
 #	echo "$DV" | grep -q '^./../....' && DV="0$DV"
-	[[ "$DV" =~ ^./../.... ]] && DV="0$DV"
+	[[ "$DV" == ?/??/???? ]] && DV="0$DV"
 #	echo "$DV" | grep -q '^.././....' && DV="$(echo "$DV" | sed s#\(../\)\(./....\)#\10\2#)"
-	[[ "$DV" =~ ^.././.... ]] && DV="$(echo "$DV" | sed s#\(../\)\(./....\)#\10\2#)"
+	[[ "$DV" == ??/?/???? ]] && DV="$(echo "$DV" | sed 's#\(../\)\(./....\)#\10\2#')"
 	DV="$(echo "$DV" | sed 's#\(..\)/\(..\)/\(....\)#\3\1\2#')"; test -z "$DV" && DV="00000000"
 	test $DBG -gt 2 && echo "${CBLU}get_manufacturer_names:$CWHT ($MFG) ${MFGNAME[@]}"
 }
