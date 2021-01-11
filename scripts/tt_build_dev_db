@@ -16,7 +16,7 @@ DBVER=005
 # = Unchanged
 # % Update display only
 PI_DELAY=19
-PI_REM=0; PI_ADD=0; PI_UNC=0; PI_DC=0
+PI_REM=0; PI_ADD=0; PI_PRES=0; PI_DC=0
 progress_indicate () {
 	if [ $DBG -gt 1 ]
 		then
@@ -247,7 +247,7 @@ get_manufacturer_names () {
 	done < $TFPI2
 	read_inf_sec "version" $TFPI $TFPI2
 	# Extract date code from file
-	DV="$(tr -d ' ' < $TFPI2 | grep -m 1 "driverver" | sed 's/.*=//;s/,.*//')"
+	DV="$(grep -m 1 "driverver" $TFPI2 | sed 's/  *//g;s/.*=//;s/,.*//')"
 #	echo "$DV" | grep -q '^./../....' && DV="0$DV"
 	[[ "$DV" =~ ^./../.... ]] && DV="0$DV"
 #	echo "$DV" | grep -q '^.././....' && DV="$(echo "$DV" | sed s#\(../\)\(./....\)#\10\2#)"
