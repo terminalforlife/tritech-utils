@@ -36,16 +36,16 @@ progress_indicate () {
 #			=) echo -n "${CBLU}=$COFF" ;;
 			+) PI_ADD=$((PI_ADD + 1)) ;;
 			-) PI_REM=$((PI_REM + 1)) ;;
-			=) PI_UNC=$((PI_UNC + 1)) ;;
+			=) PI_PRES=$((PI_PRES + 1)) ;;
 			%) PI_DC=$PI_DELAY ;;
 			*) echo -e "\n${CRED}?$COFF\n" ;;
 		esac
 		PI_DC=$((PI_DC + 1))
 		if [ $PI_DC -ge $PI_DELAY ]
 			then PI_DC=0
-			echo -n  "${CWHT}[ ${CGRN}$PI_ADD to add  "
-			echo -n  "${CCYA}$PI_REM to redo  "
-			echo -en "${CBLU}$PI_UNC unchanged$CWHT ]$COFF\r"
+			echo -n  "${CWHT}[ ${CGRN}$PI_ADD to be added  "
+			echo -n  "${CCYA}$PI_REM removed  "
+			echo -en "${CYEL}$PI_PRES already present$CWHT ]$COFF\r"
 		fi
 	fi
 }
@@ -373,7 +373,7 @@ sanitize_inf_file () {
 
 clean_out_inf () {
 	# Remove all hashes and devices for an INF file in the database
-	grep -v "/$1$" $DBFILE | grep -v '^SHA1:' | grep -v "^JH1:$1:" > $TF2 && mv -f $TF2 $DBFILE
+	grep -v -e "/$1$" -e "^JH:$1:" $DBFILE > $TF2 && mv -f $TF2 $DBFILE
 }
 
 # Execute this as: function_name file_to_read filename_to_validate
@@ -529,8 +529,9 @@ if [[ -e "$DBFILE"  && "$CONSISTENT" = "1" ]]
 	# Read the list of INF files and decide what to do with them
 	while read X
 		do
-		BLACKLIST="$(echo "$X" | sed 's/\.inf$/.dd_bl/;s/\.INF$/.dd_bl/g')"
-		HASH=$(grep -m 1 "^JH:$X:" $TF)
+		BLACKLIST="${X/.inf/.dd_bl}"
+		BLACKLIST="${BLACKLIST/.INF/.dd_bl}"
+		test ! -e "$BLACKLIST" && HASH="$(grep -m 1 "^JH:$X:" $TF)"
 		if [[ -z "$HASH" || -e "$BLACKLIST" ]]
 			then
 			XX=$(mktemp)
@@ -552,7 +553,7 @@ if [[ -e "$DBFILE"  && "$CONSISTENT" = "1" ]]
 				fi
 				rm -f "$XX"
 				else
-				progress_indicate "=" "$X"
+				progress_indicate = "$X"
 			fi
 		fi
 	done < $TF3
