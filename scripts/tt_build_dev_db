@@ -385,11 +385,10 @@ check_inf_not_allowed () {
 #	shopt -s nocasematch
 	XXX=0; XXY=0
 #	echo "$2" | grep -iq '/oemset..\.inf$' || echo "$2" | grep -iq '/autorun.inf$' || echo "$2" | grep -iq '/ntsetup.inf$' || \
-	if [[ "$2" =~ /oemset..\.inf$ || "$2" =~ /autorun.inf$ || "$2" =~ /ntsetup.inf$ ]]
-		then return 0
-		else read_inf_section "$1" version 2>/dev/null | grep -m 1 -iq 'signature.*"\$Windows 95\$"' 2>/dev/null
-	fi
+	[[ "$2" =~ /oemset..\.inf$ || "$2" =~ /autorun.inf$ || "$2" =~ /ntsetup.inf$ ]] && return 0
+	read_inf_section "$1" version 2>/dev/null | grep -m 1 -iq 'signature.*"\$windows 95\$"' 2>/dev/null && return 0
 #	shopt -u nocasematch
+	return 1
 }
 
 add_inf () {
@@ -525,7 +524,9 @@ if [[ -e "$DBFILE"  && "$CONSISTENT" = "1" ]]
 	for X in $(cut -d: -f2 < $TF)
 		do
 		if [ ! -e "$X" ]
-			then clean_out_inf "$X"
+			then
+			echo "Cleaning out because no longer exists: $X"
+			clean_out_inf "$X"
 			progress_indicate - "$X"
 		fi
 	done
@@ -535,13 +536,18 @@ if [[ -e "$DBFILE"  && "$CONSISTENT" = "1" ]]
 		do
 		BLACKLIST="${X/.inf/.dd_bl}"
 		BLACKLIST="${BLACKLIST/.INF/.dd_bl}"
-		test ! -e "$BLACKLIST" && HASH="$(grep -m 1 "^JH:$X:" $TF)"
-		if [[ -z "$HASH" || -e "$BLACKLIST" ]]
+#		test ! -e "$BLACKLIST" && HASH="$(grep -m 1 "^JH:$X:" $TF)"
+		HASH=__NONE__
+		test -n "$BLACKLIST" && while read LINE
+			do [[ "$LINE" =~ ^JH:$X:.*$ ]] && HASH="$LINE" && break
+		done < $TF
+		if [[ "$HASH" = "__NONE__" || -e "$BLACKLIST" ]]
 			then
 			XX=$(mktemp)
 			sanitize_inf_file "$X" "$XX"
-			if ! check_inf_not_allowed "$XX" "$X"
-				then clean_out_inf "$X"
+			if check_inf_not_allowed "$XX" "$X"
+				then
+				clean_out_inf "$X"
 				add_inf "$X"
 			fi
 			rm -f "$XX"
@@ -551,8 +557,9 @@ if [[ -e "$DBFILE"  && "$CONSISTENT" = "1" ]]
 				then
 				XX=$(mktemp)
 				sanitize_inf_file "$X" "$XX"
-				if ! check_inf_not_allowed "$XX" "$X"
-					then clean_out_inf "$X"
+				if check_inf_not_allowed "$XX" "$X"
+					then
+					clean_out_inf "$X"
 					add_inf "$X"
 				fi
 				rm -f "$XX"
@@ -568,7 +575,7 @@ if [[ -e "$DBFILE"  && "$CONSISTENT" = "1" ]]
 		do
 		XX=$(mktemp)
 		sanitize_inf_file "$X" "$XX"
-		check_inf_not_allowed "$XX" "$X" || add_inf "$X"
+		check_inf_not_allowed "$XX" "$X" && add_inf "$X"
 		rm -f "$XX"
 	done < $TF3
 fi
