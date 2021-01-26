@@ -190,7 +190,8 @@ for X in $(echo /dev/md?* | tr ' ' '\n' | grep -v '\?' | sed s#/dev/##g | tr '\n
 done
 
 MOUNTED="$(cut -d" " -f1 < /proc/mounts | grep '^/' | sort | uniq | tr \\n ' ') "
-ROOTMT=$(mountpoint -d /)
+ROOTMT="$(mountpoint -d /)"
+test "$ROOTMT" = "/ is not a mountpoint" && ROOTMT=0
 if [ $(echo $ROOTMT | sed 's/:.*//') -gt 0 ]
 	then for X in /sys/block/*/dev
 		do grep -q "$ROOTMT" $X && MOUNTED="$MOUNTED $(echo $X | sed 's#/sys/block/\(.*\)/dev#/dev/\1#') "
