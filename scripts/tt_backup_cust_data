@@ -96,7 +96,8 @@ select_backup_data () {
 			"\$WINRE_BACKUP_PARTITION.MARKER" "\$Windows.~BT" \
 			"\$Windows.~WS" "\$SysReset" msdia80.dll bootTel.dat \
 			mfg rescue.info session.log setup.log swshare \
-			"\$WINDOWS.~BT"
+			"\$WINDOWS.~BT" "$WinREAgent" "DumpStack.log" \
+			"DumpStack.log.tmp"
 
 			do test "$(basename "$X")" = "$BL" && ADD=0 && break
 		done
