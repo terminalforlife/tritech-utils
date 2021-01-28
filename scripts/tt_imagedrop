@@ -143,7 +143,7 @@ if [ $MAX -eq 1 ]
 	ERR=1
 	XP=0; UEFI=0; GPT=0
 	echo "${CGRN}Scanning partitions on $CWHT$DEV$COFF"
-	scan_partitions && echo "Error $? scanning partitions" && clean_exit 1
+	! scan_partitions && echo "Error $? scanning partitions" && clean_exit 1
 	if [ "$GPT" = "0" ]
 		then echo -n "Specify number of heads for MBR mode (255): "
 		read HEADS
