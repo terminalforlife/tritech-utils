@@ -98,12 +98,13 @@ get_host_winver_flags () {
 
 ### End functions
 
-test "$1" = "simulate" && SIMULATE=1
-test "$1" = "benchmark" && SIMULATE=1 && NOPROMPT=1
-
-DBG=0; test "$1" = "-d" && DBG=1; test "$1" = "-dd" && DBG=2
+DBG=0
+test "$1" = "simulate" && SIMULATE=1 && DBG=1
+test "$1" = "benchmark" && SIMULATE=1 && DBG=1 && NOPROMPT=1
+test "$1" = "-d" && DBG=1; test "$1" = "-dd" && DBG=2
 WINDB=0; test "$1" = "-w" && WINDB=1
-if [[ $DBG -eq 0 && "$1" != "dump" ]]
+
+if [[ $DBG == 0 && "$1" != "dump" ]]
 	then TMP=$(mktemp)
 	tt__disk_prompt $TMP usedefault
 	DEV="$(cat $TMP)"
@@ -129,7 +130,7 @@ if [[ $DBG -eq 0 && "$1" != "dump" ]]
 		MTPT="$EXIST"
 		echo "${CWHT}Using existing mountpoint at $CBLU$MTPT$COFF"
 	fi
-	else if [ "$1" != "dump" ]
+	else if [[ $1 != "dump" && $SIMULATE == 0 ]]
 		then echo "$CYEL --- Debugging Mode ---$COFF"
 		test ! -d "$MTPT" && echo "Must set MTPT:  MTPT=/mnt/sda2 $0" && exit 1
 		EXIST="$MTPT"
