@@ -11,6 +11,9 @@ echo "$ARCH" | grep -q 'i[3456]86' && ARCH="i386"
 PKGDIR=./packages/installed
 PKG="$1"
 P="$PKGDIR/$1"
+for CL in glibc uclibc musl dietlibc
+	do test "$PKG" = "$CL" && echo "Refusing to remove a core C library package: $PKG" && exit 1
+done
 test ! -e $P && for X in ${P}_*-$ARCH
 	do test -e "$X" && P="$X"
 done
@@ -22,8 +25,8 @@ if [ ! -d "$PKGDIR" ]
 fi
 if [ -e "$P" ]
 	then echo "Peeling out package $1"
-	for X in $(cat $P | grep -v '/$'); do rm -f "./$X"; done
-	for X in $(cat $P | grep '/$' | sort -r); do rmdir -p --ignore-fail-on-non-empty "./$X" 2>/dev/null; done
+	for X in $(grep -v '/$' < "$P"); do rm -f "./$X"; done
+	for X in $(grep '/$' < "$P" | sort -r); do rmdir -p --ignore-fail-on-non-empty "./$X" 2>/dev/null; done
 	rm -f $P
 	else echo "Bad package spec: '$1' => '$P'"
 	exit 1
