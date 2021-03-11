@@ -519,32 +519,36 @@ for CHROME in "Google/Chrome/User Data" "speed browser/User Data" \
 	"Chromium/User Data" "Microsoft/Edge/User Data" \
 	"Adobe/AcroCef/DC/Acrobat" "Adobe/AcroCef/DC" \
 	"obs-studio/plugin_config/obs-browser" \
-	"Wargaming.net/WorldOfTanks/awesomium_cache"
-	do CHROME="$LOCAL/$CHROME"
-	NAME="$CHROME/*/*/CacheStorage"; add_to_wipe
-	NAME="$CHROME/*/*Cache*/"; add_to_wipe
-#	NAME="$CHROME/*/*Cookies"; add_to_delete
-	NAME="$CHROME/*/Extensions/Temp"; add_to_wipe
-	NAME="$CHROME/*/Favicons"; add_to_delete
-	NAME="$CHROME/*/File System"; add_to_delete
-	NAME="$CHROME/*/*History*"; add_to_delete
-	NAME="$CHROME/*/IndexedDB"; add_to_wipe
-	NAME="$CHROME/*/JumpListIcons*"; add_to_wipe
-	NAME="$CHROME/*/Last Session"; add_to_delete
-	NAME="$CHROME/*/Last Tabs"; add_to_delete
-	NAME="$CHROME/*/Local Storage/http*"; add_to_delete
-	NAME="$CHROME/*/Media Cache"; add_to_wipe
-	NAME="$CHROME/*/old_*"; add_to_wipe
-	NAME="$CHROME/*/Pepper Data/Shockwave Flash"; add_to_wipe
-	NAME="$CHROME/*/Service Worker"; add_to_wipe
-	NAME="$CHROME/*/*Tabs"; add_to_delete
-	NAME="$CHROME/*/Transport Security"; add_to_delete
-	NAME="$CHROME/*/Thumbnails"; add_to_delete
-	NAME="$CHROME/*/Visited Links"; add_to_delete
-	NAME="$CHROME/*/*.tmp"; add_to_delete
-	NAME="$CHROME/*.tmp"; add_to_delete
-	NAME="$CHROME/Crashpad"; add_to_wipe
-	NAME="$CHROME/Safe Browsing*"; add_to_delete
+	"Wargaming.net/WorldOfTanks/awesomium_cache" \
+	"Intuit/TurboTax/*"
+	do for PFX in "$LOCAL" "$ROAM"; do
+	CHROME="$PFX/$CHROME"
+		NAME="$CHROME/*/*/CacheStorage"; add_to_wipe
+		NAME="$CHROME/*/*Cache*/"; add_to_wipe
+#		NAME="$CHROME/*/*Cookies"; add_to_delete
+		NAME="$CHROME/*/Extensions/Temp"; add_to_wipe
+		NAME="$CHROME/*/Favicons"; add_to_delete
+		NAME="$CHROME/*/File System"; add_to_delete
+#		NAME="$CHROME/*/*History*"; add_to_delete
+		NAME="$CHROME/*/IndexedDB"; add_to_wipe
+		NAME="$CHROME/*/JumpListIcons*"; add_to_wipe
+		NAME="$CHROME/*/Last Session"; add_to_delete
+		NAME="$CHROME/*/Last Tabs"; add_to_delete
+		NAME="$CHROME/*/Local Storage/http*"; add_to_delete
+		NAME="$CHROME/*/Media Cache"; add_to_wipe
+		NAME="$CHROME/*/old_*"; add_to_wipe
+		NAME="$CHROME/*/Pepper Data/Shockwave Flash"; add_to_wipe
+		NAME="$CHROME/*/PnaclTranslationCache"; add_to_wipe
+		NAME="$CHROME/*/Service Worker"; add_to_wipe
+		NAME="$CHROME/*/*Tabs"; add_to_delete
+		NAME="$CHROME/*/Transport Security"; add_to_delete
+		NAME="$CHROME/*/Thumbnails"; add_to_delete
+		NAME="$CHROME/*/Visited Links"; add_to_delete
+		NAME="$CHROME/*/*.tmp"; add_to_delete
+		NAME="$CHROME/*.tmp"; add_to_delete
+		NAME="$CHROME/Crashpad"; add_to_wipe
+		NAME="$CHROME/Safe Browsing*"; add_to_delete
+	done
 done
 
 NAME="$LOCAL/Conduit"; DESC="Conduit software"; add_to_wipe
