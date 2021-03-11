@@ -227,7 +227,7 @@ for DRV in $DRIVES
 	fi
 
 	if [ $NPT -eq 0 ]
-		then for X in $(cat "$PART" | grep "$DRV" | tr \\n " ")
+		then for X in $(grep "$DRV" < "$PART" | tr \\n " ")
 			do
 			unset PARTATTR
 			Y=$(echo $X | tr : " " | awk '{ print $2 }')
