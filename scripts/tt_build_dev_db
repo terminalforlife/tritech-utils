@@ -206,7 +206,7 @@ process_device_entries () {
 		done < "$1"
 
 		else
-		cat "$1" | format_device_entry "$2" "$3" "$4" >> $DBFILE2 2>/dev/null
+		format_device_entry "$2" "$3" "$4" < "$1" >> $DBFILE2 2>/dev/null
 	fi
 }
 
@@ -541,6 +541,7 @@ if [[ -e "$DBFILE"  && "$CONSISTENT" = "1" ]]
 		test -n "$BLACKLIST" && while read LINE
 			do [[ "$LINE" =~ ^JH:$X:.*$ ]] && HASH="$LINE" && break
 		done < $TF
+#		echo "HASH = $HASH, BLACKLIST = $BLACKLIST, BLE = $(test -e $BLACKLIST && echo yes || echo no)"
 		if [[ "$HASH" = "__NONE__" || -e "$BLACKLIST" ]]
 			then
 			XX=$(mktemp)
