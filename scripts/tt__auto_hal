@@ -48,7 +48,7 @@ if grep -q "IO-APIC" /proc/interrupts
   else echo -n "${CYEL}no APIC, $COFF"; APIC=0
 fi
 # Check for multiprocessor mode
-if cat /proc/cpuinfo | grep "processor" | grep -q ": 1"
+if grep "processor" /proc/cpuinfo | grep -q ": 1"
   then echo -n "${CGRN}MP: $COFF"; MP=1
   else echo -n "${CYEL}no MP: $COFF"; MP=0
 fi

@@ -28,7 +28,7 @@ fi
 for X in /mnt/$(cat $T)*[0-9]*
 	do M=0
 	echo "Trying $X"
-	if cat /proc/mounts | grep $X | grep -q ro
+	if grep $X /proc/mounts | grep -q ro
 		then umount $X 2>/dev/null
 	fi
 	if ! mountpoint -q $X

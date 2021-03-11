@@ -109,7 +109,7 @@ for Y in /mnt/*
 	do Z="$Y/$VF"
 	OVERRIDE="$Y/$OR"
 	test "$SUV" = "1" && echo "Trying mountpoint $Y"
-	M=0; cat /proc/mounts | cut -d" " -f2 | grep -q "$Y" \
+	M=0; cut -d" " -f2 < /proc/mounts | grep -q "$Y" \
 		&& M=1 && test "$SUV" = "1" && echo "$Y already mounted"
 	MOK=0
 	test $MOUNT -eq 1 && \

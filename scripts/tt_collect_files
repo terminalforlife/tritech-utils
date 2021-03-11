@@ -24,8 +24,7 @@ find . -type f >> "$FILE"
 
 echo -n "sorting, "
 
-cat $FILE | \
-  sed 's#/Windows.old/#/#g;s#./Users/[^/]*#./Users/Owner#g' | \
+sed 's#/Windows.old/#/#g;s#./Users/[^/]*#./Users/Owner#g' < "$FILE" | \
   sed 's#/Documents and Settings/[^/]*/#/Documents and Settings/Owner/#g' | \
   sed 's#Mozilla/Firefox/Profiles/[^.]*\.default/#Mozilla/Firefox/Profiles/blahblah.default/#g' | \
   sed 's#\./WINDOWS/#./Windows/#g;s#/Program Files (x86)#Program Files#g' | \
@@ -65,7 +64,7 @@ for X in AppCompat AppPatch Boot Cursors "Downloaded Installations" \
 	Fonts Globalization Help IME Installer Media Microsoft.NET \
 	ServicePackFiles Prefetch RegisteredPackages SMINST inf \
 	assembly servicing web '.*/dllcache'
-	do cat $TMPFILE | grep -iv "\./Windows/$X/" > $TMPFILE2
+	do grep -iv "\./Windows/$X/" "$TMPFILE" > $TMPFILE2
 	cat $TMPFILE2 > $TMPFILE
 done
 

@@ -127,7 +127,7 @@ tt__read_memory_size () {
 			do MEMT=$((MEMT + X))
 		done
 		else
-		MEMT=$(cat /proc/meminfo | grep 'MemTotal:' | awk '{print $2}')
+		MEMT=$(grep 'MemTotal:' /proc/meminfo | awk '{print $2}')
 		MEMT=$(($MEMT + 11000))
 		MEMT=$(expr $MEMT / 1024)
 	fi

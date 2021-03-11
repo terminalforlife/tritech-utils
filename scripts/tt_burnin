@@ -26,10 +26,10 @@ trap control_c SIGINT
 
 echo -n "Starting burn-in on "
 
-TMP1=$(cat /proc/cpuinfo | grep processor | grep -v "model" | cut -d\  -f 2 | tail -1)
+TMP1=$(grep processor /proc/cpuinfo | grep -v "model" | cut -d\  -f 2 | tail -1)
 TMP1=$((TMP1 + 1))
 echo "$TMP1 CPUs for $MINUTES minutes."
-for X in $(cat /proc/cpuinfo | grep processor | grep -v "model" | cut -d\  -f 2 | tr \\n ' ')
+for X in $(seq $TMP1)
 	do (yes > /dev/null &)
 done
 SECS=$(expr $MINUTES \* 60)

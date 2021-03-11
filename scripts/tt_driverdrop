@@ -110,7 +110,7 @@ if [[ $DBG == 0 && "$1" != "dump" ]]
 	DEV="$(cat $TMP)"
 	rm $TMP
 
-	PART="$(cat /proc/partitions | awk '{ print $3" "$4 }' | \
+	PART="$(awk '{ print $3" "$4 }' < /proc/partitions | \
 		grep "${DEV}p*[0-9]" | sort -gr | \
 		awk '{ print $2 }' | tr \\n ' ')"
 	PART="$(echo $PART | tr ' ' \\n | head -n 1)"

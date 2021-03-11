@@ -27,7 +27,7 @@ flush_ip () {
 flush_all_interfaces () {
 	# Terminate IP configuration for all network interfaces
 	# unmount any CIFS filesystems before possibly disconnecting things
-	umount -f $(cat /proc/mounts | grep '[^ ]* [^ ]* cifs' | cut -d' ' -f2) 2>/dev/null
+	umount -f $(grep '[^ ]* [^ ]* cifs' /proc/mounts | cut -d' ' -f2) 2>/dev/null
 	killall -q udhcpc
 	killall -q wpa_supplicant
 	sleep 0.3

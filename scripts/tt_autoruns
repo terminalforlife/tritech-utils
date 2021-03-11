@@ -201,7 +201,7 @@ tt__disk_prompt $TMP
 DEV="$(cat $TMP)"
 rm -f $TMP
 
-PART="$(cat /proc/partitions | awk '{ print $3" "$4 }' | \
+PART="$(awk '{ print $3" "$4 }' < /proc/partitions | \
 	grep $DEV\[1-9\] | sort -gr | \
 	awk '{ print $2 }' | tr \\n ' ')"
 DEFAULT="$(echo $PART | tr ' ' \\n | head -n 1)"
@@ -251,7 +251,7 @@ if [ "$REG_SYS" != "__NONE__" ]
 	then
 	mount.winregfs -o ro "$WINDIR/$SYS32/$CONFIG/$REG_SYS" $REGMTPT
 	# Find CurrentControlSet
-	CCS="ControlSet$(cat "$REGMTPT/Select/Current.dw" | sed 's/^00000//')"
+	CCS="ControlSet$(sed 's/^00000//' < "$REGMTPT/Select/Current.dw")"
 	if [ ! -e "$REGMTPT/$CCS" ]
 		then echo "CurrentControlSet invalid: '$CCS'"
 		clean_exit

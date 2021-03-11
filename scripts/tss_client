@@ -59,7 +59,7 @@ get_os_version () {
 	pgrep -f tt_imagedrop >/dev/null && return 0
 	pgrep -f tt_takeimage >/dev/null && return 0
 	test $V -gt 1 && echo "${CGRN}get_os_version()$COFF" >&2
-	ALLPARTS=$(cat /proc/partitions | grep -e 'sd.[0-9]$' -e 'mmcblk[0-9]p[0-9]$' -e 'nvme[0-9]n[0-9]$' -e 'hd.[0-9]$' | sort -k3 -gr | awk '{print $4}')
+	ALLPARTS=$(grep -e 'sd.[0-9]$' -e 'mmcblk[0-9]p[0-9]$' -e 'nvme[0-9]n[0-9]$' -e 'hd.[0-9]$' /proc/partitions | sort -k3 -gr | awk '{print $4}')
 	for PART in $ALLPARTS
 		do
 		M=0
@@ -304,8 +304,8 @@ detect_tss_server () {
 
 	if [ "$BCN" = "1" ]
 		then
-		RAW="$(cat $SVR_TEMP | head -n 1)"
-		SVRX="$(echo $RAW | sed 's/cifs://;s/:.*//g')"
+		RAW="$(head -n 1 "$SVR_TEMP")"
+		SVRX="$(echo "$RAW" | sed 's/cifs://;s/:.*//g')"
 		SVR="$(echo "$SVRX" | sed 's/\/.*//')"
 		SVRSHARE="$(echo "$SVRX" | sed 's#/.*##')"
 		UN="$(echo $RAW | sed 's/cifs:[^:]*://;s/:.*//')"
