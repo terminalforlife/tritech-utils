@@ -36,7 +36,7 @@ test ! -s "$TEMP" && echo "${CRED}no beacons received.$COFF" && BCN=0
 
 if [ $BCN = 1 ]
   then
-  RAW="$(cat $TEMP | head -n 1)"
+  RAW="$(head -n 1 < "$TEMP")"
   SVRX="$(echo $RAW | sed s/cifs:// | sed s/:.*//g)"
   SVR="$(echo "$SVRX" | sed 's/\/.*//')"
   UN="$(echo $RAW | sed s/cifs:[^:]*:// | sed s/\:.*//)"
