@@ -69,28 +69,28 @@ export FAIL_COMMAND='tt_beepsong taps'
 
 # ANSI color codes
 
-export COFF="$(echo -e '\e[00m')"    # Disable all attributes
-export CBLINK="$(echo -e '\e[05m')"  # Annoying Blink
+export COFF="$(echo -e "\033[00m")"    # Disable all attributes
+export CBLINK="$(echo -e "\033[05m")"  # Annoying Blink
 
 # Foreground colors
-export CBLK="$(echo -e '\e[01;30m')" # Black
-export CRED="$(echo -e '\e[01;31m')" # Red
-export CGRN="$(echo -e '\e[01;32m')" # Green
-export CYEL="$(echo -e '\e[01;33m')" # Yellow
-export CBLU="$(echo -e '\e[01;34m')" # Blue
-export CPUR="$(echo -e '\e[01;35m')" # Purple (Magenta)
-export CCYA="$(echo -e '\e[01;36m')" # Cyan
-export CWHT="$(echo -e '\e[01;37m')" # White
+export CBLK="$(echo -e "\033[01;30m")" # Black
+export CRED="$(echo -e "\033[01;31m")" # Red
+export CGRN="$(echo -e "\033[01;32m")" # Green
+export CYEL="$(echo -e "\033[01;33m")" # Yellow
+export CBLU="$(echo -e "\033[01;34m")" # Blue
+export CPUR="$(echo -e "\033[01;35m")" # Purple (Magenta)
+export CCYA="$(echo -e "\033[01;36m")" # Cyan
+export CWHT="$(echo -e "\033[01;37m")" # White
 
 # Background colors
-export BGBLK="$(echo -e '\e[01;40m')" # Black
-export BGRED="$(echo -e '\e[01;41m')" # Red
-export BGGRN="$(echo -e '\e[01;42m')" # Green
-export BGYEL="$(echo -e '\e[01;43m')" # Yellow
-export BGBLU="$(echo -e '\e[01;44m')" # Blue
-export BGPUR="$(echo -e '\e[01;45m')" # Purple (Magenta)
-export BGCYA="$(echo -e '\e[01;46m')" # Cyan
-export BGWHT="$(echo -e '\e[01;47m')" # White
+export BGBLK="$(echo -e "\033[01;40m")" # Black
+export BGRED="$(echo -e "\033[01;41m")" # Red
+export BGGRN="$(echo -e "\033[01;42m")" # Green
+export BGYEL="$(echo -e "\033[01;43m")" # Yellow
+export BGBLU="$(echo -e "\033[01;44m")" # Blue
+export BGPUR="$(echo -e "\033[01;45m")" # Purple (Magenta)
+export BGCYA="$(echo -e "\033[01;46m")" # Cyan
+export BGWHT="$(echo -e "\033[01;47m")" # White
 
 ### End color setup
 
