@@ -16,7 +16,21 @@ embedded throughout the scripts, though over the years I have worked on making
 the system usable without a core server to support it. It is possible with
 many scripts to pass environment variables which modify their behavior. For
 example, tt_imagedrop looks for images in /mnt/cifs/source/hd_images by
-default and IMGDIR overrides this: IMGDIR=/mnt/sdc2/diskimg tt_imagedropp
+default and IMGDIR overrides this: IMGDIR=/mnt/sdc2/diskimg tt_imagedrop
+
+You'll want the following programs to make full use of these tools:
+socat
+pv
+ntfs-3g (and some ntfsprogs: ntfsresize, ntfsfix)
+hdparm
+rsync
+smartctl (smartmontools)
+fdisk (BusyBox fdisk is ideal; util-linux fdisk may or may not work)
+sfdisk (from util-linux)
+gdisk (gptfdisk)
+lspci (pciutils)
+dmidecode
+beep (if you have a PC speaker)
 
 If you're interested in setting up a disk or CIFS server in such a way that it
 can act as a TSS server, here's the expected layout of a TSS server root share
@@ -60,8 +74,14 @@ or portable TSS disk (with override variables in "QUOTES"):
 +-- packages/
   Tritech Service System software packages (if root of disk/share; optional)
 
+The commit history starts in 2013, but several of these tools existed well
+before 2013. There are several bad shell scripting/programming practices to be
+found within. Patches to fix these are welcome; please be nice!  :-)
 
-TODO: Document everything!
+Note that tt_takeimage doesn't do the NTFS and partition resize work for you.
+ntfsresize -i doesn't return a size guaranteed to work and I didn't feel like
+working around it. Images are just flat disk images; there's no special format.
 
+This documentation is not complete and probably never will be.
 
 For more information, email jody@jodybruchon.com
