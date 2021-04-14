@@ -43,9 +43,9 @@ progress_indicate () {
 		PI_DC=$((PI_DC + 1))
 		if [ $PI_DC -ge $PI_DELAY ]
 			then PI_DC=0
-			echo -n  "${CWHT}[ ${CGRN}$PI_ADD to be added  "
-			echo -n  "${CCYA}$PI_REM removed  "
-			echo -en "${CYEL}$PI_PRES already present$CWHT ]$COFF\r"
+			echo -n  "${CWHT}[ ${CGRN}$PI_ADD to add/refresh  "
+			echo -n  "${CCYA}$PI_REM to remove  "
+			echo -en "${CYEL}$PI_PRES already OK$CWHT ]$COFF\r"
 		fi
 	fi
 }
@@ -385,10 +385,10 @@ check_inf_not_allowed () {
 #	shopt -s nocasematch
 	XXX=0; XXY=0
 #	echo "$2" | grep -iq '/oemset..\.inf$' || echo "$2" | grep -iq '/autorun.inf$' || echo "$2" | grep -iq '/ntsetup.inf$' || \
-	[[ "$2" =~ /oemset..\.inf$ || "$2" =~ /autorun.inf$ || "$2" =~ /ntsetup.inf$ ]] && return 0
-	read_inf_section "$1" version 2>/dev/null | grep -m 1 -iq 'signature.*"\$windows 95\$"' 2>/dev/null && return 0
+	[[ "$2" =~ /oemset..\.inf$ || "$2" =~ /autorun.inf$ || "$2" =~ /ntsetup.inf$ ]] && return 1
+	read_inf_section "$1" version 2>/dev/null | grep -m 1 -iq 'signature.*"\$windows 95\$"' 2>/dev/null && return 1
 #	shopt -u nocasematch
-	return 1
+	return 0
 }
 
 add_inf () {
@@ -520,12 +520,13 @@ echo "...done: $(wc -l < $TF3) files found."
 
 # If the database exists and is consistent, check for and handle changed files.
 if [[ -e "$DBFILE"  && "$CONSISTENT" = "1" ]]
-	then grep '^JH:[^:]' $DBFILE > $TF
+	then
+	XX=$(mktemp)
+	grep '^JH:[^:]' $DBFILE > $TF
 	for X in $(cut -d: -f2 < $TF)
 		do
 		if [ ! -e "$X" ]
 			then
-			echo "Cleaning out because no longer exists: $X"
 			clean_out_inf "$X"
 			progress_indicate - "$X"
 		fi
@@ -544,41 +545,41 @@ if [[ -e "$DBFILE"  && "$CONSISTENT" = "1" ]]
 #		echo "HASH = $HASH, BLACKLIST = $BLACKLIST, BLE = $(test -e $BLACKLIST && echo yes || echo no)"
 		if [[ "$HASH" = "__NONE__" || -e "$BLACKLIST" ]]
 			then
-			XX=$(mktemp)
 			sanitize_inf_file "$X" "$XX"
 			if check_inf_not_allowed "$XX" "$X"
 				then
 				clean_out_inf "$X"
 				add_inf "$X"
 			fi
-			rm -f "$XX"
+			: > "$XX"
 			else
 			HASH2="JH:$X:$(jodyhash "$X")"
 			if [ ! "$HASH" = "$HASH2" ]
 				then
-				XX=$(mktemp)
 				sanitize_inf_file "$X" "$XX"
 				if check_inf_not_allowed "$XX" "$X"
 					then
 					clean_out_inf "$X"
 					add_inf "$X"
 				fi
-				rm -f "$XX"
+				: > "$XX"
 				else
 				progress_indicate = "$X"
 			fi
 		fi
 	done < $TF3
+	rm -f "$XX"
 
 	# If database missing or inconsistent, toss it and rebuild.
 	else
+	XX=$(mktemp)
 	while read X
 		do
-		XX=$(mktemp)
 		sanitize_inf_file "$X" "$XX"
 		check_inf_not_allowed "$XX" "$X" && add_inf "$X"
-		rm -f "$XX"
+		: > "$XX"
 	done < $TF3
+	rm -f "$XX"
 fi
 progress_indicate % ''
 echo
