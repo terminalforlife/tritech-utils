@@ -416,15 +416,16 @@ process_inf () {
 			then
 			test $DBG -gt 1 && echo -n "${CGRN}INF for $CWHT$FILE$COFF => $CWHT$SEC$COFF: "
 			# Test for device entries in a section and set/unset flags as appropriate
-			if [ -z "$(cat "$TFPI2")" ]
-			then test $DBG -gt 1 && echo "${CYEL}clearing flags$COFF"
+			while read -r L; do break; done < "$TFPI2" # Test for empty file
+			if [[ -z "$L" ]]
+				then [[ $DBG -gt 1 ]] && echo "${CYEL}clearing flags$COFF"
 #				echo "$SEC" | grep -iq '\.nt[a-z0-9]*' && unset_winver_flags "$(echo "$SEC" | sed 's/.*\.nt/nt/')"
 				if [[ "$SEC" =~ \.nt[a-z0-9]* ]]
 					then unset_winver_flags "${SEC/*.nt/nt}"
 					else clear_winver_flags
 				fi
 
-				else test $DBG -gt 1 && echo "${CGRN}setting flags$COFF"
+				else [[ $DBG -gt 1 ]] && echo "${CGRN}setting flags$COFF"
 #				set_winver_flags "$(echo "$SEC" | sed 's/.*\.nt/nt/')"
 				set_winver_flags "${SEC/*.nt/nt}"
 			fi
