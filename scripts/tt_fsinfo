@@ -68,7 +68,7 @@ expand_fsid () {
 		 4)   FS="FAT16       " ;;
 		 5)   FS="Extended    " ;;
 		 6)   FS="FAT16       " ;;
-		 7)   FS="NTFS        " ;;
+		 7)   FS="NTFS/exFAT  " ;;
 		 b)   FS="FAT32       " ;;
 		 c)   FS="FAT32       " ;;
 		 e)   FS="FAT16       " ;;
@@ -216,6 +216,11 @@ for DRV in $DRIVES
 		echo -en "$CPUR$X: $CGRN$DEVSIZE  $CWHT$PTTYPE  $CRED$TYPE $CCYA$MODEL$DSN2 $CWHT$ATTRIBS$COFF"
 		if [[ "$NP" = "0" && "$NPT" = "1" && "$NPD" = "0" ]]
 			then echo -n " (no partitions)"; NPD=1
+			# For non-partitioned devices, show FS if one is present
+			for FST in ntfs exfat hfsplus
+				do test $(tss_file_tool $FST /dev/$X) = "yes" && \
+					echo -en "\n$CWHT +-- ${CPUR}Non-partitioned with $CWHT$FST$CPUR filesystem$COFF"
+			done
 		fi
 		echo
 		if [ "$NOSMART" != "1" ]
@@ -227,7 +232,7 @@ for DRV in $DRIVES
 	fi
 
 	if [ $NPT -eq 0 ]
-		then for X in $(grep "$DRV" < "$PART" | tr \\n " ")
+		then for X in $(cat "$PART" | grep "$DRV" | tr \\n " ")
 			do
 			unset PARTATTR
 			Y=$(echo $X | tr : " " | awk '{ print $2 }')
