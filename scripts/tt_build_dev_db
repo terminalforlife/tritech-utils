@@ -1,7 +1,7 @@
 #!/bin/bash
 
-VER=1.0
-VERDATE=2020-08-17
+VER=1.1
+VERDATE=2021-04-14
 
 # Device database version created by this version of driver drop
 # Must be a three-digit number
@@ -524,15 +524,23 @@ echo "...done: $(wc -l < $TF3) files found."
 if [[ -e "$DBFILE"  && "$CONSISTENT" = "1" ]]
 	then
 	XX=$(mktemp)
-	grep '^JH:[^:]' $DBFILE > $TF
-	for X in $(cut -d: -f2 < $TF)
+	unset TFHASH TFINF
+	TFCNT=0
+	while read -r X
 		do
-		if [ ! -e "$X" ]
+		# Pull the hash and INF file name from each JH line
+		[[ ! "$X" =~ ^JH: ]] && continue
+		X="${X/#JH:/}"
+		TFHASH[$TFCNT]="${X/*:/}"
+		TFINF[$TFCNT]="${X/%:*/}"
+		if [ ! -e "${TFINF[$TFCNT]}" ]
 			then
+			echo "Cleaning out because no longer exists: $X"
 			clean_out_inf "$X"
 			progress_indicate - "$X"
 		fi
-	done
+		(( TFCNT++ ))
+	done < "$DBFILE"
 
 	# Read the list of INF files and decide what to do with them
 	while read X
@@ -541,11 +549,17 @@ if [[ -e "$DBFILE"  && "$CONSISTENT" = "1" ]]
 		BLACKLIST="${BLACKLIST/.INF/.dd_bl}"
 #		test ! -e "$BLACKLIST" && HASH="$(grep -m 1 "^JH:$X:" $TF)"
 		HASH=__NONE__
-		test -n "$BLACKLIST" && while read LINE
-			do [[ "$LINE" =~ ^JH:$X:.*$ ]] && HASH="$LINE" && break
-		done < $TF
+		TFCNT2=0
+		test -e "$BLACKLIST" || while [[ $TFCNT2 -lt $TFCNT ]]
+			do
+			if [[ "${TFINF[$TFCNT2]}" == "$X" ]]
+				then HASH="${TFHASH[$TFCNT2]}"
+				break
+			fi
+		(( TFCNT2 ++ ))
+		done
 #		echo "HASH = $HASH, BLACKLIST = $BLACKLIST, BLE = $(test -e $BLACKLIST && echo yes || echo no)"
-		if [[ "$HASH" = "__NONE__" || -e "$BLACKLIST" ]]
+		if [[ "$HASH" == "__NONE__" ]]
 			then
 			sanitize_inf_file "$X" "$XX"
 			if check_inf_not_allowed "$XX" "$X"
@@ -555,7 +569,7 @@ if [[ -e "$DBFILE"  && "$CONSISTENT" = "1" ]]
 			fi
 			: > "$XX"
 			else
-			HASH2="JH:$X:$(jodyhash "$X")"
+			HASH2="$(jodyhash "$X")"
 			if [ ! "$HASH" = "$HASH2" ]
 				then
 				sanitize_inf_file "$X" "$XX"
@@ -588,9 +602,9 @@ echo
 IFS="$IFS0"
 
 if [ "$INFC" = "0" ]
-	then test "$Q" = "0" && echo -e "\nNo INF files to process."
+	then test "$Q" = "0" && echo "No INF files to process."
 	exit
-	else echo
+	else
 	test "$Q" = "0" && echo "Done."
 fi
 
