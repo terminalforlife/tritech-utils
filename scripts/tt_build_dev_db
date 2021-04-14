@@ -101,6 +101,8 @@ test -z "$DBFILE" && DBFILE="$DRVROOT/devicedb.txt"
 test ! -z "$DELDB" && echo "${CRED}Deleting database file $CPUR$DBFILE$COFF" && rm -f $DBFILE && exit
 test -z "$LOGFILE" && LOGFILE=/tmp/build_devdb_errors.txt
 
+test -z "$MAXSUB" && MAXSUB=$(grep ^processor /proc/cpuinfo | tail -n 1 | sed 's/.*:\s*//')
+
 cd "$DRVROOT"
 WD="$(pwd)"
 WD="$(basename "$WD")"
@@ -130,11 +132,10 @@ trap control_c INT TERM HUP ABRT
 
 dispatch () {
 	test -z "$SUB" && SUB=0
-	test -z "$MAXSUB" && MAXSUB=$(grep ^processor /proc/cpuinfo | tail -n 1 | sed 's/.*:\s*//') && MAXSUB=$(expr $MAXSUB \* 2)
 	if [ $MAXSUB -gt 1 ]
 		then
 		while [ $SUB -ge $MAXSUB ]
-			do sleep 0.001
+			do #sleep 0.001
 			SP=$MAXSUB
 			while [ $SP -gt 0 ]
 				# If child process terminates, remove it.
