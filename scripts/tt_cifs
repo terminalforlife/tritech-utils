@@ -2,14 +2,24 @@
 
 # Mounts the Tritech CIFS source share to /mnt/cifs
 
-VER=2.1
-VERDATE="2018-06-20"
+VER=2.2
+VERDATE="2021-04-28"
 
 . tss__common
 
 CV=2
 test "$1" = "-c" && CV=1
 test "$1" = "-q" && CV=0
+
+test "$CV" = "2" && \
+	echo "${CWHT}TSS CIFS automount version $CGRN$VER$CWHT, updated $CGRN$VERDATE$COFF"
+
+# If we have no IP address, just abort
+if ! ip addr show | grep -q 'inet [0-9].*[^l][^o]$'
+	then
+	echo "${CRED}Aborting due to no IP address on any network interface$COFF"
+	exit 1
+fi
 
 # Load TSS client to get CIFS configuration details
 TSSC_AUTO=0; TSSC_FORCE=1
@@ -22,9 +32,6 @@ test $(uname -r | cut -d. -f1) -eq 3 && \
 	test $(uname -r | cut -d. -f2) -gt 4 && \
 	test $(uname -r | cut -d. -f2) -lt 16 && \
 	CACHE=",cache=loose" && LOOSE="$CYEL (loose cache)$COFF"
-
-test "$CV" = "2" && \
-	echo "${CWHT}TSS CIFS automount version $CGRN$VER$CWHT, updated $CGRN$VERDATE$COFF"
 
 # Check for CIFS mount helper (required)
 if ! mount.cifs -V 2>/dev/null >/dev/null
