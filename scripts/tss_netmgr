@@ -1,7 +1,7 @@
 #!/bin/bash
 
-VER=0.5.1
-VERDATE=2020-08-24
+VER=0.6
+VERDATE=2021-04-28
 
 # When started, collect information about current interface states
 # Attempt to locate a configuration file
@@ -34,7 +34,8 @@ flush_all_interfaces () {
 	killall -q -9 udhcpc
 	killall -q -9 wpa_supplicant
 	for FLUSH in $SYSNET/*
-		do flush_ip $(basename $FLUSH)
+		do FLUSH2="$(basename $FLUSH)"
+		echo "$FLUSH2" | grep -qv 'lo$' && flush_ip "$FLUSH2"
 	done
 	unset IF_INET IF_INET_IP
 }
@@ -162,7 +163,7 @@ get_wireless_networks () {
 
 setup_local_loopback () {
 	link_up lo
-	ip addr show dev lo | grep -q '^    inet ' || ip addr add 127.0.0.1/8 dev lo
+	ip addr show dev lo | grep -q 'inet .*127\.0\.0\.1' || ip addr add 127.0.0.1/8 dev lo
 }
 
 setup_internet_connection () {
