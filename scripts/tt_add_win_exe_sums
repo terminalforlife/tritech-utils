@@ -22,7 +22,7 @@ while read LINE
 	echo "$FN | $VER"
 	echo "$SUM|$VER" >> "$SUMFILE"
 done < $TMPFILE
-cat "$SUMFILE" | tr '[:upper:]' '[:lower:]' | sort | uniq > $TMPFILE
+tr '[:upper:]' '[:lower:]' < "$SUMFILE" | sort | uniq > $TMPFILE
 if [ ! -s $TMPFILE ]
 	then echo "Error: sorting process yielded an empty file."
 	rm -f $TMPFILE

@@ -4,7 +4,7 @@
 
 test ! -e "$1" && echo "File $1 does not exist." && exit 1
 
-cat "$1" | tr \\x0 "~" | \
+tr \\x0 "~" < "$1" | \
   sed s/~~/\\n/g | \
   sed s/FileVersion~/FileVersion\\n/g | \
   tr -d "~" | sed s/built/\\nbuilt/g | \

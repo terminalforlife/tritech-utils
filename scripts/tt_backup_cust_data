@@ -155,7 +155,7 @@ tt__disk_prompt $TMP || exit 1
 DEV="$(cat $TMP)"
 rm $TMP
 
-PART="$(cat /proc/partitions | awk '{ print $3" "$4 }' | \
+PART="$(awk '{ print $3" "$4 }' /proc/partitions | \
 	grep $DEV\[p\]*\[1-9\] | sort -gr | \
 	awk '{ print $2 }' | tr \\n ' ')"
 DEFAULT="$(echo $PART | tr ' ' \\n | head -n 1)"
