@@ -221,6 +221,13 @@ case $UDBA in
 	n|N)
 	echo -n "Enter path to backup data location: "
 	read BU
+	# Trim leading and trailing whitespace
+	shopt -s extglob
+	BU="${BU##*( )}"
+	BU="${BU%%*( )}"
+	shopt -u extglob
+	test -z "$BU" && echo "${CRED}Error: backup location string is empty$COFF" && exit 1
+	test ! -d "$(basename "$BU")" && echo "${CRED}Error: backup location's parent directory does not exist$COFF" && exit 1
 	# TODO: add rsync-native mode ability
 	RSM=0
 	;;
