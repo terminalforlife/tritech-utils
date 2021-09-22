@@ -87,6 +87,14 @@ if cmp -s test/ntfs_test test/ntfs_expected
 fi
 rm -f test/ntfs_test
 
+echo -n "raid0merge works:           "
+./raid0merge 512 test/raid0_1 test/raid0_2 test/raid0_3 test/raid0_test 2>&1 >/dev/null
+if cmp -s test/raid0_correct test/raid0_test
+	then echo "OK"
+	else echo "broken" && ERR=1
+fi
+rm -f test/raid0_test
+
 echo -n "read_inf_section works:     "
 if [ "$(./read_inf_section test/ris section1)" = "foo=bar" ]
 	then echo "OK"
