@@ -25,7 +25,6 @@ int main(int argc, char **argv)
 	FILE **src, *dest;
 	char **buf, *dbuf;
 	unsigned int stripe, devs, dests, d;
-	off_t *ipos;
 	size_t written;
 	off_t outsize = 0, combined = 0;
 	int done = 0;
@@ -39,7 +38,7 @@ int main(int argc, char **argv)
 		printf("Stripe size is specified in bytes and must be a power of 2\n");
 		exit(1);
 	}
-	
+
 	/* Number of devices/image files to un-stripe */
 	devs = argc - 2;
 	dests = argc - 3;
@@ -75,15 +74,11 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 	printf("Output:   %s\n", argv[argc - 1]);
-	
+
 	/* Debugging info */
 /*	printf("stripe %u, popcnt %u, devs %u, files", stripe, __builtin_popcount(stripe), devs);
 	for (unsigned int d = 0; d < dests; d++) printf(" %s", argv[d + 2]);
 	printf(", out %s\n", argv[argc - 1]); */
-
-	/* Allocate space for input positions */
-	ipos = (off_t *)malloc(sizeof(off_t) * devs);
-	if (ipos == NULL) goto oom;
 
 	while (done == 0) {
 		int spb = BSIZE / stripe;
