@@ -73,7 +73,7 @@ int main(int argc, char **argv)
 		fprintf(stderr, "Can't open output file for reading: %s\n", argv[argc - 1]);
 		exit(1);
 	}
-	printf("Output:   %s\n", argv[argc - 1]);
+	printf("Output:  %s\n", argv[argc - 1]);
 
 	/* Debugging info */
 /*	printf("stripe %u, popcnt %u, devs %u, files", stripe, __builtin_popcount(stripe), devs);
@@ -127,12 +127,12 @@ int main(int argc, char **argv)
 
 clean_exit:
 	/* Free everything */
-	free(buf);
 	fclose(dest);
 	for (d = 0; d < dests; d++) {
 		free(buf[d]);
 		fclose(src[d]);
 	}
+	free(buf); free(dbuf); free(src);
 	exit(status);
 
 bad_stripe:

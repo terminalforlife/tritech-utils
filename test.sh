@@ -88,8 +88,9 @@ fi
 rm -f test/ntfs_test
 
 echo -n "raid0merge works:           "
-./raid0merge 512 test/raid0_1 test/raid0_2 test/raid0_3 test/raid0_test 2>&1 >/dev/null
-if cmp -s test/raid0_correct test/raid0_test
+RAID0MERGE=0
+./raid0merge 512 test/raid0_1 test/raid0_2 test/raid0_3 test/raid0_test 2>&1 >/dev/null || RAID0MERGE=1
+if [ $RAID0MERGE -eq 0 ] && cmp -s test/raid0_correct test/raid0_test
 	then echo "OK"
 	else echo "broken" && ERR=1
 fi
