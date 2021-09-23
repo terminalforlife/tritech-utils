@@ -15,6 +15,7 @@
 #ifdef ON_WINDOWS
  #define FMODE_R "rbS"
  #define FMODE_W "wbS"
+ #undef PTHREADS
 #else
  #define FMODE_R "rb"
  #define FMODE_W "wb"
@@ -47,11 +48,10 @@ int main(int argc, char **argv)
 	if (stripe < 512 || stripe > 16777216 || __builtin_popcount(stripe) != 1) goto bad_stripe;
 
 	/* Allocate file pointers and buffers */
-	buf = malloc(sizeof(*buf) * devs);
-	if (buf == NULL) goto oom;
 	src = (FILE **)malloc(sizeof(FILE *) * devs);
 	if (src == NULL) goto oom;
 	buf = (char **)malloc(sizeof(char *) * devs);
+	if (buf == NULL) goto oom;
 
 	/* Allocate input file buffers and open inputs */
 	for (d = 0; d < dests; d++) {
