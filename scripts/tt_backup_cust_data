@@ -1,7 +1,7 @@
 #!/bin/bash
 
-VER=1.0
-VERDATE="2020-06-24"
+VER=1.0.1
+VERDATE="2021-12-02"
 
 . tss__common
 . tss_client
@@ -227,7 +227,7 @@ case $UDBA in
 	BU="${BU%%*( )}"
 	shopt -u extglob
 	test -z "$BU" && echo "${CRED}Error: backup location string is empty$COFF" && exit 1
-	test ! -d "$(basename "$BU")" && echo "${CRED}Error: backup location's parent directory does not exist$COFF" && exit 1
+	test ! -d "$(dirname "$BU")" && echo "${CRED}Error: backup location's parent directory does not exist$COFF" && exit 1
 	# TODO: add rsync-native mode ability
 	RSM=0
 	;;
