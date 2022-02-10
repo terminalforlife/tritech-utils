@@ -522,6 +522,7 @@ for CHROME in "Google/Chrome/User Data" "speed browser/User Data" \
 	"Adobe/AcroCef/DC/Acrobat" "Adobe/AcroCef/DC" \
 	"obs-studio/plugin_config/obs-browser" \
 	"Wargaming.net/WorldOfTanks/awesomium_cache" \
+	"ASUS GIFTBOX" \
 	"Intuit/TurboTax/*" "../.cricut-design-space"
 	do for PFX in "$LOCAL" "$ROAM"; do
 	CHROME="$PFX/$CHROME"
