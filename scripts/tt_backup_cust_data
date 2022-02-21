@@ -1,7 +1,7 @@
 #!/bin/bash
 
-VER=1.0.1
-VERDATE="2021-12-02"
+VER=1.1
+VERDATE="2022-02-21"
 
 . tss__common
 . tss_client
@@ -22,9 +22,16 @@ IFS0="$IFS"
 IFS1=$(echo -en "\n\b")
 IFS="$IFS1"
 
-LRCNT=0
-INCREMENT=10
 LOGFILE="/var/log/$(basename "$0").log"
+
+# Detect Bash 4.2 or higher; disable progress if not present
+BAD_BASH=0
+[ ${BASH_VERSINFO[0]} -lt 4 ] && BAD_BASH=1
+[[ ${BASH_VERSINFO[0]} = 4 && ${BASH_VERSINFO[1]} -lt 2 ]] && BAD_BASH=1
+[ $BAD_BASH -eq 1 ] && CURPROG=0 && LASTPROG=0 && echo "GNU Bash version < 4.2, so progress indication is turned off"
+
+# Capture current time for progress indicator later
+[ $BAD_BASH -eq 0 ] && printf -v LASTPROG '%(%s)T\n' -1
 
 ### Functions
 rotate_progress () {
@@ -52,11 +59,11 @@ load_rotate () {
 line_rotate () {
 	while read X
 		do
-		LRCNT=$((LRCNT + 1))
-		if [ $LRCNT -gt $INCREMENT ]
-			then LOADCNT=$(( LOADCNT + INCREMENT - 1))
+		LOADCNT=$((LOADCNT + 1))
+		[ $BAD_BASH -eq 0 ] && printf -v CURPROG '%(%s)T\n' -1
+		if [ $CURPROG -gt $LASTPROG ]
+			then LASTPROG=$CURPROG
 			load_rotate
-			LRCNT=0
 		fi
 	done
 }
