@@ -1,7 +1,7 @@
 #!/bin/bash
 
-VER="5.10"
-VERDATE="2021-12-02"
+VER="5.10.1"
+VERDATE="2022-08-18"
 
 # Tritech Service System cleaning tool for Linux
 # Copyright (C) by Jody Bruchon <jody@jodybruchon.com>
@@ -765,6 +765,7 @@ NAME="$LOCAL/Temp"; DESC="Temporary files"; add_to_wipe
 NAME="$LOCAL/Tempzxp*"; DESC="Temporary files"; add_to_wipe
 NAME="$LOCAL/TEMP"; DESC="Temporary files"; add_to_wipe
 NAME="$LOCAL/Tific"; DESC="Tific"; add_to_wipe
+NAME="$LOCAL/TomTom/HOME*/cache"; DESC="TomTom HOME"; add_to_wipe
 NAME="$LOCAL/Toolbar4"; DESC="Toolbar4"; add_to_wipe
 NAME="$LOCAL/TotalRecipeSearch_*"; DESC="TotalRecipeSearch toolbar"; add_to_wipe
 NAME="$LOCAL/Topix"; DESC="Tific"; add_to_wipe
@@ -1252,6 +1253,7 @@ NAME="hp/*.log"; DESC="HP Install Logs"; add_to_delete
 NAME="hp/*/*.log"; DESC="HP Install Logs"; add_to_delete
 NAME="hp/bin/logs"; DESC="HP Install Logs"; add_to_wipe
 NAME="pagefile.sys"; DESC="Paging file"; add_to_delete
+NAME="PageFile.sys"; DESC="Paging file"; add_to_delete
 NAME="PAGEFILE.SYS"; DESC="Paging file"; add_to_delete
 NAME="tmpgfile.sys"; DESC="Paging file"; add_to_delete
 NAME="TMPGFILE.SYS"; DESC="Paging file"; add_to_delete
