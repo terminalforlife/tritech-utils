@@ -2,13 +2,13 @@
 
 # Displays info on storage devices in the system
 
-VER=1.12
-VERDATE="2020-12-28"
+VER=1.13
+VERDATE="2022-08-31"
 
 . tss__common
 
 get_device_info () {
-	REM=9; USB=9; DEVSIZE=0
+	REM=9; USB=9; DEVSIZE=0; Z=0; DEVSIZE=0
 	PTTYPE="MBR"
 	tss_file_tool gpt /dev/$1 2>/dev/null | grep -q "yes" && PTTYPE="GPT"
 	PTTYPE="${CWHT}[$CBLU$PTTYPE${CWHT}]"
@@ -18,9 +18,12 @@ get_device_info () {
 	test -z "$REM" && REM=9
 	if [ -e "/sys/block/$1" ]
 		then readlink "/sys/block/$1" | grep -q "/usb" && USB=1 || USB=0
-		Z=$(cat /sys/block/$1/size)
+		if [ -e /sys/block/$1/size ]
+			then Z=$(cat /sys/block/$1/size)
+			else USB=9; Z=0; DEVSIZE=0; return
+		fi
 		DEVSIZE=$(expr $Z / 2 \* 1024 / 1000000000)
-		else USB=9; Z=0; DEVSIZE=0
+		else USB=9; Z=0; DEVSIZE=0; return
 	fi
 	if [[ $Z -gt 0 && -e /sys/block/$1/device/model ]]
 		then MODEL=$(cat /sys/block/$1/device/model)
@@ -186,7 +189,7 @@ done
 KILL="$(echo /sys/block/md*/slaves/* | tr ' ' '\n' | grep -v '\*' | sed 's#.*/##g' | tr '\n' ' ')"
 
 for X in $(echo /dev/md?* | tr ' ' '\n' | grep -v '\?' | sed s#/dev/##g | tr '\n' ' ')
-	do test "$(cat /sys/block/$X/size)" != "0" && RAID="$RAID $X"
+	do [ -e /sys/block/$X ] && "$(cat /sys/block/$X/size)" != "0" && RAID="$RAID $X"
 done
 
 MOUNTED="$(cut -d" " -f1 < /proc/mounts | grep '^/' | sort | uniq | tr \\n ' ') "
@@ -262,6 +265,7 @@ if [ "$NORAID" = "0" ]
 	for DRV in $RAID
 		do
 		get_device_info $DRV
+		[ "$Z" = "0" ] && continue
 		echo "$CCYA$DRV: $CRED$MDTYPE $CGRN($DEVSIZE)  $CWHT$ATTRIBS$COFF"
 		echo "  $CWHT+-- ${CGRN}Members: $CWHT$MEMBERS$COFF"
 	done
