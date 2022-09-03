@@ -1,7 +1,7 @@
 #!/bin/bash
 
-VER=0.6
-VERDATE=2021-04-28
+VER=0.6.1
+VERDATE=2022-09-02
 
 # When started, collect information about current interface states
 # Attempt to locate a configuration file
@@ -140,6 +140,7 @@ get_interface_state () {
 		do
 		case "$X" in
 			eth*) IFACE_WIRED="$IFACE_WIRED $X"; link_up $X ;;
+			eno*) IFACE_WIRED="$IFACE_WIRED $X"; link_up $X ;;
 			enp*) IFACE_WIRED="$IFACE_WIRED $X"; link_up $X ;;
 			usb*) IFACE_WIRED="$IFACE_WIRED $X"; link_up $X ;;
 			wlan*) IFACE_WIFI="$IFACE_WIFI $X"; link_up $X ;;
