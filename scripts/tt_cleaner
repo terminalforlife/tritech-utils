@@ -466,15 +466,17 @@ if [ $V7 -gt 0 ]; then
 NAME="$LOCAL/*/Saved/webcache"; DESC="General web caches"; add_to_wipe
 NAME="$LOCAL/4kdownload.com/4K Video Downloader/4K Video Downloader/*.log"; DESC="4Kdownload.com logs"; add_to_delete
 NAME="$LOCAL/AdvinstAnalytics"; DESC="AdvinstAnalytics"; add_to_wipe
-NAME="$LOCAL/AMD/CN/NewsFeed"; DESC="AMD CN news feed"; add_to_wipe
-NAME="$LOCAL/AMD/DxCache"; DESC="AMD DirectX cache"; add_to_wipe
-NAME="$LOCAL/AOL/*/toolbarCache"; DESC="AOL caches"; add_to_wipe
-NAME="$LOCAL/AOL/*/browserCache"; DESC="AOL caches"; add_to_wipe
+NAME="$LOCAL/AMD*/cache"; DESC="AMD"; add_to_wipe
+NAME="$LOCAL/AMD/*/cache"; DESC="AMD"; add_to_wipe
+NAME="$LOCAL/AMD/CN/NewsFeed"; DESC="AMD"; add_to_wipe
+NAME="$LOCAL/AMD/DxCache"; DESC="AMD"; add_to_wipe
+NAME="$LOCAL/AOL/*/toolbarCache"; DESC="AOL"; add_to_wipe
+NAME="$LOCAL/AOL/*/browserCache"; DESC="AOL"; add_to_wipe
 NAME="$LOCAL/ars.cache"; DESC="Miscellanous junk"; add_to_delete
 NAME="$LOCAL/census.cache"; DESC="Miscellanous junk"; add_to_delete
 NAME="$LOCAL/$APPLE/QuickTime/downloads"; DESC="QuickTime downloads"; add_to_wipe
-NAME="$LOCAL/$APPLE/iTunes/Cache.db"; DESC="iTunes cache"; add_to_delete
-NAME="$LOCAL/$APPLE/iTunes/SubscriptionPlayCache"; DESC="iTunes cache"; add_to_delete
+NAME="$LOCAL/$APPLE/iTunes/Cache.db"; DESC="iTunes"; add_to_delete
+NAME="$LOCAL/$APPLE/iTunes/SubscriptionPlayCache"; DESC="iTunes"; add_to_delete
 NAME="$LOCAL/$APPLE/SyncNotifier/SyncNotifier/Logs"; DESC="Apple SN logs"; add_to_wipe
 NAME="$LOCAL/Adobe/Air/Logs"; DESC="Adobe AIR"; add_to_wipe
 NAME="$LOCAL/Adobe/AIR/Logs"; DESC="Adobe AIR"; add_to_wipe
@@ -485,7 +487,7 @@ NAME="$LOCAL/Adobe/Acrobat/*/Updater"; DESC="Adobe Acrobat"; add_to_wipe
 NAME="$LOCAL/Adobe/Reader*/Setup Files"; DESC="Adobe Acrobat"; add_to_wipe
 NAME="$LOCAL/Adobe/Updater*"; DESC="Adobe Acrobat"; add_to_wipe
 NAME="$LOCAL/alotappbar"; DESC="ALOT Toolbar"; add_to_wipe
-NAME="$LOCAL/Amazon */Data/*Cache"; DESC="Amazon caches"; add_to_wipe
+NAME="$LOCAL/Amazon */Data/*Cache"; DESC="Amazon"; add_to_wipe
 NAME="$LOCAL/AMD/CN"; DESC="AMD software"; add_to_wipe
 NAME="$LOCAL/AMD/*Cache"; DESC="AMD software"; add_to_wipe
 NAME="$LOCAL/AMD/Fuel/ClientProxyLog*"; DESC="AMD software"; add_to_delete
@@ -512,18 +514,28 @@ NAME="$LOCAL/Corel/Thumbs"; DESC="Corel Thumbs"; add_to_wipe
 
 # Google Chrome definitions, now with less redundancy
 DESC="Google Chrome"
-for CHROME in "Google/Chrome/User Data" "speed browser/User Data" \
-	"Sony Corporation/Some/Chromium/User Data" \
-	"HP JumpStart Apps/User Data" "PrivateInternetAccess/User Data" \
-	"Epic Privacy Browser/User Data" \
-	"BraveSoftware/Brave-Browser/User Data" \
-	"AVAST Software/Browser/User Data" \
-	"Chromium/User Data" "Microsoft/Edge/User Data" \
-	"Adobe/AcroCef/DC/Acrobat" "Adobe/AcroCef/DC" \
-	"obs-studio/plugin_config/obs-browser" \
-	"Wargaming.net/WorldOfTanks/awesomium_cache" \
+for CHROME in \
+	"../.cricut-design-space" \
+	"Adobe/AcroCef/DC" \
+	"Adobe/AcroCef/DC/Acrobat" \
+	"AMD/Radeonsoftware/QtWebEngine" \
 	"ASUS GIFTBOX" \
-	"Intuit/TurboTax/*" "../.cricut-design-space"
+	"AVAST Software/Browser/User Data" \
+	"BraveSoftware/Brave-Browser/User Data" \
+	"Epic Privacy Browser/User Data" \
+	"Chromium/User Data" \
+	"GizmoVR" \
+	"Google/Chrome/User Data" \
+	"HP JumpStart Apps/User Data" \
+	"Intuit/TurboTax/*" \
+	"Microsoft/Edge/User Data" \
+	"obs-studio/plugin_config/obs-browser" \
+	"PrivateInternetAccess/User Data" \
+	"Plex/QtWebEngine" \
+	"Skype for Desktop" \
+	"Sony Corporation/Some/Chromium/User Data" \
+	"speed browser/User Data" \
+	"Wargaming.net/WorldOfTanks/awesomium_cache"
 	do for PFX in "$LOCAL" "$ROAM"; do
 	CHROME="$PFX/$CHROME"
 		NAME="$CHROME/*/*/CacheStorage"; add_to_wipe
@@ -549,6 +561,7 @@ for CHROME in "Google/Chrome/User Data" "speed browser/User Data" \
 		NAME="$CHROME/*/Visited Links"; add_to_delete
 		NAME="$CHROME/*/*.tmp"; add_to_delete
 		NAME="$CHROME/*.tmp"; add_to_delete
+		NAME="$CHROME/*Cache*/"; add_to_wipe
 		NAME="$CHROME/Crashpad"; add_to_wipe
 		NAME="$CHROME/Safe Browsing*"; add_to_delete
 	done
@@ -577,7 +590,7 @@ NAME="$LOCAL/ElevatedDiagnostics"; DESC="Windows Diagnostics"; add_to_wipe
 NAME="$LOCAL/Evernote/Evernote/Logs"; DESC="Evernote"; add_to_wipe
 NAME="$LOCAL/Evernote/Evernote/AutoUpdate/*.exe"; DESC="Evernote"; add_to_delete
 NAME="$LOCAL/EMBARQTOOLBAR"; DESC="Embarq Toolbar"; add_to_wipe
-NAME="$LOCAL/Facebook/Messenger/fbmessenger.cache"; DESC="FB Messenger cache"; add_to_wipe
+NAME="$LOCAL/Facebook/Messenger/fbmessenger.cache"; DESC="FB Messenger"; add_to_wipe
 NAME="$LOCAL/Flixster/WebData/Cache"; DESC="Flixster"; add_to_wipe
 NAME="$LOCAL/FontCache*.dat"; DESC="User font cache"; add_to_delete
 NAME="$LOCAL/GDIPFONTCACHEV1.DAT"; DESC="User font cache"; add_to_delete
@@ -624,10 +637,12 @@ NAME="$LOCAL/iWon*"; DESC="iWon software"; add_to_wipe
 NAME="$LOCAL/join.me/*.log"; DESC="LMI join.me logs"; add_to_delete
 NAME="$LOCAL/$JAVACACHE"; DESC="Java"; add_to_wipe
 NAME="$LOCAL/$JSYSCACHE"; DESC="Java"; add_to_wipe
+NAME="$LOCAL/krita/cache"; DESC="Krita"; add_to_wipe
 NAME="$LOCAL/Live_TV"; DESC="Live_TV spyware"; add_to_wipe
-NAME="$LOCAL/LogMeIn Rescue Applet"; DESC="LogMeIn Rescue"; add_to_wipe
+NAME="$LOCAL/LogMeIn/join/cache"; DESC="LogMeIn"; add_to_wipe
+NAME="$LOCAL/LogMeIn Rescue Applet"; DESC="LogMeIn"; add_to_wipe
 NAME="$LOCAL/lptmp*"; DESC="LastPass"; add_to_wipe
-NAME="$LOCAL/LogiShrd/Vid"; DESC="Logitech Vid cache"; add_to_wipe
+NAME="$LOCAL/LogiShrd/Vid"; DESC="Logitech Vid"; add_to_wipe
 NAME="$LOCAL/MapsGalaxy*"; DESC="MapsGalaxy Toolbar"; add_to_wipe
 NAME="$LOCAL/Mobogenie"; DESC="Mobogenie"; add_to_wipe
 
@@ -649,18 +664,19 @@ NAME="$LOCAL/$MS/*/Transcoded Files Cache"; DESC="MS media cache"; add_to_wipe
 NAME="$LOCAL/$MS/BingBar"; DESC="Bing Bar"; add_to_wipe
 NAME="$LOCAL/$MS/CD Burning"; DESC="CD Burning folder"; add_to_wipe
 NAME="$LOCAL/$MS/CLR_*/UsageLogs"; DESC="MS CLR usage logs"; add_to_wipe
-NAME="$LOCAL/$MS/CryptnetUrlCache"; DESC="MS crypto cert cache"; add_to_wipe
+#NAME="$LOCAL/$MS/CryptnetUrlCache"; DESC="MS crypto cert cache"; add_to_wipe
 NAME="$LOCAL/$MS/Feeds Cache"; DESC="MS feeds cache"; add_to_wipe
 NAME="$LOCAL/$MS/$IE/DOMStore"; DESC="IE DOMStore"; add_to_wipe
 NAME="$LOCAL/$MS/$IE/Recovery"; DESC="IE session recovery"; add_to_wipe
 NAME="$LOCAL/$MS/Media Player/Cache*"; DESC="Windows Media Player"; add_to_wipe
 NAME="$LOCAL/$MS/Media Player/lastplayed.wpl"; DESC="Windows Media Player"; add_to_delete
+NAME="$LOCAL/$MS/OneDrive/cache"; DESC="MS SkyDrive/OneDrive"; add_to_wipe
 NAME="$LOCAL/$MS/OneDrive/logs"; DESC="MS SkyDrive/OneDrive"; add_to_wipe
 NAME="$LOCAL/$MS/OneDrive/setup/logs"; DESC="MS SkyDrive/OneDrive"; add_to_wipe
 NAME="$LOCAL/$MS/SkyDrive/setup/logs"; DESC="MS SkyDrive/OneDrive"; add_to_wipe
 NAME="$LOCAL/$MS/Windows/SkyDrive/logs"; DESC="MS SkyDrive/OneDrive"; add_to_wipe
 NAME="$LOCAL/$MS/Windows/PhotoImport/*.log"; DESC="MS Photo Import"; add_to_delete
-NAME="$LOCAL/$MS/OneNote/*/TemporaryOneNoteOfflineCache.onecache"; DESC="MS OneNote cache"; add_to_delete
+NAME="$LOCAL/$MS/OneNote/*/TemporaryOneNoteOfflineCache.onecache"; DESC="MS OneNote"; add_to_delete
 NAME="$LOCAL/$MS/OfficeStarter"; DESC="Microsoft Office"; add_to_wipe
 NAME="$LOCAL/$MS/OIS"; DESC="Microsoft OIS"; add_to_wipe
 NAME="$LOCAL/$MS/SmartScreen"; DESC="MS SmartScreen"; add_to_wipe
@@ -705,7 +721,7 @@ NAME="$LOCAL/$MS/Windows/INetCookies"; DESC="Windows 8+ temp files"; add_to_wipe
 NAME="$LOCAL/$MS/Windows/Notifications"; DESC="Windows Notifications"; add_to_delete
 NAME="$LOCAL/$MS/Windows/WindowsUpdate.log"; DESC="Windows Update log"; add_to_delete
 NAME="$LOCAL/$MS/$WINDEF/FileTracker"; DESC="Windows Defender"; add_to_wipe
-NAME="$LOCAL/Musicmatch/Jukebox/Cache"; DESC="Musicmatch Jukebox cache"; add_to_wipe
+NAME="$LOCAL/Musicmatch/Jukebox/Cache"; DESC="Musicmatch Jukebox"; add_to_wipe
 NAME="$LOCAL/MyScrapNook*"; DESC="MyScrapNook"; add_to_wipe
 NAME="$LOCAL/MyFunCards*"; DESC="MyFunCards"; add_to_wipe
 NAME="$LOCAL/MyWebSearch"; DESC="MyWebSearch"; add_to_wipe
@@ -716,20 +732,20 @@ NAME="$LOCAL/ooVoo_Video_Chat"; DESC="ooVoo Toolbar"; add_to_wipe
 NAME="$LOCAL/oovootoolbar"; DESC="ooVoo Toolbar"; add_to_wipe
 NAME="$LOCAL/Oberon Games/*/cache"; DESC="Oberon Games"; add_to_wipe
 NAME="$LOCAL/OpenCandy"; DESC="OpenCandy downloader"; add_to_wipe
-NAME="$LOCAL/Opera/*/cache"; DESC="Opera caches"; add_to_wipe
-NAME="$LOCAL/OLYMPUS/OLYMPUS Data/cache"; DESC="Olympus cache"; add_to_wipe
+NAME="$LOCAL/Opera/*/cache"; DESC="Opera"; add_to_wipe
+NAME="$LOCAL/OLYMPUS/OLYMPUS Data/cache"; DESC="Olympus"; add_to_wipe
 NAME="$LOCAL/PageRage"; DESC="PageRage data"; add_to_wipe
 NAME="$LOCAL/PCHealth"; DESC="PCHealth data"; add_to_wipe
 NAME="$LOCAL/Plex Media Server/Logs"; DESC="Plex Media Server"; add_to_wipe
 NAME="$LOCAL/Plex Media Server/Updates"; DESC="Plex Media Server"; add_to_wipe
 NAME="$LOCAL/Pokki/IconCache"; DESC="SweetLabs"; add_to_wipe
-NAME="$LOCAL/Move Networks/QMCache00"; DESC="Move Media Player cache"; add_to_wipe
+NAME="$LOCAL/Move Networks/QMCache00"; DESC="Move Media Player"; add_to_wipe
 NAME="$LOCAL/SweetLabs App Platform/IconCache"; DESC="SweetLabs"; add_to_wipe
-NAME="$LOCAL/PokerStars*/ImgCache"; DESC="PokerStars cache"; add_to_wipe
+NAME="$LOCAL/PokerStars*/ImgCache"; DESC="PokerStars"; add_to_wipe
 NAME="$LOCAL/PriceGong"; DESC="PriceGong"; add_to_wipe
 NAME="$LOCAL/Productivity_*"; DESC="Productivity Toolbar"; add_to_wipe
 NAME="$LOCAL/Produtools_Manuals_*"; DESC="Produtools Toolbar"; add_to_wipe
-NAME="$LOCAL/RawTherapee/cache"; DESC="RawTherapee cache"; add_to_wipe
+NAME="$LOCAL/RawTherapee/cache"; DESC="RawTherapee"; add_to_wipe
 NAME="$LOCAL/RebateInformer"; DESC="RebateInformer"; add_to_wipe
 NAME="$LOCAL/RecipeHub_*"; DESC="RecipeHub"; add_to_wipe
 NAME="$LOCAL/Retrogamer_*"; DESC="Retrogamer"; add_to_wipe
@@ -755,7 +771,7 @@ NAME="$LOCAL/Spotify/Data"; DESC="Spotify"; add_to_wipe
 NAME="$LOCAL/Spotify/Storage"; DESC="Spotify"; add_to_wipe
 NAME="$LOCAL/SquirrelTemp"; DESC="Discord SquirrelTemp"; add_to_wipe
 NAME="$LOCAL/SupportSoft"; DESC="SupportSoft"; add_to_wipe
-NAME="$LOCAL/Steam/htmlcache"; DESC="Steam HTML cache"; add_to_wipe
+NAME="$LOCAL/Steam/htmlcache"; DESC="Steam"; add_to_wipe
 NAME="$LOCAL/Sweetpacks*"; DESC="Sweetpacks"; add_to_wipe
 NAME="$LOCAL/$SAVCELOGS"; DESC="Symantec AV logs"; add_to_wipe
 NAME="$LOCAL/SupportSoft/DellSupportCenter/family/data/*.tmp"; DESC="Dell Support Center"; add_to_delete
@@ -771,7 +787,7 @@ NAME="$LOCAL/Toolbar4"; DESC="Toolbar4"; add_to_wipe
 NAME="$LOCAL/TotalRecipeSearch_*"; DESC="TotalRecipeSearch toolbar"; add_to_wipe
 NAME="$LOCAL/Topix"; DESC="Tific"; add_to_wipe
 NAME="$LOCAL/Trusteer/Rapport/user/logs"; DESC="Trusteer Rapport"; add_to_wipe
-NAME="$LOCAL/Unity/WebPlayer/Cache"; DESC="Unity WebPlayer cache"; add_to_wipe
+NAME="$LOCAL/Unity/WebPlayer/Cache"; DESC="Unity WebPlayer"; add_to_wipe
 NAME="$LOCAL/Vafmusic9"; DESC="Vafmusic9"; add_to_wipe
 NAME="$LOCAL/verizontb"; DESC="Verizon Toolbar"; add_to_wipe
 NAME="$LOCAL/VisualBee*"; DESC="VisualBee"; add_to_wipe
@@ -783,9 +799,10 @@ NAME="$LOCAL/Wajam"; DESC="Wajam"; add_to_wipe
 NAME="$ROAM/$STARTMENU/Wajam"; DESC="Wajam"; add_to_wipe
 NAME="$LOCAL/$WDSMART/.txt"; DESC="WD SmartWare"; add_to_delete
 NAME="$LOCAL/WebDiscoverBrowser"; DESC="WebDiscover"; add_to_wipe
+NAME="$LOCAL/WebEx/wbxcache"; DESC="WebEx"; add_to_wipe
 NAME="$LOCAL/WeatherAlerts"; DESC="WeatherAlerts"; add_to_wipe
 NAME="$LOCAL/WhiteSmoke_*"; DESC="WhiteSmoke Toolbar"; add_to_wipe
-NAME="$LOCAL/Windows Live/.cache"; DESC="Windows Live cache"; add_to_wipe
+NAME="$LOCAL/Windows Live/.cache"; DESC="Windows Live"; add_to_wipe
 NAME="$LOCAL/$WLPG"; DESC="WL Photo Gallery"; add_to_wipe
 NAME="$LOCAL/$MS/WLSetup"; DESC="Windows Live setup"; add_to_wipe
 NAME="$LOCAL/$MS/Windows Live/Setup"; DESC="Windows Live setup"; add_to_wipe
@@ -802,7 +819,7 @@ NAME="$PF/A* Software/Avast*/Setup/*.log"; DESC="Avast Antivirus"; add_to_delete
 NAME="$PF/ATI/CIM/Reports/Report.xml.*.xml"; DESC="ATI CIM reports"; add_to_delete
 NAME="$PF/Babylon"; DESC="Babylon toolbar"; add_to_wipe
 NAME="$PF/Common Files/System/SysMenu*.dll"; DESC="SysMenu adware"; add_to_delete
-NAME="$PF/Common Files/Windows Live/.cache"; DESC="WL cache"; add_to_wipe
+NAME="$PF/Common Files/Windows Live/.cache"; DESC="Windows Live"; add_to_wipe
 NAME="$PF/Citrix/GoToMyPC/*.log"; DESC="GoToMyPC logs"; add_to_delete
 NAME="$PF/DriverRestore"; DESC="DriverRestore"; add_to_delete
 NAME="$PF/DriverUpdate"; DESC="DriverUpdate"; add_to_delete
@@ -815,7 +832,7 @@ NAME="$PF/InstantSupport"; DESC="Instant Support"; add_to_wipe
 NAME="$PF/LimeWire/*.log"; DESC="LimeWire error logs"; add_to_delete
 NAME="$PF/MapsGalaxy_*"; DESC="MapsGalaxy"; add_to_wipe
 NAME="$PF/Mozilla*/install.log"; DESC="Mozilla install logs"; add_to_delete
-NAME="$PF/MyWebSearch/bar/Cache"; DESC="MyWebSearch bar cache"; add_to_wipe
+NAME="$PF/MyWebSearch/bar/Cache"; DESC="MyWebSearch bar"; add_to_wipe
 NAME="$PF/$MSSQLLOG"; DESC="MSSQL Setup Logs"; add_to_wipe
 NAME="$PF/NortonInstaller"; DESC="Norton Installer"; add_to_wipe
 NAME="$PF/NowUSeeItPlayer"; DESC="NowUSeeItPlayer"; add_to_wipe
@@ -961,7 +978,7 @@ NAME="$ROAM/Kaspersky Lab/KAV.*.*"; DESC="Kaspersky logs"; add_to_delete
 NAME="$ROAM/KeepMySettingsX"; DESC="KeepMySettingsX"; add_to_wipe
 NAME="$ROAM/Kodak/Temp"; DESC="Kodak temporary files"; add_to_wipe
 NAME="$ROAM/Lavasoft/Web Companion/Logs"; DESC="Lavasoft WC Logs"; add_to_wipe
-NAME="$ROAM/Leapfrog/Leapfrog Connect/cache"; DESC="Leapfrog cache"; add_to_wipe
+NAME="$ROAM/Leapfrog/Leapfrog Connect/cache"; DESC="Leapfrog"; add_to_wipe
 NAME="$ROAM/Lenovo/LSC/Local Store/log"; DESC="Lenovo LSC logs"; add_to_wipe
 NAME="$ROAM/*.log"; DESC="Miscellanous logs"; add_to_delete
 NAME="$ROAM/Logs"; DESC="Miscellanous logs"; add_to_wipe
@@ -977,7 +994,7 @@ NAME="$ROAM/McAfee/*/*.log"; DESC="McAfee"; add_to_delete
 NAME="$ROAM/McAfee/*/*Log.txt"; DESC="McAfee"; add_to_delete
 NAME="$ROAM/McAfee.com/*/Logs"; DESC="McAfee"; add_to_wipe
 NAME="$ROAM/McAfee.com/*.log"; DESC="McAfee"; add_to_delete
-NAME="$ROAM/Move Networks/QMCache00"; DESC="Move Media Player cache"; add_to_wipe
+NAME="$ROAM/Move Networks/QMCache00"; DESC="Move Media Player"; add_to_wipe
 NAME="$ROAM/MP3Rocket/tvimages"; DESC="MP3 Rocket"; add_to_wipe
 
 # Mozilla Firefox/Thunderbird, Pale Moon, etc.
@@ -1044,7 +1061,7 @@ NAME="$ROAM/$MS/$WINDEF/Scans"; DESC="Windows Defender"; add_to_wipe
 NAME="$ROAM/$MS/$WINDEF/Support"; DESC="Windows Defender"; add_to_wipe
 NAME="$ROAM/$MS/WLSetup"; DESC="Windows Live setup"; add_to_wipe
 NAME="$ROAM/$MS/Windows Live/Toolbar/Feeds/*.tmp"; DESC="WinLive TB Feeds"; add_to_delete
-NAME="$ROAM/$MS/Works SE"; DESC="MS Works SE ad cache"; add_to_wipe
+NAME="$ROAM/$MS/Works SE"; DESC="MS Works SE"; add_to_wipe
 NAME="$ROAM/$MS/Office/*.tmp"; DESC="MS Office temp files"; add_to_delete
 NAME="$ROAM/$MS/Word/\~*.tmp"; DESC="MS Office temp files"; add_to_delete
 NAME="$ROAM/$MS/Word/*/\~*.tmp"; DESC="MS Office temp files"; add_to_delete
@@ -1114,7 +1131,7 @@ NAME="$ROAM/Skype/temp-*"; DESC="Skype"; add_to_delete
 NAME="$ROAM/Skype/*/media_messaging/emo_cache_v2"; DESC="Skype"; add_to_wipe
 NAME="$ROAM/Skype/Plugins/Local Cache"; DESC="Skype"; add_to_wipe
 NAME="$ROAM/skype.dat"; DESC="VIRUS: skype.dat"; add_to_delete
-NAME="$ROAM/SPORE/GraphicsCache*.package"; DESC="SPORE caches"; add_to_delete
+NAME="$ROAM/SPORE/GraphicsCache*.package"; DESC="SPORE"; add_to_delete
 NAME="$ROAM/$SPYBOTSD"; DESC="Spybot SnD logs"; add_to_wipe
 NAME="$ROAM/Spyware Clear"; DESC="Spyware Clear"; add_to_wipe
 NAME="$ROAM/Spyware Terminator"; DESC="Spyware Terminator"; add_to_wipe
@@ -1158,11 +1175,11 @@ NAME="$ROAM/Yahoo!/Companion"; DESC="Yahoo Companion"; add_to_wipe
 NAME="$P/.thumbnails"; DESC="User thumbnails"; add_to_wipe
 NAME="$P/Cookies"; DESC="IE cookies"; add_to_wipe
 NAME="$P/CyberLink/CLFaceLogin"; DESC="CyberLink logs"; add_to_wipe
-NAME="$P/Music/iTunes/Album Artwork/Cache"; DESC="iTunes caches"; add_to_wipe
-NAME="$P/My Documents/My Music/iTunes/Album Artwork/Cache"; DESC="iTunes caches"; add_to_wipe
+NAME="$P/Music/iTunes/Album Artwork/Cache"; DESC="iTunes"; add_to_wipe
+NAME="$P/My Documents/My Music/iTunes/Album Artwork/Cache"; DESC="iTunes"; add_to_wipe
 NAME="$P/Philips/iSite*"; DESC="Philips iSiteLogs"; add_to_wipe
-NAME="$P/My Documents/My Pictures/iPod Photo Cache"; DESC="iTunes caches"; add_to_wipe
-NAME="$P/Pictures/iPod Photo Cache"; DESC="iTunes caches"; add_to_wipe
+NAME="$P/My Documents/My Pictures/iPod Photo Cache"; DESC="iTunes"; add_to_wipe
+NAME="$P/Pictures/iPod Photo Cache"; DESC="iTunes"; add_to_wipe
 NAME="$P/Recent"; DESC="Recent documents"; add_to_wipe
 NAME="$P/Incomplete"; DESC="LimeWire incompletes"; add_to_wipe
 NAME="$P/IECompatCache"; DESC="IE7 cache"; add_to_wipe
