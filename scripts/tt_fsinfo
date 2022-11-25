@@ -189,7 +189,7 @@ done
 KILL="$(echo /sys/block/md*/slaves/* | tr ' ' '\n' | grep -v '\*' | sed 's#.*/##g' | tr '\n' ' ')"
 
 for X in $(echo /dev/md?* | tr ' ' '\n' | grep -v '\?' | sed s#/dev/##g | tr '\n' ' ')
-	do [ -e /sys/block/$X ] && "$(cat /sys/block/$X/size)" != "0" && RAID="$RAID $X"
+	do [ -e /sys/block/$X ] && [ "$(cat /sys/block/$X/size)" != "0" ] && RAID="$RAID $X"
 done
 
 MOUNTED="$(cut -d" " -f1 < /proc/mounts | grep '^/' | sort | uniq | tr \\n ' ') "
