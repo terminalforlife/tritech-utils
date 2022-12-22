@@ -116,7 +116,7 @@ pv_tail () {
 # Function names called with tempfile name, then device
 test "$1" = "burnin" && burnin "$2"
 test "$1" = "disktest" && disktest "$2" "$3"
-test ! "$1" = "" && echo "Bad argument, aborting." && exit
+test "$1" != "all" && test ! "$1" = "" && echo "Bad argument, aborting." && exit
 
 test ! "$PV" = "1" && echo "${CRED}Error:$CWHT pv$COFF required but not found." && exit 2
 
@@ -140,6 +140,7 @@ for X in /dev/sd? /dev/hd? /dev/mmcblk? /dev/nvme?n?
 	XD=$(echo $X | sed s./dev/..)
 	USB=0; readlink /sys/block/$XD | grep -q "/usb" && USB=1
 	REM=$(cat /sys/block/$XD/removable)
+	[ "$1" = "all" ] && USB=0 && REM=0
 	if [[ $USB -eq 0 && $REM -eq 0 ]]
 		then
 		DSK[$DI]=$X
