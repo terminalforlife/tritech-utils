@@ -253,7 +253,7 @@ setup_internet_connection () {
 # This hackish option is for network cards that refuse
 # to immediately bring up their link correctly.
 if [ "$1" = "--init" ]
-	then echo "$CYELInitializing network connections.$CYEL"
+	then echo "${CYEL}Initializing network connections.$COFF"
 	get_interface_state
 	sleep 1
 	get_interface_state
