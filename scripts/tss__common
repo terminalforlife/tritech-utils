@@ -50,6 +50,8 @@ export THERMAL_SOURCES="
 	/sys/devices/platform/coretemp.0/hwmon/hwmon1/temp2_input
 	/sys/devices/platform/coretemp.0/hwmon/hwmon3/temp2_input
 	/sys/devices/platform/coretemp.0/hwmon/hwmon3/temp1_input
+	/sys/devices/platform/coretemp.0/hwmon/hwmon5/temp2_input
+	/sys/devices/platform/coretemp.0/hwmon/hwmon5/temp1_input
 	/sys/devices/platform/w83627ehf.656/temp2_input
 	/sys/devices/platform/w83627ehf.656/temp1_input
 "
