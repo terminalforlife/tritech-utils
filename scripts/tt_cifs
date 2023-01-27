@@ -12,7 +12,7 @@ test "$1" = "-c" && CV=1
 test "$1" = "-q" && CV=0
 
 test "$CV" = "2" && \
-	echo "${CWHT}TSS CIFS automount version $CGRN$VER$CWHT, updated $CGRN$VERDATE$COFF"
+	echo "${CWHT}TSS CIFS automount version $CCYA$VER $CPUR($VERDATE)$COFF"
 
 # If we have no IP address, just abort
 if ! ip addr show | grep -q 'inet [0-9].*[^l][^o]$'

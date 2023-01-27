@@ -59,7 +59,7 @@ for X in $@
 	esac
 done
 
-echo "${CWHT}Tritech Service System updater $CGRN$VER $CCYA($VERDATE)$COFF"
+echo "${CWHT}Tritech Service System updater $CCYA$VER $CPUR($VERDATE)$COFF"
 
 test $FORCE -eq 1 && echo "${CBLU}Force-installing packages is ${CWHT}enabled$COFF"
 

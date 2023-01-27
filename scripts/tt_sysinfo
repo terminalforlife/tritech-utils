@@ -1,17 +1,16 @@
 #!/bin/bash
 
+# Tool that presents a summary of basic system information/specs
+
 VER="1.19"
 VERDATE="2020-10-22"
-
-#echo "Tritech system info tool $VER, updated on $VERDATE"
-#echo "Copyright (c) by Jody Bruchon <jody@jodybruchon.com>"
-
-# Presents system information
 
 test "$1" = "-c" && export TSSC_AUTO=0
 . tss__common
 . tss_client
 test "$1" = "-c" && unset TSSC_AUTO
+
+echo "${CWHT}Tritech system information tool $CCYA$VER $CPUR($VERDATE)$COFF"
 
 # Verbosity level
 SIV=0

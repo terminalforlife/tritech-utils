@@ -6,7 +6,7 @@ VERDATE="2020-10-02"
 shopt -s nullglob
 . tss__common
 
-echo "${CWHT}Tritech automatic system image drop $CGRN$VER ($VERDATE)$COFF"
+echo "${CWHT}Tritech automatic system image drop $CCYA$VER $CPUR($VERDATE)$COFF"
 
 LZOP=/bin/lzop; test -e /usr/bin/lzop && LZOP=/usr/bin/lzop
 GZIP=/bin/gzip; test -e /usr/bin/gzip && GZIP=/usr/bin/gzip

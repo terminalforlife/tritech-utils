@@ -5,7 +5,7 @@ VERDATE="2020-06-11"
 
 . tss__common
 
-echo "${CWHT}Tritech software package drop tool $VER ($VERDATE)"
+echo "${CWHT}Tritech software package drop tool $CCYA$VER $CPUR($VERDATE)$COFF"
 test ! -x /usr/bin/rsync && echo "${CRED}rsync not found, aborting.$COFF" && exit 1
 
 TSSC_AUTO=0; TSSC_FORCE=1

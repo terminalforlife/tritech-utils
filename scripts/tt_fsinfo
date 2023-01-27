@@ -132,8 +132,7 @@ done
 
 
 if [ "$NP" = "0" ]
-	then echo -n "${CWHT}Tritech filesystem info tool, version "
-	echo "$CCYA$VER$CWHT, last updated $CPUR$VERDATE$COFF"
+	then echo "${CWHT}Tritech filesystem info tool $CCYA$VER $CPUR($VERDATE)$COFF"
 fi
 
 # Detect fdisk binary location

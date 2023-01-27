@@ -11,7 +11,7 @@ VERDATE="2014-06-30"
 
 . tss__common
 
-echo "${CWHT}Tritech Service System Autoruns $CGRN$VER ($VERDATE)$COFF"
+echo "${CWHT}Tritech Service System Autoruns $CCYA$VER $CPUR($VERDATE)$COFF"
 
 clean_exit () {
 	test "$MTD" = "1" && umount -l "$MTPT"

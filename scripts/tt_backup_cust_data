@@ -6,7 +6,7 @@ VERDATE="2022-02-21"
 . tss__common
 . tss_client
 
-echo "${CWHT}Tritech customer data backup/restore tool $VER ($VERDATE)"
+echo "${CWHT}Tritech customer data backup/restore tool $CCYA$VER $CPUR($VERDATE)$COFF"
 test ! -x /usr/bin/rsync && echo "${CRED}rsync not found, aborting.$COFF" && exit 1
 
 BACKUPDIR=customer_backups

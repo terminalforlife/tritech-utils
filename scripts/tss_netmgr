@@ -259,7 +259,7 @@ if [ "$1" = "--init" ]
 	get_interface_state
 	sleep 3
 fi
-echo "${CWHT}TSS network connection manager $VER ($VERDATE)$COFF"
+echo "${CWHT}TSS network connection manager $CCYA$VER $CPUR($VERDATE)$COFF"
 setup_local_loopback
 setup_internet_connection
 TO=$TIMEOUT
