@@ -1,0 +1,40 @@
+#!/bin/sh
+
+# Copy the GPT partition GUID from one partition to another
+# Verified to work with both ATA/SCSI /dev/sda2 and NVMe /dev/nvme0n1p3 style naming
+
+VER=0.1
+VERDATE="2023-01-26"
+
+#. tss__common
+#echo "${CWHT}Tritech Service System GPT GUID copier $CCYA$VER$COFF $CPUR($VERDATE)$COFF"
+echo "Tritech Service System GPT GUID copier $VER ($VERDATE)"$'\n'
+
+[ "$1" = "-h" ] && show_usage && exit 0
+
+SRC="$1"
+DEST="$2"
+SRCDEV="$(echo "$SRC" | sed 's/p*[0-9]$//')"
+DESTDEV="$(echo "$DEST" | sed 's/p*[0-9]$//')"
+SRCNUM="$(echo "$SRC" | sed 's/.*\([0-9]\)$/\1/')"
+DESTNUM="$(echo "$DEST" | sed 's/.*\([0-9]\)$/\1/')"
+
+show_usage () {
+	echo $'\n'"Usage: $0 /dev/source_partition /dev/dest_partition"
+}
+
+[ -z "$SRC" ] && echo "error: source partition not specified" && show_usage && exit 1
+[ -z "$DEST" ] && echo "error: destination partition not specified" && show_usage && exit 1
+[ ! -e "$SRC" ] && echo "error: source partition '$SRC' does not exist" && show_usage && exit 1
+[ ! -e "$DEST" ] && echo "error: destination partition '$DEST' does not exist" && show_usage && exit 1
+[ ! -e "$SRCDEV" ] && echo "error: source device '$SRCDEV' does not exist" && show_usage && exit 1
+[ ! -e "$DESTDEV" ] && echo "error: destination device '$DESTDEV' does not exist" && show_usage && exit 1
+[ "$SRCDEV" = "$DESTDEV" ] && echo "error: source and destination devices must be different" && show_usage && exit 1
+[ "$SRC" = "$SRCDEV" ] && echo "error: source specified must be a partition, not a whole disk" && show_usage && exit 1
+[ "$DEST" = "$DESTDEV" ] && echo "error: destination specified must be a partition, not a whole disk" && show_usage && exit 1
+
+SRCGUID="$(sgdisk -i $SRCNUM $SRCDEV | grep "unique GUID" | cut -d\  -f4)"
+DESTGUID="$(sgdisk -i $DESTNUM $DESTDEV | grep "unique GUID" | cut -d\  -f4)"
+#echo "Debug: $SRC $DEST $SRCDEV $DESTDEV $SRCNUM $DESTNUM $GUID"
+sgdisk -u $DESTNUM:$SRCGUID $DESTDEV
+echo "Replaced $DESTDEV:$DESTNUM:$DESTGUID with $SRCDEV:$SRCNUM:$SRCGUID"
