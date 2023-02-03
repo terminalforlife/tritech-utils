@@ -10,7 +10,7 @@ VERDATE="2022-08-31"
 get_device_info () {
 	REM=9; USB=9; DEVSIZE=0; Z=0; DEVSIZE=0
 	PTTYPE="MBR"
-	tss_file_tool gpt /dev/$1 2>/dev/null | grep -q "yes" && PTTYPE="GPT"
+	tss_file_tool id /dev/$1 2>/dev/null | grep -q "gpt" && PTTYPE="GPT"
 	PTTYPE="${CWHT}[$CBLU$PTTYPE${CWHT}]"
 	# Check if removable and/or USB, or if the drive is an empty card reader
 	# Empty card readers and invalid disk devices have a 9 in the REM/USB type
@@ -159,7 +159,7 @@ for DRIVE in $DRIVES
 	DBN="$(basename $DRIVE)"
 	# Remove drives that have device nodes but the kernel says are bogus
 	test ! -e /sys/block/$DBN && DRIVES="$(echo "$DRIVES" | sed s#$DRIVE##)" && continue
-	if tss_file_tool gpt $DRIVE 2>/dev/null | grep -q "no"
+	if tss_file_tool id $DRIVE 2>/dev/null | grep -qv "gpt"
 		then $FDISK -l $DRIVE 2>/dev/null | grep /dev | \
 			grep -v Disk | tr -d \* | tr -d + | \
 			awk '{ print $1"="$'$FD_FIELD'":"$4 }' >> $PART
@@ -218,10 +218,8 @@ for DRV in $DRIVES
 		echo -en "$CPUR$X: $CGRN$DEVSIZE  $CWHT$PTTYPE  $CRED$TYPE $CCYA$MODEL$DSN2 $CWHT$ATTRIBS$COFF"
 		if [[ "$NP" = "0" && "$NPT" = "1" && "$NPD" = "0" ]]
 			then echo -n " (no partitions)"; NPD=1
-			# For non-partitioned devices, show FS if one is present
-			for FST in ntfs exfat hfsplus fvefs
-				do test $(tss_file_tool $FST /dev/$X) = "yes" && \
-					echo -en "\n$CWHT +-- ${CPUR}Non-partitioned with $CWHT$FST$CPUR filesystem$COFF"
+			# For non-partitioned devices, try to show a filesystem ID if possible
+			echo -en "\n$CWHT +-- ${CPUR}Non-partitioned with $CWHT$(tss_file_tool id /dev/$X)$CPUR filesystem$COFF"
 			done
 		fi
 		echo
@@ -253,7 +251,7 @@ for DRV in $DRIVES
 			FSID=$(echo "$X" | sed 's/^.*=//;s/\..*//;s/:.*//' | tr '[:upper:]' '[:lower:]')
 			expand_fsid "$FSID"
 			echo "$MOUNTED" | grep -q "$DEVICE " && PARTATTR="$PARTATTR${CYEL}[Mounted]$COFF "
-			[[ "$FSID" = "7" || "$FSID" = "0700" ]] && [ $(tss_file_tool fvefs $DEVICE) = "yes" ] && PARTATTR="$PARTATTR$CWHT${BGRED}[Encrypted]$COFF "
+			[[ "$FSID" = "7" || "$FSID" = "0700" ]] && [ $(tss_file_tool id $DEVICE) = "fvefs" ] && PARTATTR="$PARTATTR$CWHT${BGRED}[Encrypted]$COFF "
 			echo "$KILL" | grep -q "$(basename $DEVICE)" || echo "  $CWHT+-- $CPUR$DEVICE  $CGRN$SIZE  $CWHT$FS  $PARTATTR"
 		done
 	fi

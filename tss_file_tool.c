@@ -17,6 +17,7 @@
 #define CHECK_IF_HFSPLUS(a) !strncmp((char *)(a + 1032), "HFSJ", 4)
 #define CHECK_IF_EXFAT(a)   !strncmp((char *)(a + 3), "EXFAT   ", 8)
 #define CHECK_IF_FVEFS(a)   !strncmp((char *)(a + 3), "-FVE-FS-", 8)
+#define CHECK_IF_REG(a)     !strncmp((char *)buffer, "regf", 4)
 
 static inline int change_ntfs_geometry(FILE *fp, uint8_t * const restrict bp, const uint8_t heads)
 {
@@ -47,14 +48,16 @@ int main(const int argc, const char **argv)
 		return EXIT_FAILURE;
 	}
 
-	if (!strcmp(argv[1], "ntfs")) {
-		if (CHECK_IF_NTFS(buffer)) printf("yes\n");
-		else printf("no\n");
-		goto finished;
-	}
-	if (!strcmp(argv[1], "fvefs")) {
-		if (CHECK_IF_FVEFS(buffer)) printf("yes\n");
-		else printf("no\n");
+	if (!strcmp(argv[1], "id")) {
+		if (buffer[450] == 0xEE) { printf("gpt\n"); goto finished; }
+		if (CHECK_IF_NTFS(buffer)) { printf("ntfs\n"); goto finished; }
+		if (CHECK_IF_FVEFS(buffer)) { printf("fvefs\n"); goto finished; }
+		if (buffer[0] == 0x4D && buffer[1] == 0x5A) { printf("winexec\n"); goto finished; }
+		if (CHECK_IF_REG(buffer)) { printf("registry\n"); goto finished; }
+		if (CHECK_IF_HFSPLUS(buffer)) { printf("hfsplus\n"); goto finished; }
+		if (CHECK_IF_EXFAT(buffer)) { printf("exfat\n"); goto finished; }
+		/* Fall through */
+		printf("unknown\n");
 		goto finished;
 	}
 	if (!strcmp(argv[1], "ntfsgeom")) {
@@ -78,39 +81,6 @@ int main(const int argc, const char **argv)
 			goto finished;
 		}
 	}
-	if (!strcmp(argv[1], "gpt")) {
-		if (buffer[450] == 0xEE) printf("yes\n");
-		else printf("no\n");
-		goto finished;
-	}
-	if (!strcmp(argv[1], "winexec")) {
-		if (buffer[0] == 0x4D && buffer[1] == 0x5A) printf("%s\n", argv[2]);
-		else printf("not_winexec\n");
-		goto finished;
-	}
-	if (!strcmp(argv[1], "registry")) {
-		if (!strncmp((char *)buffer, "regf", 4)) printf("yes\n");
-		else printf("no\n");
-		goto finished;
-	}
-	if (!strcmp(argv[1], "hfsplus")) {
-		if (CHECK_IF_HFSPLUS(buffer)) printf("yes\n");
-		else printf("no\n");
-		goto finished;
-	}
-	if (!strcmp(argv[1], "hfsplus_info")) {
-		if (!CHECK_IF_HFSPLUS(buffer)) {
-			fprintf(stderr, "%s is not an HFS+ filesystem\n", argv[2]);
-			exit(EXIT_FAILURE);
-		}
-		printf("not written\n");
-		goto finished;
-	}
-	if (!strcmp(argv[1], "exfat")) {
-		if (CHECK_IF_EXFAT(buffer)) printf("yes\n");
-		else printf("no\n");
-		goto finished;
-	}
 	printf("Unknown command %s\n", argv[1]);
 	fclose(fp);
 	return EXIT_FAILURE;
@@ -122,14 +92,9 @@ usage:
 	fprintf(stderr, "Tritech Service System miscellaneous file tool %s (%s)\n", TRITECH_UTILS_VER, TRITECH_UTILS_DATE);
 	fprintf(stderr, "Usage: %s command dev/device|/path/to/file [hex-head-count]\n\n", argv[0]);
 	fprintf(stderr, "Commands:\n");
-	fprintf(stderr, "gpt         Checks for GPT partitioning\n");
-	fprintf(stderr, "ntfs        Checks for an NTFS filesystem signature\n");
-	fprintf(stderr, "fvefs       Checks for a BitLocker (FVE-FS) signature\n");
-	fprintf(stderr, "hfsplus     Checks for an HFS+ filesystem signature\n");
-	fprintf(stderr, "exfat       Checks for an exFAT filesystem signature\n");
-	fprintf(stderr, "winexec     Checks for a DOS/Windows EXE signature\n");
+	fprintf(stderr, "id          Identifies the filesystem or format of the target\n");
+	fprintf(stderr, "            Recognizes: gpt ntfs fvefs winexec registry hfsplus exfat\n");
 	fprintf(stderr, "ntfsgeom    Change NTFS partition head count; requires two-digit hex head count\n");
-	fprintf(stderr, "registry    Checks if the file is a Windows registry hive\n\n");
 	return EXIT_FAILURE;
 }
 

@@ -34,7 +34,7 @@ check_mounts () {
 scan_partitions () {
 	test ! -e "/dev/$DEV" && echo "scan_partitions: '/dev/$DEV' does not exist" && return 1
 	unset START END TYPE GPT DISK_GUID GUID; CNT=0
-	if [ "$(tss_file_tool gpt /dev/$DEV)" = "yes" ]
+	if [ "$(tss_file_tool id /dev/$DEV)" = "gpt" ]
 		then GPT=1
 		sync
 		sgdisk -e /dev/$DEV 2>/dev/null >/dev/null
@@ -277,7 +277,7 @@ echo "Waiting for new partitions to come up."
 # Change boot sector head counts for NTFS filesystems if not using UEFI
 if [ "$UEFI" = "0" ]
 	then for PARTS in /dev/${DEV}[0-9]*
-		do if [ "$(tss_file_tool ntfs $PARTS)" = "yes" ]
+		do if [ "$(tss_file_tool id $PARTS)" = "ntfs" ]
 			then if ! tss_file_tool ntfsgeom "$PARTS" $XHEADS
 				then echo "Modifying NTFS boot sector geometry failed. Aborting."
 				eval $FAIL_COMMAND &

@@ -11,18 +11,9 @@ tss_file_tool \- Perform various checks on devices/files
 is a quick analysis and simple operation "Swiss Army knife."
 .SH COMMANDS
 .PP
-.I gpt
-checks for GUID Partition Table partitioning as used by EFI/UEFI. Returns
-"yes" if GPT is present or "no" if GPT is not detected.
-.PP
-.I ntfs
-looks for an NTFS filesystem signature. Returns "yes" if one is found.
-.PP
-.I winexec
-checks for the presence of the "MZ" signature indicating a DOS or Windows
-MZ or PE executable file. If found, the file path given to the program
-is returned (useful for shell scripting). If no signature is found, the
-output will be "not_winexec" instead.
+.I id
+attempts to identify the filesystem or file format of the file or device by
+examining known strings in the header.
 .PP
 .I ntfsgeom
 modifies the logical head count number in an NTFS filesystem boot sector.
@@ -31,9 +22,6 @@ sector to match the value reported by the BIOS, or Windows will not boot.
 This utility simplifies changing the value, which normally requires a
 hex editor or very ugly shell scripting kludges.
 .PP
-.I registry
-checks for the presense of the "regf" signature indicating a Windows registry
-hive file. Returns "yes" if the signature is found.
 .SH OPTIONS
 .PP
 .I hex-head-count
