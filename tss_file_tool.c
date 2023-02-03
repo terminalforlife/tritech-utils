@@ -16,6 +16,7 @@
 #define CHECK_IF_NTFS(a)    !strncmp((char *)(a + 3), "NTFS", 4)
 #define CHECK_IF_HFSPLUS(a) !strncmp((char *)(a + 1032), "HFSJ", 4)
 #define CHECK_IF_EXFAT(a)   !strncmp((char *)(a + 3), "EXFAT   ", 8)
+#define CHECK_IF_FVEFS(a)   !strncmp((char *)(a + 3), "-FVE-FS-", 8)
 
 static inline int change_ntfs_geometry(FILE *fp, uint8_t * const restrict bp, const uint8_t heads)
 {
@@ -49,7 +50,14 @@ int main(const int argc, const char **argv)
 	if (!strcmp(argv[1], "ntfs")) {
 		if (CHECK_IF_NTFS(buffer)) printf("yes\n");
 		else printf("no\n");
-	} else if (!strcmp(argv[1], "ntfsgeom")) {
+		goto finished;
+	}
+	if (!strcmp(argv[1], "fvefs")) {
+		if (CHECK_IF_FVEFS(buffer)) printf("yes\n");
+		else printf("no\n");
+		goto finished;
+	}
+	if (!strcmp(argv[1], "ntfsgeom")) {
 		if (argc != 4) goto usage;
 		/* Convert heads from command line and verify validity */
 		if (strlen(argv[3]) != 2) goto usage;
@@ -67,33 +75,46 @@ int main(const int argc, const char **argv)
 			return EXIT_FAILURE;
 		} else {
 			printf("Geometry change for %s: %d heads\n", argv[2], heads);
+			goto finished;
 		}
-	} else if (!strcmp(argv[1], "gpt")) {
+	}
+	if (!strcmp(argv[1], "gpt")) {
 		if (buffer[450] == 0xEE) printf("yes\n");
 		else printf("no\n");
-	} else if (!strcmp(argv[1], "winexec")) {
+		goto finished;
+	}
+	if (!strcmp(argv[1], "winexec")) {
 		if (buffer[0] == 0x4D && buffer[1] == 0x5A) printf("%s\n", argv[2]);
 		else printf("not_winexec\n");
-	} else if (!strcmp(argv[1], "registry")) {
+		goto finished;
+	}
+	if (!strcmp(argv[1], "registry")) {
 		if (!strncmp((char *)buffer, "regf", 4)) printf("yes\n");
 		else printf("no\n");
-	} else if (!strcmp(argv[1], "hfsplus")) {
+		goto finished;
+	}
+	if (!strcmp(argv[1], "hfsplus")) {
 		if (CHECK_IF_HFSPLUS(buffer)) printf("yes\n");
 		else printf("no\n");
-	} else if (!strcmp(argv[1], "hfsplus_info")) {
+		goto finished;
+	}
+	if (!strcmp(argv[1], "hfsplus_info")) {
 		if (!CHECK_IF_HFSPLUS(buffer)) {
 			fprintf(stderr, "%s is not an HFS+ filesystem\n", argv[2]);
 			exit(EXIT_FAILURE);
 		}
 		printf("not written\n");
-	} else if (!strcmp(argv[1], "exfat")) {
+		goto finished;
+	}
+	if (!strcmp(argv[1], "exfat")) {
 		if (CHECK_IF_EXFAT(buffer)) printf("yes\n");
 		else printf("no\n");
-	} else {
-		printf("Unknown command %s\n", argv[1]);
-		fclose(fp);
-		return EXIT_FAILURE;
+		goto finished;
 	}
+	printf("Unknown command %s\n", argv[1]);
+	fclose(fp);
+	return EXIT_FAILURE;
+finished:
 	fclose(fp);
 	return EXIT_SUCCESS;
 
@@ -103,6 +124,7 @@ usage:
 	fprintf(stderr, "Commands:\n");
 	fprintf(stderr, "gpt         Checks for GPT partitioning\n");
 	fprintf(stderr, "ntfs        Checks for an NTFS filesystem signature\n");
+	fprintf(stderr, "fvefs       Checks for a BitLocker (FVE-FS) signature\n");
 	fprintf(stderr, "hfsplus     Checks for an HFS+ filesystem signature\n");
 	fprintf(stderr, "exfat       Checks for an exFAT filesystem signature\n");
 	fprintf(stderr, "winexec     Checks for a DOS/Windows EXE signature\n");

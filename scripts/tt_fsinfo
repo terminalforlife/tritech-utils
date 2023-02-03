@@ -219,7 +219,7 @@ for DRV in $DRIVES
 		if [[ "$NP" = "0" && "$NPT" = "1" && "$NPD" = "0" ]]
 			then echo -n " (no partitions)"; NPD=1
 			# For non-partitioned devices, show FS if one is present
-			for FST in ntfs exfat hfsplus
+			for FST in ntfs exfat hfsplus fvefs
 				do test $(tss_file_tool $FST /dev/$X) = "yes" && \
 					echo -en "\n$CWHT +-- ${CPUR}Non-partitioned with $CWHT$FST$CPUR filesystem$COFF"
 			done
@@ -253,6 +253,7 @@ for DRV in $DRIVES
 			FSID=$(echo "$X" | sed 's/^.*=//;s/\..*//;s/:.*//' | tr '[:upper:]' '[:lower:]')
 			expand_fsid "$FSID"
 			echo "$MOUNTED" | grep -q "$DEVICE " && PARTATTR="$PARTATTR${CYEL}[Mounted]$COFF "
+			[[ "$FSID" = "7" || "$FSID" = "0700" ]] && [ $(tss_file_tool fvefs $DEVICE) = "yes" ] && PARTATTR="$PARTATTR$CWHT${BGRED}[Encrypted]$COFF "
 			echo "$KILL" | grep -q "$(basename $DEVICE)" || echo "  $CWHT+-- $CPUR$DEVICE  $CGRN$SIZE  $CWHT$FS  $PARTATTR"
 		done
 	fi

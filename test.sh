@@ -30,6 +30,18 @@ if [ "$(./tss_file_tool ntfs test/gpt)" = "no" ]
 	else echo "broken" && ERR=1
 fi
 
+echo -n "tss_file_tool FVEFS yes:    "
+if [ "$(./tss_file_tool fvefs test/fvefs)" = "yes" ]
+	then echo "OK"
+	else echo "broken" && ERR=1
+fi
+
+echo -n "tss_file_tool FVEFS no:     "
+if [ "$(./tss_file_tool fvefs test/ntfs)" = "no" ]
+	then echo "OK"
+	else echo "broken" && ERR=1
+fi
+
 echo -n "tss_file_tool HFS+ yes:     "
 if [ "$(./tss_file_tool hfsplus test/hfsplus)" = "yes" ]
 	then echo "OK"
