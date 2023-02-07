@@ -87,6 +87,7 @@ install: tritech-utils manual
 	install -D -o root -g root -m 0755 scripts/tt_find_executables $(DESTDIR)/$(bindir)/tt_find_executables
 	install -D -o root -g root -m 0755 scripts/tt_fsinfo $(DESTDIR)/$(bindir)/tt_fsinfo
 	install -D -o root -g root -m 0755 scripts/tt_geometry $(DESTDIR)/$(bindir)/tt_geometry
+	install -D -o root -g root -m 0755 scripts/tt_guid_copy $(DESTDIR)/$(bindir)/tt_guid_copy
 	install -D -o root -g root -m 0755 scripts/tt_imagedrop $(DESTDIR)/$(bindir)/tt_imagedrop
 	install -D -o root -g root -m 0755 scripts/tt_instance_finder $(DESTDIR)/$(bindir)/tt_instance_finder
 	install -D -o root -g root -m 0755 scripts/tt_mpkg $(DESTDIR)/$(bindir)/tt_mpkg
