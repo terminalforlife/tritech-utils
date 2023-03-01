@@ -38,6 +38,15 @@ trap control_c INT
 NODEL=0; MSG=2; DEBUG=0; NOSIZE=0; NOFILESCAN=0
 unset FORCED NOREPORT
 
+### Scan for 2000/XP or Vista/7 or Mac OS X and set folders accordingly
+export V7=0
+export OSX=0
+export UPF=0
+export LOCAL=__NONE__
+export ROAM=__NONE__
+export LIBRARY=__NONE__
+OSYS="None"
+
 # Parse command line parameters
 for X in $@
 	do if [[ "$X" = "-h" || "$X" = "--help" ]]
@@ -79,15 +88,6 @@ for X in $@
 	test "$X" = "--osx" && export OSX=1 && FORCED=1
 	test "$X" = "--no-report" && NOREPORT=1
 done
-
-### Scan for 2000/XP or Vista/7 or Mac OS X and set folders accordingly
-export V7=0
-export OSX=0
-export UPF=0
-export LOCAL=__NONE__
-export ROAM=__NONE__
-export LIBRARY=__NONE__
-OSYS="None"
 
 # Skip OS structure checks if forced
 if [ -z "$FORCED" ]
@@ -1276,6 +1276,7 @@ NAME="tmpgfile.sys"; DESC="Paging file"; add_to_delete
 NAME="TMPGFILE.SYS"; DESC="Paging file"; add_to_delete
 NAME="swapfile.sys"; DESC="Paging file"; add_to_delete
 NAME="SWAPFILE.SYS"; DESC="Paging file"; add_to_delete
+NAME="WinPEpge.sys"; DESC="Paging file"; add_to_delete
 NAME="hiberfil.sys"; DESC="Hibernation file"; add_to_delete
 NAME="HIBERFIL.SYS"; DESC="Hibernation file"; add_to_delete
 NAME="SYSTEM.SAV/Logs"; DESC="Miscellaneous logs"; add_to_wipe
