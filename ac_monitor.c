@@ -3,20 +3,21 @@
  * Copyright (C) by Jody Bruchon <jody@jodybruchon.com>
  */
 
+#include <dirent.h>
+#include <errno.h>
 #include <fcntl.h>
 #include <getopt.h>
+#include <limits.h>
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 #include <time.h>
-#include <errno.h>
-#include <dirent.h>
-#include <sys/ioctl.h>
-#include <sys/types.h>
-#include <sys/stat.h>
+#include <unistd.h>
 #include <linux/kd.h>
+#include <sys/ioctl.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 #include "version.h"
 
 #ifndef CLOCK_TICK_RATE
