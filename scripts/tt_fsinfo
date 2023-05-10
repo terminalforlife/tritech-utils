@@ -146,7 +146,7 @@ FD_FIELD=5; FD_MULT=1024
 $FDISK -V 2>/dev/null | grep -q 'util-linux' && FD_FIELD=6 && FD_MULT=512
 
 PART=$(mktemp)
-DRIVES="$(echo /dev/sd? /dev/hd? /dev/mmcblk? /dev/nvme?n? | tr ' ' '\n' | grep -v '\?' | sort)"
+DRIVES="$(echo /dev/sd? /dev/hd? /dev/mmcblk? /dev/nvme?n? | tr ' ' '\n' | grep -v '?' | sort)"
 
 if [ -z "$DRIVES" ]
 	then echo -e "\n${CYEL}No drives were detected on this computer!  ${CWHT}:-($COFF\n"
@@ -187,7 +187,7 @@ done
 # Load all RAID slaves and prevent their individual display
 KILL="$(echo /sys/block/md*/slaves/* | tr ' ' '\n' | grep -v '\*' | sed 's#.*/##g' | tr '\n' ' ')"
 
-for X in $(echo /dev/md?* | tr ' ' '\n' | grep -v '\?' | sed s#/dev/##g | tr '\n' ' ')
+for X in $(echo /dev/md?* | tr ' ' '\n' | grep -v '?' | sed s#/dev/##g | tr '\n' ' ')
 	do [ -e /sys/block/$X ] && [ "$(cat /sys/block/$X/size)" != "0" ] && RAID="$RAID $X"
 done
 
